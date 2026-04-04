@@ -15,6 +15,7 @@ import {
 	selectEvent, applyEventChoice,
 } from './events.js';
 import * as ui from './ui.js';
+import type { ChoiceOption } from './ui.js';
 import {
 	generateTeamPalette, generateNFLPalette,
 	applyPalette, resetToDefault,
@@ -24,6 +25,10 @@ import {
 	calculateDraftStock, generateNILDeal, applyCollegeChoice,
 	checkDeclarationEligibility, CollegeChoice,
 } from './college.js';
+import {
+	simulateNFLSeason, getNFLMidseasonEvent, applyNFLEventChoice,
+	checkRetirement,
+} from './nfl.js';
 
 // Name lists loaded from CSV files
 let firstNameList: string[] = [];
@@ -145,9 +150,9 @@ async function initGame(): Promise<void> {
 			addStoryHeadline('Welcome Back');
 			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
 				+ `Age ${currentPlayer.age}`);
-			updateAllStatBars(currentPlayer);
-			updateHeader(currentPlayer);
-			showChoices([
+			ui.updateAllStats(currentPlayer);
+			ui.updateHeader(currentPlayer);
+			ui.showChoices([
 				{ text: 'Continue Game', primary: true, action: resumeGame },
 				{ text: 'Start New Game', primary: false, action: confirmNewGame },
 			]);
@@ -159,7 +164,7 @@ async function initGame(): Promise<void> {
 	addStoryHeadline('Welcome to Gridiron Life');
 	addStoryText('Your football career begins now. From backyard games to the big '
 		+ 'leagues, every choice shapes your story.');
-	showChoices([
+	ui.showChoices([
 		{ text: 'Start New Game', primary: true, action: startCharacterCreation },
 	]);
 }
@@ -169,7 +174,7 @@ function confirmNewGame(): void {
 	clearStory();
 	addStoryHeadline('Start Over?');
 	addStoryText('This will erase your current career. Are you sure?');
-	showChoices([
+	ui.showChoices([
 		{ text: 'Yes, Start Fresh', primary: true, action: () => {
 			deleteSave();
 			currentPlayer = null;
@@ -249,8 +254,8 @@ function startNewGame(firstName: string, lastName: string): void {
 	wonStateThisSeason = false;
 
 	// Update UI with birth stats
-	updateAllStatBars(currentPlayer);
-	updateHeader(currentPlayer);
+	ui.updateAllStats(currentPlayer);
+	ui.updateHeader(currentPlayer);
 
 	// Save immediately
 	saveGame(currentPlayer);
@@ -278,7 +283,7 @@ function startNewGame(firstName: string, lastName: string): void {
 	const sizeDesc = getSizeDescription(currentPlayer.hidden.size);
 	addStoryText(sizeDesc);
 
-	showChoices([
+	ui.showChoices([
 		{ text: 'Continue...', primary: true, action: advanceChildhood },
 	]);
 }
@@ -311,8 +316,8 @@ function advanceChildhood(): void {
 	saveGame(currentPlayer);
 
 	// Update UI
-	updateAllStatBars(currentPlayer);
-	updateHeader(currentPlayer);
+	ui.updateAllStats(currentPlayer);
+	ui.updateHeader(currentPlayer);
 	clearStory();
 
 	// Check if ready for youth football
@@ -321,7 +326,7 @@ function advanceChildhood(): void {
 		addStoryText('Your friends are signing up for youth football. '
 			+ 'You have been watching games on TV for years. '
 			+ 'This could be the start of something big.');
-		showChoices([
+		ui.showChoices([
 			{ text: 'Sign up for football!', primary: true, action: startYouthFootball },
 			{ text: 'Not yet...', primary: false, action: advanceChildhood },
 		]);
@@ -334,7 +339,7 @@ function advanceChildhood(): void {
 	addStoryText(event.text);
 
 	if (event.choices) {
-		showChoices(event.choices.map(choice => ({
+		ui.showChoices(event.choices.map(choice => ({
 			text: choice.text,
 			primary: choice.primary || false,
 			action: () => {
@@ -349,16 +354,16 @@ function advanceChildhood(): void {
 				if (choice.flavor) {
 					addStoryText(choice.flavor);
 				}
-				updateAllStatBars(currentPlayer!);
+				ui.updateAllStats(currentPlayer!);
 				saveGame(currentPlayer!);
 				// Show continue button
-				showChoices([
+				ui.showChoices([
 					{ text: 'Continue...', primary: true, action: advanceChildhood },
 				]);
 			},
 		})));
 	} else {
-		showChoices([
+		ui.showChoices([
 			{ text: 'Continue...', primary: true, action: advanceChildhood },
 		]);
 	}
@@ -562,7 +567,7 @@ function startYouthFootball(): void {
 	addStoryText('You signed up for the youth league. Time to find out what you are made of.');
 	addStoryText('The coaches will figure out where you belong on the field.');
 
-	showChoices([
+	ui.showChoices([
 		{ text: 'Hit the field!', primary: true, action: advanceYouthSeason },
 	]);
 }
@@ -585,8 +590,8 @@ function advanceYouthSeason(): void {
 	currentPlayer.core.confidence = clampStat(currentPlayer.core.confidence + randomInRange(1, 4));
 
 	saveGame(currentPlayer);
-	updateAllStatBars(currentPlayer);
-	updateHeader(currentPlayer);
+	ui.updateAllStats(currentPlayer);
+	ui.updateHeader(currentPlayer);
 	clearStory();
 
 	// Check if ready for high school
@@ -595,7 +600,7 @@ function advanceYouthSeason(): void {
 		addStoryText('You made it through youth football. Now the real competition begins.');
 		addStoryText('High school tryouts are next week. This is where careers start.');
 
-		showChoices([
+		ui.showChoices([
 			{ text: 'Time for high school football!', primary: true, action: startHighSchool },
 		]);
 		return;
@@ -607,7 +612,7 @@ function advanceYouthSeason(): void {
 	addStoryText(youthEvent.text);
 
 	if (youthEvent.choices) {
-		showChoices(youthEvent.choices.map(choice => ({
+		ui.showChoices(youthEvent.choices.map(choice => ({
 			text: choice.text,
 			primary: choice.primary || false,
 			action: () => {
@@ -620,15 +625,15 @@ function advanceYouthSeason(): void {
 				if (choice.flavor) {
 					addStoryText(choice.flavor);
 				}
-				updateAllStatBars(currentPlayer!);
+				ui.updateAllStats(currentPlayer!);
 				saveGame(currentPlayer!);
-				showChoices([
+				ui.showChoices([
 					{ text: 'Next Season...', primary: true, action: advanceYouthSeason },
 				]);
 			},
 		})));
 	} else {
-		showChoices([
+		ui.showChoices([
 			{ text: 'Next Season...', primary: true, action: advanceYouthSeason },
 		]);
 	}
@@ -726,7 +731,7 @@ function startHighSchool(): void {
 	const suggested = suggestPosition(currentPlayer);
 	addStoryText(`Based on your build and skills, Coach thinks you would be a good fit at ${suggested}.`);
 
-	showChoices([
+	ui.showChoices([
 		{
 			text: `Play ${suggested}`,
 			primary: true,
@@ -804,7 +809,7 @@ function showPositionChoices(): void {
 		{ pos: 'K', label: 'Kicker' },
 	];
 
-	showChoices(positions.map(p => ({
+	ui.showChoices(positions.map(p => ({
 		text: p.label,
 		primary: false,
 		action: () => setPositionAndContinue(p.pos),
@@ -826,7 +831,7 @@ function setPositionAndContinue(position: Position): void {
 	currentPlayer.bigDecisions.push(`Chose to play ${position} in high school`);
 
 	saveGame(currentPlayer);
-	updateHeader(currentPlayer);
+	ui.updateHeader(currentPlayer);
 
 	clearStory();
 	addStoryHeadline(`You are a ${position}`);
@@ -834,7 +839,7 @@ function setPositionAndContinue(position: Position): void {
 		+ 'The seniors barely look at you. You are at the bottom of the depth chart.');
 	addStoryText('But everyone starts somewhere.');
 
-	showChoices([
+	ui.showChoices([
 		{ text: 'Start the season', primary: true, action: startHighSchoolSeason },
 	]);
 }
@@ -850,8 +855,8 @@ function resumeGame(): void {
 	if (currentPlayer.teamPalette) {
 		applyPalette(currentPlayer.teamPalette);
 	}
-	updateAllStatBars(currentPlayer);
-	updateHeader(currentPlayer);
+	ui.updateAllStats(currentPlayer);
+	ui.updateHeader(currentPlayer);
 
 	// Route to the correct phase
 	switch (currentPlayer.phase) {
@@ -866,7 +871,7 @@ function resumeGame(): void {
 			addStoryHeadline('Welcome Back');
 			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
 				+ `${currentPlayer.position || 'Undecided'}, Age ${currentPlayer.age}`);
-			showChoices([
+			ui.showChoices([
 				{ text: 'Continue Season', primary: true, action: startHighSchoolSeason },
 			]);
 			break;
@@ -875,7 +880,7 @@ function resumeGame(): void {
 			addStoryHeadline('Welcome Back');
 			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
 				+ `Age ${currentPlayer.age} - College`);
-			showChoices([
+			ui.showChoices([
 				{ text: 'Continue College', primary: true, action: beginCollege },
 			]);
 			break;
@@ -884,130 +889,22 @@ function resumeGame(): void {
 			addStoryHeadline('Welcome Back');
 			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
 				+ `Age ${currentPlayer.age} - ${currentPlayer.teamName || 'NFL'}`);
-			showChoices([
+			ui.showChoices([
 				{ text: 'Continue NFL Career', primary: true, action: playNFLSeason },
 			]);
 			break;
 		case 'legacy':
 			clearStory();
 			addStoryHeadline('Career Complete');
-			showChoices([
+			ui.showChoices([
 				{ text: 'View Legacy', primary: true, action: retirePlayer },
 			]);
 			break;
 		default:
 			clearStory();
 			addStoryHeadline('Welcome Back');
-			showChoices([]);
+			ui.showChoices([]);
 			break;
-	}
-}
-
-//============================================
-// UI Helper functions
-//============================================
-
-interface ChoiceOption {
-	text: string;
-	primary?: boolean;
-	action: () => void;
-}
-
-//============================================
-function showChoices(options: ChoiceOption[]): void {
-	const panel = document.getElementById('choices-panel');
-	if (!panel) {
-		return;
-	}
-	panel.innerHTML = '';
-
-	for (const option of options) {
-		const button = document.createElement('button');
-		button.className = 'choice-button';
-		if (option.primary) {
-			button.classList.add('primary');
-		}
-		button.textContent = option.text;
-		button.addEventListener('click', option.action);
-		panel.appendChild(button);
-	}
-
-	// BUG FIX 2: Auto-scroll story panel after rendering choices
-	const storyPanel = document.getElementById('story-panel');
-	if (storyPanel) {
-		requestAnimationFrame(() => {
-			storyPanel.scrollTop = storyPanel.scrollHeight;
-		});
-	}
-}
-
-//============================================
-function updateStatBar(statName: string, value: number): void {
-	const clamped = clampStat(value);
-
-	const bar = document.getElementById(`bar-${statName}`);
-	if (bar) {
-		bar.style.width = `${clamped}%`;
-		bar.className = 'stat-fill';
-		if (clamped >= 70) {
-			bar.classList.add('stat-high');
-		} else if (clamped >= 40) {
-			bar.classList.add('stat-mid');
-		} else {
-			bar.classList.add('stat-low');
-		}
-	}
-
-	const val = document.getElementById(`val-${statName}`);
-	if (val) {
-		val.textContent = String(clamped);
-	}
-}
-
-//============================================
-function updateAllStatBars(player: Player): void {
-	updateStatBar('athleticism', player.core.athleticism);
-	updateStatBar('technique', player.core.technique);
-	updateStatBar('footballIq', player.core.footballIq);
-	updateStatBar('discipline', player.core.discipline);
-	updateStatBar('health', player.core.health);
-	updateStatBar('confidence', player.core.confidence);
-	updateStatBar('popularity', player.career.popularity);
-}
-
-//============================================
-function updateHeader(player: Player): void {
-	const nameEl = document.getElementById('player-name');
-	if (nameEl) {
-		nameEl.textContent = `${player.firstName} ${player.lastName}`;
-	}
-
-	const posEl = document.getElementById('player-position');
-	if (posEl) {
-		posEl.textContent = player.position ? player.position : '';
-	}
-
-	const teamEl = document.getElementById('player-team');
-	if (teamEl) {
-		teamEl.textContent = player.teamName || '';
-	}
-
-	const ageEl = document.getElementById('player-age');
-	if (ageEl) {
-		ageEl.textContent = `Age: ${player.age}`;
-	}
-
-	const weekEl = document.getElementById('player-week');
-	if (weekEl) {
-		const phaseLabels: Record<CareerPhase, string> = {
-			childhood: 'Childhood',
-			youth: 'Youth Football',
-			high_school: 'High School',
-			college: 'College',
-			nfl: 'NFL',
-			legacy: 'Legend',
-		};
-		weekEl.textContent = phaseLabels[player.phase];
 	}
 }
 
@@ -1145,8 +1042,8 @@ async function startHighSchoolSeason(): Promise<void> {
 	wonStateThisSeason = false;
 
 	saveGame(currentPlayer);
-	updateHeader(currentPlayer);
-	updateAllStatBars(currentPlayer);
+	ui.updateHeader(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 
 	clearStory();
 	addStoryHeadline(
@@ -1171,7 +1068,7 @@ async function startHighSchoolSeason(): Promise<void> {
 			: ''
 	);
 
-	showChoices([
+	ui.showChoices([
 		{ text: 'Begin Preseason', primary: true, action: startPreseason },
 	]);
 }
@@ -1204,7 +1101,7 @@ function startPreseason(): void {
 			'You are a backup looking to earn your shot as a starter. '
 			+ 'Everyone is watching. What is your strategy?'
 		);
-		showChoices([
+		ui.showChoices([
 			{
 				text: 'Outwork everyone at practice',
 				primary: false,
@@ -1235,7 +1132,7 @@ function startPreseason(): void {
 			'You are the starter. Now it is about staying sharp and '
 			+ 'staying healthy.'
 		);
-		showChoices([
+		ui.showChoices([
 			{
 				text: 'Move to Week 0',
 				primary: true,
@@ -1258,7 +1155,7 @@ function handleTryoutChoice(strategy: string, effects: Record<string, number>): 
 			currentPlayer.core[key] = clampStat(currentPlayer.core[key] + delta);
 		}
 	}
-	updateAllStatBars(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 	saveGame(currentPlayer);
 
 	// Flavor text for each choice
@@ -1305,9 +1202,9 @@ function handleTryoutChoice(strategy: string, effects: Record<string, number>): 
 	}
 
 	saveGame(currentPlayer);
-	updateAllStatBars(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 
-	showChoices([
+	ui.showChoices([
 		{
 			text: 'Move to Week 0',
 			primary: true,
@@ -1345,9 +1242,9 @@ function preseassonFirstScrimmage(): void {
 		currentPlayer.core.confidence + randomInRange(1, 2)
 	);
 	saveGame(currentPlayer);
-	updateAllStatBars(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 
-	showChoices([
+	ui.showChoices([
 		{
 			text: 'Begin Regular Season',
 			primary: true,
@@ -1399,7 +1296,7 @@ function showWeeklyFocusUI(): void {
 		{ text: 'Teamwork', key: 'teamwork' },
 	];
 
-	showChoices(focusOptions.map(opt => ({
+	ui.showChoices(focusOptions.map(opt => ({
 		text: opt.text,
 		primary: false,
 		action: () => handleWeeklyFocus(opt.key),
@@ -1415,7 +1312,7 @@ function handleWeeklyFocus(focus: WeeklyFocus): void {
 	// Apply focus and get story text
 	const focusStory = applyWeeklyFocus(currentPlayer, focus);
 	addStoryText(focusStory);
-	updateAllStatBars(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 	saveGame(currentPlayer);
 
 	// Step 2: check for random event (35% chance)
@@ -1468,11 +1365,11 @@ function showEventCard(event: GameEvent): void {
 			// Show the outcome
 			addStoryHeadline(event.title);
 			addStoryText(flavor);
-			updateAllStatBars(currentPlayer!);
+			ui.updateAllStats(currentPlayer!);
 			saveGame(currentPlayer!);
 
 			// Continue to game day
-			showChoices([
+			ui.showChoices([
 				{ text: 'Game Day', primary: true, action: proceedToGameDay },
 			]);
 		},
@@ -1569,7 +1466,7 @@ function proceedToGameDay(): void {
 	}
 
 	saveGame(currentPlayer);
-	updateAllStatBars(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 
 	// Display game result
 	clearStory();
@@ -1603,11 +1500,11 @@ function proceedToGameDay(): void {
 
 	// Check if season is over
 	if (currentPlayer.currentWeek >= HS_SEASON_WEEKS) {
-		showChoices([
+		ui.showChoices([
 			{ text: 'Season Summary', primary: true, action: endSeason },
 		]);
 	} else {
-		showChoices([
+		ui.showChoices([
 			{ text: 'Next Week', primary: true, action: startWeek },
 		]);
 	}
@@ -1622,7 +1519,7 @@ function endSeason(): void {
 	// Check for playoffs
 	if (currentTeam.wins >= 6) {
 		// Team qualifies for playoffs
-		showChoices([
+		ui.showChoices([
 			{
 				text: 'Playoff Time!',
 				primary: true,
@@ -1688,9 +1585,9 @@ function playPlayoffGame(playoffRound: number): void {
 		}
 
 		saveGame(currentPlayer);
-		updateAllStatBars(currentPlayer);
+		ui.updateAllStats(currentPlayer);
 
-		showChoices([
+		ui.showChoices([
 			{
 				text: 'End Season',
 				primary: true,
@@ -1725,7 +1622,7 @@ function playPlayoffGame(playoffRound: number): void {
 
 	// Weekly focus before playoff game
 	addStoryText('What do you focus on this week?');
-	showChoices([
+	ui.showChoices([
 		{
 			text: 'Train',
 			primary: false,
@@ -1757,7 +1654,7 @@ function preparePlayoffGame(
 	// Apply weekly focus
 	const focusStory = applyWeeklyFocus(currentPlayer, focus);
 	addStoryText(focusStory);
-	updateAllStatBars(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 	saveGame(currentPlayer);
 
 	// Simulate playoff game
@@ -1788,7 +1685,7 @@ function preparePlayoffGame(
 	}
 
 	saveGame(currentPlayer);
-	updateAllStatBars(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 
 	clearStory();
 	const roundNames = ['Regional Playoff', 'State Semifinal', 'State Final'];
@@ -1810,7 +1707,7 @@ function preparePlayoffGame(
 			currentPlayer.core.confidence + randomInRange(2, 4)
 		);
 
-		showChoices([
+		ui.showChoices([
 			{
 				text: 'Advance',
 				primary: true,
@@ -1824,7 +1721,7 @@ function preparePlayoffGame(
 			currentPlayer.core.confidence + randomInRange(-3, 0)
 		);
 
-		showChoices([
+		ui.showChoices([
 			{
 				text: 'End Season',
 				primary: true,
@@ -1963,11 +1860,11 @@ function completeSeasonSummary(): void {
 	currentPlayer.seasonYear += 1;
 	currentPlayer.currentWeek = 0;
 	saveGame(currentPlayer);
-	updateHeader(currentPlayer);
+	ui.updateHeader(currentPlayer);
 
 	// Check if high school is over (age 18 = graduated)
 	if (currentPlayer.age >= 18) {
-		showChoices([
+		ui.showChoices([
 			{
 				text: 'Graduate and move on',
 				primary: true,
@@ -1975,7 +1872,7 @@ function completeSeasonSummary(): void {
 			},
 		]);
 	} else {
-		showChoices([
+		ui.showChoices([
 			{
 				text: 'Start next season',
 				primary: true,
@@ -2016,7 +1913,7 @@ function graduateHighSchool(): void {
 
 	addStoryText('The next chapter begins...');
 
-	showChoices([
+	ui.showChoices([
 		{
 			text: 'Head to college',
 			primary: true,
@@ -2029,7 +1926,6 @@ function graduateHighSchool(): void {
 // COLLEGE PHASE - weekly loop like high school
 //============================================
 
-let collegeYear = 0;
 let collegeTeam: Team | null = null;
 const COLLEGE_SEASON_WEEKS = 12;
 
@@ -2039,7 +1935,7 @@ function beginCollege(): void {
 		return;
 	}
 
-	collegeYear = 0;
+	currentPlayer.collegeYear = 0;
 	collegeTeam = null;
 	// Reset high school team when entering college
 	persistentHSTeam = null;
@@ -2059,9 +1955,9 @@ function beginCollege(): void {
 	// Player starts as backup in college (earn your spot again)
 	currentPlayer.depthChart = 'backup';
 	saveGame(currentPlayer);
-	updateHeader(currentPlayer);
+	ui.updateHeader(currentPlayer);
 
-	showChoices([
+	ui.showChoices([
 		{ text: 'Start Freshman Season', primary: true, action: startCollegeSeason },
 	]);
 }
@@ -2072,7 +1968,7 @@ function startCollegeSeason(): void {
 		return;
 	}
 
-	collegeYear += 1;
+	currentPlayer.collegeYear += 1;
 	currentPlayer.age += 1;
 	currentPlayer.currentSeason += 1;
 	currentPlayer.currentWeek = 0;
@@ -2095,7 +1991,7 @@ function startCollegeSeason(): void {
 
 	clearStory();
 	const yearLabels = ['Freshman', 'Sophomore', 'Junior', 'Senior'];
-	const yearLabel = yearLabels[collegeYear - 1] || `Year ${collegeYear}`;
+	const yearLabel = yearLabels[currentPlayer.collegeYear - 1] || `Year ${currentPlayer.collegeYear}`;
 	addStoryHeadline(`College ${yearLabel} Season`);
 	addStoryText(
 		`${currentPlayer.teamName} - ${yearLabel} year. `
@@ -2103,7 +1999,7 @@ function startCollegeSeason(): void {
 	);
 
 	// Promotion check at start of season
-	if (collegeYear >= 2 && currentPlayer.depthChart === 'backup') {
+	if (currentPlayer.collegeYear >= 2 && currentPlayer.depthChart === 'backup') {
 		if (currentPlayer.core.technique >= 50
 			&& currentPlayer.core.confidence >= 45) {
 			currentPlayer.depthChart = 'starter';
@@ -2119,10 +2015,10 @@ function startCollegeSeason(): void {
 	}
 
 	saveGame(currentPlayer);
-	updateHeader(currentPlayer);
-	updateAllStatBars(currentPlayer);
+	ui.updateHeader(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 
-	showChoices([
+	ui.showChoices([
 		{ text: 'Begin Week 1', primary: true, action: startCollegeWeek },
 	]);
 }
@@ -2163,7 +2059,7 @@ function showWeeklyFocusUI_College(): void {
 		{ text: 'Teamwork', key: 'teamwork' },
 	];
 
-	showChoices(focusOptions.map(opt => ({
+	ui.showChoices(focusOptions.map(opt => ({
 		text: opt.text,
 		primary: false,
 		action: () => handleCollegeWeeklyFocus(opt.key),
@@ -2179,11 +2075,11 @@ function handleCollegeWeeklyFocus(focus: WeeklyFocus): void {
 	// Apply focus and get story text
 	const focusStory = applyWeeklyFocus(currentPlayer, focus);
 	addStoryText(focusStory);
-	updateAllStatBars(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 	saveGame(currentPlayer);
 
 	// Check for NIL deal on social focus
-	if (focus === 'social' && collegeYear >= 2) {
+	if (focus === 'social' && currentPlayer.collegeYear >= 2) {
 		const nilDeal = generateNILDeal(currentPlayer);
 		if (nilDeal) {
 			addStoryText(nilDeal.storyText);
@@ -2244,9 +2140,9 @@ function showCollegeEventCard(event: GameEvent): void {
 			ui.hideEventModal();
 			addStoryHeadline(event.title);
 			addStoryText(flavor);
-			updateAllStatBars(currentPlayer!);
+			ui.updateAllStats(currentPlayer!);
 			saveGame(currentPlayer!);
-			showChoices([
+			ui.showChoices([
 				{ text: 'Game Day', primary: true, action: proceedToCollegeGame },
 			]);
 		},
@@ -2296,13 +2192,13 @@ function proceedToCollegeGame(): void {
 	}
 
 	// Draft stock updates for juniors/seniors
-	if (collegeYear >= 3) {
+	if (currentPlayer.collegeYear >= 3) {
 		const draftStock = calculateDraftStock(currentPlayer);
 		currentPlayer.draftStock = draftStock;
 	}
 
 	saveGame(currentPlayer);
-	updateAllStatBars(currentPlayer);
+	ui.updateAllStats(currentPlayer);
 
 	clearStory();
 	addStoryHeadline('Game Day');
@@ -2320,17 +2216,17 @@ function proceedToCollegeGame(): void {
 	);
 
 	// Show draft stock for juniors/seniors
-	if (collegeYear >= 3) {
+	if (currentPlayer.collegeYear >= 3) {
 		addStoryText(`Draft stock: ${currentPlayer.draftStock}/100`);
 	}
 
 	// Check if season is over
 	if (currentPlayer.currentWeek >= COLLEGE_SEASON_WEEKS) {
-		showChoices([
+		ui.showChoices([
 			{ text: 'Season Summary', primary: true, action: endCollegeSeason },
 		]);
 	} else {
-		showChoices([
+		ui.showChoices([
 			{ text: 'Next Week', primary: true, action: startCollegeWeek },
 		]);
 	}
@@ -2344,7 +2240,7 @@ function endCollegeSeason(): void {
 
 	clearStory();
 	const yearLabels = ['Freshman', 'Sophomore', 'Junior', 'Senior'];
-	const yearLabel = yearLabels[collegeYear - 1] || `Year ${collegeYear}`;
+	const yearLabel = yearLabels[currentPlayer.collegeYear - 1] || `Year ${currentPlayer.collegeYear}`;
 	addStoryHeadline(`${yearLabel} Season Over`);
 	addStoryText(
 		`Final record: ${collegeTeam.wins}-${collegeTeam.losses}`
@@ -2392,15 +2288,15 @@ function endCollegeSeason(): void {
 	currentPlayer.seasonYear += 1;
 	currentPlayer.currentWeek = 0;
 	saveGame(currentPlayer);
-	updateHeader(currentPlayer);
+	ui.updateHeader(currentPlayer);
 
 	// Show end-of-year options
 	const buttons: { text: string; primary: boolean; action: () => void }[] = [];
 
 	// Draft declaration for juniors/seniors
-	if (collegeYear >= 3) {
+	if (currentPlayer.collegeYear >= 3) {
 		const declareCheck = checkDeclarationEligibility(
-			currentPlayer, collegeYear
+			currentPlayer, currentPlayer.collegeYear
 		);
 		if (declareCheck.canDeclare) {
 			buttons.push({
@@ -2411,7 +2307,7 @@ function endCollegeSeason(): void {
 		}
 	}
 
-	if (collegeYear >= 4) {
+	if (currentPlayer.collegeYear >= 4) {
 		// Senior: must enter draft
 		buttons.push({
 			text: 'Enter NFL Draft',
@@ -2426,7 +2322,7 @@ function endCollegeSeason(): void {
 		});
 	}
 
-	showChoices(buttons);
+	ui.showChoices(buttons);
 }
 
 //============================================
@@ -2458,7 +2354,7 @@ function declareForDraft(): void {
 		);
 	}
 
-	showChoices([
+	ui.showChoices([
 		{
 			text: 'Draft Day',
 			primary: true,
@@ -2536,10 +2432,10 @@ function startNFLCareer(): void {
 	addResult(`Round ${round}`);
 
 	saveGame(currentPlayer);
-	updateHeader(currentPlayer);
+	ui.updateHeader(currentPlayer);
 
 	// NFL career placeholder until nfl.ts is wired
-	showChoices([
+	ui.showChoices([
 		{
 			text: 'Begin NFL Career',
 			primary: true,
@@ -2548,9 +2444,7 @@ function startNFLCareer(): void {
 	]);
 }
 
-//============================================
-// Simple NFL season loop (will be replaced by nfl.ts when available)
-let nflYear = 0;
+
 
 //============================================
 function playNFLSeason(): void {
@@ -2558,117 +2452,55 @@ function playNFLSeason(): void {
 		return;
 	}
 
-	nflYear += 1;
+	currentPlayer.nflYear += 1;
 	currentPlayer.age += 1;
 	currentPlayer.currentSeason += 1;
 	clearStory();
 	addStoryHeadline(
-		`NFL Season ${nflYear} - ${currentPlayer.teamName}`
+		`NFL Season ${currentPlayer.nflYear} - ${currentPlayer.teamName}`
 	);
 
-	// Simulate NFL season based on stats
-	const overall = Math.round(
-		(currentPlayer.core.athleticism * 0.25
-		+ currentPlayer.core.technique * 0.3
-		+ currentPlayer.core.footballIq * 0.2
-		+ currentPlayer.core.confidence * 0.15
-		+ currentPlayer.core.discipline * 0.1)
-	);
+	// Simulate NFL season using nfl.ts module
+	const seasonResult = simulateNFLSeason(currentPlayer, currentPlayer.nflYear);
 
-	// Age-based decline
-	if (currentPlayer.age >= 30) {
-		const declineRate = currentPlayer.age >= 33 ? 5 : 3;
-		currentPlayer.core.athleticism = clampStat(
-			currentPlayer.core.athleticism - randomInRange(2, declineRate)
-		);
-		currentPlayer.core.health = clampStat(
-			currentPlayer.core.health - randomInRange(1, declineRate)
-		);
-		addStoryText(
-			'Your body is not recovering like it used to.'
-		);
-	} else {
-		// Slight growth in prime years
-		currentPlayer.core.technique = clampStat(
-			currentPlayer.core.technique + randomInRange(0, 2)
-		);
-		currentPlayer.core.footballIq = clampStat(
-			currentPlayer.core.footballIq + randomInRange(1, 3)
-		);
+	// Display season narrative and stats
+	addStoryText(seasonResult.storyText);
+	addResult(`Team record: ${seasonResult.wins}-${seasonResult.losses}`);
+	addResult(`Season salary: $${seasonResult.salary.toLocaleString()}`);
+
+	// Add salary to career earnings
+	currentPlayer.career.money += seasonResult.salary;
+
+	// Display any awards earned
+	for (const award of seasonResult.awards) {
+		addStoryText(`Award earned: ${award}`);
 	}
-
-	// Season narrative
-	const wins = randomInRange(
-		Math.max(2, Math.round(overall / 8)),
-		Math.min(15, Math.round(overall / 5))
-	);
-	const losses = 17 - wins;
-
-	if (wins >= 12) {
-		addStoryText(
-			'A dominant season. You are playing at an elite level. '
-			+ 'The team made the playoffs.'
-		);
-	} else if (wins >= 9) {
-		addStoryText(
-			'A winning season. You are a key contributor '
-			+ 'and the team is competitive.'
-		);
-	} else if (wins >= 6) {
-		addStoryText(
-			'A rough season with some bright spots. '
-			+ 'You kept fighting even when the team struggled.'
-		);
-	} else {
-		addStoryText(
-			'A brutal season. Nothing went right. '
-			+ 'But you showed up every week.'
-		);
-	}
-
-	addResult(`Team record: ${wins}-${losses}`);
-
-	// Contract / money
-	const salary = overall * randomInRange(8000, 15000);
-	currentPlayer.career.money += salary;
-	addStoryText(
-		`Season salary: $${salary.toLocaleString()}`
-	);
 
 	// NFL midseason event (meaningful decision each season)
-	const nflEvents = getNFLSeasonEvent(currentPlayer, nflYear);
-	addStoryHeadline(nflEvents.title);
-	addStoryText(nflEvents.description);
+	const nflEvent = getNFLMidseasonEvent(currentPlayer, currentPlayer.nflYear);
+	addStoryHeadline(nflEvent.title);
+	addStoryText(nflEvent.description);
 
 	saveGame(currentPlayer);
-	updateAllStatBars(currentPlayer);
-	updateHeader(currentPlayer);
+	ui.updateAllStats(currentPlayer);
+	ui.updateHeader(currentPlayer);
 
-	// Check for retirement
-	const shouldRetire = currentPlayer.age >= 36
-		|| (currentPlayer.age >= 32
-			&& currentPlayer.core.athleticism < 40
-			&& currentPlayer.core.health < 40);
+	// Check for retirement using nfl.ts logic
+	const retirementCheck = checkRetirement(currentPlayer);
+	const shouldRetire = retirementCheck.shouldRetire;
 
 	const choiceButtons: { text: string; primary: boolean; action: () => void }[] = [];
 
 	// Show event choices
-	for (const choice of nflEvents.choices) {
+	for (const choice of nflEvent.choices) {
 		choiceButtons.push({
 			text: choice.text,
 			primary: false,
 			action: () => {
 				if (!currentPlayer) return;
-				for (const [stat, delta] of Object.entries(choice.effects)) {
-					const key = stat as keyof CoreStats;
-					if (key in currentPlayer.core) {
-						currentPlayer.core[key] = clampStat(
-							currentPlayer.core[key] + delta
-						);
-					}
-				}
+				applyNFLEventChoice(currentPlayer, choice.effects);
 				addStoryText(choice.flavor);
-				updateAllStatBars(currentPlayer);
+				ui.updateAllStats(currentPlayer);
 				saveGame(currentPlayer);
 			},
 		});
@@ -2688,7 +2520,7 @@ function playNFLSeason(): void {
 		action: playNFLSeason,
 	});
 
-	showChoices(choiceButtons);
+	ui.showChoices(choiceButtons);
 }
 
 //============================================
@@ -2842,7 +2674,7 @@ function retirePlayer(): void {
 	const totalMoney = currentPlayer.career.money;
 
 	addStoryText(
-		`After ${nflYear} NFL seasons, you hang up the cleats.`
+		`After ${currentPlayer.nflYear} NFL seasons, you hang up the cleats.`
 	);
 
 	// Career summary
@@ -2861,13 +2693,13 @@ function retirePlayer(): void {
 		+ currentPlayer.core.confidence) / 4
 	);
 
-	if (nflYear >= 10 && avgStats >= 65) {
+	if (currentPlayer.nflYear >= 10 && avgStats >= 65) {
 		addStoryHeadline('Hall of Fame');
 		addStoryText(
 			'Years from now, you stand at the podium in Canton. '
 			+ 'Your name will be remembered forever.'
 		);
-	} else if (nflYear >= 7 && avgStats >= 55) {
+	} else if (currentPlayer.nflYear >= 7 && avgStats >= 55) {
 		addStoryText(
 			'You may not make the Hall of Fame, but you had a career '
 			+ 'most people only dream about.'
@@ -2893,15 +2725,13 @@ function retirePlayer(): void {
 		'Thank you for playing Gridiron Life.'
 	);
 
-	showChoices([
+	ui.showChoices([
 		{
 			text: 'Start a New Career',
 			primary: true,
 			action: () => {
 				deleteSave();
 				currentPlayer = null;
-				nflYear = 0;
-				collegeYear = 0;
 				hardClearStory();
 				startCharacterCreation();
 			},

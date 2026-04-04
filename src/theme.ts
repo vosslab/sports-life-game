@@ -219,6 +219,44 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
 }
 
 //============================================
+// Convert RGB to HSL
+function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
+	// Normalize to 0-1 range
+	r /= 255;
+	g /= 255;
+	b /= 255;
+
+	const max = Math.max(r, g, b);
+	const min = Math.min(r, g, b);
+	let h = 0;
+	let s = 0;
+	const l = (max + min) / 2;
+
+	if (max !== min) {
+		const d = max - min;
+		s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+		switch (max) {
+			case r:
+				h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+				break;
+			case g:
+				h = ((b - r) / d + 2) / 6;
+				break;
+			case b:
+				h = ((r - g) / d + 4) / 6;
+				break;
+		}
+	}
+
+	return {
+		h: Math.round(h * 360),
+		s: Math.round(s * 100),
+		l: Math.round(l * 100),
+	};
+}
+
+//============================================
 // Get relative luminance from hex color
 export function getRelativeLuminance(hex: string): number {
 	const { r, g, b } = hexToRgb(hex);
@@ -345,14 +383,17 @@ export function generateNFLPalette(teamName: string): TeamPalette {
 	const palette = NFL_TEAMS[teamName];
 
 	if (palette) {
+		// Create a copy to avoid mutating the shared constant
+		const result = { ...palette };
+
 		// Validate contrast on real team colors
-		const contrastRatio = getContrastRatio(palette.primary, palette.text);
+		const contrastRatio = getContrastRatio(result.primary, result.text);
 		if (contrastRatio < 4.5) {
 			// Adjust text to white if contrast fails
-			palette.text = '#ffffff';
-			palette.textSecondary = '#d0d0d0';
+			result.text = '#ffffff';
+			result.textSecondary = '#d0d0d0';
 		}
-		return palette;
+		return result;
 	}
 
 	// Unknown team: generate a random palette
@@ -382,6 +423,11 @@ export function applyPalette(palette: TeamPalette): void {
 		Math.round((b2 * 0.7 + ba * 0.3)).toString(16).padStart(2, '0');
 	root.setProperty('--button-bg', buttonBg);
 
+	// Button hover state: lighter version of button background
+	const { r: rbh, g: gbh, b: bbh } = hexToRgb(buttonBg);
+	const buttonHover = hslToHex(0, 0, Math.round(getRelativeLuminance(buttonBg) * 100 + 15));
+	root.setProperty('--button-hover', buttonHover);
+
 	// Bar background: between primary and secondary
 	const { r: r1, g: g1, b: b1 } = hexToRgb(palette.primary);
 	const barBg = '#' +
@@ -390,18 +436,20 @@ export function applyPalette(palette: TeamPalette): void {
 		Math.round((b1 * 0.6 + b2 * 0.4)).toString(16).padStart(2, '0');
 	root.setProperty('--bar-bg', barBg);
 
-	// Accent colors
+	// Accent colors: extract hue and saturation from palette accent
 	root.setProperty('--accent-blue', palette.accent);
 
-	// Accent gold: lighter version of accent
-	const accentLighter = hslToHex(0, 0, 70);
+	// Accent gold: lighter version of accent with same hue and saturation
+	const accentRgb = hexToRgb(palette.accent);
+	const accentHsl = rgbToHsl(accentRgb.r, accentRgb.g, accentRgb.b);
+	const accentLighter = hslToHex(accentHsl.h, accentHsl.s, 70);
 	root.setProperty('--accent-gold', accentLighter);
 
 	// Button colors
 	root.setProperty('--button-big', palette.accent);
 
-	// Lighter hover state
-	const buttonBigHover = hslToHex(0, 0, 60);
+	// Lighter hover state for big button with same hue and saturation as accent
+	const buttonBigHover = hslToHex(accentHsl.h, accentHsl.s, 60);
 	root.setProperty('--button-big-hover', buttonBigHover);
 
 	// Stat bar colors (keep defaults, team palette doesn't override these)

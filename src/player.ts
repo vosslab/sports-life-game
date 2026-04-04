@@ -111,6 +111,10 @@ export interface Player {
 	collegeOffers: string[];
 	draftStock: number;      // 0-100
 
+	// Career year tracking (persisted for save/load)
+	collegeYear: number;     // 0 = not started, 1-4 = freshman-senior
+	nflYear: number;         // 0 = not started, 1+ = NFL seasons played
+
 	// Settings
 	useRealTeamNames: boolean;
 
@@ -204,6 +208,9 @@ export function createPlayer(firstName: string, lastName: string): Player {
 		collegeOffers: [],
 		draftStock: 0,
 
+		collegeYear: 0,
+		nflYear: 0,
+
 		useRealTeamNames: true,
 
 		teamPalette: null,
@@ -238,6 +245,8 @@ export function getPositionBucket(position: Position): PositionBucket {
 		case 'K':
 		case 'P':
 			return 'kicker';
+		default:
+			return 'defender';
 	}
 }
 

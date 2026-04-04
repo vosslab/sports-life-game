@@ -18,8 +18,24 @@ export function loadGame(): Player | null {
 	if (!json) {
 		return null;
 	}
-	// Parse the saved JSON back into a Player object
+	// Parse the saved JSON and supply defaults for missing fields
 	const player = JSON.parse(json) as Player;
+	// Migration: supply defaults for fields added after initial release
+	if (player.collegeYear === undefined) {
+		player.collegeYear = 0;
+	}
+	if (player.nflYear === undefined) {
+		player.nflYear = 0;
+	}
+	if (player.gpa === undefined) {
+		player.gpa = 2.5;
+	}
+	if (player.relationships === undefined) {
+		player.relationships = {};
+	}
+	if (player.teamPalette === undefined) {
+		player.teamPalette = null;
+	}
 	return player;
 }
 

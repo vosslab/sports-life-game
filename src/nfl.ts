@@ -140,8 +140,10 @@ export function simulateNFLSeason(
 	player: Player,
 	year: number
 ): NFLSeasonResult {
-	// Stat decline with age
-	const ageFactors = Math.max(0, 35 - player.age) / 35;
+	// Stat decline with age using peak-at-27 bell curve
+	// Produces ~1.0 for ages 24-30, declines outside that range
+	// age 22 = 0.75, age 27 = 1.0, age 32 = 0.75, age 37 = 0.0
+	const ageFactors = Math.max(0, 1 - Math.pow((player.age - 27) / 10, 2));
 	const injuryFactor = Math.max(0.5, player.core.health / 100);
 	const performanceMultiplier = ageFactors * injuryFactor;
 
@@ -212,7 +214,7 @@ export function simulateNFLSeason(
 
 	if (wins >= 12) {
 		storyText = `You and your ${player.teamName} had a breakthrough year. ` +
-			`Playoff birth locked up.`;
+			`Playoff berth locked up.`;
 	} else if (wins >= 9) {
 		storyText = `Another solid season. Your team competed in a tough division.`;
 	} else if (wins >= 6) {
@@ -682,6 +684,8 @@ const testPlayer: Player = {
 	draftStock: 85,
 	useRealTeamNames: true,
 	teamPalette: null,
+	collegeYear: 0,
+	nflYear: 0,
 };
 
 const draftResult = getNFLDraftResult(testPlayer);

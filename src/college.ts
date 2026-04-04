@@ -285,7 +285,9 @@ export function simulateCollegeSeason(
 	// Base performance on player stats
 	const baseWins = 8 + Math.floor(player.core.athleticism / 20);
 	const wins = baseWins + randomInRange(-2, 2);
-	const losses = 12 - wins;
+	// Clamp wins to 0-12 range to prevent negative losses
+	const clampedWins = Math.min(12, Math.max(0, wins));
+	const losses = 12 - clampedWins;
 
 	const awards: string[] = [];
 	let storyText = '';
@@ -324,9 +326,9 @@ export function simulateCollegeSeason(
 	const newDraftStock = clampStat(player.draftStock + draftStockGain);
 
 	// Update player performance
-	if (wins >= 10) {
+	if (clampedWins >= 10) {
 		modifyStat(player, 'confidence', 8);
-	} else if (wins <= 4) {
+	} else if (clampedWins <= 4) {
 		modifyStat(player, 'confidence', -5);
 	}
 
@@ -349,7 +351,7 @@ export function simulateCollegeSeason(
 	}
 
 	return {
-		wins,
+		wins: clampedWins,
 		losses,
 		storyText,
 		awards,
@@ -360,20 +362,23 @@ export function simulateCollegeSeason(
 //============================================
 // Calculate draft stock (1-100 scale)
 export function calculateDraftStock(player: Player): number {
-	// Base on core stats weighted toward athleticism and technique
+	// Weighted formula: athleticism and technique most important,
+	// with size as a key physical attribute
+	// Max-stat player (all 100s): ~95 before clamp
+	// Average player (all 50s): ~45-55
 	const baseScore =
-		player.core.athleticism * 0.35 +
-		player.core.technique * 0.30 +
-		player.core.footballIq * 0.20 +
+		player.core.athleticism * 0.30 +
+		player.core.technique * 0.25 +
+		player.core.footballIq * 0.15 +
 		player.core.confidence * 0.10 +
-		player.hidden.size * 8;
+		player.hidden.size * 4;
 
-	// Boost from leadership and popularity
+	// Boost from intangibles: leadership and popularity
 	const boostScore =
-		player.hidden.leadership * 0.15 +
-		player.career.popularity * 0.10;
+		player.hidden.leadership * 0.10 +
+		player.career.popularity * 0.05;
 
-	const total = clampStat((baseScore + boostScore) / 2);
+	const total = clampStat(baseScore + boostScore);
 
 	return Math.floor(total);
 }
@@ -502,6 +507,8 @@ console.assert(
 		draftStock: 0,
 		useRealTeamNames: true,
 		teamPalette: null,
+		collegeYear: 0,
+		nflYear: 0,
 	}) >= 50,
 	'Draft stock should be respectable for good player'
 );

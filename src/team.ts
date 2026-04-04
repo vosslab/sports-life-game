@@ -237,8 +237,8 @@ export function generateHighSchoolTeam(teamName: string): Team {
 	];
 	const coachPersonality = personalityChoices[randomInRange(0, 2)];
 
-	// Generate 10-12 game schedule
-	const scheduleLength = randomInRange(10, 12);
+	// Generate 10 game schedule (matches HS_SEASON_WEEKS = 10 in main.ts)
+	const scheduleLength = 10;
 	const schedule: ScheduleEntry[] = [];
 
 	for (let week = 1; week <= scheduleLength; week++) {
@@ -274,7 +274,7 @@ console.assert(testTeam.strength >= 40 && testTeam.strength <= 90,
 	'Team strength should be 40-90');
 console.assert(['supportive', 'demanding', 'volatile'].includes(testTeam.coachPersonality),
 	'Coach personality should be valid');
-console.assert(testTeam.schedule.length >= 10 && testTeam.schedule.length <= 12,
-	'Schedule should have 10-12 games');
+console.assert(testTeam.schedule.length === 10,
+	'Schedule should have 10 games');
 console.assert(testTeam.wins === 0 && testTeam.losses === 0,
 	'New team should have 0 wins/losses');

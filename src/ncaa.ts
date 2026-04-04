@@ -253,10 +253,15 @@ export function generateCollegeSchedule(
 			s.commonName !== playerSchool.commonName
 	);
 
-	// Generate 8 conference games
+	// Generate 8 conference games with unique weeks (5-12)
 	const confGames = selectRandomSchools(conferenceSchools, 8);
-	for (const opponent of confGames) {
-		const week = 4 + Math.floor(Math.random() * 9); // weeks 4-12
+	// Create array of unique weeks [5, 6, 7, 8, 9, 10, 11, 12] and shuffle
+	const confWeeks = [5, 6, 7, 8, 9, 10, 11, 12];
+	shuffleArray(confWeeks);
+
+	for (let i = 0; i < confGames.length; i++) {
+		const opponent = confGames[i];
+		const week = confWeeks[i];
 		const strength = getTeamStrength(opponent);
 
 		schedule.push({
@@ -329,4 +334,13 @@ function selectRandomSchools(
 	}
 
 	return selected;
+}
+
+//============================================
+// Fisher-Yates shuffle to randomize array in-place
+function shuffleArray<T>(array: T[]): void {
+	for (let i = array.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[array[i], array[j]] = [array[j], array[i]];
+	}
 }

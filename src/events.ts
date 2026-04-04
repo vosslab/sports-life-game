@@ -61,7 +61,8 @@ export function filterEvents(
 			return false;
 		}
 
-		const conditions = event.conditions;
+		// Defensive: treat missing conditions as empty (no constraints)
+		const conditions = event.conditions || {};
 
 		// Check week range
 		if (conditions.min_week !== undefined && week < conditions.min_week) {

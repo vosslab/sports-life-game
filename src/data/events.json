@@ -904,8 +904,7 @@
 		"is_big_decision": false,
 		"conditions": {
 			"min_week": 2,
-			"max_week": 12,
-			"requires_flag": "has_close_teammate"
+			"max_week": 12
 		},
 		"choices": [
 			{
@@ -1691,6 +1690,7 @@
 		"tags": ["academic"],
 		"weight": 6,
 		"is_big_decision": false,
+		"conditions": {},
 		"choices": [
 			{
 				"text": "Study hard",
@@ -1718,6 +1718,7 @@
 		"tags": ["academic"],
 		"weight": 5,
 		"is_big_decision": false,
+		"conditions": {},
 		"choices": [
 			{
 				"text": "Accept tutoring",
@@ -1745,6 +1746,7 @@
 		"tags": ["academic"],
 		"weight": 5,
 		"is_big_decision": false,
+		"conditions": {},
 		"choices": [
 			{
 				"text": "Show parents proudly",
@@ -1803,6 +1805,7 @@
 		"tags": ["academic"],
 		"weight": 6,
 		"is_big_decision": false,
+		"conditions": {},
 		"choices": [
 			{
 				"text": "Pull an all-nighter",
@@ -1838,6 +1841,7 @@
 		"tags": ["academic"],
 		"weight": 5,
 		"is_big_decision": false,
+		"conditions": {},
 		"choices": [
 			{
 				"text": "Do it all yourself",
@@ -1914,6 +1918,7 @@
 		"tags": ["academic"],
 		"weight": 5,
 		"is_big_decision": false,
+		"conditions": {},
 		"choices": [
 			{
 				"text": "Skip class",
@@ -1991,6 +1996,7 @@
 		"tags": ["academic"],
 		"weight": 4,
 		"is_big_decision": false,
+		"conditions": {},
 		"choices": [
 			{
 				"text": "Do the interview",
@@ -2018,6 +2024,7 @@
 		"tags": ["academic"],
 		"weight": 5,
 		"is_big_decision": false,
+		"conditions": {},
 		"choices": [
 			{
 				"text": "Serve it quietly",

@@ -2,6 +2,91 @@
 
 ## 2026-04-04
 
+### Fixes and Maintenance
+
+- Patch 10: Made ui.ts canonical and removed duplicate UI functions from main.ts
+  - Deleted local `showChoices()`, `updateStatBar()`, `updateAllStatBars()`, and `updateHeader()` functions from main.ts (lines 907-1012)
+  - Removed local `ChoiceOption` interface and imported type from ui.js
+  - Updated all call sites in main.ts to use `ui.showChoices()`, `ui.updateAllStats()`, `ui.updateHeader()` 
+  - ui.ts functions are now the single source of truth for UI rendering
+  - All stat bar updates, header updates, and choice button displays now go through canonical ui.ts implementations
+  - Compilation verified with `npx tsc --noEmit`
+
+- Patch 11: Wired nfl.ts into main.ts NFL game loop
+  - Added imports from nfl.ts: `simulateNFLSeason`, `getNFLMidseasonEvent`, `applyNFLEventChoice`, `checkRetirement`
+  - Removed module-level `nflYear` variable; now using `currentPlayer.nflYear` field (Player interface already had this)
+  - Replaced inline NFL season simulation in `playNFLSeason()` with call to `nfl.ts::simulateNFLSeason()` for consistent formula
+  - Replaced inline NFL event generation with `nfl.ts::getNFLMidseasonEvent()` (signature compatible but more comprehensive)
+  - Replaced inline retirement logic with `nfl.ts::checkRetirement()` for consistent aging/health checks
+  - Updated all references from module-level `nflYear` to `currentPlayer.nflYear` (6 instances in playNFLSeason and retirePlayer)
+  - Updated event choice handler to use `applyNFLEventChoice()` from nfl.ts for consistent stat effect application
+  - Compilation verified with `npx tsc --noEmit`
+
+- Previous fixes:
+
+- Fixed 2 NCAA schedule generation bugs in `src/ncaa.ts` and `src/team.ts`
+  - **Bug M2 (NCAA conference game week collisions)**: Conference games in `generateCollegeSchedule()` were assigning random weeks 4-12 with no uniqueness check, allowing multiple games on the same week. Fixed by pre-creating unique week array `[5, 6, 7, 8, 9, 10, 11, 12]`, shuffling with Fisher-Yates algorithm, and assigning one week per game. Added helper function `shuffleArray()` for array randomization.
+  - **Bug M3 (HS schedule length vs season weeks mismatch)**: High school team generation in `generateHighSchoolTeam()` created `randomInRange(10, 12)` games, but the season is fixed at 10 weeks (`HS_SEASON_WEEKS = 10` in main.ts). Games beyond week 10 are never played. Fixed by hardcoding schedule length to 10 with comment noting alignment to `HS_SEASON_WEEKS`. Updated assertion to match.
+
+- Fixed 2 college season simulation bugs in `src/college.ts`
+  - **Bug H3 (negative losses)**: Clamped wins to 0-12 range before computing losses. With high athleticism, `randomInRange(-2, 2)` could produce 15+ wins, resulting in -3 losses. Now `clampedWins = Math.min(12, Math.max(0, wins))` ensures losses always non-negative. Used `clampedWins` throughout function for consistency.
+  - **Bug H6 (draft stock ceiling too low)**: Removed `/2` divisor and adjusted weights in `calculateDraftStock()`. Old formula maxed at ~73 (below 85 first-round threshold). New formula: 0.30*athleticism + 0.25*technique + 0.15*footballIq + 0.10*confidence + 4*size + 0.10*leadership + 0.05*popularity. Max-stat player (100s) now reaches ~95, average player (50s) reaches ~45-55. Added explanatory comments on formula intent and expected ranges.
+
+- Fixed 3 theme color bugs in `src/theme.ts`
+  - **Bug M6**: `generateNFLPalette()` now creates a copy of NFL_TEAMS palette before mutating (prevents permanent modification of shared constant)
+  - **Bug M8**: Added missing `--button-hover` CSS variable in `applyPalette()` (was used in styles.css but never set)
+  - **Bug M9**: Accent colors now preserve hue and saturation from team palette instead of always producing gray (changed `hslToHex(0, 0, ...)` to use extracted accent color values)
+  - Added helper function `rgbToHsl()` to convert RGB back to HSL for color extraction
+  - Updated `tsconfig.json` to include explicit lib configuration (`ES2020`, `DOM`) for better type compatibility
+
+- Fixed 8 academic events missing `conditions` key to prevent TypeError in event filter
+  - Added empty `conditions: {}` to: `big_test_tomorrow`, `teacher_offers_tutoring`, `report_card_day`, `homework_piling_up`, `group_project_slacker`, `skipping_class`, `school_newspaper_feature`, `detention`
+  - These events previously crashed the event filter when accessing `event.conditions.min_week`
+- Fixed `injury_teammate_gets_hurt` event requiring impossible `has_close_teammate` flag
+  - Removed `requires_flag: "has_close_teammate"` from conditions (no event in game sets this flag)
+  - Event can now fire based on week constraints alone
+
+## 2026-04-04 (NCAA Conference & Schedule Integration)
+
+### Additions and New Features
+
+- Integrated NCAA conference system into main game loop
+  - Added module-level state: `ncaaSchools`, `currentConference`, `hsConference`
+  - NCAA schools data loaded in `initGame()` from `ncaa.ts::loadNCAASchools()`
+  - Modified `beginCollege()` to use real NCAA schools: calls `assignPlayerCollege()` and `formatSchoolName()` to assign player to real college based on recruiting stars
+  - College phase now generates conference standings via `generateConference()` and updates them each game with `simulateConferenceWeek()`
+  - Added to imports from team.ts: `Conference`, `generateConference`, `simulateConferenceWeek`, `formatStandings`
+  - Added to imports from ncaa.ts: `loadNCAASchools`, `assignPlayerCollege`, `formatSchoolName`, `generateCollegeSchedule`, `NCAASchool`
+
+- Integrated conference standings into high school phase
+  - Modified `startHighSchoolSeason()` to generate HS conference on first season and reset each subsequent year
+  - HS game results now call `simulateConferenceWeek()` to update conference standings alongside team record
+
+- Standings and schedule button UI integration
+  - Added `setupStatusPanelListeners()` function wired to stadium toggle buttons (#standings-toggle, #schedule-toggle)
+  - Standings button displays conference standings via `ui.toggleStandings()` (shows correct conference for HS or college)
+  - Schedule button displays team schedule via `ui.toggleSchedule()` with week indicator and past results
+  - Button listeners set up in `initGame()` after NCAA data loads
+
+- Modified college game result flow
+  - `proceedToCollegeGame()` now calls `simulateConferenceWeek()` after each college game to update other teams
+  - Conference standings updated with correct player team name and win/loss
+
+### Fixes and Maintenance
+
+- Refactored `proceedToGameDay()` to extract win/loss boolean (`playerWon`) and use for both stats and conference updates
+- Refactored `proceedToCollegeGame()` to extract win/loss boolean for consistency
+
+### Developer Tests and Notes
+
+- TypeScript compilation succeeds with all new imports and module-level state additions
+- Fallback to `startCollege()` preserved if NCAA data fails to load (network error)
+- Conference standings display player's team with `>>>` prefix highlighting via `formatStandings()`
+- Schedule display shows week number, opponent name, and past game results for played games
+- Buttons check for null state before calling display functions to prevent runtime errors
+
+## 2026-04-04
+
 ### Additions and New Features
 
 - Team color theming system for dynamic UI re-theming

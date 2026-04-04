@@ -431,3 +431,315 @@ What Changes in The Show '26
 * Shared seasonal events
 * Weekly challenges tied to real-world stats
 * Competitive ladders with rewards
+
+UX/UI Product Specification
+
+Product: The Show '25
+Platform: Console
+Document Type: UX/UI Specification
+Version: 1.0
+
+1. Purpose
+
+This document defines the user experience and interface requirements for The Show '25. The goal is to deliver a clear, responsive, and accessible interface that supports fast navigation, strong readability, and consistent visual identity.
+
+2. Design Principles
+
+Clarity
+All interface elements must be easy to read and interpret during gameplay and menu navigation.
+
+Speed
+Users must reach primary actions within minimal inputs. Menu depth should remain shallow.
+
+Consistency
+Layouts, controls, and visual language must remain consistent across all modes.
+
+Accessibility
+The interface must support a wide range of users through scalable text, assistive options, and strong color contrast.
+
+Context Awareness
+UI elements should adapt to game state, mode, and selected team.
+
+3. Information Architecture
+
+Primary Navigation
+* Main Menu
+* Game Modes
+* Team Selection
+* Player Profile
+* Settings
+
+Mode Hubs
+
+Each major mode must include:
+* Overview dashboard
+* Progression summary
+* Quick access to next action
+* Recent results
+
+Secondary Screens
+* Lineup Management
+* Rotation and Bullpen
+* Player Details
+* Statistics
+* Post-game Summary
+
+4. Layout Structure
+
+Screen Composition
+* Header: Mode context and status
+* Main Panel: Core interaction area
+* Side Panel: Supplemental data or actions
+* Footer: Controls and prompts
+
+Navigation Behavior
+* Horizontal navigation for top-level menus
+* Vertical lists for selections
+* Persistent back navigation
+* No dead-end screens
+
+5. Typography
+
+Requirements
+* Sans-serif font optimized for console readability
+* Minimum size thresholds for standard and large displays
+* Clear hierarchy:
+* Header
+* Subheader
+* Body
+* Metadata
+
+Rules
+* Avoid overly condensed fonts
+* Maintain consistent spacing
+* Ensure legibility at distance
+
+6. Color System
+
+6.1 Team-Based Theming
+
+Rule
+The interface must dynamically adopt the color identity of the currently selected team.
+
+Requirements
+* Colors are generated at runtime using the active team palette
+* Selection must be randomized within the team's defined color set
+* The system must ensure all combinations remain readable
+
+Color Roles
+* Background color
+* Primary text color
+* Secondary text color
+* Accent color (buttons, highlights, selection states)
+
+Generation Logic
+
+1. Load team palette
+
+2. Randomly select background and text candidates
+
+3. Validate contrast
+
+4. Apply only if valid
+
+5. Regenerate if invalid
+
+6.2 Contrast and Readability
+* All text must meet WCAG AA contrast standards
+* Large text may use slightly lower thresholds but must remain clearly readable
+* UI elements must remain distinguishable under all lighting conditions
+
+Automatic Adjustments
+
+If contrast fails:
+* Darken background or lighten foreground
+* Replace text color with white or near-black
+* Preserve team identity through accents
+
+6.3 Fallback Behavior
+
+If no valid combination is found:
+* Use team primary color as background
+* Use white or near-black for text
+* Limit accent colors to interactive elements
+
+7. Components
+
+Buttons
+* Clear visual states: default, hover, active, disabled
+* Consistent sizing and spacing
+* Immediate feedback on input
+
+Menus
+* Scrollable lists with clear focus state
+* Highlight current selection
+* Avoid clutter
+
+HUD (Gameplay)
+* Minimal obstruction of gameplay view
+* Persistent score, inning, and count display
+* Contextual prompts only when needed
+
+Overlays
+* Pause menu
+* Replay interface
+* Substitution and strategy menus
+
+8. Interaction Design
+
+Input Principles
+* Low latency response
+* Predictable mapping across modes
+* Clear visual feedback for all inputs
+
+Feedback
+* Visual: highlight, animation, transitions
+* Audio: confirmation and error cues
+* Haptic: optional vibration feedback
+
+9. Motion and Transitions
+* Fast and smooth transitions between screens
+* No delays that block user input
+* Subtle animations for focus and selection
+* Avoid excessive motion that distracts from gameplay
+
+10. Accessibility
+
+Required Features
+* Text size scaling
+* High contrast mode
+* Colorblind-safe palettes
+* Subtitle support
+
+Optional Assists
+* Simplified UI mode
+* Reduced visual noise setting
+
+11. Performance Requirements
+* UI must render at target frame rate with no stutter
+* Menu transitions must complete within acceptable response time
+* No input delay introduced by UI layers
+
+12. Error Handling
+* Clear error messaging
+* Recovery paths for all failed actions
+* No loss of user progress without confirmation
+
+13. Validation Criteria
+
+The UI is considered acceptable when:
+* All text is readable under all team themes
+* Navigation requires minimal steps
+* Users can complete core actions without confusion
+* No invalid color combinations are displayed
+* Performance targets are consistently met
+
+The engagement comes from a tight mix of skill expression, uncertainty, and progression, all wrapped in a familiar structure.
+
+1. Why it feels engaging
+
+At the core, every pitch is a small decision with immediate feedback.
+* The player reads the pitch
+* The player commits to an action
+* The result is clear and fast
+
+That loop repeats constantly. It creates focus because each moment matters, but no single moment is overwhelming.
+
+There is also strong cause and effect. Good timing and good decisions usually produce good outcomes. When outcomes fail, the player can understand why.
+
+2. Why repetition stays enjoyable
+
+The game avoids feeling repetitive because it mixes consistency with variation.
+
+Consistency
+* Same rules
+* Same controls
+* Familiar structure
+
+This builds mastery.
+
+Variation
+* Different pitchers and pitch sequences
+* Changing counts and situations
+* Player fatigue and confidence shifts
+* Defensive positioning and outcomes
+
+The player is doing the same actions, but never in the same exact context.
+
+3. Sources of variation
+
+Gameplay Variation
+* Pitch type, speed, and location
+* Timing windows that change subtly
+* Fielding outcomes based on contact quality
+* Weather and stadium effects (light influence)
+
+Systemic Variation
+* Player ratings and traits
+* Hot and cold streaks
+* Fatigue and pressure
+* AI adaptation to player tendencies
+
+Situational Variation
+* Score and inning
+* Number of outs
+* Runners on base
+* Importance of the moment
+
+A swing in the first inning feels different from a swing in the ninth.
+
+4. Controlled randomness
+
+The game uses randomness, but within limits.
+* Well-timed actions increase probability of success
+* Poor input reduces probability
+* Outcomes are not guaranteed
+
+This creates tension. The player feels in control, but not fully certain.
+
+5. Short feedback cycles
+
+Each action resolves quickly.
+* Pitch to result takes seconds
+* Immediate visual and audio feedback
+* Clear success or failure
+
+This rapid loop encourages repeated play without fatigue.
+
+6. Long-term progression
+
+Across games, there is a second layer:
+* Player stats improve
+* Skills develop
+* Career advances
+* Team performance evolves
+
+Short-term actions feed long-term rewards. This reinforces continued play.
+
+7. Psychological drivers
+* Anticipation: waiting for the pitch
+* Risk and reward: swing or hold
+* Near-miss effect: almost perfect contact
+* Momentum: streaks and slumps
+* Identity: building a player or team
+
+These elements make each session feel meaningful.
+
+8. Why each instance feels different
+
+No two at-bats are identical because multiple variables combine:
+* Pitch selection
+* Player attributes
+* Game situation
+* Random variation within limits
+
+Even if inputs repeat, the outcome space shifts slightly each time.
+
+9. Summary
+
+The game stays engaging because it balances:
+* Simple actions with high skill ceiling
+* Predictable systems with controlled randomness
+* Fast feedback with long-term progression
+
+That combination makes repetition feel like refinement rather than repetition.
