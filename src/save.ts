@@ -36,6 +36,36 @@ export function loadGame(): Player | null {
 	if (player.teamPalette === undefined) {
 		player.teamPalette = null;
 	}
+	// Migration: persistent team identity fields
+	if (player.townName === undefined) {
+		player.townName = '';
+	}
+	if (player.townMascot === undefined) {
+		player.townMascot = '';
+	}
+	if (player.hsName === undefined) {
+		player.hsName = '';
+	}
+	if (player.hsMascot === undefined) {
+		player.hsMascot = '';
+	}
+	// Migration: NFL identity fields
+	if (player.nflTeamId === undefined) {
+		player.nflTeamId = '';
+	}
+	if (player.nflConference === undefined) {
+		player.nflConference = '';
+	}
+	if (player.nflDivision === undefined) {
+		player.nflDivision = '';
+	}
+	// Migration: college status fields
+	if (player.isRedshirt === undefined) {
+		player.isRedshirt = false;
+	}
+	if (player.eligibilityYears === undefined) {
+		player.eligibilityYears = 4;
+	}
 	if (player.seasonStats === undefined) {
 		player.seasonStats = createEmptySeasonStats();
 	} else {

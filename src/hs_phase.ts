@@ -80,13 +80,17 @@ export function getHSConference(): Conference | null {
 
 //============================================
 // Initialize HS phase with context and callback
-export function initHighSchoolPhase(
+export async function initHighSchoolPhase(
 	context: GameContext,
 	beginCollegeCallback: () => void,
-): void {
+): Promise<void> {
 	ctx = context;
 	onBeginCollege = beginCollegeCallback;
 	initGameLoop(context);
+	// Preload events so startHighSchoolSeason can be synchronous
+	if (allEvents.length === 0) {
+		allEvents = await loadEvents();
+	}
 }
 
 //============================================
@@ -132,7 +136,7 @@ function getCoachTitle(team: Team): string {
 
 //============================================
 // Main entry point: start high school season
-export async function startHighSchoolSeason(): Promise<void> {
+export function startHighSchoolSeason(): void {
 	if (!ctx) {
 		return;
 	}
@@ -180,9 +184,7 @@ export async function startHighSchoolSeason(): Promise<void> {
 		player.currentSeason += 1;
 		player.currentWeek = 0;
 
-		if (allEvents.length === 0) {
-			allEvents = await loadEvents();
-		}
+		// Events are preloaded in initHighSchoolPhase
 
 		currentSeasonStats = {
 			totalYards: 0,

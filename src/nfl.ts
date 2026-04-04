@@ -687,6 +687,15 @@ const testPlayer: Player = {
 	teamPalette: null,
 	collegeYear: 0,
 	nflYear: 0,
+	townName: '',
+	townMascot: '',
+	hsName: '',
+	hsMascot: '',
+	nflTeamId: '',
+	nflConference: '',
+	nflDivision: '',
+	isRedshirt: false,
+	eligibilityYears: 4,
 };
 
 const draftResult = getNFLDraftResult(testPlayer);

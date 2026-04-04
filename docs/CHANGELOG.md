@@ -1,9 +1,97 @@
 # Changelog
 
+## 2026-04-04 (Year-Handler Registry Architecture)
+
+### Additions and New Features
+
+- Patch 1: YearHandler and CareerContext interfaces in `src/core/year_handler.ts`
+  - YearHandler: id, ageStart, ageEnd, startYear(), optional getSeasonConfig() and endYear()
+  - CareerContext: story-oriented output only (no DOM manipulation)
+  - SeasonConfig: season length, football flag, depth chart, event chance, opponent strength
+  - WeekAdvanceResult discriminated union: `{ kind: "next_week" }` or `{ kind: "season_ended" }`
+- Patch 2: Year registry in `src/core/year_registry.ts`
+  - `registerHandler()` with overlap validation
+  - `getHandler(age)` lookup for ages 1-39
+  - 13 age-band handlers registered via `src/core/register_handlers.ts`
+- Patch 3: Year runner in `src/core/year_runner.ts`
+  - `advanceToNextYear()`: increment age, dispatch to handler
+  - `startYear()`: resume game at current age
+  - Age-advance convention: current age finishes -> offseason -> increment -> next handler starts
+- Patch 4: Player model extension in `src/player.ts`
+  - New persistent identity fields: townName, townMascot, hsName, hsMascot
+  - New NFL identity fields: nflTeamId, nflConference, nflDivision
+  - New college fields: isRedshirt, eligibilityYears
+  - Save/load migration in `src/save.ts` with defaults for all new fields
+- Patch 5: Shared year helpers in `src/shared/year_helpers.ts`
+  - `applyAgeDrift()`: age-appropriate stat growth/decline curves for all bands
+  - `coachAssignPosition()`: position assignment based on size + athleticism
+- Patch 6: Weekly engine in `src/weekly/weekly_engine.ts`
+  - Extracted from game_loop.ts with guaranteed week advancement contract
+  - Every code path through the weekly loop increments week or ends season
+  - State machine: focus -> activity -> event -> game -> next_week/season_ended
+  - Backup players go through the full weekly loop (no skips or stuck states)
+  - Season state is transient (not on Player): wins, losses, weekState, schedule
+- Patch 7: HS handlers wired to weekly engine
+  - `src/high_school/hs_frosh_soph.ts`: ages 14-15, generates HS identity, 10-game season
+  - `src/high_school/hs_varsity.ts`: ages 16-17, driver license at 16, recruiting stars
+- Patch 8: College handlers wired to weekly engine
+  - `src/college/college_entry.ts`: age 18, redshirt support, 12-game season
+  - `src/college/college_core.ts`: ages 19-20, early declaration option for juniors
+  - `src/college/college_senior.ts`: age 21, graduation, mandatory draft declaration
+- Patch 9: NFL handlers wired to weekly engine
+  - `src/nfl_handlers/nfl_rookie.ts`: age 22, rookie salary
+  - `src/nfl_handlers/nfl_early.ts`: ages 23-26, salary based on depth chart
+  - `src/nfl_handlers/nfl_peak.ts`: ages 27-31, peak salary
+  - `src/nfl_handlers/nfl_veteran.ts`: ages 32-36, retirement option, decline tracking
+  - `src/nfl_handlers/nfl_late.ts`: ages 37-39, forced retirement check, farewell
+- Patch 10: Childhood handlers (stub with Continue buttons)
+  - `src/childhood/kid_years.ts`: ages 1-7, BitLife-style event stubs
+  - `src/childhood/peewee_years.ts`: ages 8-10, town name/mascot generation
+  - `src/childhood/travel_years.ts`: ages 11-13, same town identity
+
+### Behavior or Interface Changes
+
+- New architecture: persistent Player + functional year-handler registry replaces monolithic
+  phase modules. Each age band (13 total) has its own handler file.
+- Weekly engine guarantees advancement: every path ends in next_week or season_ended.
+- Handlers are thin: set up year, call shared helpers, trigger transitions. No rendering or
+  save logic inside handlers.
+- CareerContext is story-oriented only: addHeadline, addText, addResult, showChoices,
+  showEventModal. No DOM manipulation.
+
+- Patch 11: Integration wiring in `src/main.ts`
+  - `registerAllHandlers()` called at init
+  - `CareerContext` adapter bridges story helpers to handler system
+  - New game flow: birth story -> year_runner -> kid_years handler (age 1)
+  - Resume flow: startYear() dispatches to correct handler for player's current age
+  - HS entry: position selection -> startYear() on frosh/soph handler
+  - Tab switch: uses new `getSeasonRecord()` from weekly engine when active
+- Patch 12: [docs/AGE_PROGRESSION.md](docs/AGE_PROGRESSION.md) documenting full life progression
+  - All 13 age bands with handler, phase, season structure
+  - Milestones, position evolution rules, stat growth curves
+  - College offer tiers, redshirt mechanic, offseason decisions
+  - Retirement triggers, NFL salary by era, weekly engine contract
+  - File map for new architecture
+
+### Decisions and Failures
+
+- Design choice: functional registry, not class inheritance. Shared helpers serve as "base."
+- Design choice: no redundant year counters on Player (age implies band).
+  Removed proposed peeweeYear, travelYear, hsYear fields.
+- Design choice: WeekAdvanceResult discriminated union forces callers to handle both outcomes.
+  This prevents the infinite-loop/stuck-at-age-14 bug from the old architecture.
+- Old phase modules (hs_phase.ts, college_phase.ts, nfl_phase.ts, game_loop.ts) are still
+  present. They will be removed only after new handlers reach feature parity.
+- NFL schedule currently uses generateHighSchoolTeam() as placeholder. Real NFL team/division
+  schedule generation is planned for a future patch.
+
 ## 2026-04-04
 
 ### Fixes and Maintenance
 
+- Standardized [README.md](README.md): added project overview, quick start, documentation links, status, and maintainer
+- Created [docs/CODE_ARCHITECTURE.md](docs/CODE_ARCHITECTURE.md): system design, layered architecture, data flow, and extension points
+- Created [docs/FILE_STRUCTURE.md](docs/FILE_STRUCTURE.md): directory layout, source file purposes, and generated artifacts
 - Bug fix: `player.teamStrength` was never set during college or NFL phases, staying at default 50
   - College phase now syncs `player.teamStrength` from `collegeTeam.strength` when team is created
   - NFL phase now sets `player.teamStrength` during draft

@@ -77,6 +77,12 @@ import { initHighSchoolPhase, startHighSchoolSeason as startHSSeason, resumeHigh
 import { beginCollege as beginCollegePhase, resumeCollegeSeason, getCollegeTeam, getCollegeConference } from './college_phase.js';
 import { startNFLCareer as startNFLCareerPhase, getNFLTeam, getNFLConference, resumeNFLSeason } from './nfl_phase.js';
 
+// New year-handler registry system
+import { registerAllHandlers } from './core/register_handlers.js';
+import { advanceToNextYear, startYear } from './core/year_runner.js';
+import type { CareerContext } from './core/year_handler.js';
+import { getSeasonRecord } from './weekly/weekly_engine.js';
+
 //============================================
 // GLOBALS AND STATE
 // Module-level variables for game state that persists across function calls.
@@ -170,6 +176,26 @@ let hsConference: Conference | null = null;
 // BUG FIX 4: Track used childhood events to avoid repeats
 const usedChildhoodEvents = new Set<number>();
 
+// CareerContext adapter for year-handler system
+let careerCtx: CareerContext | null = null;
+
+function buildCareerContext(): void {
+	careerCtx = {
+		events: allEvents,
+		ncaaSchools,
+		clearStory: () => clearStory(),
+		addHeadline: (text: string) => addStoryHeadline(text),
+		addText: (text: string) => addStoryText(text),
+		addResult: (text: string) => ui.addResult(text),
+		showChoices: (options) => ui.showChoices(options),
+		showEventModal: (title, desc, choices) => ui.showEventModal(title, desc, choices),
+		hideEventModal: () => ui.hideEventModal(),
+		save: () => { if (currentPlayer) saveGame(currentPlayer); },
+		updateStats: (player) => ui.updateAllStats(player),
+		updateHeader: (player) => ui.updateHeader(player),
+	};
+}
+
 // BUG FIX 3: Track if state championship won this season
 let wonStateThisSeason = false;
 
@@ -213,6 +239,8 @@ function handleTabSwitch(tabId: TabId): void {
 	// Update stat bars whenever any tab is opened (keeps bars current)
 	ui.updateAllStats(currentPlayer);
 
+	// Try new weekly engine season record first
+	const newSeasonRecord = getSeasonRecord();
 	const activeTeam = currentPlayer.phase === 'nfl'
 		? getNFLTeam()
 		: currentPlayer.phase === 'college'
@@ -222,7 +250,11 @@ function handleTabSwitch(tabId: TabId): void {
 				: currentTeam;
 	let lifeRecord = 'No team record yet.';
 	let lifeNextOpponent = 'No upcoming opponent.';
-	if (
+	if (newSeasonRecord) {
+		// Use new weekly engine data
+		lifeRecord = `Record: ${newSeasonRecord.wins}-${newSeasonRecord.losses}`;
+		lifeNextOpponent = `Week ${currentPlayer.currentWeek}`;
+	} else if (
 		activeTeam &&
 		(currentPlayer.phase === 'high_school'
 			|| currentPlayer.phase === 'college'
@@ -305,8 +337,14 @@ async function initGame(): Promise<void> {
 	};
 	initGameLoop(gameContext);
 
+	// Register all year-band handlers for the new architecture
+	registerAllHandlers();
+
+	// Build CareerContext adapter for year handlers
+	buildCareerContext();
+
 	// Initialize phase modules with context and transition callbacks
-	initHighSchoolPhase(gameContext, () => {
+	await initHighSchoolPhase(gameContext, () => {
 		showCollegeChoiceScreen(gameContext);
 	});
 
@@ -582,7 +620,12 @@ function startNewGame(firstName: string, lastName: string): void {
 	addStoryText(sizeDesc);
 
 	ui.showChoices([
-		{ text: 'Continue...', primary: true, action: advanceChildhood },
+		{ text: 'Continue...', primary: true, action: () => {
+			if (currentPlayer && careerCtx) {
+				// Enter the year-handler system starting at age 1
+				advanceToNextYear(currentPlayer, careerCtx);
+			}
+		}},
 	]);
 }
 
@@ -631,7 +674,9 @@ function advanceChildhood(): void {
 			+ 'This is your chance to prove you belong.'
 		);
 		ui.showChoices([
-			{ text: 'Try out for high school football', primary: true, action: startHighSchool },
+			{ text: 'Try out for high school football', primary: true, action: () => {
+				startHighSchool();
+			}},
 		]);
 		return;
 	}
@@ -1251,7 +1296,13 @@ function setPositionAndContinue(position: Position): void {
 	addStoryText('But everyone starts somewhere.');
 
 	ui.showChoices([
-		{ text: 'Start the season', primary: true, action: startHSSeason },
+		{ text: 'Start the season', primary: true, action: () => {
+			if (currentPlayer && careerCtx) {
+				// Use new year-handler system for HS
+				currentPlayer.phase = 'high_school';
+				startYear(currentPlayer, careerCtx);
+			}
+		}},
 	]);
 }
 
@@ -1269,53 +1320,29 @@ function resumeGame(): void {
 	ui.updateAllStats(currentPlayer);
 	ui.updateHeader(currentPlayer);
 
-	// Route to the correct phase
-	switch (currentPlayer.phase) {
-		case 'childhood':
-			advanceChildhood();
-			break;
-		case 'youth':
-			advanceYouthSeason();
-			break;
-		case 'high_school':
-			clearStory();
-			addStoryHeadline('Welcome Back');
-			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
-				+ `${currentPlayer.position || 'Undecided'}, Age ${currentPlayer.age}`);
-			ui.showChoices([
-				{ text: 'Continue Season', primary: true, action: resumeHighSchoolSeason },
-			]);
-			break;
-		case 'college':
-			clearStory();
-			addStoryHeadline('Welcome Back');
-			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
-				+ `Age ${currentPlayer.age} - College`);
-			ui.showChoices([
-				{ text: 'Continue College', primary: true, action: resumeCollegeSeason },
-			]);
-			break;
-		case 'nfl':
-			clearStory();
-			addStoryHeadline('Welcome Back');
-			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
-				+ `Age ${currentPlayer.age} - ${currentPlayer.teamName || 'NFL'}`);
-			ui.showChoices([
-				{ text: 'Continue NFL Career', primary: true, action: resumeNFLSeason },
-			]);
-			break;
-		case 'legacy':
-			clearStory();
-			addStoryHeadline('Career Complete');
-			ui.showChoices([
-				{ text: 'View Legacy', primary: true, action: retirePlayer },
-			]);
-			break;
-		default:
-			clearStory();
-			addStoryHeadline('Welcome Back');
-			ui.showChoices([]);
-			break;
+	// Route to the correct phase using year-handler system
+	if (currentPlayer.phase === 'legacy') {
+		clearStory();
+		addStoryHeadline('Career Complete');
+		ui.showChoices([
+			{ text: 'View Legacy', primary: true, action: retirePlayer },
+		]);
+	} else if (currentPlayer.phase === 'childhood' && currentPlayer.age < 1) {
+		// Brand new character, start childhood events
+		advanceChildhood();
+	} else if (careerCtx) {
+		// Use the year-handler system for all phases
+		clearStory();
+		addStoryHeadline('Welcome Back');
+		addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
+			+ `Age ${currentPlayer.age}`);
+		ui.showChoices([
+			{ text: 'Continue', primary: true, action: () => {
+				if (currentPlayer && careerCtx) {
+					startYear(currentPlayer, careerCtx);
+				}
+			}},
+		]);
 	}
 }
 

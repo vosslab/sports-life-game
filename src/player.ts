@@ -227,6 +227,21 @@ export interface Player {
 	collegeYear: number;     // 0 = not started, 1-4 = freshman-senior
 	nflYear: number;         // 0 = not started, 1+ = NFL seasons played
 
+	// Persistent team identity (generated once, reused across years)
+	townName: string;        // peewee/travel town name
+	townMascot: string;      // peewee/travel team mascot
+	hsName: string;          // high school name
+	hsMascot: string;        // high school mascot
+
+	// NFL team identity (set at draft)
+	nflTeamId: string;       // real NFL team abbreviation (e.g., "BUF")
+	nflConference: string;   // "AFC" or "NFC"
+	nflDivision: string;     // "East", "West", "North", "South"
+
+	// College status
+	isRedshirt: boolean;     // currently redshirting
+	eligibilityYears: number; // remaining college eligibility (4 or 5 with redshirt)
+
 	// Settings
 	useRealTeamNames: boolean;
 
@@ -323,6 +338,21 @@ export function createPlayer(firstName: string, lastName: string): Player {
 
 		collegeYear: 0,
 		nflYear: 0,
+
+		// Persistent team identity (generated when entering each phase)
+		townName: '',
+		townMascot: '',
+		hsName: '',
+		hsMascot: '',
+
+		// NFL team identity (set at draft)
+		nflTeamId: '',
+		nflConference: '',
+		nflDivision: '',
+
+		// College status
+		isRedshirt: false,
+		eligibilityYears: 4,
 
 		useRealTeamNames: true,
 

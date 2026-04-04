@@ -510,6 +510,15 @@ console.assert(
 		teamPalette: null,
 		collegeYear: 0,
 		nflYear: 0,
+		townName: '',
+		townMascot: '',
+		hsName: '',
+		hsMascot: '',
+		nflTeamId: '',
+		nflConference: '',
+		nflDivision: '',
+		isRedshirt: false,
+		eligibilityYears: 4,
 	}) >= 50,
 	'Draft stock should be respectable for good player'
 );

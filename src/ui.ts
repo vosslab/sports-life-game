@@ -189,7 +189,7 @@ export function showChoices(options: ChoiceOption[]): void {
 			button.classList.add('primary');
 		}
 		button.textContent = option.text;
-		button.addEventListener('click', option.action);
+		button.addEventListener('click', () => option.action());
 		panel.appendChild(button);
 	}
 }
