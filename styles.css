@@ -1,0 +1,487 @@
+/* Football career life simulator - mobile-first CSS */
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+:root {
+	--bg-primary: #1a1a2e;
+	--bg-secondary: #16213e;
+	--bg-card: #0f3460;
+	--text-primary: #e8e8e8;
+	--text-secondary: #a0a0b0;
+	--accent-green: #4caf50;
+	--accent-yellow: #ffc107;
+	--accent-red: #f44336;
+	--accent-blue: #2196f3;
+	--accent-gold: #ffd700;
+	--bar-bg: #2a2a4a;
+	--button-bg: #1a5276;
+	--button-hover: #2471a3;
+	--button-big: #27ae60;
+	--button-big-hover: #2ecc71;
+	--modal-bg: rgba(0, 0, 0, 0.85);
+}
+
+html, body {
+	height: 100%;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+	background: var(--bg-primary);
+	color: var(--text-primary);
+	font-size: 16px;
+	-webkit-tap-highlight-color: transparent;
+	-webkit-text-size-adjust: 100%;
+	-webkit-font-smoothing: antialiased;
+	overflow: hidden;
+}
+
+/* App layout: flex column filling viewport */
+#app {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	height: 100dvh;
+	max-width: 600px;
+	margin: 0 auto;
+	padding: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom));
+	padding-top: max(8px, env(safe-area-inset-top));
+	gap: 6px;
+}
+
+/* Header */
+#player-header {
+	text-align: center;
+	padding: 8px;
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	flex-shrink: 0;
+}
+
+#player-name {
+	font-size: 1.3em;
+	font-weight: 700;
+}
+
+#player-info, #player-context {
+	font-size: 0.85em;
+	color: var(--text-secondary);
+	margin-top: 2px;
+}
+
+#player-info span, #player-context span {
+	margin: 0 6px;
+}
+
+/* Stats panel */
+#stats-panel {
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	padding: 6px 10px;
+	flex-shrink: 0;
+}
+
+.stat-row {
+	display: flex;
+	align-items: center;
+	margin: 3px 0;
+	gap: 8px;
+}
+
+.stat-label {
+	width: 90px;
+	font-size: 0.8em;
+	color: var(--text-secondary);
+	flex-shrink: 0;
+}
+
+.stat-bar {
+	flex: 1;
+	height: 14px;
+	background: var(--bar-bg);
+	border-radius: 7px;
+	overflow: hidden;
+}
+
+.stat-fill {
+	height: 100%;
+	border-radius: 7px;
+	transition: width 0.4s ease, background-color 0.4s ease;
+	width: 0%;
+	background-image: linear-gradient(90deg, currentColor 0%, currentColor 100%);
+}
+
+.stat-value {
+	width: 28px;
+	text-align: right;
+	font-size: 0.8em;
+	font-weight: 600;
+	flex-shrink: 0;
+}
+
+/* Story panel: scrollable story log */
+#story-panel {
+	flex: 1;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	padding: 12px;
+	min-height: 0;
+}
+
+#story-log {
+	font-size: 0.95em;
+	line-height: 1.6;
+}
+
+#story-log p {
+	margin-bottom: 8px;
+}
+
+#story-log .story-headline {
+	font-weight: 800;
+	color: var(--accent-gold);
+	font-size: 1.15em;
+	margin-bottom: 6px;
+}
+
+#story-log .story-result {
+	color: var(--text-secondary);
+	font-size: 0.9em;
+	border-left: 3px solid var(--accent-blue);
+	padding-left: 8px;
+	margin-left: 4px;
+}
+
+#story-log .story-stat-change {
+	color: var(--text-secondary);
+	font-size: 0.85em;
+	font-style: italic;
+}
+
+/* Choices panel: big tap-friendly buttons */
+#choices-panel {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 4px 0;
+}
+
+.choice-button {
+	display: block;
+	width: 100%;
+	padding: 14px 16px;
+	min-height: 48px;
+	font-size: 1.05em;
+	font-weight: 600;
+	color: var(--text-primary);
+	background: var(--button-bg);
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	text-align: center;
+	-webkit-appearance: none;
+	-webkit-user-select: none;
+	user-select: none;
+	touch-action: manipulation;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.choice-button:hover {
+	background: var(--button-hover);
+}
+
+.choice-button:active {
+	background: var(--button-hover);
+	transform: scale(0.98);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.choice-button.primary {
+	background: var(--button-big);
+}
+
+.choice-button.primary:hover {
+	background: var(--button-big-hover);
+}
+
+.choice-button.primary:active {
+	background: var(--button-big-hover);
+	transform: scale(0.98);
+}
+
+/* Conference standings panel */
+#standings-panel {
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	padding: 8px 10px;
+	max-height: 200px;
+	overflow-y: auto;
+	flex-shrink: 0;
+}
+
+#standings-panel.hidden {
+	display: none;
+}
+
+#standings-content {
+	font-family: monospace;
+	font-size: 0.8em;
+	line-height: 1.4;
+	color: var(--text-secondary);
+	white-space: pre;
+	margin: 0;
+}
+
+#standings-content .player-team-row {
+	color: var(--accent-gold);
+	font-weight: 600;
+}
+
+/* Footer status bar */
+#status-bar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 10px;
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	border-top: 1px solid var(--bar-bg);
+	font-size: 0.85em;
+	color: var(--text-secondary);
+	flex-shrink: 0;
+	gap: 8px;
+}
+
+.standings-button {
+	padding: 6px 12px;
+	font-size: 0.85em;
+	font-weight: 600;
+	color: var(--text-primary);
+	background: var(--button-bg);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	-webkit-appearance: none;
+	-webkit-user-select: none;
+	user-select: none;
+	touch-action: manipulation;
+	transition: background 0.15s ease, transform 0.15s ease;
+	flex-shrink: 0;
+}
+
+.standings-button:hover {
+	background: var(--button-hover);
+}
+
+.standings-button:active {
+	background: var(--button-hover);
+	transform: scale(0.98);
+}
+
+/* Season schedule panel */
+#schedule-panel {
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	padding: 8px 10px;
+	max-height: 200px;
+	overflow-y: auto;
+	flex-shrink: 0;
+}
+
+#schedule-panel.hidden {
+	display: none;
+}
+
+#schedule-content {
+	font-family: monospace;
+	font-size: 0.8em;
+	line-height: 1.4;
+	color: var(--text-secondary);
+	white-space: pre;
+	margin: 0;
+}
+
+#schedule-content .current-week-row {
+	color: var(--accent-gold);
+	font-weight: 600;
+}
+
+#schedule-content .past-win {
+	color: var(--accent-green);
+	font-weight: 500;
+}
+
+#schedule-content .past-loss {
+	color: var(--accent-red);
+	font-weight: 500;
+}
+
+.schedule-button {
+	padding: 6px 12px;
+	font-size: 0.85em;
+	font-weight: 600;
+	color: var(--text-primary);
+	background: var(--button-bg);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	-webkit-appearance: none;
+	-webkit-user-select: none;
+	user-select: none;
+	touch-action: manipulation;
+	transition: background 0.15s ease, transform 0.15s ease;
+	flex-shrink: 0;
+}
+
+.schedule-button:hover {
+	background: var(--button-hover);
+}
+
+.schedule-button:active {
+	background: var(--button-hover);
+	transform: scale(0.98);
+}
+
+/* Event modal overlay */
+.modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: var(--modal-bg);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100;
+	padding: 16px;
+	backdrop-filter: blur(2px);
+	-webkit-backdrop-filter: blur(2px);
+	animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes modalSlideUp {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.modal-overlay.hidden {
+	display: none;
+}
+
+.modal-card {
+	background: var(--bg-card);
+	border-radius: 16px;
+	padding: 20px;
+	max-width: 500px;
+	width: 100%;
+	max-height: 80vh;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	animation: modalSlideUp 0.3s ease-out;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.modal-card h2 {
+	font-size: 1.2em;
+	margin-bottom: 10px;
+	color: var(--accent-gold);
+}
+
+.modal-card p {
+	font-size: 0.95em;
+	line-height: 1.5;
+	margin-bottom: 16px;
+	color: var(--text-primary);
+}
+
+#event-choices {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+#event-choices .choice-button {
+	padding: 16px;
+	font-size: 1.05em;
+	border-radius: 12px;
+}
+
+/* Name input fields for character creation */
+.name-input {
+	display: block;
+	width: 100%;
+	padding: 12px 16px;
+	font-size: 1.05em;
+	color: var(--text-primary);
+	background: var(--bg-secondary);
+	border: 2px solid var(--bar-bg);
+	border-radius: 10px;
+	outline: none;
+	-webkit-appearance: none;
+	-webkit-user-select: text;
+	user-select: text;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.name-input:focus {
+	border-color: var(--accent-blue);
+	box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
+}
+
+.name-input::placeholder {
+	color: var(--text-secondary);
+}
+
+/* Stat bar color utilities */
+.stat-high { background: var(--accent-green); }
+.stat-mid { background: var(--accent-yellow); }
+.stat-low { background: var(--accent-red); }
+
+/* Story timeline dividers (BitLife-style persistent log) */
+.story-divider {
+	border: none;
+	border-top: 1px solid var(--bar-bg);
+	margin: 16px 0 12px 0;
+	opacity: 0.4;
+	padding: 0;
+}
+
+/* Fade older content slightly for visual hierarchy */
+#story-log > p {
+	transition: opacity 0.3s ease;
+}
+
+/* Scrollbar styling for story panel */
+#story-panel::-webkit-scrollbar {
+	width: 4px;
+}
+
+#story-panel::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+#story-panel::-webkit-scrollbar-thumb {
+	background: var(--bar-bg);
+	border-radius: 2px;
+}

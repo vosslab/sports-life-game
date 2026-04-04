@@ -1,0 +1,48 @@
+{
+  "firstNames": [
+    "Marcus", "Jaylen", "DeShawn", "Tyler", "Caleb", "Jamal", "Austin",
+    "Brandon", "Malik", "Trevon", "Darius", "Xavier", "Jordan", "Cameron",
+    "Isaiah", "Devin", "Andre", "Lamar", "Patrick", "Justin", "Kyler",
+    "Jalen", "Micah", "Trevor", "Bryce", "Derek", "Travis", "Zach",
+    "Chris", "Antonio", "Mike", "Aaron", "DJ", "CJ", "TJ",
+    "Sarah", "Maya", "Jasmine", "Taylor", "Morgan", "Alex", "Sam",
+    "Noah", "Elijah", "Mason", "Logan", "Carter", "Owen", "Luke",
+    "Aiden", "Ethan", "Ryan", "Hunter", "Colton", "Wyatt", "Blake",
+    "Dante", "Terrell", "Keegan", "Rashad", "Nolan", "Cooper", "Beau"
+  ],
+  "lastNames": [
+    "Williams", "Johnson", "Smith", "Brown", "Jackson", "Davis", "Wilson",
+    "Thomas", "Robinson", "White", "Harris", "Martin", "Thompson", "Garcia",
+    "Martinez", "Anderson", "Taylor", "Moore", "Jones", "Lee", "Walker",
+    "Hall", "Allen", "Young", "King", "Wright", "Scott", "Green",
+    "Adams", "Baker", "Hill", "Rivera", "Campbell", "Mitchell", "Roberts",
+    "Carter", "Phillips", "Evans", "Turner", "Torres", "Parker", "Collins",
+    "Edwards", "Stewart", "Sanchez", "Morris", "Rogers", "Reed", "Cook"
+  ],
+  "highSchoolPrefixes": [
+    "Westfield", "North Valley", "Lincoln", "Riverside", "Cedar Creek",
+    "Oakmont", "Fairview", "Heritage", "Summit", "Crestwood",
+    "Lakewood", "Eastside", "Mountainview", "Bayshore", "Pinecrest",
+    "Highland", "Ridgeview", "Southgate", "Brookfield", "Millbrook",
+    "Stonebridge", "Clearwater", "Greendale", "Thornton", "Ironwood",
+    "Silver Lake", "Red Rock", "Sunset Hills", "Maple Grove", "Pine Bluff",
+    "Lakeview", "Milltown", "Copper Hills", "Dry Creek", "Maple Fork",
+    "River City", "Willow Springs", "Elkhorn", "Blue Ridge", "Fox Hollow"
+  ],
+  "mascots": [
+    "Acorns", "Alpacas", "Avocados", "Basil", "Beets",
+    "Berries", "Bison", "Buffalos", "Bumblebees", "Bunnies",
+    "Carrots", "Chives", "Clovers", "Cobras", "Cranes",
+    "Crickets", "Dandelions", "Dingos", "Doves", "Ferrets",
+    "Ferns", "Foxes", "Frogs", "Geckos", "Gophers",
+    "Gulls", "Hares", "Honeybees", "Hoppers", "Hot Peppers",
+    "Iguanas", "Jackrabbits", "Jellyfish", "Kumquats", "Lemurs",
+    "Lobsters", "Macaws", "Marigolds", "Moles", "Narwhals",
+    "Newts", "Oreos", "Parrots", "Platypus", "Poodles",
+    "Prawns", "Puffins", "Quails", "Raccoons", "Rhinos",
+    "Salmon", "Seals", "Shrimp", "Spuds", "Squids",
+    "Swans", "Tadpoles", "Toads", "Trout", "Turtles",
+    "Vipers", "Vultures", "Wasps", "Walnuts", "Walruses",
+    "Weasels", "Whalers", "Wombats", "Wyverns", "Zebras"
+  ]
+}

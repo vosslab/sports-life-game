@@ -1,0 +1,39 @@
+{
+  "nfl": [
+    "Arizona Cardinals", "Atlanta Falcons", "Baltimore Ravens",
+    "Buffalo Bills", "Carolina Panthers", "Chicago Bears",
+    "Cincinnati Bengals", "Cleveland Browns", "Dallas Cowboys",
+    "Denver Broncos", "Detroit Lions", "Green Bay Packers",
+    "Houston Texans", "Indianapolis Colts", "Jacksonville Jaguars",
+    "Kansas City Chiefs", "Las Vegas Raiders", "Los Angeles Chargers",
+    "Los Angeles Rams", "Miami Dolphins", "Minnesota Vikings",
+    "New England Patriots", "New Orleans Saints", "New York Giants",
+    "New York Jets", "Philadelphia Eagles", "Pittsburgh Steelers",
+    "San Francisco 49ers", "Seattle Seahawks", "Tampa Bay Buccaneers",
+    "Tennessee Titans", "Washington Commanders"
+  ],
+  "collegePower5": [
+    "Alabama", "Ohio State", "Georgia", "Michigan", "Clemson",
+    "Texas", "Oregon", "USC", "LSU", "Penn State",
+    "Florida State", "Oklahoma", "Notre Dame", "Tennessee", "Miami",
+    "Wisconsin", "Auburn", "Florida", "Texas A&M", "North Carolina",
+    "Iowa", "Michigan State", "Stanford", "UCLA", "Virginia Tech"
+  ],
+  "collegeGroup5": [
+    "Boise State", "Memphis", "UCF", "Appalachian State",
+    "Coastal Carolina", "Liberty", "SMU", "Tulane", "UNLV",
+    "James Madison", "Jacksonville State", "Sam Houston State",
+    "Air Force", "Army", "Navy", "Marshall", "Western Kentucky",
+    "Troy", "Louisiana", "South Alabama"
+  ],
+  "collegeD2": [
+    "Valdosta State", "Ferris State", "Shepherd", "Colorado Mines",
+    "Northwest Missouri State", "Grand Valley State", "Pittsburg State",
+    "West Florida", "Minnesota State", "Angelo State"
+  ],
+  "collegeD3": [
+    "Mount Union", "Mary Hardin-Baylor", "North Central", "Wheaton",
+    "St. Thomas", "Wisconsin-Whitewater", "Linfield", "Cortland",
+    "Johns Hopkins", "Carnegie Mellon"
+  ]
+}

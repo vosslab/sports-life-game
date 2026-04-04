@@ -1,2 +1,8 @@
 report_*.txt
 .DS_Store
+node_modules/
+dist/
+_te*.ts
+_te*.js
+OTHER_REPOS_FOR_STUDY/
+package-lock.json

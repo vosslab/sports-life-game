@@ -1,0 +1,14 @@
+{
+  "name": "sports-life-game",
+  "version": "26.02.0",
+  "description": "A BitLife-style American football career simulator",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.4"
+  },
+  "license": "GPL-3.0"
+}

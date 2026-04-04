@@ -1,0 +1,74 @@
+{
+  "buckets": {
+    "passer": {
+      "positions": ["QB"],
+      "primaryStats": ["footballIq", "technique", "confidence"],
+      "secondaryStats": ["athleticism", "discipline"],
+      "idealSize": [3],
+      "outputs": {
+        "labels": ["Pass Yards", "TDs", "INTs", "Passer Rating"],
+        "baseRanges": {
+          "passYards": [80, 350],
+          "tds": [0, 4],
+          "ints": [0, 3],
+          "passerRating": [40, 158]
+        }
+      }
+    },
+    "runner_receiver": {
+      "positions": ["RB", "WR", "TE"],
+      "primaryStats": ["athleticism", "technique"],
+      "secondaryStats": ["confidence", "health"],
+      "idealSize": [2, 3, 4],
+      "outputs": {
+        "labels": ["Yards", "TDs", "Catches"],
+        "baseRanges": {
+          "yards": [10, 180],
+          "tds": [0, 3],
+          "catches": [0, 12]
+        }
+      }
+    },
+    "lineman": {
+      "positions": ["OL", "DL"],
+      "primaryStats": ["technique", "discipline"],
+      "secondaryStats": ["athleticism", "health"],
+      "idealSize": [4, 5],
+      "outputs": {
+        "labels": ["Grade", "Key Plays"],
+        "baseRanges": {
+          "grade": [1, 6],
+          "keyPlays": [0, 5]
+        }
+      }
+    },
+    "defender": {
+      "positions": ["LB", "CB", "S"],
+      "primaryStats": ["athleticism", "footballIq"],
+      "secondaryStats": ["technique", "confidence"],
+      "idealSize": [2, 3, 4],
+      "outputs": {
+        "labels": ["Tackles", "Sacks", "INTs"],
+        "baseRanges": {
+          "tackles": [1, 15],
+          "sacks": [0, 3],
+          "ints": [0, 2]
+        }
+      }
+    },
+    "kicker": {
+      "positions": ["K", "P"],
+      "primaryStats": ["technique", "confidence"],
+      "secondaryStats": ["discipline"],
+      "idealSize": [2, 3],
+      "outputs": {
+        "labels": ["FG%", "Punt Avg", "Clutch Kicks"],
+        "baseRanges": {
+          "fgPercent": [40, 100],
+          "puntAvg": [30, 55],
+          "clutchKicks": [0, 3]
+        }
+      }
+    }
+  }
+}

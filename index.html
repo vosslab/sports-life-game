@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="theme-color" content="#1a1a2e">
+	<!-- Apple touch icon placeholder for future branding -->
+	<!-- <link rel="apple-touch-icon" href="icon-180.png"> -->
+	<title>Gridiron Life</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<div id="app">
+		<!-- Header: player info -->
+		<header id="player-header">
+			<div id="player-name">New Game</div>
+			<div id="player-info">
+				<span id="player-position"></span>
+				<span id="player-team"></span>
+			</div>
+			<div id="player-context">
+				<span id="player-age"></span>
+				<span id="player-week"></span>
+			</div>
+		</header>
+
+		<!-- Stat bars -->
+		<section id="stats-panel">
+			<div class="stat-row">
+				<span class="stat-label">Athleticism</span>
+				<div class="stat-bar"><div class="stat-fill" id="bar-athleticism"></div></div>
+				<span class="stat-value" id="val-athleticism">0</span>
+			</div>
+			<div class="stat-row">
+				<span class="stat-label">Technique</span>
+				<div class="stat-bar"><div class="stat-fill" id="bar-technique"></div></div>
+				<span class="stat-value" id="val-technique">0</span>
+			</div>
+			<div class="stat-row">
+				<span class="stat-label">Football IQ</span>
+				<div class="stat-bar"><div class="stat-fill" id="bar-footballIq"></div></div>
+				<span class="stat-value" id="val-footballIq">0</span>
+			</div>
+			<div class="stat-row">
+				<span class="stat-label">Discipline</span>
+				<div class="stat-bar"><div class="stat-fill" id="bar-discipline"></div></div>
+				<span class="stat-value" id="val-discipline">0</span>
+			</div>
+			<div class="stat-row">
+				<span class="stat-label">Health</span>
+				<div class="stat-bar"><div class="stat-fill" id="bar-health"></div></div>
+				<span class="stat-value" id="val-health">0</span>
+			</div>
+			<div class="stat-row">
+				<span class="stat-label">Confidence</span>
+				<div class="stat-bar"><div class="stat-fill" id="bar-confidence"></div></div>
+				<span class="stat-value" id="val-confidence">0</span>
+			</div>
+			<div class="stat-row">
+				<span class="stat-label">Popularity</span>
+				<div class="stat-bar"><div class="stat-fill" id="bar-popularity"></div></div>
+				<span class="stat-value" id="val-popularity">0</span>
+			</div>
+		</section>
+
+		<!-- Main story area -->
+		<section id="story-panel">
+			<div id="story-log"></div>
+		</section>
+
+		<!-- Choice buttons area -->
+		<section id="choices-panel">
+			<!-- Dynamically populated with big choice buttons -->
+		</section>
+
+		<!-- Conference standings (togglable) -->
+		<section id="standings-panel" class="hidden">
+			<pre id="standings-content"></pre>
+		</section>
+
+		<!-- Season schedule (togglable) -->
+		<section id="schedule-panel" class="hidden">
+			<pre id="schedule-content"></pre>
+		</section>
+
+		<!-- Footer status bar -->
+		<footer id="status-bar">
+			<span id="team-record"></span>
+			<button id="standings-toggle" class="standings-button">Standings</button>
+			<button id="schedule-toggle" class="schedule-button">Schedule</button>
+			<span id="recruiting-status"></span>
+		</footer>
+	</div>
+
+	<!-- Event modal overlay -->
+	<div id="event-modal" class="modal-overlay hidden">
+		<div class="modal-card">
+			<h2 id="event-title"></h2>
+			<p id="event-description"></p>
+			<div id="event-choices">
+				<!-- Dynamically populated -->
+			</div>
+		</div>
+	</div>
+
+	<script type="module" src="dist/main.js"></script>
+</body>
+</html>

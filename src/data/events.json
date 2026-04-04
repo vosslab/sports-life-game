@@ -1,0 +1,2082 @@
+[
+	{
+		"id": "rival_trash_talk",
+		"title": "Rival Runs His Mouth",
+		"description": "Your biggest rival just posted about how he's going to shut you down this Friday.",
+		"phase": "high_school",
+		"tags": ["rival", "confidence", "social"],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Fire back on social media",
+				"effects": {
+					"confidence": 3,
+					"popularity": 5,
+					"discipline": -2
+				},
+				"flavor": "Your clap-back goes viral at school. Coach is not thrilled, but the team loves it."
+			},
+			{
+				"text": "Let your play do the talking",
+				"effects": {
+					"discipline": 3,
+					"confidence": 1
+				},
+				"flavor": "You keep your head down. Your teammates respect the quiet confidence. Friday's game is going to be personal."
+			},
+			{
+				"text": "Reach out and be friendly",
+				"effects": {
+					"popularity": 3,
+					"confidence": -1,
+					"discipline": 2
+				},
+				"flavor": "You text him a friendly message. He's confused but maybe you've found an ally instead of an enemy."
+			}
+		]
+	},
+	{
+		"id": "rival_showdown_week",
+		"title": "Rival on Opposite Team This Week",
+		"description": "You just found out you're facing your biggest rival this Friday. He's been waiting for this matchup.",
+		"phase": "high_school",
+		"tags": ["rival", "athleticism", "big_decision"],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 4,
+			"max_week": 11
+		},
+		"choices": [
+			{
+				"text": "Study his film intensely",
+				"effects": {
+					"footballIq": 4,
+					"technique": 2,
+					"confidence": 2
+				},
+				"flavor": "You spend every spare moment watching his clips. By game day, you know exactly what he's going to do before he does it. Knowledge is power."
+			},
+			{
+				"text": "Turn up intensity at practice",
+				"effects": {
+					"athleticism": 3,
+					"discipline": 2,
+					"confidence": 3
+				},
+				"flavor": "You're flying around at practice, hitting harder than ever. Your teammates feed off your energy. Coach loves it."
+			},
+			{
+				"text": "Stay calm and composed",
+				"effects": {
+					"discipline": 4,
+					"health": 1
+				},
+				"flavor": "You refuse to let emotion cloud judgment. You're ready, but you're cool about it. That's a sign of a real competitor."
+			}
+		]
+	},
+	{
+		"id": "rival_off_field_incident",
+		"title": "Rival Spreads a Rumor About You",
+		"description": "Your rival started a false rumor at school about your recruiting interest. It's spreading.",
+		"phase": "high_school",
+		"tags": ["rival", "popularity", "social"],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 3,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Confront him directly",
+				"effects": {
+					"discipline": -3,
+					"confidence": 2,
+					"popularity": -1
+				},
+				"flavor": "You corner him in the hallway. Things get heated. Everyone's talking about it for days, but not in the way you wanted."
+			},
+			{
+				"text": "Ignore it and keep grinding",
+				"effects": {
+					"discipline": 3,
+					"confidence": 1,
+					"popularity": 1
+				},
+				"flavor": "You refuse to give it energy. Your play on the field speaks louder than any rumor. Scouts are watching you, not listening to gossip."
+			},
+			{
+				"text": "Post the truth online",
+				"effects": {
+					"popularity": 4,
+					"discipline": -1
+				},
+				"flavor": "Your honest response gets reshared by local sports accounts. People respect you for handling it with class."
+			}
+		]
+	},
+	{
+		"id": "rival_injury_comeback",
+		"title": "Your Rival Got Injured",
+		"description": "The rival who's been getting under your skin just suffered a season-ending injury.",
+		"phase": "high_school",
+		"tags": ["rival", "discipline", "leadership"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Reach out and support him",
+				"effects": {
+					"discipline": 2,
+					"leadership": 3,
+					"confidence": 1
+				},
+				"flavor": "You text him condolences. He's shocked but grateful. You might have just made an ally out of a rival. Real respect."
+			},
+			{
+				"text": "See it as an advantage",
+				"effects": {
+					"confidence": 4,
+					"discipline": -2,
+					"leadership": -1
+				},
+				"flavor": "You feel relief. Now you can focus on dominating without him in your way. The path is clearer."
+			},
+			{
+				"text": "Focus on proving yourself",
+				"effects": {
+					"discipline": 3,
+					"athleticism": 2,
+					"confidence": 2
+				},
+				"flavor": "You use this as fuel. You want to show that you earned your spot, not just benefited from his injury. No asterisks."
+			}
+		]
+	},
+	{
+		"id": "rival_same_team_promotion",
+		"title": "Your Rival Gets Promoted to Varsity",
+		"description": "The freshman you've been competing with just made varsity. Now you're finally going head-to-head for real.",
+		"phase": "high_school",
+		"tags": ["rival", "confidence", "athleticism"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 1,
+			"max_week": 8
+		},
+		"choices": [
+			{
+				"text": "Push him hard at practice",
+				"effects": {
+					"athleticism": 3,
+					"confidence": 2,
+					"technique": 1
+				},
+				"flavor": "You bring extra intensity when he's on the field. The competition pushes you both to be better. Coach is loving this."
+			},
+			{
+				"text": "Welcome him and mentor",
+				"effects": {
+					"leadership": 3,
+					"footballIq": 2,
+					"confidence": 1
+				},
+				"flavor": "You take him under your wing. Now you're the veteran. Your growth mindset impresses the whole team."
+			},
+			{
+				"text": "Challenge him to take your spot",
+				"effects": {
+					"confidence": 4,
+					"discipline": -1,
+					"athleticism": 2
+				},
+				"flavor": "You make it clear: if he wants the starting spot, he's got to earn it from you. The battle is on."
+			}
+		]
+	},
+	{
+		"id": "injury_sprained_ankle",
+		"title": "You Sprain Your Ankle Bad",
+		"description": "During practice, you roll your ankle hard. The trainer says it's a bad sprain. You're not sure you can play Friday.",
+		"phase": "high_school",
+		"tags": ["injury", "health", "leadership"],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Play through the pain",
+				"effects": {
+					"health": -4,
+					"confidence": 3,
+					"discipline": 2
+				},
+				"flavor": "You tape it up and take the field Friday. You're moving slower, but you're out there. Your toughness is legendary."
+			},
+			{
+				"text": "Rest and let it heal",
+				"effects": {
+					"health": 4,
+					"confidence": -1,
+					"discipline": 2
+				},
+				"flavor": "You sit out. It kills you to watch from the sideline, but you know the right move. You'll be back stronger."
+			},
+			{
+				"text": "Try practice on Thursday",
+				"effects": {
+					"health": 1,
+					"confidence": 1,
+					"discipline": 1
+				},
+				"flavor": "You test it in practice Thursday. The ankle feels better but not 100%. Coach makes the final call, and you respect it."
+			}
+		]
+	},
+	{
+		"id": "injury_concussion_scare",
+		"title": "Hard Hit Leaves You Seeing Stars",
+		"description": "You take a brutal shot to the head in practice. Everything spins for a moment. The trainer pulls you out to check for concussion.",
+		"phase": "high_school",
+		"tags": ["injury", "health", "discipline"],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Downplay symptoms and return",
+				"effects": {
+					"confidence": 2,
+					"health": -5,
+					"discipline": -2
+				},
+				"flavor": "You tell the trainer you're fine. You're not fine. This headache won't go away, and you're foggy in class all week."
+			},
+			{
+				"text": "Follow concussion protocol",
+				"effects": {
+					"health": 3,
+					"discipline": 3,
+					"confidence": -1
+				},
+				"flavor": "You report everything honestly. You're sidelined for two weeks. It's frustrating, but your brain matters more than Friday's game."
+			},
+			{
+				"text": "Work with the trainer to return safely",
+				"effects": {
+					"health": 2,
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You follow the gradual return-to-play protocol. You're back in limited capacity by game day. Cautious but ready."
+			}
+		]
+	},
+	{
+		"id": "injury_season_ending",
+		"title": "Your ACL Just Went",
+		"description": "Non-contact injury during a drill. You heard the pop. You know it's bad. The trainer's face confirms it.",
+		"phase": "high_school",
+		"tags": ["injury", "health", "big_decision"],
+		"weight": 3,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 3,
+			"max_week": 11
+		},
+		"choices": [
+			{
+				"text": "Get surgery and commit to rehab",
+				"effects": {
+					"health": -3,
+					"discipline": 4,
+					"confidence": 1
+				},
+				"flavor": "You have surgery Monday. Rehab is brutal, but you show up every single day. This is your comeback story."
+			},
+			{
+				"text": "Wait and see if it feels better",
+				"effects": {
+					"health": -5,
+					"confidence": -2
+				},
+				"flavor": "You hesitate. Days turn into weeks. The injury gets worse. You should have acted faster."
+			},
+			{
+				"text": "Focus on mental game while recovering",
+				"effects": {
+					"health": -2,
+					"footballIq": 3,
+					"leadership": 2
+				},
+				"flavor": "You attend every practice as a mentor. You study film obsessively. You're still leading, just from the sideline."
+			}
+		]
+	},
+	{
+		"id": "injury_dealing_with_chronic",
+		"title": "Your Shoulder Has Been Aching",
+		"description": "That shoulder injury from last season never fully healed. It's nagging you every game. Should you get it looked at?",
+		"phase": "high_school",
+		"tags": ["injury", "health", "discipline"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 5,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Ignore it and keep playing",
+				"effects": {
+					"confidence": 2,
+					"health": -3,
+					"discipline": -1
+				},
+				"flavor": "You tape it and move on. Games are fine, but that dull pain is always there in the back of your mind."
+			},
+			{
+				"text": "See a specialist",
+				"effects": {
+					"health": 3,
+					"confidence": 1,
+					"discipline": 2
+				},
+				"flavor": "The specialist says rest and PT. You miss a few games, but you come back stronger and pain-free. Worth it."
+			},
+			{
+				"text": "Use it as motivation",
+				"effects": {
+					"confidence": 3,
+					"athleticism": 2,
+					"discipline": 1
+				},
+				"flavor": "You channel the frustration into your workouts. Playing with pain makes you tougher. You thrive on it."
+			}
+		]
+	},
+	{
+		"id": "recruiting_scout_visit",
+		"title": "College Scout Watching Practice",
+		"description": "You notice a coach with a clipboard on the sideline. He's taking notes on you. This is real.",
+		"phase": "high_school",
+		"tags": ["recruiting", "confidence", "popularity"],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 6,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Play extra aggressive",
+				"effects": {
+					"athleticism": 3,
+					"confidence": 3,
+					"discipline": -1
+				},
+				"flavor": "You fly around practice making every play. The scout's taking lots of notes. You're trying to impress and it shows."
+			},
+			{
+				"text": "Execute assignments perfectly",
+				"effects": {
+					"technique": 3,
+					"footballIq": 2,
+					"discipline": 2
+				},
+				"flavor": "You focus on doing your job exactly right. Clean technique, smart decisions. This is film a coach wants to see."
+			},
+			{
+				"text": "Stay calm and be yourself",
+				"effects": {
+					"confidence": 2,
+					"discipline": 2,
+					"popularity": 1
+				},
+				"flavor": "You pretend he's not there. You play your game. Scouts respect composure, and that's what they got."
+			}
+		]
+	},
+	{
+		"id": "recruiting_offer_letter",
+		"title": "Your Dream School Offers You",
+		"description": "The mail finally came. That envelope from your dream school is right there. Your hands are shaking.",
+		"phase": "high_school",
+		"tags": ["recruiting", "confidence", "big_decision"],
+		"weight": 4,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 8,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 60
+			}
+		},
+		"choices": [
+			{
+				"text": "Commit immediately",
+				"effects": {
+					"confidence": 5,
+					"popularity": 5,
+					"discipline": 2
+				},
+				"flavor": "You call the coach and commit right there. The weight lifts off your shoulders. You're going to be a college player.",
+				"sets_flag": "committed_to_college"
+			},
+			{
+				"text": "Take time to think and compare offers",
+				"effects": {
+					"footballIq": 3,
+					"discipline": 3,
+					"confidence": 1
+				},
+				"flavor": "You tell them you're interested but need to see other options. Smart move. Now other schools come calling."
+			},
+			{
+				"text": "Wait to see if better programs offer",
+				"effects": {
+					"confidence": -1,
+					"footballIq": 2
+				},
+				"flavor": "You put it on hold, hoping a bigger name program reaches out. Maybe that was a mistake. The waiting is torture."
+			}
+		]
+	},
+	{
+		"id": "recruiting_campus_visit",
+		"title": "Visit Campus Visit Weekend",
+		"description": "Your top school invited you for an official visit. You're flying out Friday to see the campus and meet coaches.",
+		"phase": "high_school",
+		"tags": ["recruiting", "popularity", "confidence"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 6,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 55
+			}
+		},
+		"choices": [
+			{
+				"text": "Impress everyone at the combine workout",
+				"effects": {
+					"athleticism": 4,
+					"confidence": 3,
+					"popularity": 2
+				},
+				"flavor": "You dominate the workout. Your numbers are elite. Every coach in the room is talking about you."
+			},
+			{
+				"text": "Focus on connecting with players",
+				"effects": {
+					"popularity": 4,
+					"leadership": 2,
+					"confidence": 2
+				},
+				"flavor": "You spend time with the current team. They love you. You can see yourself there. This place feels like home."
+			},
+			{
+				"text": "Ask smart questions about academics",
+				"effects": {
+					"footballIq": 3,
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You ask about graduation rates and support staff. The coaches respect that you're thinking long-term, not just glory."
+			}
+		]
+	},
+	{
+		"id": "recruiting_interest_fades",
+		"title": "Top Program Stops Recruiting You",
+		"description": "The school you thought was your lock just told your coach they're moving on. They found someone bigger.",
+		"phase": "high_school",
+		"tags": ["recruiting", "discipline", "confidence"],
+		"weight": 4,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 7,
+			"max_week": 12,
+			"min_stats": {
+				"athleticism": 50
+			}
+		},
+		"choices": [
+			{
+				"text": "Use it as fuel",
+				"effects": {
+					"athleticism": 3,
+					"confidence": 3,
+					"discipline": 2
+				},
+				"flavor": "You're motivated. Time to show them they made a mistake. Your film over the next month is unreal."
+			},
+			{
+				"text": "Develop relationships with other schools",
+				"effects": {
+					"popularity": 3,
+					"footballIq": 2,
+					"discipline": 1
+				},
+				"flavor": "You reach out to programs that ARE interested. Turns out there are plenty of schools who want you."
+			},
+			{
+				"text": "Question your abilities",
+				"effects": {
+					"confidence": -3,
+					"discipline": 1
+				},
+				"flavor": "Doubt creeps in. If they don't want you, maybe you're not that good. This hits harder than you expected."
+			}
+		]
+	},
+	{
+		"id": "big_decision_position_switch",
+		"title": "Coach Wants You to Switch Positions",
+		"description": "Coach pulled you aside. He thinks you'd be better at a different position. It's an opportunity, but it's scary.",
+		"phase": "high_school",
+		"tags": ["big_decision", "discipline", "footballIq"],
+		"weight": 2,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 10
+		},
+		"choices": [
+			{
+				"text": "Make the switch immediately",
+				"effects": {
+					"athleticism": 2,
+					"confidence": 1,
+					"discipline": 3,
+					"technique": -2
+				},
+				"flavor": "You start learning the new position. You're behind the curve, but you're willing to grind. Coach respects your trust in him."
+			},
+			{
+				"text": "Ask for time to think",
+				"effects": {
+					"footballIq": 3,
+					"discipline": 2
+				},
+				"flavor": "You don't rush the decision. You ask smart questions. You want to understand the why before you commit."
+			},
+			{
+				"text": "Refuse and stay where you are",
+				"effects": {
+					"confidence": 2,
+					"discipline": -2,
+					"popularity": -2
+				},
+				"flavor": "You tell him no thanks. You're solid where you are. Coach looks disappointed. You've just made an enemy of your position coach."
+			}
+		]
+	},
+	{
+		"id": "big_decision_transfer_offer",
+		"title": "Better Program Wants You to Transfer",
+		"description": "A powerhouse school reached out. They want to take you as a transfer. This is a once-in-a-lifetime opportunity.",
+		"phase": "high_school",
+		"tags": ["big_decision", "confidence", "leadership"],
+		"weight": 2,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 5,
+			"max_week": 12,
+			"min_stats": {
+				"athleticism": 65
+			}
+		},
+		"choices": [
+			{
+				"text": "Transfer to the bigger school",
+				"effects": {
+					"confidence": 5,
+					"athleticism": 2,
+					"popularity": 4,
+					"leadership": -2
+				},
+				"flavor": "You're transferring. It's a big move leaving your team, but the opportunity is too big. You're going to play for a winner.",
+				"sets_flag": "transferred_high_school"
+			},
+			{
+				"text": "Stay loyal to your current team",
+				"effects": {
+					"discipline": 4,
+					"leadership": 3,
+					"confidence": 1
+				},
+				"flavor": "You tell them no. Your teammates depend on you. You finish what you started. Loyalty builds legacy."
+			},
+			{
+				"text": "Ask them to wait until next year",
+				"effects": {
+					"footballIq": 2,
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You want to graduate from your current school. You ask if they'll still want you next year. They say they will."
+			}
+		]
+	},
+	{
+		"id": "coach_benching_threat",
+		"title": "Coach Threatens to Bench You",
+		"description": "Coach called you out in front of the team. Said if you don't fix your attitude, you're coming off the field.",
+		"phase": "high_school",
+		"tags": ["coach", "discipline", "confidence"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 3,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Get your head right immediately",
+				"effects": {
+					"discipline": 4,
+					"confidence": 2,
+					"athleticism": 1
+				},
+				"flavor": "You take it to heart. Next practice you're locked in. Coach notices. By Friday, you're playing your best football."
+			},
+			{
+				"text": "Argue with him right there",
+				"effects": {
+					"confidence": -2,
+					"discipline": -3,
+					"popularity": -3
+				},
+				"flavor": "You mouth off. Huge mistake. Coach benches you the next game. Teammates think you're selfish. This is damage control time."
+			},
+			{
+				"text": "Ask him what he needs to see",
+				"effects": {
+					"discipline": 3,
+					"footballIq": 2,
+					"confidence": 1
+				},
+				"flavor": "You ask what changes he wants. He respects you for taking it seriously, not getting defensive. Now you know exactly what to fix."
+			}
+		]
+	},
+	{
+		"id": "coach_praise_moment",
+		"title": "Coach Praises Your Film in Front of Team",
+		"description": "Coach shows your highlights to the whole team. He's using you as the example of how to play the position right.",
+		"phase": "high_school",
+		"tags": ["coach", "confidence", "leadership"],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 13,
+			"min_stats": {
+				"technique": 40
+			}
+		},
+		"choices": [
+			{
+				"text": "Let it motivate you to keep growing",
+				"effects": {
+					"confidence": 3,
+					"discipline": 2,
+					"athleticism": 1
+				},
+				"flavor": "You feel validated but hungry. You're not satisfied. You want to be better next week. This is just the start."
+			},
+			{
+				"text": "Get cocky and coast",
+				"effects": {
+					"confidence": 4,
+					"discipline": -3,
+					"athleticism": -1
+				},
+				"flavor": "You peak early. Next week you're not focused. Teams figure you out. Coaches get a taste of you thinking you've arrived."
+			},
+			{
+				"text": "Use it to build your teammates up",
+				"effects": {
+					"leadership": 4,
+					"popularity": 3,
+					"confidence": 2
+				},
+				"flavor": "After practice, you pull up that younger guy and show him what coach was talking about. Now you're a mentor, not just a player."
+			}
+		]
+	},
+	{
+		"id": "rival_beats_your_record",
+		"title": "Your Rival Just Broke Your School Record",
+		"description": "The guy you've been competing with all season just posted the best stats in school history. And he did it in a game you sat out with injury.",
+		"phase": "high_school",
+		"tags": ["rival", "confidence", "motivation"],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 5,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Break his record next game",
+				"effects": {
+					"athleticism": 4,
+					"confidence": 4,
+					"discipline": 1
+				},
+				"flavor": "You're laser-focused. Every single snap you're trying to top what he did. When you break it, the crowd goes wild."
+			},
+			{
+				"text": "Congratulate him publicly",
+				"effects": {
+					"leadership": 3,
+					"popularity": 3,
+					"confidence": 1
+				},
+				"flavor": "You post something respectful. It surprises everyone, including him. Real recognize real, even in rivals."
+			},
+			{
+				"text": "Stay quiet and let your season speak",
+				"effects": {
+					"discipline": 3,
+					"footballIq": 2,
+					"confidence": 2
+				},
+				"flavor": "You don't say anything. You just keep working. Records aren't won in a moment; they're built over time."
+			}
+		]
+	},
+	{
+		"id": "rival_scholarship_first",
+		"title": "Your Rival Got a Scholarship Offer First",
+		"description": "You just heard through the grapevine that your rival committed to a big program. They haven't offered you yet.",
+		"phase": "high_school",
+		"tags": ["rival", "recruiting", "confidence"],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 7,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 50
+			}
+		},
+		"choices": [
+			{
+				"text": "Contact schools before they move on",
+				"effects": {
+					"popularity": 3,
+					"confidence": 2,
+					"discipline": 1
+				},
+				"flavor": "You reach out to coaches directly. You're not waiting. That fire in your belly is motivating calls to every program that matters."
+			},
+			{
+				"text": "Prove you're better on film",
+				"effects": {
+					"athleticism": 4,
+					"technique": 2,
+					"confidence": 1
+				},
+				"flavor": "You dominate these next few games. The film speaks for itself. Better late than never—coaches see you and start calling."
+			},
+			{
+				"text": "Second-guess your own abilities",
+				"effects": {
+					"confidence": -3,
+					"discipline": 0
+				},
+				"flavor": "Maybe he is better. Maybe you're overrated. These thoughts spiral. You need to get your head right fast."
+			}
+		]
+	},
+	{
+		"id": "rival_wants_to_hang",
+		"title": "Your Rival Texts You Before the Big Game",
+		"description": "He wants to grab food with you the night before the rival game. Says he wants to 'squash the beef' before Friday.",
+		"phase": "high_school",
+		"tags": ["rival", "social", "leadership"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 4,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Meet him for food",
+				"effects": {
+					"popularity": 3,
+					"leadership": 2,
+					"confidence": 1
+				},
+				"flavor": "You talk about college plans and life. Turns out you have a lot in common. He's a good dude off the field. Game day is still personal, but it's respect."
+			},
+			{
+				"text": "Decline and stay focused",
+				"effects": {
+					"discipline": 3,
+					"confidence": 2
+				},
+				"flavor": "You tell him you need your head in the game. Friday you can talk. He respects the focus. The game is extra intense."
+			},
+			{
+				"text": "Go but treat it like scouting",
+				"effects": {
+					"footballIq": 2,
+					"popularity": 2,
+					"confidence": 1
+				},
+				"flavor": "You go but ask him film questions. You're reading his prep, his mindset. This is intelligence gathering wrapped in friendship."
+			}
+		]
+	},
+	{
+		"id": "rival_coach_trash_talk",
+		"title": "Rival's Coach Disrespects Your Program",
+		"description": "You overhear your rival's coach in the hallway talking trash about your team's defense. His words are designed to reach you.",
+		"phase": "high_school",
+		"tags": ["rival", "coach", "leadership"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 3,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Tell your teammates and rally them",
+				"effects": {
+					"leadership": 3,
+					"popularity": 4,
+					"discipline": 1
+				},
+				"flavor": "You gather the team and repeat what you heard. The room goes silent, then fires up. Now everyone's personal about it."
+			},
+			{
+				"text": "Respond to the coach directly",
+				"effects": {
+					"confidence": 3,
+					"discipline": -2,
+					"popularity": 2
+				},
+				"flavor": "You approach him and tell him his words are weak. He's shocked you had the guts. Respect and tension all at once."
+			},
+			{
+				"text": "Let your play do the responding",
+				"effects": {
+					"discipline": 3,
+					"athleticism": 2,
+					"confidence": 2
+				},
+				"flavor": "You don't say anything. Friday, you shut down their offense completely. The scoreboard is your response."
+			}
+		]
+	},
+	{
+		"id": "injury_teammate_gets_hurt",
+		"title": "Your Best Teammate Got Seriously Injured",
+		"description": "Your guy went down hard in practice. ACL, torn ACL. He's out for the season. You watched it happen.",
+		"phase": "high_school",
+		"tags": ["injury", "leadership", "discipline"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 12,
+			"requires_flag": "has_close_teammate"
+		},
+		"choices": [
+			{
+				"text": "Check on him immediately after",
+				"effects": {
+					"leadership": 4,
+					"popularity": 3,
+					"confidence": 1
+				},
+				"flavor": "You sit with him in the trainer's room. You let him know he's got your support no matter what. He needed that."
+			},
+			{
+				"text": "Play harder the next game in his honor",
+				"effects": {
+					"athleticism": 3,
+					"confidence": 3,
+					"discipline": 2
+				},
+				"flavor": "You wear his number in a different way. Every snap is for him. The team rallies around this. You're playing with purpose."
+			},
+			{
+				"text": "Keep distance and focus on yourself",
+				"effects": {
+					"confidence": 2,
+					"discipline": -2,
+					"popularity": -1
+				},
+				"flavor": "You're uncomfortable around injury. You keep your distance. Teammates notice. It feels cold, even if you don't mean it that way."
+			}
+		]
+	},
+	{
+		"id": "injury_cleared_but_sore",
+		"title": "Cleared to Play But Still Hurting",
+		"description": "The trainer says you're good to go. Medically cleared. But that shoulder still aches. It's not injured, it's just... sore.",
+		"phase": "high_school",
+		"tags": ["injury", "health", "discipline"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 3,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Play and push through the pain",
+				"effects": {
+					"confidence": 3,
+					"athleticism": 1,
+					"health": -2
+				},
+				"flavor": "Your pain tolerance is off the charts. You play the whole game. By the end you're limping, but you're still standing."
+			},
+			{
+				"text": "Talk to trainer about management",
+				"effects": {
+					"health": 2,
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You ask about taping, PT, anti-inflammatories. There's a plan to manage it safely. Smart player. Smart body."
+			},
+			{
+				"text": "Overthink the pain and get cautious",
+				"effects": {
+					"confidence": -2,
+					"athleticism": -1,
+					"health": 1
+				},
+				"flavor": "Every time you move you're worried about reaggravating it. You're hesitant. It affects your play. Worry is real too."
+			}
+		]
+	},
+	{
+		"id": "injury_off_field_incident",
+		"title": "You Twisted Your Ankle Just Walking to School",
+		"description": "Of all the ways to get hurt, you twisted your ankle on the sidewalk. Going to school. Not even at football.",
+		"phase": "high_school",
+		"tags": ["injury", "health", "discipline"],
+		"weight": 4,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Go to practice anyway",
+				"effects": {
+					"discipline": 2,
+					"health": -3,
+					"confidence": 1
+				},
+				"flavor": "You tape it up and show up. Coach sees your commitment. But that ankle is swelling. You're limping hard by the end of practice."
+			},
+			{
+				"text": "Skip practice and ice it",
+				"effects": {
+					"health": 3,
+					"discipline": 1
+				},
+				"flavor": "One day off is worth a month of playing healthy. You ice it all day. Smart investment in the future."
+			},
+			{
+				"text": "Laugh it off but be careful",
+				"effects": {
+					"popularity": 2,
+					"health": 1,
+					"confidence": 1
+				},
+				"flavor": "You make jokes about it all day. At practice you modify drills. Your teammates think it's funny. You stay smart about recovery."
+			}
+		]
+	},
+	{
+		"id": "recruiting_small_school_offer",
+		"title": "Small School Offers Full Ride, Dream School Silent",
+		"description": "A smaller D1 program offered you a full scholarship. Your dream school? Still no offer, but you're on their radar.",
+		"phase": "high_school",
+		"tags": ["recruiting", "big_decision", "confidence"],
+		"weight": 3,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 8,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 55
+			}
+		},
+		"choices": [
+			{
+				"text": "Commit to the small school (security)",
+				"effects": {
+					"confidence": 3,
+					"discipline": 2,
+					"popularity": 2
+				},
+				"flavor": "You're going to college. Full ride. Guaranteed education. Playing time. This is the smart move, and you know it.",
+				"sets_flag": "committed_to_college"
+			},
+			{
+				"text": "Wait for your dream school",
+				"effects": {
+					"confidence": -1,
+					"footballIq": 2,
+					"discipline": 1
+				},
+				"flavor": "You tell the small school to wait. You believe your dream school is coming. The gamble is on. Waiting is torture."
+			},
+			{
+				"text": "Visit both campuses before deciding",
+				"effects": {
+					"footballIq": 3,
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You take both visits seriously. You're making an informed decision, not just chasing logos. That's maturity."
+			}
+		]
+	},
+	{
+		"id": "recruiting_ranking_drops",
+		"title": "Your Recruiting Ranking Dropped After Bad Game",
+		"description": "You had a rough game. Real rough. Now recruiting sites dropped your ranking. A star became three stars.",
+		"phase": "high_school",
+		"tags": ["recruiting", "confidence", "discipline"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 6,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 50
+			}
+		},
+		"choices": [
+			{
+				"text": "Use it to prove them wrong",
+				"effects": {
+					"athleticism": 4,
+					"confidence": 3,
+					"discipline": 2
+				},
+				"flavor": "You're on a mission. Next three games are your film. You're going to make them regret dropping you from their big boards."
+			},
+			{
+				"text": "Ignore the rankings and play your game",
+				"effects": {
+					"discipline": 3,
+					"confidence": 1,
+					"footballIq": 2
+				},
+				"flavor": "Rankings are just noise. You focus on what you control: effort, technique, preparation. The real evaluation happens on the field."
+			},
+			{
+				"text": "Get frustrated and doubt yourself",
+				"effects": {
+					"confidence": -3,
+					"athleticism": -1
+				},
+				"flavor": "You spiral. If the experts dropped you, maybe you're not as good as you thought. This negative energy is poison."
+			}
+		]
+	},
+	{
+		"id": "recruiting_parents_disagree",
+		"title": "Your Parents Can't Agree on Which College",
+		"description": "You have three offers. Mom wants the academic school. Dad wants the best football program. You're caught in the middle.",
+		"phase": "high_school",
+		"tags": ["recruiting", "big_decision", "discipline"],
+		"weight": 4,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 9,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 60
+			}
+		},
+		"choices": [
+			{
+				"text": "Make the decision yourself",
+				"effects": {
+					"confidence": 4,
+					"discipline": 3,
+					"leadership": 2
+				},
+				"flavor": "You listen to both, then tell them it's your future. You choose the school that feels right for YOU. They respect that maturity.",
+				"sets_flag": "committed_to_college"
+			},
+			{
+				"text": "Find a school that's both strong",
+				"effects": {
+					"footballIq": 3,
+					"discipline": 3,
+					"confidence": 2
+				},
+				"flavor": "You identify a school with both academic prestige and a winning program. Both parents feel heard. Everyone's happy."
+			},
+			{
+				"text": "Let them decide for you",
+				"effects": {
+					"confidence": -2,
+					"discipline": 1
+				},
+				"flavor": "You punt the decision. They figure it out eventually, but you feel like you lost agency. This is your life to lead."
+			}
+		]
+	},
+	{
+		"id": "recruiting_signing_day_pressure",
+		"title": "National Signing Day—You're Not Signed Yet",
+		"description": "It's signing day. Every other top recruit is posting their announcements. You don't have an offer locked in yet.",
+		"phase": "high_school",
+		"tags": ["recruiting", "confidence", "pressure"],
+		"weight": 4,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 13,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 55
+			}
+		},
+		"choices": [
+			{
+				"text": "Stay calm—your offer is coming",
+				"effects": {
+					"discipline": 4,
+					"confidence": 2,
+					"footballIq": 1
+				},
+				"flavor": "You know your value. A program will call. You don't chase. Within hours a coach reaches out. Patience paid off."
+			},
+			{
+				"text": "Panic and accept the first offer",
+				"effects": {
+					"confidence": -1,
+					"discipline": -2,
+					"popularity": 1
+				},
+				"flavor": "You take the first scholarship that comes. Maybe it was the right call, maybe not. But the stress is over. Commit or regret—either way, you're done waiting."
+			},
+			{
+				"text": "Use social media to stay visible",
+				"effects": {
+					"popularity": 3,
+					"footballIq": 1,
+					"confidence": 1
+				},
+				"flavor": "You post highlights and your phone number. Coaches see you're pro-active. Interest picks up. Going viral works sometimes."
+			}
+		]
+	},
+	{
+		"id": "coach_new_coach_arrives",
+		"title": "New Head Coach Just Got Hired Mid-Season",
+		"description": "Your head coach was fired. New guy just walked in Tuesday. Completely different system, different culture.",
+		"phase": "high_school",
+		"tags": ["coach", "discipline", "leadership"],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 4,
+			"max_week": 10
+		},
+		"choices": [
+			{
+				"text": "Buy in hard to the new system",
+				"effects": {
+					"discipline": 4,
+					"leadership": 2,
+					"confidence": 1
+				},
+				"flavor": "You're the first to embrace the change. You learn his playbook, his philosophy. He notices your adaptability. You become his guy."
+			},
+			{
+				"text": "Resist and stick to old ways",
+				"effects": {
+					"confidence": -1,
+					"discipline": -2,
+					"popularity": -2
+				},
+				"flavor": "You think the old coach was better. You're not interested in learning new stuff. Conflict builds. This is not going to end well."
+			},
+			{
+				"text": "Stay neutral and watch how it unfolds",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 2,
+					"confidence": 1
+				},
+				"flavor": "You observe. You see which guys get opportunities. You adjust when necessary. You're flexible, not stubborn or desperate to please."
+			}
+		]
+	},
+	{
+		"id": "coach_gets_captain_armband",
+		"title": "Coach Just Named You Team Captain",
+		"description": "Coach pulled you aside before practice. He's giving you the captain's armband. This is yours now.",
+		"phase": "high_school",
+		"tags": ["coach", "leadership", "big_decision"],
+		"weight": 3,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 3,
+			"max_week": 12,
+			"min_stats": {
+				"leadership": 40,
+				"discipline": 40
+			}
+		},
+		"choices": [
+			{
+				"text": "Lead by example on the field",
+				"effects": {
+					"leadership": 5,
+					"discipline": 3,
+					"confidence": 2
+				},
+				"flavor": "You earn the title with your play and work ethic. Guys follow because you're out there grinding. This is real leadership.",
+				"sets_flag": "is_team_captain"
+			},
+			{
+				"text": "Be vocal and hold guys accountable",
+				"effects": {
+					"leadership": 4,
+					"discipline": 2,
+					"popularity": 1
+				},
+				"flavor": "You're not afraid to call people out. You hold standards high. Some guys love it, some resent you, but respect is there."
+			},
+			{
+				"text": "Try to be everyone's friend",
+				"effects": {
+					"leadership": 2,
+					"popularity": 4,
+					"discipline": -1
+				},
+				"flavor": "You're too nice. You avoid conflict. Guys like you but you're not pushing anyone to be better. Captain should demand more."
+			}
+		]
+	},
+	{
+		"id": "coach_teammate_jealousy",
+		"title": "Teammate Jealous You're Getting More Reps",
+		"description": "You're getting more playing time. Your teammate who used to start has been cold toward you. He feels passed over.",
+		"phase": "high_school",
+		"tags": ["coach", "leadership", "social"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 3,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Address it directly and with respect",
+				"effects": {
+					"leadership": 3,
+					"popularity": 2,
+					"confidence": 1
+				},
+				"flavor": "You pull him aside. You tell him you respect his game and want him back in there. You're not the enemy. The conversation helps."
+			},
+			{
+				"text": "Keep crushing it on field",
+				"effects": {
+					"athleticism": 3,
+					"confidence": 2,
+					"discipline": 1
+				},
+				"flavor": "You don't say anything. You just keep outworking him. Eventually he either accepts his role or gets moved. No drama."
+			},
+			{
+				"text": "Avoid him and keep the peace",
+				"effects": {
+					"discipline": 1,
+					"popularity": -1
+				},
+				"flavor": "You pretend nothing's wrong. But locker room tension is real. It affects the whole team. Someone needs to deal with this."
+			}
+		]
+	},
+	{
+		"id": "coach_team_chemistry_falling_apart",
+		"title": "Team Chemistry Is Falling Apart—You Need to Lead",
+		"description": "Cliques forming. Players bickering. Coach is losing control. The locker room feels divided right before playoffs.",
+		"phase": "high_school",
+		"tags": ["coach", "leadership", "discipline"],
+		"weight": 6,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 10,
+			"max_week": 13,
+			"min_stats": {
+				"leadership": 45
+			}
+		},
+		"choices": [
+			{
+				"text": "Call a team meeting and unite everyone",
+				"effects": {
+					"leadership": 5,
+					"popularity": 4,
+					"confidence": 2
+				},
+				"flavor": "You stand up and tell the team they're better than this. You remind them why they play together. Guys respond. Unity returns.",
+				"sets_flag": "healed_team_chemistry"
+			},
+			{
+				"text": "Let coach handle it",
+				"effects": {
+					"discipline": 1,
+					"popularity": -1,
+					"confidence": -1
+				},
+				"flavor": "You stay out of it. Coach tries to fix it but it's too late. By playoffs, the division is real. This haunts you."
+			},
+			{
+				"text": "Just focus on winning your matchup",
+				"effects": {
+					"athleticism": 2,
+					"confidence": 2,
+					"discipline": -1
+				},
+				"flavor": "You zone out the drama and focus on your assignment. At least you're doing your job. But the team's suffering."
+			}
+		]
+	},
+	{
+		"id": "social_grades_slipping",
+		"title": "Your Grades Are Falling—Eligibility Risk",
+		"description": "Coach called you in. Your GPA just dropped below 2.5. You're at risk of losing eligibility. College scouts care about this too.",
+		"phase": "high_school",
+		"tags": ["social", "discipline", "academic"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 5,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Get a tutor and commit to recovery",
+				"effects": {
+					"discipline": 4,
+					"confidence": 2,
+					"footballIq": 1
+				},
+				"flavor": "You hire a tutor. You cut social time. You grind. By mid-quarter you're back on track. The effort pays off fast."
+			},
+			{
+				"text": "Ask teacher for extra credit",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You reach out to each teacher. Some help, some don't. It's a scramble but you're advocating for yourself. That matters."
+			},
+			{
+				"text": "Stress about it but don't change anything",
+				"effects": {
+					"confidence": -2,
+					"discipline": -1,
+					"health": -1
+				},
+				"flavor": "You're anxious but procrastinating. Next progress report comes out and it's worse. Now you're really in trouble."
+			}
+		]
+	},
+	{
+		"id": "social_prom_vs_practice",
+		"title": "Prom Night vs. Big Game Prep",
+		"description": "Prom is this Saturday. The biggest game of the season is Friday night. Your girlfriend wants you there. Coach expects you at the extra practice.",
+		"phase": "high_school",
+		"tags": ["social", "discipline", "relationship"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 11,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Go to practice, skip prom",
+				"effects": {
+					"discipline": 4,
+					"confidence": 3,
+					"popularity": -1
+				},
+				"flavor": "You tell your girlfriend football comes first. It's brutal but you're all-in for this game. You both end up resenting it a little."
+			},
+			{
+				"text": "Go to prom, show up to practice tired",
+				"effects": {
+					"popularity": 4,
+					"confidence": 1,
+					"discipline": -2
+				},
+				"flavor": "You go to prom, have an amazing night. Friday you're gassed and sloppy. Game's close but you're the reason it was close."
+			},
+			{
+				"text": "Compromise: go to prom early, back by 11pm",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1,
+					"popularity": 2
+				},
+				"flavor": "You show up for pictures and one dance. You head home, get sleep, and you're ready Friday. Everyone's happy. Smart balance."
+			}
+		]
+	},
+	{
+		"id": "social_newspaper_interview",
+		"title": "Local Sports Journalist Wants to Interview You",
+		"description": "The local newspaper reached out. They want to do a feature on your recruiting journey and rise as a player. Could be great exposure.",
+		"phase": "high_school",
+		"tags": ["social", "popularity", "confidence"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 6,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 55
+			}
+		},
+		"choices": [
+			{
+				"text": "Give the interview, be authentic",
+				"effects": {
+					"popularity": 4,
+					"confidence": 2,
+					"leadership": 1
+				},
+				"flavor": "You do the interview and talk honestly about your journey. The article is great. Coaches and teammates respect your openness."
+			},
+			{
+				"text": "Decline—keep your head down",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You politely say no. You're not about the spotlight. Your teammates respect that. Focus stays on the field."
+			},
+			{
+				"text": "Give interview but oversell yourself",
+				"effects": {
+					"confidence": 3,
+					"popularity": 2,
+					"discipline": -2
+				},
+				"flavor": "You hype yourself up in the article. Teammates think you're arrogant. Coaches expect more now. Expectations are sky-high."
+			}
+		]
+	},
+	{
+		"id": "social_viral_post_good",
+		"title": "Your Highlight Reel Goes Viral",
+		"description": "Someone posted one of your plays on social media. It blew up. Thousands of shares, comments from Division 1 coaches.",
+		"phase": "high_school",
+		"tags": ["social", "confidence", "recruiting"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 5,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 60
+			}
+		},
+		"choices": [
+			{
+				"text": "Embrace it and use it to build platform",
+				"effects": {
+					"popularity": 5,
+					"confidence": 4,
+					"discipline": -1
+				},
+				"flavor": "You start posting training content. Scouts follow you. You're building a personal brand. This is modern recruiting."
+			},
+			{
+				"text": "Stay humble and keep grinding",
+				"effects": {
+					"discipline": 3,
+					"confidence": 2,
+					"athleticism": 1
+				},
+				"flavor": "One play doesn't make a season. You keep your head down and let your work speak. The next play is just as important."
+			},
+			{
+				"text": "Post about it constantly",
+				"effects": {
+					"confidence": 3,
+					"popularity": 2,
+					"discipline": -3
+				},
+				"flavor": "You can't stop posting. Next game you play like you're trying to recreate that one moment. You're chasing the high instead of grinding."
+			}
+		]
+	},
+	{
+		"id": "social_viral_post_bad",
+		"title": "An Old Post of Yours Just Went Viral—Bad Way",
+		"description": "Something dumb you posted two years ago is circulating. Out of context. Recruiters are seeing it.",
+		"phase": "high_school",
+		"tags": ["social", "discipline", "confidence"],
+		"weight": 4,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 7,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Delete it and apologize publicly",
+				"effects": {
+					"discipline": 3,
+					"popularity": 1,
+					"confidence": -1
+				},
+				"flavor": "You delete it immediately and post that you regret it. The response is mixed but you handled it with maturity."
+			},
+			{
+				"text": "Ignore it and keep moving",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1,
+					"footballIq": 1
+				},
+				"flavor": "People forget things fast. You don't engage with it. You play well this week and new news takes over. It dies on its own."
+			},
+			{
+				"text": "Get defensive and argue online",
+				"effects": {
+					"confidence": -3,
+					"discipline": -3,
+					"popularity": -2
+				},
+				"flavor": "You argue in the comments. More screenshots. More shares. The damage multiplies. This could affect recruitment."
+			}
+		]
+	},
+	{
+		"id": "big_decision_early_graduation",
+		"title": "Opportunity to Declare for Early Graduation",
+		"description": "A college program is offering you a slot if you graduate early this spring. It's a guaranteed path to a DI school.",
+		"phase": "high_school",
+		"tags": ["big_decision", "recruiting", "confidence"],
+		"weight": 2,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 11,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 65
+			}
+		},
+		"choices": [
+			{
+				"text": "Graduate early and go",
+				"effects": {
+					"confidence": 5,
+					"discipline": 3,
+					"popularity": 2
+				},
+				"flavor": "You finish your senior year coursework early. You leave to join the college team in spring. It's surreal but this is the moment.",
+				"sets_flag": "committed_to_college"
+			},
+			{
+				"text": "Stay and finish senior year with your team",
+				"effects": {
+					"discipline": 4,
+					"leadership": 3,
+					"confidence": 2
+				},
+				"flavor": "You turn it down. Your teammates need you. You finish what you started. Senior year is yours to own."
+			},
+			{
+				"text": "Ask if you can defer to next fall",
+				"effects": {
+					"footballIq": 3,
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You ask if they'll hold the spot until you graduate normally. They agree. Now you have your cake and eat it too."
+			}
+		]
+	},
+	{
+		"id": "big_decision_two_rival_colleges",
+		"title": "It's Down to Two Rival Schools",
+		"description": "Two great programs want you. They're conference rivals. One is flashy and famous. One is stable and traditional. You have to choose.",
+		"phase": "high_school",
+		"tags": ["big_decision", "recruiting", "confidence"],
+		"weight": 2,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 10,
+			"max_week": 13,
+			"min_stats": {
+				"athleticism": 65
+			}
+		},
+		"choices": [
+			{
+				"text": "Go with the flashy program",
+				"effects": {
+					"confidence": 5,
+					"athleticism": 2,
+					"popularity": 5
+				},
+				"flavor": "You go to the program everyone knows. The energy is electric. Playing there will be every kid's dream come true. Pressure is real though.",
+				"sets_flag": "committed_to_college"
+			},
+			{
+				"text": "Go with the stable program",
+				"effects": {
+					"discipline": 4,
+					"footballIq": 2,
+					"confidence": 2
+				},
+				"flavor": "You choose the program with a track record of developing players. Less glamorous but you'll get better coaching and real development.",
+				"sets_flag": "committed_to_college"
+			},
+			{
+				"text": "Ask both for final pitches",
+				"effects": {
+					"footballIq": 3,
+					"discipline": 3,
+					"confidence": 1
+				},
+				"flavor": "You demand both coaches sit down and explain what they want from you. Their answers guide your decision. This is about YOU, not the school's brand."
+			}
+		]
+	},
+	{
+		"id": "big_test_tomorrow",
+		"title": "Big Test Tomorrow",
+		"description": "You've got a major test coming up tomorrow. Do you study hard or skip to get extra practice in?",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 6,
+		"is_big_decision": false,
+		"choices": [
+			{
+				"text": "Study hard",
+				"effects": {
+					"footballIq": 1,
+					"discipline": 2
+				},
+				"flavor": "You crack the books hard. Your brain feels sharper, and so does your on-field IQ. Education matters too."
+			},
+			{
+				"text": "Skip and practice",
+				"effects": {
+					"technique": 2,
+					"discipline": -2
+				},
+				"flavor": "You hit the field instead. Your technique improves, but you're stressed about that test. Coach notices you're distracted."
+			}
+		]
+	},
+	{
+		"id": "teacher_offers_tutoring",
+		"title": "Teacher Offers Tutoring",
+		"description": "Your English teacher pulls you aside and offers to tutor you. She's noticed you struggling in her class.",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 5,
+		"is_big_decision": false,
+		"choices": [
+			{
+				"text": "Accept tutoring",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1
+				},
+				"flavor": "You start meeting with her twice a week. Your grades climb. She's a tough but fair teacher who actually understands you."
+			},
+			{
+				"text": "Too busy with football",
+				"effects": {
+					"discipline": -1,
+					"technique": 1
+				},
+				"flavor": "You politely decline. More time for extra film study and conditioning, but your grade in her class keeps slipping."
+			}
+		]
+	},
+	{
+		"id": "report_card_day",
+		"title": "Report Cards Are Out",
+		"description": "Your report card came in the mail today. Time to face the music with your parents.",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 5,
+		"is_big_decision": false,
+		"choices": [
+			{
+				"text": "Show parents proudly",
+				"effects": {
+					"confidence": 2,
+					"discipline": 1
+				},
+				"flavor": "Your grades are solid. Your parents beam with pride. Dinner is celebrating your achievement both on and off the field."
+			},
+			{
+				"text": "Hide it and hope for the best",
+				"effects": {
+					"discipline": -2,
+					"confidence": -1
+				},
+				"flavor": "You dread opening that envelope. Your grades are slipping and now you're stressed about your parents finding out. This never ends well."
+			}
+		]
+	},
+	{
+		"id": "academic_honors",
+		"title": "You Made the Honor Roll",
+		"description": "Congratulations! Your grades earned you a spot on the honor roll. There's an assembly to celebrate.",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 4,
+		"is_big_decision": false,
+		"conditions": {
+			"min_stats": {
+				"discipline": 60
+			}
+		},
+		"choices": [
+			{
+				"text": "Accept award at assembly",
+				"effects": {
+					"popularity": 3,
+					"confidence": 2
+				},
+				"flavor": "You walk across that stage and the crowd cheers. Your name is in the paper. Respect comes from all angles, not just football."
+			},
+			{
+				"text": "Stay humble",
+				"effects": {
+					"discipline": 2
+				},
+				"flavor": "You skip the assembly. Your quiet dedication speaks louder than any public recognition. Integrity is its own reward."
+			}
+		]
+	},
+	{
+		"id": "homework_piling_up",
+		"title": "Homework Is Piling Up",
+		"description": "Between practice, games, and film study, homework is stacking up fast. What do you do?",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 6,
+		"is_big_decision": false,
+		"choices": [
+			{
+				"text": "Pull an all-nighter",
+				"effects": {
+					"footballIq": 1,
+					"health": -2,
+					"discipline": 1
+				},
+				"flavor": "You're up until 4 AM cranking through assignments. Your grades stay up, but you're exhausted and your body suffers."
+			},
+			{
+				"text": "Ask teammate for help",
+				"effects": {
+					"discipline": 1
+				},
+				"flavor": "Your teammate helps you organize your workload. You get it done, maintain your grades, and strengthen your friendship. That's leadership."
+			},
+			{
+				"text": "Just skip the homework",
+				"effects": {
+					"discipline": -3,
+					"confidence": 1
+				},
+				"flavor": "You blow it off to focus on football. Your grades drop and you get called out by your teacher. The temporary boost of confidence fades fast."
+			}
+		]
+	},
+	{
+		"id": "group_project_slacker",
+		"title": "Group Project Partner is Slacking",
+		"description": "Your partner on a group project isn't doing their share. The due date is in three days.",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 5,
+		"is_big_decision": false,
+		"choices": [
+			{
+				"text": "Do it all yourself",
+				"effects": {
+					"discipline": 3,
+					"health": -1
+				},
+				"flavor": "You buckle down and finish the whole project solo. It's excellent, you get an A, but you're burned out. That's not sustainable."
+			},
+			{
+				"text": "Confront them",
+				"effects": {
+					"confidence": 2,
+					"discipline": -1
+				},
+				"flavor": "You call them out directly. They get defensive, but they step up. Confrontation was uncomfortable but necessary."
+			},
+			{
+				"text": "Tell the teacher",
+				"effects": {
+					"discipline": 1,
+					"popularity": -1
+				},
+				"flavor": "You report the issue to the teacher. She separates the grades. You get full credit, but nobody at school likes a snitch."
+			}
+		]
+	},
+	{
+		"id": "eligibility_warning",
+		"title": "Coach Warns About Grades",
+		"description": "Coach pulls you aside: your grades are slipping. One more bad grade and you sit out. This is serious.",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 4,
+		"is_big_decision": false,
+		"conditions": {
+			"max_stats": {
+				"discipline": 40
+			}
+		},
+		"choices": [
+			{
+				"text": "Buckle down and study",
+				"effects": {
+					"discipline": 4,
+					"technique": -1
+				},
+				"flavor": "You hit the books hard. Your grades climb back up and you stay eligible. No more close calls."
+			},
+			{
+				"text": "Cheat on the next test",
+				"effects": {
+					"discipline": -5,
+					"confidence": -2
+				},
+				"flavor": "You copy answers on the next exam. You don't get caught this time, but the guilt eats at you. This path leads nowhere good.",
+				"sets_flag": "cheating_risk"
+			},
+			{
+				"text": "Ask for extra credit",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1
+				},
+				"flavor": "You talk to your teachers about boosting your grade. They respect the hustle. You stay eligible and build real relationships."
+			}
+		]
+	},
+	{
+		"id": "skipping_class",
+		"title": "Buddy Wants to Skip Class",
+		"description": "Your best friend suggests skipping class to get extra field time. \"Coach will love us for it,\" he says.",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 5,
+		"is_big_decision": false,
+		"choices": [
+			{
+				"text": "Skip class",
+				"effects": {
+					"technique": 2,
+					"athleticism": 1,
+					"discipline": -3
+				},
+				"flavor": "You both slip out. The extra practice time is solid, but the attendance office calls your parents that evening. Consequences incoming."
+			},
+			{
+				"text": "Go to class",
+				"effects": {
+					"discipline": 2
+				},
+				"flavor": "You tell him no. He gives you grief, but you show up to class. School comes first. Football is the bonus."
+			},
+			{
+				"text": "Skip but feel guilty",
+				"effects": {
+					"technique": 1,
+					"discipline": -1,
+					"confidence": -1
+				},
+				"flavor": "You skip and get the extra practice, but your conscience kills you the whole time. The guilt outweighs the gains."
+			}
+		]
+	},
+	{
+		"id": "prom_vs_practice",
+		"title": "Prom vs. Big Practice",
+		"description": "Prom is the same night as the critical playoff practice. Two weeks before the big games. What's your priority?",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 3,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 8
+		},
+		"choices": [
+			{
+				"text": "Go to prom",
+				"effects": {
+					"popularity": 4,
+					"confidence": 2,
+					"technique": -1
+				},
+				"flavor": "You go in your tux and have the time of your life. Your date is happy. Coach is furious. But the memories last forever."
+			},
+			{
+				"text": "Skip prom for practice",
+				"effects": {
+					"technique": 2,
+					"discipline": 3,
+					"popularity": -2
+				},
+				"flavor": "You show up to that practice in full gear. Coach respects the commitment. Your teammates feed off your focus. But you missed prom."
+			},
+			{
+				"text": "Try to do both",
+				"effects": {
+					"health": -2,
+					"popularity": 1,
+					"technique": 1
+				},
+				"flavor": "You go to prom for an hour, then leave for practice. You're exhausted, torn, and doing neither thing well. Pick a lane next time."
+			}
+		]
+	},
+	{
+		"id": "school_newspaper_feature",
+		"title": "School Paper Wants Your Story",
+		"description": "The school newspaper wants to interview you about football, college dreams, and balancing school.",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 4,
+		"is_big_decision": false,
+		"choices": [
+			{
+				"text": "Do the interview",
+				"effects": {
+					"popularity": 4,
+					"confidence": 1
+				},
+				"flavor": "Your story runs front page. Suddenly people recognize you in the halls. The attention feels great and helps with recruiting."
+			},
+			{
+				"text": "Turn it down",
+				"effects": {
+					"discipline": 2,
+					"popularity": -1
+				},
+				"flavor": "You politely decline. You keep your head down and stay focused on your game. No distractions. That's maturity."
+			}
+		]
+	},
+	{
+		"id": "detention",
+		"title": "You Got Detention",
+		"description": "You got detention for being late to class again. This is getting ridiculous.",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 5,
+		"is_big_decision": false,
+		"choices": [
+			{
+				"text": "Serve it quietly",
+				"effects": {
+					"discipline": 2
+				},
+				"flavor": "You show up, sit quietly, and do your time. The administrators respect that you accepted responsibility without complaint."
+			},
+			{
+				"text": "Argue your way out",
+				"effects": {
+					"confidence": 2,
+					"discipline": -2
+				},
+				"flavor": "You make your case to the principal. Your charm works and they let you off. But you're building a reputation as a rule-bender."
+			},
+			{
+				"text": "Coach gets you out",
+				"effects": {
+					"popularity": 1,
+					"discipline": -1
+				},
+				"flavor": "Coach talks to the principal on your behalf. You avoid detention, but now you owe him one. That favor will come due."
+			}
+		]
+	},
+	{
+		"id": "drivers_license_test",
+		"title": "Time for Your Driver's License",
+		"description": "You're finally 16! Time to get your driver's license. Are you ready?",
+		"phase": "high_school",
+		"tags": ["academic"],
+		"weight": 8,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 1
+		},
+		"choices": [
+			{
+				"text": "Take the test",
+				"effects": {
+					"confidence": 3,
+					"popularity": 2
+				},
+				"flavor": "You passed! Freedom never felt so good. Time to drive teammates to practice.",
+				"sets_flag": "has_drivers_license"
+			},
+			{
+				"text": "Practice more first",
+				"effects": {
+					"discipline": 2
+				},
+				"flavor": "You decide to wait. No rush. Better to be confident than cocky when you're behind the wheel."
+			},
+			{
+				"text": "Not interested yet",
+				"effects": {},
+				"flavor": "Cars can wait. Football cannot. You've got bigger priorities right now."
+			}
+		]
+	}
+]
