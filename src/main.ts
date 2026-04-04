@@ -1,11 +1,14 @@
 // main.ts - game startup and loop orchestration
 
 import {
-	Player, CoreStats, CareerPhase, Position,
+	Player, CoreStats, Position,
 	createPlayer, randomInRange, clampStat, getPositionBucket,
 } from './player.js';
 import { saveGame, loadGame, hasSave, deleteSave } from './save.js';
-import { Team, ScheduleEntry, generateHighSchoolTeam, generateOpponentName } from './team.js';
+import {
+	Team, ScheduleEntry, generateHighSchoolTeam, generateOpponentName,
+	Conference, generateConference, simulateConferenceWeek, formatStandings,
+} from './team.js';
 import {
 	WeeklyFocus, GameResult,
 	applyWeeklyFocus, simulateGame,
@@ -18,13 +21,17 @@ import * as ui from './ui.js';
 import type { ChoiceOption } from './ui.js';
 import {
 	generateTeamPalette, generateNFLPalette,
-	applyPalette, resetToDefault,
+	applyPalette,
 } from './theme.js';
 import {
 	startCollege, getCollegeSeasonChoices, simulateCollegeSeason,
 	calculateDraftStock, generateNILDeal, applyCollegeChoice,
 	checkDeclarationEligibility, CollegeChoice,
 } from './college.js';
+import {
+	loadNCAASchools, assignPlayerCollege, formatSchoolName,
+	generateCollegeSchedule, NCAASchool,
+} from './ncaa.js';
 import {
 	simulateNFLSeason, getNFLMidseasonEvent, applyNFLEventChoice,
 	checkRetirement,
@@ -104,6 +111,12 @@ let allEvents: GameEvent[] = [];
 // BUG FIX 1: Persistent high school team across 4 years
 let persistentHSTeam: Team | null = null;
 
+// NCAA schools and college conference
+let ncaaSchools: { fbs: NCAASchool[]; fcs: NCAASchool[] } = { fbs: [], fcs: [] };
+let playerNCAASchool: NCAASchool | null = null;
+let currentConference: Conference | null = null;
+let hsConference: Conference | null = null;
+
 // BUG FIX 4: Track used childhood events to avoid repeats
 const usedChildhoodEvents = new Set<number>();
 
@@ -137,10 +150,16 @@ async function initGame(): Promise<void> {
 	// Load name lists from CSV files
 	await loadNameLists();
 
+	// Load NCAA school data for college phase
+	ncaaSchools = await loadNCAASchools();
+
 	const storyLog = document.getElementById('story-log');
 	if (!storyLog) {
 		return;
 	}
+
+	// Set up standings and schedule button listeners for both new and resumed games
+	setupStatusPanelListeners();
 
 	// Check for existing save
 	if (hasSave()) {
@@ -1136,7 +1155,7 @@ function startPreseason(): void {
 			{
 				text: 'Move to Week 0',
 				primary: true,
-				action: preseassonFirstScrimmage,
+				action: preseasonFirstScrimmage,
 			},
 		]);
 	}
@@ -1208,13 +1227,13 @@ function handleTryoutChoice(strategy: string, effects: Record<string, number>): 
 		{
 			text: 'Move to Week 0',
 			primary: true,
-			action: preseassonFirstScrimmage,
+			action: preseasonFirstScrimmage,
 		},
 	]);
 }
 
 //============================================
-function preseassonFirstScrimmage(): void {
+function preseasonFirstScrimmage(): void {
 	if (!currentPlayer || !currentTeam) {
 		return;
 	}
@@ -1424,31 +1443,34 @@ function proceedToGameDay(): void {
 	}
 
 	// Track season stats for awards
+	// Stat keys from week_sim: passYards, rushYards, recYards, passTds, rushTds, recTds, tackles, passInts
 	currentSeasonStats.gamesPlayed += 1;
-	if (result.playerStatLine['Yards'] !== undefined) {
-		currentSeasonStats.totalYards +=
-			typeof result.playerStatLine['Yards'] === 'number'
-				? result.playerStatLine['Yards']
-				: parseInt(String(result.playerStatLine['Yards']), 10) || 0;
-	}
-	if (result.playerStatLine['TDs'] !== undefined) {
-		currentSeasonStats.totalTouchdowns +=
-			typeof result.playerStatLine['TDs'] === 'number'
-				? result.playerStatLine['TDs']
-				: parseInt(String(result.playerStatLine['TDs']), 10) || 0;
-	}
-	if (result.playerStatLine['Tackles'] !== undefined) {
-		currentSeasonStats.totalTackles +=
-			typeof result.playerStatLine['Tackles'] === 'number'
-				? result.playerStatLine['Tackles']
-				: parseInt(String(result.playerStatLine['Tackles']), 10) || 0;
-	}
-	if (result.playerStatLine['INTs'] !== undefined) {
-		currentSeasonStats.totalInterceptions +=
-			typeof result.playerStatLine['INTs'] === 'number'
-				? result.playerStatLine['INTs']
-				: parseInt(String(result.playerStatLine['INTs']), 10) || 0;
-	}
+	const stats = result.playerStatLine;
+
+	// totalYards = passYards + rushYards + recYards
+	const passYards = typeof stats['passYards'] === 'number' ? stats['passYards'] : 0;
+	const rushYards = typeof stats['rushYards'] === 'number' ? stats['rushYards'] : 0;
+	const recYards = typeof stats['recYards'] === 'number' ? stats['recYards'] : 0;
+	// Runner/receiver stats use 'yards' key
+	const genericYards = typeof stats['yards'] === 'number' ? stats['yards'] : 0;
+	currentSeasonStats.totalYards += passYards + rushYards + recYards + genericYards;
+
+	// totalTouchdowns = passTds + rushTds + recTds
+	const passTds = typeof stats['passTds'] === 'number' ? stats['passTds'] : 0;
+	const rushTds = typeof stats['rushTds'] === 'number' ? stats['rushTds'] : 0;
+	const recTds = typeof stats['recTds'] === 'number' ? stats['recTds'] : 0;
+	// Runner/receiver stats use 'tds' key
+	const genericTds = typeof stats['tds'] === 'number' ? stats['tds'] : 0;
+	currentSeasonStats.totalTouchdowns += passTds + rushTds + recTds + genericTds;
+
+	// totalTackles = tackles
+	const tackles = typeof stats['tackles'] === 'number' ? stats['tackles'] : 0;
+	currentSeasonStats.totalTackles += tackles;
+
+	// totalInterceptions = passInts (for QBs) or ints (for defenders)
+	const passInts = typeof stats['passInts'] === 'number' ? stats['passInts'] : 0;
+	const defInts = typeof stats['ints'] === 'number' ? stats['ints'] : 0;
+	currentSeasonStats.totalInterceptions += passInts + defInts;
 
 	// Player of the Week: probabilistic per The Show spec
 	// Elite: 15-25%, Great: 5-12%, Good: 1-3%, otherwise 0%
@@ -1661,25 +1683,21 @@ function preparePlayoffGame(
 	const result = simulateGame(currentPlayer, currentTeam, opponentStrength);
 
 	// Track stats
+	// Track playoff stats using correct keys from week_sim
 	currentSeasonStats.gamesPlayed += 1;
-	if (result.playerStatLine['Yards'] !== undefined) {
-		currentSeasonStats.totalYards +=
-			typeof result.playerStatLine['Yards'] === 'number'
-				? result.playerStatLine['Yards']
-				: parseInt(String(result.playerStatLine['Yards']), 10) || 0;
-	}
-	if (result.playerStatLine['TDs'] !== undefined) {
-		currentSeasonStats.totalTouchdowns +=
-			typeof result.playerStatLine['TDs'] === 'number'
-				? result.playerStatLine['TDs']
-				: parseInt(String(result.playerStatLine['TDs']), 10) || 0;
-	}
-	if (result.playerStatLine['Tackles'] !== undefined) {
-		currentSeasonStats.totalTackles +=
-			typeof result.playerStatLine['Tackles'] === 'number'
-				? result.playerStatLine['Tackles']
-				: parseInt(String(result.playerStatLine['Tackles']), 10) || 0;
-	}
+	const pStats = result.playerStatLine;
+	const pPassYards = typeof pStats['passYards'] === 'number' ? pStats['passYards'] : 0;
+	const pRushYards = typeof pStats['rushYards'] === 'number' ? pStats['rushYards'] : 0;
+	const pRecYards = typeof pStats['recYards'] === 'number' ? pStats['recYards'] : 0;
+	const pGenYards = typeof pStats['yards'] === 'number' ? pStats['yards'] : 0;
+	currentSeasonStats.totalYards += pPassYards + pRushYards + pRecYards + pGenYards;
+	const pPassTds = typeof pStats['passTds'] === 'number' ? pStats['passTds'] : 0;
+	const pRushTds = typeof pStats['rushTds'] === 'number' ? pStats['rushTds'] : 0;
+	const pRecTds = typeof pStats['recTds'] === 'number' ? pStats['recTds'] : 0;
+	const pGenTds = typeof pStats['tds'] === 'number' ? pStats['tds'] : 0;
+	currentSeasonStats.totalTouchdowns += pPassTds + pRushTds + pRecTds + pGenTds;
+	const pTackles = typeof pStats['tackles'] === 'number' ? pStats['tackles'] : 0;
+	currentSeasonStats.totalTackles += pTackles;
 	if (result.playerRating === 'elite') {
 		currentSeasonStats.playerOfTheWeekCount += 1;
 	}
@@ -1746,7 +1764,9 @@ function completeSeasonSummary(): void {
 	);
 
 	// Season narrative based on record
-	const winPct = currentTeam.wins / (currentTeam.wins + currentTeam.losses);
+	// Guard against division by zero if no games played
+	const totalGames = currentTeam.wins + currentTeam.losses;
+	const winPct = totalGames > 0 ? currentTeam.wins / totalGames : 0;
 	let seasonStory: string;
 	if (winPct >= 0.8) {
 		seasonStory = 'An incredible season. The scouts are paying attention.';
@@ -1804,31 +1824,21 @@ function completeSeasonSummary(): void {
 		);
 	}
 
-	// Record season in career history
-	const historyEntry = currentPlayer.careerHistory[
-		currentPlayer.careerHistory.length - 1
-	];
-	if (historyEntry) {
-		historyEntry.awards = seasonAwards;
-		historyEntry.highlights.push(
-			`Player of the Week: ${currentSeasonStats.playerOfTheWeekCount} times`
-		);
-	} else {
-		currentPlayer.careerHistory.push({
-			phase: 'high_school',
-			year: currentPlayer.seasonYear,
-			age: currentPlayer.age,
-			team: currentTeam.teamName,
-			position: currentPlayer.position,
-			wins: currentTeam.wins,
-			losses: currentTeam.losses,
-			depthChart: currentPlayer.depthChart,
-			highlights: [
-				`Player of the Week: ${currentSeasonStats.playerOfTheWeekCount} times`,
-			],
-			awards: seasonAwards,
-		});
-	}
+	// Record season in career history (one entry per season, append-only)
+	currentPlayer.careerHistory.push({
+		phase: 'high_school',
+		year: currentPlayer.seasonYear,
+		age: currentPlayer.age,
+		team: currentTeam.teamName,
+		position: currentPlayer.position,
+		wins: currentTeam.wins,
+		losses: currentTeam.losses,
+		depthChart: currentPlayer.depthChart,
+		highlights: [
+			`Player of the Week: ${currentSeasonStats.playerOfTheWeekCount} times`,
+		],
+		awards: seasonAwards,
+	});
 
 	// Recruiting stars for juniors/seniors
 	if (currentPlayer.age >= 16) {
@@ -1937,20 +1947,41 @@ function beginCollege(): void {
 
 	currentPlayer.collegeYear = 0;
 	collegeTeam = null;
+	currentConference = null;
 	// Reset high school team when entering college
 	persistentHSTeam = null;
 
-	// Clear high school team name so college.ts assigns a real college
-	currentPlayer.teamName = '';
-	// Welcome story from college.ts (assigns college name)
-	const welcomeStory = startCollege(currentPlayer);
+	// Use NCAA schools if available, otherwise fall back to college.ts
+	const allSchools = [...ncaaSchools.fbs, ...ncaaSchools.fcs];
+	if (allSchools.length > 0) {
+		// Assign a real NCAA school based on recruiting stars
+		playerNCAASchool = assignPlayerCollege(
+			currentPlayer.recruitingStars,
+			allSchools
+		);
+		currentPlayer.teamName = formatSchoolName(playerNCAASchool);
+
+		// Generate conference for college
+		const playerTeamStrength = (currentPlayer.core.athleticism
+			+ currentPlayer.core.technique) / 2;
+		currentConference = generateConference(
+			currentPlayer.teamName,
+			playerTeamStrength
+		);
+	} else {
+		// Fallback if NCAA data didn't load
+		currentPlayer.teamName = '';
+		startCollege(currentPlayer);
+	}
+
 	// Apply new team colors for college
 	const collegePalette = generateTeamPalette();
 	applyPalette(collegePalette);
 	currentPlayer.teamPalette = collegePalette;
 	clearStory();
 	addStoryHeadline('College Football');
-	addStoryText(welcomeStory);
+	addStoryText(`You have committed to ${currentPlayer.teamName}. `
+		+ 'Your college career is about to begin.');
 
 	// Player starts as backup in college (earn your spot again)
 	currentPlayer.depthChart = 'backup';
@@ -1969,24 +2000,49 @@ function startCollegeSeason(): void {
 	}
 
 	currentPlayer.collegeYear += 1;
-	currentPlayer.age += 1;
 	currentPlayer.currentSeason += 1;
 	currentPlayer.currentWeek = 0;
 
 	// Generate college team (reuse same team name across years)
+	// Use NCAA schedule if player has an assigned school, else fall back to HS generator
+	const allSchools = [...ncaaSchools.fbs, ...ncaaSchools.fcs];
 	if (!collegeTeam) {
 		collegeTeam = generateHighSchoolTeam(currentPlayer.teamName);
 		// College teams are stronger than high school
 		collegeTeam.strength = randomInRange(55, 95);
+		// Replace schedule with real NCAA schedule if available
+		if (playerNCAASchool && allSchools.length > 0) {
+			const ncaaSchedule = generateCollegeSchedule(playerNCAASchool, allSchools);
+			collegeTeam.schedule = ncaaSchedule.map(entry => ({
+				opponentName: entry.opponentName,
+				opponentStrength: entry.opponentStrength,
+				week: entry.week,
+				played: false,
+				teamScore: 0,
+				opponentScore: 0,
+			}));
+		}
 	} else {
 		// New season: reset record, regenerate schedule
 		collegeTeam.wins = 0;
 		collegeTeam.losses = 0;
-		collegeTeam.strength += randomInRange(1, 3);
-		collegeTeam.schedule = [];
-		// Generate new schedule
-		const tempTeam = generateHighSchoolTeam('temp');
-		collegeTeam.schedule = tempTeam.schedule;
+		// Cap strength to prevent unrealistic power creep over 4 years
+		collegeTeam.strength = Math.min(95, collegeTeam.strength + randomInRange(1, 3));
+		// Generate new season schedule
+		if (playerNCAASchool && allSchools.length > 0) {
+			const ncaaSchedule = generateCollegeSchedule(playerNCAASchool, allSchools);
+			collegeTeam.schedule = ncaaSchedule.map(entry => ({
+				opponentName: entry.opponentName,
+				opponentStrength: entry.opponentStrength,
+				week: entry.week,
+				played: false,
+				teamScore: 0,
+				opponentScore: 0,
+			}));
+		} else {
+			const tempTeam = generateHighSchoolTeam('temp');
+			collegeTeam.schedule = tempTeam.schedule;
+		}
 	}
 
 	clearStory();
@@ -2247,8 +2303,9 @@ function endCollegeSeason(): void {
 	);
 
 	// Season narrative
-	const winPct = collegeTeam.wins
-		/ (collegeTeam.wins + collegeTeam.losses);
+	// Guard against division by zero
+	const collegeTotal = collegeTeam.wins + collegeTeam.losses;
+	const winPct = collegeTotal > 0 ? collegeTeam.wins / collegeTotal : 0;
 	if (winPct >= 0.75) {
 		addStoryText(
 			'An incredible season. Bowl game bound. '
@@ -2285,6 +2342,8 @@ function endCollegeSeason(): void {
 		awards: [],
 	});
 
+	// Age advances after the season, not before (freshmen are 18, not 19)
+	currentPlayer.age += 1;
 	currentPlayer.seasonYear += 1;
 	currentPlayer.currentWeek = 0;
 	saveGame(currentPlayer);
@@ -2293,8 +2352,16 @@ function endCollegeSeason(): void {
 	// Show end-of-year options
 	const buttons: { text: string; primary: boolean; action: () => void }[] = [];
 
-	// Draft declaration for juniors/seniors
-	if (currentPlayer.collegeYear >= 3) {
+	// Draft declaration: seniors must enter, juniors can declare if eligible
+	if (currentPlayer.collegeYear >= 4) {
+		// Senior: must enter draft, no option to stay
+		buttons.push({
+			text: 'Enter NFL Draft',
+			primary: true,
+			action: declareForDraft,
+		});
+	} else if (currentPlayer.collegeYear >= 3) {
+		// Junior: optional early declaration if eligible
 		const declareCheck = checkDeclarationEligibility(
 			currentPlayer, currentPlayer.collegeYear
 		);
@@ -2307,14 +2374,7 @@ function endCollegeSeason(): void {
 		}
 	}
 
-	if (currentPlayer.collegeYear >= 4) {
-		// Senior: must enter draft
-		buttons.push({
-			text: 'Enter NFL Draft',
-			primary: true,
-			action: declareForDraft,
-		});
-	} else {
+	if (currentPlayer.collegeYear < 4) {
 		buttons.push({
 			text: 'Next Season',
 			primary: buttons.length === 0,
@@ -2780,6 +2840,42 @@ function updateStatusBar(record: string, recruiting: string): void {
 
 function addResult(text: string): void {
 	ui.addResult(text);
+}
+
+//============================================
+// Wire standings and schedule toggle buttons in the status panel
+function setupStatusPanelListeners(): void {
+	const standingsBtn = document.getElementById('standings-toggle');
+	if (standingsBtn) {
+		standingsBtn.addEventListener('click', () => {
+			if (!currentPlayer) {
+				return;
+			}
+			// Show correct conference for current phase
+			if (hsConference && currentTeam) {
+				ui.toggleStandings(
+					formatStandings(hsConference, currentTeam.teamName)
+				);
+			} else if (currentConference && currentPlayer) {
+				ui.toggleStandings(
+					formatStandings(currentConference, currentPlayer.teamName)
+				);
+			}
+		});
+	}
+
+	const scheduleBtn = document.getElementById('schedule-toggle');
+	if (scheduleBtn) {
+		scheduleBtn.addEventListener('click', () => {
+			if (!currentPlayer || !currentTeam) {
+				return;
+			}
+			ui.toggleSchedule(
+				currentTeam.schedule, currentPlayer.currentWeek,
+				currentPlayer.teamName
+			);
+		});
+	}
 }
 
 //============================================
