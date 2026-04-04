@@ -4,27 +4,98 @@
 
 Gridiron Life is a single-page browser game built in TypeScript. The player lives
 through a complete American football career: childhood, high school, college, and NFL.
-Each football phase shares a common weekly rhythm engine and renders through a single
-DOM-based UI layer.
+The codebase uses a year-handler registry pattern where each age band (13 total) has
+its own handler module. Football phases share a weekly engine that guarantees week
+advancement, and all rendering flows through a single DOM-based UI layer.
 
-The codebase follows a layered architecture: data models at the bottom, simulation and
-event logic in the middle, phase-specific modules above that, and UI rendering at the
-top. [src/main.ts](src/main.ts) orchestrates phase transitions but delegates weekly
-gameplay to phase modules.
+The architecture is layered: core interfaces and registry at the bottom, age-band
+handlers in the middle, simulation and event logic alongside them, and UI rendering
+at the top. [src/main.ts](src/main.ts) orchestrates startup and phase transitions
+but delegates yearly gameplay to the handler registry.
 
 ## Major components
 
+### Core engine
+
+- [src/core/year_handler.ts](src/core/year_handler.ts): frozen interfaces that define
+  the handler contract. `YearHandler` (id, age range, startYear, optional endYear and
+  getSeasonConfig), `CareerContext` (story-oriented output with no DOM manipulation),
+  `SeasonConfig` (season length, football flag, depth chart, event chance, opponent
+  strength), and `WeekAdvanceResult` discriminated union (next_week or season_ended).
+- [src/core/year_registry.ts](src/core/year_registry.ts): maps ages to handlers.
+  `registerHandler()` validates no age-band overlaps. `getHandler(age)` returns the
+  handler for a given age. Frozen after boot.
+- [src/core/year_runner.ts](src/core/year_runner.ts): dispatches player to the correct
+  handler. `advanceToNextYear()` increments age and calls startYear(). `startYear()`
+  resumes at the current age for save/load.
+- [src/core/register_handlers.ts](src/core/register_handlers.ts): boot-time registration
+  of all 13 age-band handlers. Called once during game init.
+
+### Weekly engine
+
+- [src/weekly/weekly_engine.ts](src/weekly/weekly_engine.ts): shared weekly loop for
+  all football phases. Every code path ends in next_week or season_ended. State machine:
+  focus, activity, event, game, results. Handlers call `startSeason()` once and the
+  engine drives all weekly advancement. Used by HS (10 weeks), college (12 weeks), and
+  NFL (17 weeks).
+
+### Age-band handlers
+
+Childhood (no football):
+
+- [src/childhood/kid_years.ts](src/childhood/kid_years.ts): ages 1-7, BitLife-style
+  event stubs with Continue buttons.
+- [src/childhood/peewee_years.ts](src/childhood/peewee_years.ts): ages 8-10, town
+  name and mascot generation.
+- [src/childhood/travel_years.ts](src/childhood/travel_years.ts): ages 11-13, same
+  town identity carried forward.
+
+High school:
+
+- [src/high_school/hs_frosh_soph.ts](src/high_school/hs_frosh_soph.ts): ages 14-15,
+  generates HS identity, 10-game season.
+- [src/high_school/hs_varsity.ts](src/high_school/hs_varsity.ts): ages 16-17, driver
+  license at 16, recruiting stars.
+
+College:
+
+- [src/college/college_entry.ts](src/college/college_entry.ts): age 18, redshirt
+  support, 12-game season.
+- [src/college/college_core.ts](src/college/college_core.ts): ages 19-20, early
+  declaration option for juniors.
+- [src/college/college_senior.ts](src/college/college_senior.ts): age 21, graduation,
+  mandatory draft declaration.
+
+NFL:
+
+- [src/nfl_handlers/nfl_rookie.ts](src/nfl_handlers/nfl_rookie.ts): age 22, rookie
+  salary.
+- [src/nfl_handlers/nfl_early.ts](src/nfl_handlers/nfl_early.ts): ages 23-26, salary
+  based on depth chart.
+- [src/nfl_handlers/nfl_peak.ts](src/nfl_handlers/nfl_peak.ts): ages 27-31, peak
+  salary.
+- [src/nfl_handlers/nfl_veteran.ts](src/nfl_handlers/nfl_veteran.ts): ages 32-36,
+  retirement option, decline tracking.
+- [src/nfl_handlers/nfl_late.ts](src/nfl_handlers/nfl_late.ts): ages 37-39, forced
+  retirement check, farewell.
+
+### Shared helpers
+
+- [src/shared/year_helpers.ts](src/shared/year_helpers.ts): `applyAgeDrift()` for
+  age-appropriate stat growth and decline curves across all bands.
+  `coachAssignPosition()` for position assignment based on size and athleticism.
+
 ### Data and state models
 
-- [src/player.ts](src/player.ts): player state definition (core stats, career stats,
-  hidden stats, position types, depth chart, season records). Provides `createPlayer()`,
-  stat modification helpers, and GPA/relationship tracking.
+- [src/player.ts](src/player.ts): player state (core stats, career stats, hidden
+  stats, position types, depth chart, season records, persistent identity fields for
+  town, HS, and NFL). Provides `createPlayer()` and stat modification helpers.
 - [src/team.ts](src/team.ts): team structure (schedule, depth chart, conference,
   coach personality). Generates opponents, conferences, and standings.
 - [src/ncaa.ts](src/ncaa.ts): NCAA school data loading from CSV, conference assignment,
   and college schedule generation.
 - [src/save.ts](src/save.ts): browser localStorage persistence with JSON serialization
-  and save migration.
+  and save migration for new fields.
 
 ### Simulation engine
 
@@ -36,24 +107,6 @@ gameplay to phase modules.
 - [src/events.ts](src/events.ts): narrative event system. Filters events by phase,
   week, position, and player stats. Applies choice consequences to stats and story
   flags.
-
-### Game loop and phase management
-
-- [src/game_loop.ts](src/game_loop.ts): shared weekly rhythm engine used by all
-  football phases. The weekly cycle is: focus choice, activities, event check, game
-  day, results. Phase modules provide callbacks to customize behavior.
-- [src/hs_phase.ts](src/hs_phase.ts): high school phase (4 seasons, recruiting,
-  depth chart progression, state championship).
-- [src/college_phase.ts](src/college_phase.ts): college phase (up to 4 seasons, NCAA
-  team assignment, conference play, draft stock tracking).
-- [src/college.ts](src/college.ts): college business logic (NIL deals, draft stock
-  calculation, season simulation, declaration eligibility).
-- [src/nfl_phase.ts](src/nfl_phase.ts): NFL phase (draft, seasonal play, team
-  management, retirement handling).
-- [src/nfl.ts](src/nfl.ts): NFL business logic (draft results, season simulation,
-  midseason events, retirement checks, Hall of Fame eligibility, legacy summary).
-- [src/recruiting.ts](src/recruiting.ts): college recruiting (offer generation,
-  recruiting stars, commitment logic).
 
 ### UI layer
 
@@ -67,37 +120,57 @@ gameplay to phase modules.
 - [src/avatar.ts](src/avatar.ts): SVG portrait generator using Avataaars-inspired
   parts with age-based variation and archetype pools.
 
+### Business logic
+
+- [src/college.ts](src/college.ts): college business logic (NIL deals, draft stock
+  calculation, declaration eligibility).
+- [src/nfl.ts](src/nfl.ts): NFL business logic (draft results, retirement checks,
+  Hall of Fame eligibility, legacy summary).
+- [src/recruiting.ts](src/recruiting.ts): college recruiting (offer generation,
+  recruiting stars, commitment logic).
+
+### Legacy phase modules
+
+These monolithic phase runners predate the handler registry and are being replaced:
+
+- [src/hs_phase.ts](src/hs_phase.ts): high school phase runner.
+- [src/college_phase.ts](src/college_phase.ts): college phase runner.
+- [src/nfl_phase.ts](src/nfl_phase.ts): NFL phase runner.
+
 ### Orchestration
 
 - [src/main.ts](src/main.ts): entry point. Handles character creation, phase
-  transitions (childhood, youth, HS, college, NFL, legacy), save/load, tab switching,
-  and global state wiring. Does not contain weekly loop logic.
+  transitions, save/load, tab switching, and global state wiring. Calls
+  `registerAllHandlers()` at boot and delegates yearly gameplay to the year runner.
 
 ## Data flow
 
-A typical in-season week follows this path:
+Age advancement dispatches through the handler registry:
 
 ```text
-game_loop.ts: showWeeklyFocusUI()
-  -> player picks focus (train, film study, etc.)
-  -> week_sim.ts: applyWeeklyFocus() modifies player stats
-  -> activities.ts: activity hub (optional unlocked activities)
-  -> events.ts: filterEvents() + selectEvent() checks for narrative event
-  -> week_sim.ts: simulateGame() generates position-specific stat line
-  -> phase module: accumulates stats, updates depth chart, checks season end
-  -> ui.ts: renders story, stats, game result
-  -> save.ts: persists to localStorage
+year_runner.ts: advanceToNextYear(player, ctx)
+  -> increment player.age
+  -> year_registry.ts: getHandler(age) returns the matching handler
+  -> handler.startYear(player, ctx) sets up the year
+  -> if football year: handler calls weekly_engine.startSeason()
+     -> weekly loop: focus -> activity -> event -> game -> results -> next_week
+     -> after final week: season_ended -> handler.endYear()
+  -> if non-football year: handler shows events, calls ctx.showChoices()
+  -> year_runner.ts: advanceToNextYear() for the next age
 ```
 
 Phase transitions flow through [src/main.ts](src/main.ts):
 
 ```text
-childhood (0-9) -> youth football (10-13) -> high school (14-17)
-  -> college (18-21) -> NFL draft -> NFL career -> retirement -> legacy
+childhood (1-7) -> peewee (8-10) -> travel (11-13) -> high school (14-17)
+  -> college (18-21) -> NFL (22-39) -> legacy
 ```
 
 ## Extension points
 
+- **New age bands**: create a handler implementing `YearHandler`, register it in
+  [src/core/register_handlers.ts](src/core/register_handlers.ts). The registry
+  validates no age overlaps.
 - **New positions**: add to `Position` type in [src/player.ts](src/player.ts), add
   stat generation in [src/week_sim.ts](src/week_sim.ts), add position outputs in
   [src/data/positions.json](src/data/positions.json).
@@ -106,15 +179,11 @@ childhood (0-9) -> youth football (10-13) -> high school (14-17)
   and player state.
 - **New activities**: add to the activity definitions in
   [src/activities.ts](src/activities.ts) with phase restrictions and stat effects.
-- **New career phases**: create a phase module following the pattern in
-  [src/hs_phase.ts](src/hs_phase.ts), wire it into [src/main.ts](src/main.ts).
 
 ## Known gaps
 
-- Three JSON data files ([src/data/positions.json](src/data/positions.json),
-  [src/data/names.json](src/data/names.json), [src/data/teams.json](src/data/teams.json))
-  exist but may not be imported by any TypeScript module. Verify whether they are
-  loaded at runtime via fetch or are legacy files.
+- Legacy phase modules (`hs_phase.ts`, `college_phase.ts`, `nfl_phase.ts`) coexist
+  with the new handler system. Verify whether they are still called or can be removed.
 - The recruiting system uses hardcoded school arrays in
-  [src/recruiting.ts](src/recruiting.ts) that differ from the NCAA CSV data in
-  [src/ncaa.ts](src/ncaa.ts). Verify whether this mismatch causes inconsistencies.
+  [src/recruiting.ts](src/recruiting.ts) that may differ from the NCAA CSV data in
+  [src/ncaa.ts](src/ncaa.ts). Verify whether this causes inconsistencies.

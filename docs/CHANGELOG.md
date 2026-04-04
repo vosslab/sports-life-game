@@ -73,6 +73,18 @@
   - Retirement triggers, NFL salary by era, weekly engine contract
   - File map for new architecture
 
+### Fixes and Maintenance
+
+- Refreshed [docs/CODE_ARCHITECTURE.md](docs/CODE_ARCHITECTURE.md) to reflect year-handler
+  registry architecture: added core engine, weekly engine, age-band handler, and shared helper
+  sections. Marked legacy phase modules. Updated data flow and extension points.
+- Refreshed [docs/FILE_STRUCTURE.md](docs/FILE_STRUCTURE.md) with new subdirectories (core/,
+  childhood/, high_school/, college/, nfl_handlers/, weekly/, shared/), grouped documentation
+  map into subsections, and updated "where to add new work" for handler pattern.
+- Refreshed [README.md](README.md): grouped documentation links into subsections (game design,
+  developer reference, style guides), added missing doc links (AGE_PROGRESSION, PORTRAIT_SYSTEM),
+  corrected license section to reference both license files.
+
 ### Decisions and Failures
 
 - Design choice: functional registry, not class inheritance. Shared helpers serve as "base."
