@@ -26,72 +26,91 @@
 			</div>
 		</header>
 
-		<!-- Stat bars -->
-		<section id="stats-panel">
-			<div class="stat-row">
-				<span class="stat-label">Athleticism</span>
-				<div class="stat-bar"><div class="stat-fill" id="bar-athleticism"></div></div>
-				<span class="stat-value" id="val-athleticism">0</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Technique</span>
-				<div class="stat-bar"><div class="stat-fill" id="bar-technique"></div></div>
-				<span class="stat-value" id="val-technique">0</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Football IQ</span>
-				<div class="stat-bar"><div class="stat-fill" id="bar-footballIq"></div></div>
-				<span class="stat-value" id="val-footballIq">0</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Discipline</span>
-				<div class="stat-bar"><div class="stat-fill" id="bar-discipline"></div></div>
-				<span class="stat-value" id="val-discipline">0</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Health</span>
-				<div class="stat-bar"><div class="stat-fill" id="bar-health"></div></div>
-				<span class="stat-value" id="val-health">0</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Confidence</span>
-				<div class="stat-bar"><div class="stat-fill" id="bar-confidence"></div></div>
-				<span class="stat-value" id="val-confidence">0</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Popularity</span>
-				<div class="stat-bar"><div class="stat-fill" id="bar-popularity"></div></div>
-				<span class="stat-value" id="val-popularity">0</span>
-			</div>
-		</section>
+		<!-- Tab panels: only one visible at a time -->
 
-		<!-- Main story area -->
-		<section id="story-panel">
-			<div id="story-log"></div>
-		</section>
+		<!-- LIFE TAB: main story area + choice buttons (default view) -->
+		<div id="tab-life" class="tab-panel active">
+			<section id="life-status">
+				<div id="life-record">No team record yet.</div>
+				<div id="life-next-opponent">No upcoming opponent.</div>
+			</section>
+			<section id="story-panel">
+				<div id="story-log"></div>
+			</section>
+			<section id="choices-panel">
+				<!-- Dynamically populated with big choice buttons -->
+			</section>
+		</div>
 
-		<!-- Choice buttons area -->
-		<section id="choices-panel">
-			<!-- Dynamically populated with big choice buttons -->
-		</section>
+		<!-- STATS TAB: player stat bars + summary info -->
+		<div id="tab-stats" class="tab-panel hidden">
+			<section id="stats-panel">
+				<div class="stat-row">
+					<span class="stat-label">Athleticism</span>
+					<div class="stat-bar"><div class="stat-fill" id="bar-athleticism"></div></div>
+					<span class="stat-value" id="val-athleticism">0</span>
+				</div>
+				<div class="stat-row">
+					<span class="stat-label">Technique</span>
+					<div class="stat-bar"><div class="stat-fill" id="bar-technique"></div></div>
+					<span class="stat-value" id="val-technique">0</span>
+				</div>
+				<div class="stat-row">
+					<span class="stat-label">Football IQ</span>
+					<div class="stat-bar"><div class="stat-fill" id="bar-footballIq"></div></div>
+					<span class="stat-value" id="val-footballIq">0</span>
+				</div>
+				<div class="stat-row">
+					<span class="stat-label">Discipline</span>
+					<div class="stat-bar"><div class="stat-fill" id="bar-discipline"></div></div>
+					<span class="stat-value" id="val-discipline">0</span>
+				</div>
+				<div class="stat-row">
+					<span class="stat-label">Health</span>
+					<div class="stat-bar"><div class="stat-fill" id="bar-health"></div></div>
+					<span class="stat-value" id="val-health">0</span>
+				</div>
+				<div class="stat-row">
+					<span class="stat-label">Confidence</span>
+					<div class="stat-bar"><div class="stat-fill" id="bar-confidence"></div></div>
+					<span class="stat-value" id="val-confidence">0</span>
+				</div>
+				<div class="stat-row">
+					<span class="stat-label">Popularity</span>
+					<div class="stat-bar"><div class="stat-fill" id="bar-popularity"></div></div>
+					<span class="stat-value" id="val-popularity">0</span>
+				</div>
+			</section>
+			<div id="stats-summary">
+				<!-- Dynamically populated: money, record, position -->
+			</div>
+		</div>
 
-		<!-- Conference standings (togglable) -->
-		<section id="standings-panel" class="hidden">
-			<pre id="standings-content"></pre>
-		</section>
+		<!-- ACTIVITIES TAB: phase-dependent activity menu -->
+		<div id="tab-activities" class="tab-panel hidden">
+			<div id="activities-content">
+				<p class="tab-placeholder">Activities unlock during football season.</p>
+			</div>
+		</div>
 
-		<!-- Season schedule (togglable) -->
-		<section id="schedule-panel" class="hidden">
-			<pre id="schedule-content"></pre>
-		</section>
+		<!-- TEAM TAB: record, standings, schedule, coach -->
+		<div id="tab-team" class="tab-panel hidden">
+			<div id="team-content">
+				<p class="tab-placeholder">Team info appears when you join a team.</p>
+			</div>
+		</div>
 
-		<!-- Footer status bar -->
-		<footer id="status-bar">
-			<span id="team-record"></span>
-			<button id="standings-toggle" class="standings-button">Standings</button>
-			<button id="schedule-toggle" class="schedule-button">Schedule</button>
-			<span id="recruiting-status"></span>
-		</footer>
+		<!-- CAREER TAB: recruiting, draft, contract info -->
+		<div id="tab-career" class="tab-panel hidden">
+			<div id="career-content">
+				<p class="tab-placeholder">Career info appears during high school.</p>
+			</div>
+		</div>
+
+		<!-- Bottom tab bar navigation -->
+		<nav id="tab-bar">
+			<!-- Dynamically populated by tabs.ts -->
+		</nav>
 	</div>
 
 	<!-- Event modal overlay -->

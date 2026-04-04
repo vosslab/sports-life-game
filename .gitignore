@@ -4,5 +4,8 @@ node_modules/
 dist/
 _te*.ts
 _te*.js
+_te*.py
 OTHER_REPOS_FOR_STUDY/
 package-lock.json
+tools/avataaars_source/
+.superpowers/

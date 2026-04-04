@@ -48,6 +48,116 @@ export type DepthChartStatus = 'starter' | 'backup' | 'bench';
 export type PerformanceRating = 'poor' | 'below_average' | 'average' | 'good' | 'great' | 'elite';
 
 //============================================
+// Cumulative season stat totals (common + position-specific)
+// Not every field is populated for every position; irrelevant fields stay 0.
+export interface SeasonStatTotals {
+	// Common
+	gamesPlayed: number;
+	totalYards: number;
+	totalTouchdowns: number;
+	// Passer
+	passYards: number;
+	passTds: number;
+	passInts: number;
+	completions: number;
+	attempts: number;
+	// Runner
+	rushYards: number;
+	carries: number;
+	rushTds: number;
+	fumbles: number;
+	// Receiver / TE
+	receptions: number;
+	recYards: number;
+	recTds: number;
+	targets: number;
+	// Defender
+	tackles: number;
+	sacks: number;
+	ints: number;
+	// Kicker
+	fgMade: number;
+	fgAttempts: number;
+	xpMade: number;
+	xpAttempts: number;
+	// Awards
+	playerOfTheWeekCount: number;
+}
+
+//============================================
+// Create an empty season stat totals object
+export function createEmptySeasonStats(): SeasonStatTotals {
+	return {
+		gamesPlayed: 0,
+		totalYards: 0,
+		totalTouchdowns: 0,
+		passYards: 0,
+		passTds: 0,
+		passInts: 0,
+		completions: 0,
+		attempts: 0,
+		rushYards: 0,
+		carries: 0,
+		rushTds: 0,
+		fumbles: 0,
+		receptions: 0,
+		recYards: 0,
+		recTds: 0,
+		targets: 0,
+		tackles: 0,
+		sacks: 0,
+		ints: 0,
+		fgMade: 0,
+		fgAttempts: 0,
+		xpMade: 0,
+		xpAttempts: 0,
+		playerOfTheWeekCount: 0,
+	};
+}
+
+//============================================
+// Accumulate a game's stat line into player's season stats
+export function accumulateGameStats(
+	seasonStats: SeasonStatTotals,
+	statLine: Record<string, number | string>,
+): void {
+	seasonStats.gamesPlayed += 1;
+	// Sum numeric stats by key name
+	const numVal = (key: string): number => {
+		const v = statLine[key];
+		return typeof v === 'number' ? v : 0;
+	};
+	// Passer stats
+	seasonStats.passYards += numVal('passYards');
+	seasonStats.passTds += numVal('passTds');
+	seasonStats.passInts += numVal('passInts');
+	seasonStats.completions += numVal('completions');
+	seasonStats.attempts += numVal('attempts');
+	// Runner stats
+	seasonStats.rushYards += numVal('rushYards');
+	seasonStats.carries += numVal('carries');
+	seasonStats.rushTds += numVal('rushTds');
+	seasonStats.fumbles += numVal('fumbles');
+	// Receiver / TE stats
+	seasonStats.receptions += numVal('receptions');
+	seasonStats.recYards += numVal('recYards');
+	seasonStats.recTds += numVal('recTds');
+	seasonStats.targets += numVal('targets');
+	// Defender stats
+	seasonStats.tackles += numVal('tackles');
+	seasonStats.sacks += numVal('sacks');
+	seasonStats.ints += numVal('ints');
+	// Kicker stats
+	seasonStats.fgMade += numVal('fgMade');
+	seasonStats.fgAttempts += numVal('fgAttempts');
+	seasonStats.xpMade += numVal('xpMade');
+	seasonStats.xpAttempts += numVal('xpAttempts');
+	// Compute total yards and TDs from position-specific stats
+	seasonStats.totalYards = seasonStats.passYards + seasonStats.rushYards + seasonStats.recYards;
+	seasonStats.totalTouchdowns = seasonStats.passTds + seasonStats.rushTds + seasonStats.recTds;
+}
+
+//============================================
 // A single season record entry
 export interface SeasonRecord {
 	phase: CareerPhase;
@@ -60,6 +170,7 @@ export interface SeasonRecord {
 	depthChart: DepthChartStatus;
 	highlights: string[];
 	awards: string[];
+	statTotals?: SeasonStatTotals;
 }
 
 //============================================
@@ -86,6 +197,7 @@ export interface Player {
 	core: CoreStats;
 	career: CareerStats;
 	hidden: HiddenStats;
+	seasonStats: SeasonStatTotals;
 
 	// Season tracking
 	currentSeason: number;   // which season in career (1-based)
@@ -184,6 +296,7 @@ export function createPlayer(firstName: string, lastName: string): Player {
 			money: 0,
 		},
 		hidden,
+		seasonStats: createEmptySeasonStats(),
 
 		currentSeason: 0,
 		currentWeek: 0,

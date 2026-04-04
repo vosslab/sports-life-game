@@ -21,6 +21,7 @@ export interface EventConditions {
 	min_stats?: Record<string, number>;
 	max_stats?: Record<string, number>;
 	requires_flag?: string;
+	excludes_flag?: string;
 }
 
 //============================================
@@ -40,7 +41,7 @@ export interface GameEvent {
 //============================================
 // Load events from JSON file
 export async function loadEvents(): Promise<GameEvent[]> {
-	const response = await fetch('./src/data/events.json');
+	const response = await fetch('src/data/events.json');
 	const events: GameEvent[] = await response.json();
 	return events;
 }
@@ -105,6 +106,15 @@ export function filterEvents(
 				return false;
 			}
 		}
+
+		// Check excluded flag: if flag is set, exclude this event
+		if (conditions.excludes_flag !== undefined) {
+			if (flags[conditions.excludes_flag]) {
+				return false;
+			}
+		}
+
+
 
 		return true;
 	});

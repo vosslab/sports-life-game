@@ -327,6 +327,19 @@ export function hslToHex(h: number, s: number, l: number): string {
 }
 
 //============================================
+// Blend two hex colors by weight
+function blendHexColors(color1: string, color2: string, weight2: number): string {
+	const weight1 = 1 - weight2;
+	const { r: r1, g: g1, b: b1 } = hexToRgb(color1);
+	const { r: r2, g: g2, b: b2 } = hexToRgb(color2);
+
+	return '#'
+		+ Math.round(r1 * weight1 + r2 * weight2).toString(16).padStart(2, '0')
+		+ Math.round(g1 * weight1 + g2 * weight2).toString(16).padStart(2, '0')
+		+ Math.round(b1 * weight1 + b2 * weight2).toString(16).padStart(2, '0');
+}
+
+//============================================
 // Generate a random team palette with WCAG AA compliance
 export function generateTeamPalette(): TeamPalette {
 	// Pick a random hue (0-360)
@@ -408,32 +421,20 @@ export function applyPalette(palette: TeamPalette): void {
 	root.setProperty('--bg-primary', palette.primary);
 	root.setProperty('--bg-secondary', palette.secondary);
 
-	// bg-card: slightly adjusted secondary
-	const cardLum = getRelativeLuminance(palette.secondary);
-	const cardLight = cardLum < 0.1 ? 25 : 20;
-	const bgCard = hslToHex(0, 0, cardLight);
+	// Keep card surfaces in the active school/team palette instead of drifting to gray
+	const bgCard = blendHexColors(palette.secondary, palette.accent, 0.14);
 	root.setProperty('--bg-card', bgCard);
 
 	// Button background: blend of secondary and accent
-	const { r: r2, g: g2, b: b2 } = hexToRgb(palette.secondary);
-	const { r: ra, g: ga, b: ba } = hexToRgb(palette.accent);
-	const buttonBg = '#' +
-		Math.round((r2 * 0.7 + ra * 0.3)).toString(16).padStart(2, '0') +
-		Math.round((g2 * 0.7 + ga * 0.3)).toString(16).padStart(2, '0') +
-		Math.round((b2 * 0.7 + ba * 0.3)).toString(16).padStart(2, '0');
+	const buttonBg = blendHexColors(palette.secondary, palette.accent, 0.3);
 	root.setProperty('--button-bg', buttonBg);
 
-	// Button hover state: lighter version of button background
-	const { r: rbh, g: gbh, b: bbh } = hexToRgb(buttonBg);
-	const buttonHover = hslToHex(0, 0, Math.round(getRelativeLuminance(buttonBg) * 100 + 15));
+	// Button hover stays in-team by blending further toward accent
+	const buttonHover = blendHexColors(buttonBg, palette.accent, 0.35);
 	root.setProperty('--button-hover', buttonHover);
 
 	// Bar background: between primary and secondary
-	const { r: r1, g: g1, b: b1 } = hexToRgb(palette.primary);
-	const barBg = '#' +
-		Math.round((r1 * 0.6 + r2 * 0.4)).toString(16).padStart(2, '0') +
-		Math.round((g1 * 0.6 + g2 * 0.4)).toString(16).padStart(2, '0') +
-		Math.round((b1 * 0.6 + b2 * 0.4)).toString(16).padStart(2, '0');
+	const barBg = blendHexColors(palette.primary, palette.secondary, 0.4);
 	root.setProperty('--bar-bg', barBg);
 
 	// Accent colors: extract hue and saturation from palette accent

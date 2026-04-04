@@ -2,6 +2,8 @@
 
 import { Player, CareerPhase } from './player.js';
 import { ScheduleEntry } from './team.js';
+import { Activity, WeekState } from './activities.js';
+import type { StatLine } from './week_sim.js';
 
 //============================================
 // Type definitions for choice options
@@ -92,6 +94,15 @@ export function updateHeader(player: Player): void {
 	} else {
 		weekEl.textContent = phaseLabel;
 	}
+}
+
+// Update the compact status shown on the Life tab
+export function updateLifeStatus(record: string, nextOpponent: string): void {
+	const recordEl = getElement('life-record');
+	const nextEl = getElement('life-next-opponent');
+
+	recordEl.textContent = record;
+	nextEl.textContent = nextOpponent;
 }
 
 // Helper: convert career phase to readable label
@@ -251,23 +262,23 @@ export function showWeeklyFocusChoices(
 ): void {
 	const focusOptions: ChoiceOption[] = [
 		{
-			text: 'Train',
+			text: 'Train (+2-4 TEC)',
 			action: () => onChoice('train'),
 		},
 		{
-			text: 'Film Study',
+			text: 'Film Study (+2-3 IQ)',
 			action: () => onChoice('film_study'),
 		},
 		{
-			text: 'Recovery',
+			text: 'Recovery (+3-5 HP)',
 			action: () => onChoice('recovery'),
 		},
 		{
-			text: 'Social',
+			text: 'Social (+2-4 POP)',
 			action: () => onChoice('social'),
 		},
 		{
-			text: 'Teamwork',
+			text: 'Teamwork (+2-3 leadership)',
 			action: () => onChoice('teamwork'),
 		},
 	];
@@ -399,4 +410,534 @@ export function toggleSchedule(
 	} else {
 		hideSchedule();
 	}
+}
+
+//============================================
+// STATS TAB CONTENT
+//============================================
+
+// Update the stats tab with current player data (called on tab switch)
+export function updateStatsTab(player: Player): void {
+	// Stat bars update themselves via updateAllStats (called elsewhere)
+	// Here we update the summary section below the stat bars
+	const summary = document.getElementById('stats-summary');
+	if (!summary) {
+		return;
+	}
+
+	// Build summary rows based on current state
+	const rows: { label: string; value: string }[] = [];
+
+	// Position (if assigned)
+	if (player.position) {
+		rows.push({ label: 'Position', value: player.position });
+	}
+
+	// Season record (if in a season)
+	const history = player.careerHistory;
+	if (history.length > 0) {
+		const current = history[history.length - 1];
+		const record = `${current.wins}-${current.losses}`;
+		rows.push({ label: 'Record', value: record });
+	}
+
+	// Money
+	if (player.career.money > 0) {
+		const moneyStr = formatMoney(player.career.money);
+		rows.push({ label: 'Earnings', value: moneyStr });
+	}
+
+	// Depth chart
+	if (player.phase === 'high_school' || player.phase === 'college' || player.phase === 'nfl') {
+		const depthLabel = player.depthChart.charAt(0).toUpperCase() + player.depthChart.slice(1);
+		rows.push({ label: 'Depth Chart', value: depthLabel });
+	}
+
+	// Seasons played
+	if (player.currentSeason > 0) {
+		rows.push({ label: 'Seasons', value: player.currentSeason.toString() });
+	}
+
+	// Render rows
+	summary.innerHTML = '';
+	for (const row of rows) {
+		const div = document.createElement('div');
+		div.className = 'stats-summary-row';
+		const labelSpan = document.createElement('span');
+		labelSpan.className = 'stats-summary-label';
+		labelSpan.textContent = row.label;
+		const valueSpan = document.createElement('span');
+		valueSpan.className = 'stats-summary-value';
+		valueSpan.textContent = row.value;
+		div.appendChild(labelSpan);
+		div.appendChild(valueSpan);
+		summary.appendChild(div);
+	}
+}
+
+//============================================
+// TEAM TAB CONTENT
+//============================================
+
+// Update the team tab with team info, standings, and schedule
+export function updateTeamTab(
+	teamName: string,
+	record: string,
+	formattedStandings: string,
+	schedule: ScheduleEntry[],
+	currentWeek: number,
+	coachName: string,
+): void {
+	const content = document.getElementById('team-content');
+	if (!content) {
+		return;
+	}
+
+	content.innerHTML = '';
+
+	// Team name header
+	const header = document.createElement('div');
+	header.className = 'team-tab-header';
+	header.innerHTML = `<strong>${teamName}</strong> (${record})`;
+	content.appendChild(header);
+
+	// Coach info
+	if (coachName) {
+		const coach = document.createElement('div');
+		coach.className = 'team-tab-coach';
+		coach.textContent = `Coach: ${coachName}`;
+		content.appendChild(coach);
+	}
+
+	// Conference standings section
+	if (formattedStandings) {
+		const standingsLabel = document.createElement('div');
+		standingsLabel.className = 'team-tab-section-label';
+		standingsLabel.textContent = 'Conference Standings';
+		content.appendChild(standingsLabel);
+
+		const standingsPre = document.createElement('pre');
+		standingsPre.id = 'standings-content';
+		// Process standings to highlight player team
+		const lines = formattedStandings.split('\n');
+		for (const line of lines) {
+			if (line.indexOf('>>>') === 0) {
+				const span = document.createElement('span');
+				span.className = 'player-team-row';
+				span.textContent = line;
+				standingsPre.appendChild(span);
+				standingsPre.appendChild(document.createElement('br'));
+			} else if (line.trim().length > 0) {
+				standingsPre.appendChild(document.createTextNode(line));
+				standingsPre.appendChild(document.createElement('br'));
+			}
+		}
+		content.appendChild(standingsPre);
+	}
+
+	// Schedule section
+	if (schedule.length > 0) {
+		const scheduleLabel = document.createElement('div');
+		scheduleLabel.className = 'team-tab-section-label';
+		scheduleLabel.textContent = 'Season Schedule';
+		content.appendChild(scheduleLabel);
+
+		const schedulePre = document.createElement('pre');
+		schedulePre.id = 'schedule-content';
+
+		for (const entry of schedule) {
+			const weekStr = entry.week.toString().padStart(2, ' ');
+			const prefix = entry.week === currentWeek ? '>>>' : '  ';
+
+			let resultStr: string;
+			if (entry.played) {
+				const result = entry.teamScore > entry.opponentScore ? 'W' : 'L';
+				resultStr = `${result} ${entry.teamScore}-${entry.opponentScore}`;
+			} else {
+				resultStr = '--';
+			}
+
+			const opponentStr = entry.opponentName.padEnd(25);
+			const line = `${prefix} Wk ${weekStr}  vs ${opponentStr} ${resultStr}\n`;
+			schedulePre.appendChild(document.createTextNode(line));
+		}
+
+		content.appendChild(schedulePre);
+	}
+}
+
+//============================================
+// CAREER TAB CONTENT
+//============================================
+
+//============================================
+// ACTIVITIES TAB CONTENT
+//============================================
+
+// Render the activities tab with available activities and action cap
+export function renderActivitiesTab(
+	activities: Activity[],
+	weekState: WeekState,
+	isUnlocked: (activity: Activity) => boolean,
+	effectPreview: (activity: Activity) => string,
+	onSelect: (activity: Activity) => void,
+): void {
+	const content = document.getElementById('activities-content');
+	if (!content) {
+		return;
+	}
+
+	content.innerHTML = '';
+
+	// If no activities available (childhood/youth), show placeholder
+	if (activities.length === 0) {
+		const placeholder = document.createElement('p');
+		placeholder.className = 'tab-placeholder';
+		placeholder.textContent = 'Activities unlock during football season.';
+		content.appendChild(placeholder);
+		return;
+	}
+
+	// Action budget display at top
+	const budget = document.createElement('div');
+	budget.className = 'activities-budget';
+	const remaining = weekState.actionBudget - weekState.actionsUsed;
+	budget.textContent = `Actions: ${weekState.actionsUsed}/${weekState.actionBudget} used this week`;
+	content.appendChild(budget);
+
+	// Show read-only message if not in activity_prompt phase
+	if (weekState.phase !== 'activity_prompt') {
+		const readOnly = document.createElement('div');
+		readOnly.className = 'activities-readonly';
+		if (weekState.actionsUsed >= weekState.actionBudget) {
+			readOnly.textContent = 'Done for this week.';
+		} else {
+			readOnly.textContent = 'Activities available during your free time each week.';
+		}
+		content.appendChild(readOnly);
+	}
+
+	// Render each activity as a card
+	for (const activity of activities) {
+		const card = document.createElement('div');
+		card.className = 'activity-card';
+
+		// Activity name
+		const name = document.createElement('div');
+		name.className = 'activity-name';
+		name.textContent = activity.name;
+		card.appendChild(name);
+
+		// Description
+		const desc = document.createElement('div');
+		desc.className = 'activity-desc';
+		desc.textContent = activity.description;
+		card.appendChild(desc);
+
+		// Effect preview
+		const effects = document.createElement('div');
+		effects.className = 'activity-effects';
+		effects.textContent = effectPreview(activity);
+		card.appendChild(effects);
+
+		// Check if unlocked
+		const unlocked = isUnlocked(activity);
+
+		if (!unlocked) {
+			// Locked: show hint, gray out
+			card.classList.add('activity-locked');
+			const hint = document.createElement('div');
+			hint.className = 'activity-hint';
+			hint.textContent = activity.unlockHint || 'Locked';
+			card.appendChild(hint);
+		} else if (weekState.phase === 'activity_prompt' && remaining > 0) {
+			// Available: show button
+			const btn = document.createElement('button');
+			btn.className = 'choice-button activity-button';
+			btn.textContent = 'Do This';
+			btn.addEventListener('click', () => onSelect(activity));
+			card.appendChild(btn);
+		}
+
+		content.appendChild(card);
+	}
+}
+
+//============================================
+// CAREER TAB CONTENT
+//============================================
+
+// Update the career tab with phase-appropriate career info
+export function updateCareerTab(player: Player): void {
+	const content = document.getElementById('career-content');
+	if (!content) {
+		return;
+	}
+
+	content.innerHTML = '';
+
+	// Phase-specific content
+	if (player.phase === 'high_school') {
+		renderHSCareer(content, player);
+	} else if (player.phase === 'college') {
+		renderCollegeCareer(content, player);
+	} else if (player.phase === 'nfl') {
+		renderNFLCareer(content, player);
+	} else if (player.phase === 'legacy') {
+		renderLegacyCareer(content, player);
+	} else {
+		// Childhood/youth: no career info yet
+		const placeholder = document.createElement('p');
+		placeholder.className = 'tab-placeholder';
+		placeholder.textContent = 'Career info appears during high school.';
+		content.appendChild(placeholder);
+	}
+}
+
+//============================================
+// Career tab sub-renderers per phase
+
+function renderHSCareer(container: HTMLElement, player: Player): void {
+	addCareerRow(container, 'Recruiting Stars', getStarDisplay(player.recruitingStars));
+	if (player.age < 16) {
+		addCareerNote(container, 'Recruiting updates start in your junior year.');
+	}
+
+	// Show offers if any
+	if (player.collegeOffers.length > 0) {
+		addCareerRow(container, 'Offers', player.collegeOffers.length.toString());
+		// Show top offer
+		const topOffer = player.collegeOffers[0];
+		addCareerRow(container, 'Top Offer', topOffer);
+	} else {
+		addCareerRow(container, 'Offers', 'None yet');
+	}
+
+	// Big decisions
+	if (player.bigDecisions.length > 0) {
+		addCareerSection(container, 'Key Decisions');
+		for (const decision of player.bigDecisions) {
+			addCareerNote(container, decision);
+		}
+	}
+}
+
+//============================================
+function renderCollegeCareer(container: HTMLElement, player: Player): void {
+	// College year label
+	const yearLabels = ['', 'Freshman', 'Sophomore', 'Junior', 'Senior'];
+	const yearLabel = yearLabels[player.collegeYear] || `Year ${player.collegeYear}`;
+	addCareerRow(container, 'Year', yearLabel);
+
+	// Draft stock
+	addCareerRow(container, 'Draft Stock', player.draftStock.toString());
+
+	// NIL / money earned
+	if (player.career.money > 0) {
+		addCareerRow(container, 'NIL Earnings', formatMoney(player.career.money));
+	}
+
+	// Recruiting stars from HS
+	addCareerRow(container, 'HS Recruiting', getStarDisplay(player.recruitingStars));
+
+	// Big decisions
+	if (player.bigDecisions.length > 0) {
+		addCareerSection(container, 'Key Decisions');
+		for (const decision of player.bigDecisions) {
+			addCareerNote(container, decision);
+		}
+	}
+}
+
+//============================================
+function renderNFLCareer(container: HTMLElement, player: Player): void {
+	// NFL seasons played
+	addCareerRow(container, 'NFL Seasons', player.nflYear.toString());
+
+	// Career earnings
+	addCareerRow(container, 'Career Earnings', formatMoney(player.career.money));
+
+	// Current team
+	addCareerRow(container, 'Team', player.teamName);
+
+	// Draft stock from college
+	addCareerRow(container, 'Draft Stock', player.draftStock.toString());
+
+	// Career history: awards
+	const allAwards: string[] = [];
+	for (const season of player.careerHistory) {
+		for (const award of season.awards) {
+			allAwards.push(`${award} (${season.phase} Yr ${season.year})`);
+		}
+	}
+	if (allAwards.length > 0) {
+		addCareerSection(container, 'Awards');
+		for (const award of allAwards) {
+			addCareerNote(container, award);
+		}
+	}
+
+	// Big decisions
+	if (player.bigDecisions.length > 0) {
+		addCareerSection(container, 'Key Decisions');
+		for (const decision of player.bigDecisions) {
+			addCareerNote(container, decision);
+		}
+	}
+}
+
+//============================================
+function renderLegacyCareer(container: HTMLElement, player: Player): void {
+	// Final career summary
+	const totalSeasons = player.careerHistory.length;
+	addCareerRow(container, 'Seasons Played', totalSeasons.toString());
+	addCareerRow(container, 'Career Earnings', formatMoney(player.career.money));
+	addCareerRow(container, 'Final Position', player.position || 'N/A');
+
+	// Total wins/losses across all seasons
+	let totalWins = 0;
+	let totalLosses = 0;
+	for (const season of player.careerHistory) {
+		totalWins += season.wins;
+		totalLosses += season.losses;
+	}
+	addCareerRow(container, 'Career Record', `${totalWins}-${totalLosses}`);
+
+	// All awards
+	const allAwards: string[] = [];
+	for (const season of player.careerHistory) {
+		for (const award of season.awards) {
+			allAwards.push(award);
+		}
+	}
+	if (allAwards.length > 0) {
+		addCareerSection(container, 'Awards');
+		for (const award of allAwards) {
+			addCareerNote(container, award);
+		}
+	}
+
+	// Big decisions
+	if (player.bigDecisions.length > 0) {
+		addCareerSection(container, 'Career Defining Moments');
+		for (const decision of player.bigDecisions) {
+			addCareerNote(container, decision);
+		}
+	}
+}
+
+//============================================
+// Career tab helper functions
+
+function addCareerRow(container: HTMLElement, label: string, value: string): void {
+	const div = document.createElement('div');
+	div.className = 'stats-summary-row';
+	const labelSpan = document.createElement('span');
+	labelSpan.className = 'stats-summary-label';
+	labelSpan.textContent = label;
+	const valueSpan = document.createElement('span');
+	valueSpan.className = 'stats-summary-value';
+	valueSpan.textContent = value;
+	div.appendChild(labelSpan);
+	div.appendChild(valueSpan);
+	container.appendChild(div);
+}
+
+//============================================
+function addCareerSection(container: HTMLElement, title: string): void {
+	const heading = document.createElement('div');
+	heading.className = 'team-tab-section-label';
+	heading.textContent = title;
+	container.appendChild(heading);
+}
+
+//============================================
+function addCareerNote(container: HTMLElement, text: string): void {
+	const note = document.createElement('div');
+	note.className = 'career-note';
+	note.textContent = text;
+	container.appendChild(note);
+}
+
+//============================================
+function getStarDisplay(stars: number): string {
+	// ASCII star display
+	let display = '';
+	for (let i = 0; i < stars; i++) {
+		display += '*';
+	}
+	// Pad to 5 for consistency
+	while (display.length < 5) {
+		display += '-';
+	}
+	return `${stars}-star (${display})`;
+}
+
+//============================================
+function formatMoney(amount: number): string {
+	if (amount >= 1000000) {
+		const millions = (amount / 1000000).toFixed(1);
+		return `$${millions}M`;
+	}
+	if (amount >= 1000) {
+		const thousands = (amount / 1000).toFixed(0);
+		return `$${thousands}K`;
+	}
+	return `$${amount}`;
+}
+
+//============================================
+// Map camelCase stat keys to human-readable display labels
+const STAT_LABELS: Record<string, string> = {
+	// Passer stats
+	passYards: 'Pass Yards',
+	passTds: 'TDs',
+	passInts: 'INTs',
+	completions: 'Completions',
+	attempts: 'Attempts',
+	completionPct: 'Comp %',
+	// Runner stats
+	rushYards: 'Rush Yards',
+	carries: 'Carries',
+	rushTds: 'Rush TDs',
+	fumbles: 'Fumbles',
+	// Receiver stats
+	receptions: 'Receptions',
+	recYards: 'Rec Yards',
+	recTds: 'Rec TDs',
+	targets: 'Targets',
+	// Tight end stats
+	blockGrade: 'Block Grade',
+	// Lineman stats
+	grade: 'Grade',
+	keyPlays: 'Key Plays',
+	pressureRate: 'Pressure Rate',
+	// Defender stats
+	tackles: 'Tackles',
+	sacks: 'Sacks',
+	ints: 'INTs',
+	// Kicker stats
+	fgMade: 'FG Made',
+	fgAttempts: 'FG Att',
+	fgPercent: 'FG %',
+	puntAvg: 'Punt Avg',
+	xpMade: 'XP Made',
+	xpAttempts: 'XP Att',
+};
+
+//============================================
+// Format a stat key into a display label
+export function formatStatKey(key: string): string {
+	return STAT_LABELS[key] || key;
+}
+
+//============================================
+// Format an entire stat line into a human-readable display string
+export function formatStatLine(statLine: StatLine): string {
+	const parts: string[] = [];
+	for (const [key, val] of Object.entries(statLine)) {
+		const label = formatStatKey(key);
+		parts.push(`${label}: ${val}`);
+	}
+	return parts.join(' | ');
 }

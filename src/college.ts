@@ -1,6 +1,6 @@
 // college.ts - college football phase with season decisions and draft tracking
 
-import { Player, randomInRange, clampStat, modifyStat } from './player.js';
+import { Player, randomInRange, clampStat, modifyStat, createEmptySeasonStats } from './player.js';
 
 //============================================
 // College career choice
@@ -187,7 +187,7 @@ export function getCollegeSeasonChoices(
 				discipline: -8,
 			},
 			flavor: 'A major brand approaches you with a generous NIL contract. ' +
-				'Suddenly, you\'re not just a player—you\'re a marketable name.',
+				'Suddenly, you\'re not just a player-you\'re a marketable name.',
 			is_big_decision: false,
 		});
 	}
@@ -201,7 +201,7 @@ export function getCollegeSeasonChoices(
 				draftStock: 20,
 			},
 			flavor: 'You\'ve dominated this season. The scouts are calling. It\'s time. ' +
-				'You announce you\'re entering the draft—no more college ball.',
+				'You announce you\'re entering the draft-no more college ball.',
 			is_big_decision: true,
 		});
 
@@ -491,6 +491,7 @@ console.assert(
 		},
 		career: { popularity: 60, money: 0 },
 		hidden: { size: 4, leadership: 70, durability: 75 },
+		seasonStats: createEmptySeasonStats(),
 		currentSeason: 1,
 		currentWeek: 0,
 		seasonYear: 2025,

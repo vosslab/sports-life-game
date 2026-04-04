@@ -4,10 +4,254 @@
 
 ### Fixes and Maintenance
 
+- Bug fix: `player.teamStrength` was never set during college or NFL phases, staying at default 50
+  - College phase now syncs `player.teamStrength` from `collegeTeam.strength` when team is created
+  - NFL phase now sets `player.teamStrength` during draft
+  - This affected bowl game eligibility (college.ts:339) and NFL win calculations (nfl.ts:151)
+- Bug fix: `player.draftStock` was 0 until junior year; now initialized at college entry via `calculateDraftStock()`
+- Bug fix: removed unused `LAYER_POSITIONS` import from [src/avatar.ts](src/avatar.ts)
+- Bug fix: normalized fetch path in [src/events.ts](src/events.ts) from `./src/data/events.json` to `src/data/events.json` for consistency with other fetch calls
+
+### Additions and New Features
+
+- Patch 1: Architecture doc block and section headers added to [src/main.ts](src/main.ts)
+  - Defines main.ts as orchestrator; business logic belongs in phase modules
+  - Named section headers: GLOBALS, TAB SWITCHING, GAME INIT, CHILDHOOD/YOUTH, HS ENTRY, PHASE TRANSITIONS, STORY HELPERS, RETIREMENT, ENTRY POINT
+- Patch 2: Split `generateRunnerReceiverStats()` into three position-specific generators in [src/week_sim.ts](src/week_sim.ts)
+  - RB: `rushYards`, `carries`, `rushTds`, `fumbles`
+  - WR: `receptions`, `recYards`, `recTds`, `targets`
+  - TE: `receptions`, `recYards`, `recTds`, `blockGrade` (A-F hybrid)
+  - Design decision: TE is a true hybrid with blocking grade, not a slower WR
+- Patch 3: Position-specific game narratives in `generateGameStory()`
+  - RB: "rushed for X yards on Y carries"
+  - WR/TE: "caught X passes for Y yards"
+  - TE mentions blocking grade in narrative
+- Patch 4: Per-position output definitions in [src/data/positions.json](src/data/positions.json)
+  - Added `positionOutputs` under `runner_receiver` with RB, WR, TE sub-entries
+- Patch 5: Stat label formatting via `formatStatLine()` in [src/ui.ts](src/ui.ts)
+  - Maps camelCase keys to readable labels (e.g., `rushYards` -> `Rush Yards`)
+  - Applied in all 6 stat display sites across hs_phase, college_phase, nfl_phase
+- Patch 6: Context-driven depth chart scaling in [src/week_sim.ts](src/week_sim.ts)
+  - Bench usage scales with game context: blowout (14+ pts) = more snaps, close (<7) = fewer
+  - Bench QB shows DNP in close games, garbage-time stats in blowouts
+  - Backup gets ~35-50% volume depending on game context
+- Patch 7: `excludes_flag` feature in [src/events.ts](src/events.ts)
+  - Prevents events from firing when a flag is already set in player storyFlags
+- Patch 8: One-time events tagged with `excludes_flag` in [src/data/events.json](src/data/events.json)
+  - Driver's license: `excludes_flag: "has_drivers_license"`
+  - Recruiting commitment events: `excludes_flag: "committed_to_college"`
+  - Transfer event: `excludes_flag: "transferred_high_school"`
+- Patch 9: `SeasonStatTotals` interface and `seasonStats` field on Player in [src/player.ts](src/player.ts)
+  - Common totals (gamesPlayed, totalYards, totalTouchdowns) plus position-specific fields
+  - Save/load migration in [src/save.ts](src/save.ts) defaults to empty stats for old saves
+- Patch 10: Stat accumulation wired into all phase game loops
+  - `accumulateGameStats()` called after each game in hs_phase, college_phase, nfl_phase
+  - Season stats reset at each season start via `createEmptySeasonStats()`
+
+### Behavior or Interface Changes
+
+- Stat lines now display formatted labels instead of raw camelCase keys
+- RB, WR, and TE each produce distinct stat lines matching their real football role
+- Bench players see context-appropriate limited stats instead of empty stat lines
+- Driver's license and recruiting events no longer repeat after being completed
+
+### Decisions and Failures
+
+- TE designed as true hybrid (receiving + blocking grade) per user preference, not a slower WR
+- Bench stats are context-driven (blowout vs close game), not a flat percentage
+- Season stat tracking is groundwork only; predictive progression deferred to future plan
+- `excludes_flag` applied selectively to true one-time events; state markers like `is_team_captain` left repeatable
+
+## 2026-04-04 (NFL Phase Extracted to Module)
+
+### Additions and New Features
+
+- NFL football phase loop extracted from main.ts to [src/nfl_phase.ts](src/nfl_phase.ts)
+  - New module export: `startNFLCareer(context, onRetire)` entry point for draft day and career start
+  - Encapsulates NFL state: `nflTeam`, `nflConference`, `NFL_SEASON_WEEKS = 17`, `currentSeasonStats`
+  - Exported getters: `getNFLTeam()`, `getNFLConference()` for tab refresh in main.ts
+  - Functions: `startNFLSeason()`, `startNFLWeek()`, `handleNFLWeeklyFocus()`, `proceedToNFLGame()`, `endNFLSeason()`
+  - Draft day logic integrated: draft stock -> round assignment, team selection, palette application
+  - Uses shared game loop functions: `showWeeklyFocusUI()`, `handleWeeklyFocus()`, `proceedToEventCheck()`
+  - All internal functions are private (not exported); only `startNFLCareer()` and getters are public API
+  - Retirement check delegates to `checkRetirement()` from nfl.ts, triggers `onRetire()` callback
+
+### Behavior or Interface Changes
+
+- NFL loop now modularized for separation of concerns (architecture refactor, no user-facing changes)
+
+## 2026-04-04 (HS Phase Extracted to Module)
+
+### Additions and New Features
+
+- High school football phase loop extracted from main.ts to [src/hs_phase.ts](src/hs_phase.ts)
+  - New module export: `startHighSchoolSeason()` entry point for season gameplay
+  - Setup function: `initHighSchoolPhase(context, beginCollegeCallback)` to inject context and callback
+  - Encapsulates HS state: `persistentHSTeam`, `hsConference`, `wonStateThisSeason`,
+    `currentSeasonStats`, `allEvents`, `onBeginCollege` callback
+  - Exported constant: `HS_SEASON_WEEKS = 10` for week tracking
+  - Functions: `startHighSchoolSeason()`, `startPreseason()`, `preseasonFirstScrimmage()`,
+    `startWeek()`, `proceedToGameDay()`, `endSeason()`, `startPlayoffs()`,
+    `playPlayoffGame()`, `preparePlayoffGame()`, `completeSeasonSummary()`, `graduateHighSchool()`
+  - Uses shared game loop functions: `showWeeklyFocusUI()`, `handleWeeklyFocus()`,
+    `proceedToEventCheck()`, `resetWeekState()`, `getWeekState()`
+  - All internal functions are private (not exported); only `startHighSchoolSeason()`
+    and `initHighSchoolPhase()` are public API
+  - HS season flow: preseason (tryouts/scrimmage) -> 10 regular weeks -> playoffs
+    (if 6+ wins) -> season summary -> graduation (at age 18)
+  - Season awards: All-Conference (avg stat >= 60), All-State (avg stat >= 75)
+  - Recruiting stars calculated at season end (ages 16+) based on overall rating
+  - Player of the Week probability: elite 15-25%, great 5-12%, good 1-3%
+  - Playoff difficulty scaling: regional 65-80, semifinal 78-92, final 88-98 (opponent strength)
+  - State championship flag prevents duplicate "STATE CHAMPIONS!" messages within one season
+
+### Behavior or Interface Changes
+
+- HS loop now modularized for separation of concerns (architecture refactor, no user-facing changes)
+- Graduation transition to college now uses callback pattern instead of direct function call
+
+## 2026-04-04 (College Phase Extracted to Module)
+
+### Additions and New Features
+
+- College football phase loop extracted from main.ts to [src/college_phase.ts](src/college_phase.ts)
+  - New module export: `beginCollege(context, ncaaSchools, onStartNFLCareer)` entry point
+  - Encapsulates college state: `collegeTeam`, `currentConference`, `playerNCAASchool`, `COLLEGE_SEASON_WEEKS`
+  - Functions: `startCollegeSeason()`, `startCollegeWeek()`, `handleCollegeWeeklyFocus()`, `proceedToCollegeGame()`, `endCollegeSeason()`, `declareForDraft()`
+  - Uses shared game loop functions: `showWeeklyFocusUI()`, `handleWeeklyFocus()`, `proceedToEventCheck()`
+  - Integrates NCAA school assignment, team palette generation, NIL deals, and draft declaration
+  - All internal functions are private (not exported); only `beginCollege()` is public API
+
+### Behavior or Interface Changes
+
+- College loop now modularized for separation of concerns (architecture refactor, no user-facing changes)
+
+## 2026-04-04 (Tab Navigation + Activities Hub + NFL Weekly Loop)
+
+### Additions and New Features
+
+- Bottom tab bar navigation system ([src/tabs.ts](src/tabs.ts), new module)
+  - Phase-adaptive tabs: childhood/youth get 3 tabs (Life, Stats, Activities),
+    HS/college/NFL get 5 tabs (Life, Stats, Activities, Team, Career),
+    legacy gets 3 tabs (Life, Stats, Career)
+  - `switchTab()`, `updateTabBar()`, `showTabBar()`/`hideTabBar()` exported for game loop
+  - Tab bar hidden during event modals and character creation
+  - Active tab highlighted with gold accent border
+  - 48px touch targets, safe-area-inset support for mobile
+
+- HTML restructured into 5 tab panels (`index.html`)
+  - `#tab-life`: story panel + choice buttons (default view, where the game happens)
+  - `#tab-stats`: 7 stat bars + summary info (money, record, position, depth chart)
+  - `#tab-activities`: phase-dependent activity menu with action cap
+  - `#tab-team`: team name, record, conference standings, schedule, coach personality
+  - `#tab-career`: phase-aware career info (recruiting in HS, draft stock in college,
+    contract/salary/awards in NFL, full summary in legacy)
+  - Old inline stats panel moved from always-visible to Stats tab (story panel gains space)
+  - Old standings/schedule toggle buttons and status bar footer removed
+
+- Activities hub system ([src/activities.ts](src/activities.ts), new module)
+  - 15 activities across 3 phases, each with trade-offs (no dominant choice):
+    - HS (5): Extra Practice (+TEC -HP), Weight Room (+ATH -HP), Study Hall (+DIS),
+      Hang with Friends (+CON -DIS), Rest and Recover (+HP)
+    - College (5): Position Drills (+TEC -HP), Film Study (+IQ), NIL Meeting (+money -DIS,
+      sophomore+), Team Bonding (+CON), Recovery Session (+HP)
+    - NFL (5): Advanced Training (+TEC -HP), Film Breakdown (+IQ),
+      Endorsement Deal (+money -DIS), Media Appearance (-CON), Recovery/Rehab (+HP)
+  - NIL meetings award $500-$2500, endorsement deals award $10K-$60K
+  - `WeekPhase` state machine: `focus -> activity_prompt -> activity_done -> event -> game -> results`
+  - `WeekState` object tracks phase, actions used, and action budget (transient, not on Player)
+  - Action cap: 1 optional activity per week during season
+  - Activities tab read-only outside `activity_prompt` phase
+  - Locked activities shown grayed out with unlock hint text
+
+- Weekly loop integration for all three football phases
+  - New flow: weekly focus -> activities prompt -> event check -> game day -> results
+  - "Activities" button switches to Activities tab; "Skip to Game Day" proceeds directly
+  - Activity results append to Life tab story log (story-first design)
+  - `proceedToEventCheck()` shared function handles event filtering and phase routing
+    for HS, college, and NFL with fallback chain (NFL -> college -> HS events)
+
+- NFL weekly loop expansion (replaces old season-by-season approach)
+  - 17-week regular season matching real NFL schedule length
+  - Same weekly rhythm as HS/college: focus -> activities -> event -> game -> results
+  - `startNFLSeason()`: generates 17-game schedule, applies age-based stat decline,
+    creates NFL conference for standings
+  - `startNFLWeek()`: shows opponent, resets weekly state, prompts for focus
+  - `proceedToNFLGame()`: simulates individual game using shared `simulateGame()` engine,
+    tracks stats, updates standings, shows result
+  - `endNFLSeason()`: salary calculation, Pro Bowl/All-Pro awards, starter promotion,
+    retirement check with "Retire" or "One More Season" options
+  - NFL opponent strength ranges 55-95 (higher than college)
+  - Age decline applied once per season: bell curve peaks at 27, declines after 30
+  - Prime growth (under 30): technique and IQ improve slightly each season
+  - NFL team generated with `generateNFLSeasonTeam()` using all 32 real team names
+
+- Tab content rendering functions added to [src/ui.ts](src/ui.ts)
+  - `updateStatsTab()`: stat bars + summary rows (money, record, position, depth chart)
+  - `updateTeamTab()`: team header, coach, conference standings, season schedule
+  - `updateCareerTab()`: phase-aware career info with sub-renderers per phase
+  - `renderActivitiesTab()`: activity cards with effect previews, action cap, locked states
+  - Content refreshes on tab switch via `setOnTabSwitch()` callback in tabs.ts
+
+### Behavior or Interface Changes
+
+- Stats panel no longer always visible; moved to Stats tab to give story panel more space
+- Old footer status bar (`#status-bar`) removed; record and recruiting info moved to tabs
+- Old standings/schedule toggle buttons removed; content now in Team tab
+- NFL phase upgraded from season-by-season to week-by-week gameplay
+- `resumeGame()` for NFL phase now resumes with `startNFLSeason()` instead of old
+  `playNFLSeason()`
+
+### Fixes and Maintenance
+
+- Added `CareerPhase` to main.ts imports (was missing, caused compile errors)
+- Fixed `simulateGame()` call in NFL to pass required `team` argument
+- Fixed stat line display to use correct keys from `playerStatLine` record
+  (`passYards`, `rushYards`, `tackles`, etc. instead of generic `yards`/`touchdowns`)
+- Added NFL conference (`nflConference`) and NFL team (`nflTeam`) module-level state
+- Dead code from old season-by-season NFL approach marked for cleanup
+
+### Developer Tests and Notes
+
+- TypeScript compilation succeeds with `npx tsc --noEmit` after all changes
+- New files: `src/tabs.ts` (179 lines), `src/activities.ts` (271 lines)
+- Modified files: `src/main.ts` (+684 lines net), `src/ui.ts` (+472 lines),
+  `index.html` (restructured), `styles.css` (tab bar + activity card styles)
+- Total codebase: 9213 lines across 15 TypeScript source files
+- main.ts remains the largest file at 3471 lines; future work should extract phase
+  loops into separate modules (`hs_loop.ts`, `college_loop.ts`, `nfl_loop.ts`)
+- All three football phases now share the same weekly rhythm, WeekPhase state machine,
+  tab layout, game engine, and activities system
+- NFL events currently fall back to HS events (no NFL-specific events in events.json yet)
+- Childhood/youth Activities tab shows placeholder; interactive activities begin in HS
+
+## 2026-04-04
+
+### Fixes and Maintenance
+
+- Added modular SVG portrait headshot system (standalone, no game integration yet)
+  - `src/avatar.ts`: portrait generation module
+    - `AvatarConfig` interface for face configuration (skin, hair, eyes, brows, nose, mouth, optional facial hair/accessories)
+    - `generatePortraitSVG(config)` assembles layered SVG from parts with color replacement
+    - `randomAvatarConfig(seed, opts)` generates deterministic portraits from seed strings (same seed = same face)
+    - Per-render SVG ID prefixing prevents collisions when multiple portraits on same page
+    - Age-weighted facial hair: 0% under 20, 15% for 20-30, 40% for 30+
+    - Fallback to default parts when a key is missing from the registry
+  - `src/data/avatar_parts.ts`: extracted Avataaars SVG parts (MIT, Pablo Stanley)
+    - 7 skin tones, 10 hair colors, ~40 curated headshot parts across 8 categories
+    - Generated by `tools/extract_avataaars.py` from AvataaarsJs vanilla JS source
+    - Curated allowlists filter to game-appropriate parts (skip dizzy eyes, vomit mouth, etc.)
+  - `avatar_test.html`: standalone test page for previewing generated portraits
+    - Grid of 12 character portraits with named NPC seeds
+    - Seed repeatability check (enter same seed twice, get identical portraits)
+    - Randomize button for visual variety testing
+
+### Fixes and Maintenance
+
 - Patch 10: Made ui.ts canonical and removed duplicate UI functions from main.ts
   - Deleted local `showChoices()`, `updateStatBar()`, `updateAllStatBars()`, and `updateHeader()` functions from main.ts (lines 907-1012)
   - Removed local `ChoiceOption` interface and imported type from ui.js
-  - Updated all call sites in main.ts to use `ui.showChoices()`, `ui.updateAllStats()`, `ui.updateHeader()` 
+  - Updated all call sites in main.ts to use `ui.showChoices()`, `ui.updateAllStats()`, `ui.updateHeader()`
   - ui.ts functions are now the single source of truth for UI rendering
   - All stat bar updates, header updates, and choice button displays now go through canonical ui.ts implementations
   - Compilation verified with `npx tsc --noEmit`
@@ -124,7 +368,108 @@
   - Random name button in character creation now draws from full CSV lists instead of 35-name hardcoded arrays
   - Significantly expands name diversity for generated characters
 
+- Updated team theming so the full page background uses multiple active palette colors
+  - `html, body` now render a layered gradient using the current team or school palette
+  - Theme-derived card and button surfaces now stay within the active palette instead of shifting to grayscale
+  - School and NFL phases now read more clearly as team-colored screens rather than a single flat background
+
 ### Fixes and Maintenance
+
+- Fixed high school season start/resume creating endless new-season loops
+  - Added a guard so the async high-school season setup cannot be double-started by repeated clicks
+  - Added `resumeHighSchoolSeason()` so saved high-school careers continue their current season instead of always starting a fresh one
+  - This prevents accidental season-count inflation from both rapid clicks and the old high-school resume path
+
+- Fixed the main Life screen record/next-opponent status to use the real phase team state
+  - High school and college phase modules now expose getters for their active team and conference
+  - The main page no longer relies on stale `main.ts` team placeholders, so record and next opponent now populate correctly during season play
+
+- Fixed the no-youth-football path so it still reaches high school
+  - Players who decline the youth league now transition into high school football at age 14 instead of aging forever in the childhood loop
+  - The game now presents a direct high-school tryout choice once the skipped-youth path reaches high-school age
+
+- Guaranteed at least one real high-school game opportunity for season-long backups
+  - High school backups who remain buried on the depth chart now get a late-season showcase start instead of spending the entire season without a real shot
+  - The showcase game can still turn into a genuine promotion if the player performs well enough
+  - If the player does not earn the job, the game now says so explicitly rather than silently leaving them stuck
+
+- Added weekly practice reps for backups across football phases
+  - Non-starters now get a practice grade each week after choosing their focus in high school, college, and the NFL
+  - Strong practice weeks can move a bench player up to backup or a backup up to starter before game day
+  - This gives backups a real in-season path to earn playing time instead of only waiting for season-end promotion logic
+
+- Added a hard NFL career cap to prevent extreme 30-season loops
+  - NFL careers now force retirement after 15 seasons even if age and health checks have not yet ended the run
+  - The stalled-backup cutoff was also tightened so long-term backups are retired sooner instead of being allowed to drift for many extra years
+
+- Added a stop condition for stalled long-term NFL backup careers
+  - NFL players who remain backups for too many seasons without breaking through no longer get infinite `Next Season` loops
+  - After an extended backup run with no real promotion-level performance, the league stops offering another season and the career moves to retirement
+
+- Expanded the first-name pool with more classic boy names
+  - Added more traditional male names such as `Barney`, `Jackson`, `James`, `Joe`, `John`, `Joseph`, `Josh`, `Leon`, `Leonard`, `Melvin`, `Nathan`, and `Neil`
+  - Existing names were preserved; the random-name generator now has more normal/classic male options mixed into the CSV source list
+
+- Added player-selected college choice at graduation
+  - High school graduation now routes through a college-selection screen instead of auto-assigning a school
+  - Players can choose between a bigger program, a balanced fit, or a smaller school with an immediate starting opportunity
+  - College startup now accepts the selected school and initial depth-chart role so prestige and playing-time tradeoffs are reflected in gameplay
+
+- Fixed driver's-license event age text and repeat behavior
+  - The event description no longer incorrectly says "You're finally 16" when it fires later in high school
+  - Added event-filter support for `forbids_flag` conditions
+  - The driver's-license event now stops appearing after the player has already passed and gained the `has_drivers_license` flag
+
+- Fixed high school recruiting feedback so stars and offers are visible and real
+  - High school season summaries now update recruiting stars through the shared recruiting formula instead of ad hoc local logic
+  - College offers are now generated into `player.collegeOffers` during recruiting years and surfaced in the season summary text
+  - The Career tab now explicitly notes that recruiting updates begin in junior year if the player is still too young for offers
+
+- Fixed overtime games keeping the tied regulation score as the final
+  - Shared game simulation now adds actual overtime points to the winning team instead of only flipping the win/loss result
+  - Overtime story text now reports both the tied end-of-regulation score and the final overtime score
+  - Example flow is now `Regulation ended tied 23-23. After overtime, you won 27-23.`
+
+- Added stat previews to weekly focus choices on the main screen
+  - Weekly options like Train, Film Study, Recovery, Social, and Teamwork now show their stat effects directly in the button text
+  - Players no longer need to open the Stats tab just to remember what each weekly focus upgrades
+  - Teamwork explicitly notes that it boosts leadership, which remains a hidden stat
+
+- Added current team record and next opponent to the main Life screen
+  - The Life tab now shows a compact season-status strip above the story log
+  - When the player is on a team, it displays the current record and the next unplayed opponent without needing to open the Team tab
+  - Offseason and non-team phases fall back to simple placeholder text
+
+- Added college transfer portal option between seasons
+  - College offseason choices now include `Enter Transfer Portal` for underclassmen
+  - Transferring assigns a new school, resets the college team state for the next season, and usually puts the player back at backup
+  - Strong transfer players still have a small chance to arrive as an immediate starter, but most must re-earn the job at the new program
+
+- Added weekly game grades with depth-chart consequences
+  - Game results now show a letter grade from `A` to `F`
+  - Starters can lose their spot after repeated poor weekly grades, especially `D` and `F` performances
+  - Backups can earn a promotion to starter after strong `A` or `B` game grades, with better technique, IQ, and confidence improving the odds
+  - High school, college, and NFL weekly game loops now apply these lineup changes immediately after the game
+
+- Improved activity rewards visibility so attribute gains are explicit
+  - Activity application now returns the exact stat and money changes it applied
+  - The weekly story log now shows a dedicated stat-change line after each activity, such as `+2 TEC, -1 HP`
+  - This makes it clear that activities are actually upgrading the player rather than only showing flavor text
+
+- Fixed game-day simulation treating backups like full-time starters
+  - Shared `simulateGame()` now reduces snap impact and stat volume for backup players
+  - Bench players can now have no meaningful personal stat line and get sideline-specific story text
+  - Backup game stories now explicitly describe limited snaps instead of implying a full starter workload
+
+- Fixed Activities tab action buttons getting stuck after pressing "Do This"
+  - Preserved the active week's game-day continuation callback inside the shared game loop
+  - Activities selected after a tab refresh now correctly proceed back into event check and game day
+  - This fixes the stalled weekly flow where an activity could be clicked but the game stopped advancing
+
+- Fixed childhood youth-football signup loop when choosing "Not yet..."
+  - Declining organized youth football now sets a persistent branch instead of immediately re-triggering the same signup prompt at the next age
+  - Added preteen non-youth-football events for ages 10-13 so the story continues naturally before high school
+  - "Not yet..." now behaves like a meaningful decision rather than a broken repeat prompt
 
 - BUG FIX 1: Player changing high school every season
   - Added `persistentHSTeam` module variable to store the same Team across all 4 high school years

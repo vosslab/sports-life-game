@@ -1,6 +1,6 @@
 // save.ts - localStorage save/load for game state
 
-import { Player } from './player.js';
+import { Player, createEmptySeasonStats } from './player.js';
 
 const SAVE_KEY = 'gridiron_life_save';
 
@@ -35,6 +35,19 @@ export function loadGame(): Player | null {
 	}
 	if (player.teamPalette === undefined) {
 		player.teamPalette = null;
+	}
+	if (player.seasonStats === undefined) {
+		player.seasonStats = createEmptySeasonStats();
+	} else {
+		// Migrate individual fields added after initial seasonStats release
+		const defaults = createEmptySeasonStats();
+		const stats = player.seasonStats as unknown as Record<string, number>;
+		const defs = defaults as unknown as Record<string, number>;
+		for (const key of Object.keys(defs)) {
+			if (stats[key] === undefined) {
+				stats[key] = defs[key];
+			}
+		}
 	}
 	return player;
 }

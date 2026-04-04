@@ -27,6 +27,35 @@
           "tds": [0, 3],
           "catches": [0, 12]
         }
+      },
+      "positionOutputs": {
+        "RB": {
+          "labels": ["Rush Yards", "Carries", "Rush TDs", "Fumbles"],
+          "baseRanges": {
+            "rushYards": [20, 150],
+            "carries": [5, 25],
+            "rushTds": [0, 2],
+            "fumbles": [0, 1]
+          }
+        },
+        "WR": {
+          "labels": ["Receptions", "Rec Yards", "Rec TDs", "Targets"],
+          "baseRanges": {
+            "receptions": [1, 11],
+            "recYards": [10, 140],
+            "recTds": [0, 2],
+            "targets": [3, 12]
+          }
+        },
+        "TE": {
+          "labels": ["Receptions", "Rec Yards", "Rec TDs", "Block Grade"],
+          "baseRanges": {
+            "receptions": [0, 8],
+            "recYards": [0, 100],
+            "recTds": [0, 1],
+            "blockGrade": [65, 100]
+          }
+        }
       }
     },
     "lineman": {

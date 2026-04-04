@@ -1,6 +1,6 @@
 // nfl.ts - NFL career phase with draft, seasons, and legacy
 
-import { Player, randomInRange, clampStat, modifyStat } from './player.js';
+import { Player, randomInRange, clampStat, modifyStat, createEmptySeasonStats } from './player.js';
 
 //============================================
 // NFL Season results
@@ -668,6 +668,7 @@ const testPlayer: Player = {
 	},
 	career: { popularity: 70, money: 25000000 },
 	hidden: { size: 3, leadership: 75, durability: 70 },
+	seasonStats: createEmptySeasonStats(),
 	currentSeason: 5,
 	currentWeek: 0,
 	seasonYear: 2025,

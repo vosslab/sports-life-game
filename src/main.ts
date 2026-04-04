@@ -1,9 +1,35 @@
-// main.ts - game startup and loop orchestration
+// main.ts - game startup, character creation, and phase orchestration
+//
+// ARCHITECTURE RULES:
+// This file is an orchestrator. It wires phase modules together but should
+// not contain weekly game loop logic or business rules.
+//
+// What belongs here:
+//   - Game initialization and save/load
+//   - Character creation and childhood/youth (pre-football phases)
+//   - Phase transition logic (childhood -> youth -> HS -> college -> NFL -> legacy)
+//   - Position suggestion and selection
+//   - Tab switching coordination
+//   - Story display helpers (addStoryText, clearStory, etc.)
+//   - Retirement and legacy summary
+//
+// What belongs in phase modules:
+//   - Weekly game loops: hs_phase.ts, college_phase.ts, nfl_phase.ts
+//   - Shared weekly rhythm: game_loop.ts (focus -> activity -> event -> game)
+//   - Game simulation: week_sim.ts (stat generation, performance scoring)
+//   - Business logic: college.ts (draft stock, NIL), nfl.ts (retirement, HoF)
+//   - UI rendering: ui.ts (stat formatting, tab content, modals)
+//   - Event system: events.ts (filtering, selection, flag management)
+//
+// New game phases get their own module file, not a new section here.
+// Global state should be minimized; prefer passing state through function args.
+// This file should shrink over time, not grow.
 
 import {
-	Player, CoreStats, Position,
+	Player, CoreStats, CareerPhase, Position,
 	createPlayer, randomInRange, clampStat, getPositionBucket,
 } from './player.js';
+import type { DepthChartStatus } from './player.js';
 import { saveGame, loadGame, hasSave, deleteSave } from './save.js';
 import {
 	Team, ScheduleEntry, generateHighSchoolTeam, generateOpponentName,
@@ -36,6 +62,26 @@ import {
 	simulateNFLSeason, getNFLMidseasonEvent, applyNFLEventChoice,
 	checkRetirement,
 } from './nfl.js';
+import {
+	updateTabBar, switchTab, hideTabBar, showTabBar, setOnTabSwitch,
+} from './tabs.js';
+import type { TabId } from './tabs.js';
+import {
+	initGameLoop, GameContext, refreshActivitiesTabForCurrentPhase,
+} from './game_loop.js';
+import {
+	Activity, WeekState, createWeekState,
+	getActivitiesForPhase, isActivityUnlocked, applyActivity, getEffectPreview,
+} from './activities.js';
+import { initHighSchoolPhase, startHighSchoolSeason as startHSSeason, resumeHighSchoolSeason, getHSTeam, getHSConference } from './hs_phase.js';
+import { beginCollege as beginCollegePhase, resumeCollegeSeason, getCollegeTeam, getCollegeConference } from './college_phase.js';
+import { startNFLCareer as startNFLCareerPhase, getNFLTeam, getNFLConference, resumeNFLSeason } from './nfl_phase.js';
+
+//============================================
+// GLOBALS AND STATE
+// Module-level variables for game state that persists across function calls.
+// Minimize additions here; prefer passing state through function arguments.
+//============================================
 
 // Name lists loaded from CSV files
 let firstNameList: string[] = [];
@@ -111,6 +157,10 @@ let allEvents: GameEvent[] = [];
 // BUG FIX 1: Persistent high school team across 4 years
 let persistentHSTeam: Team | null = null;
 
+// NFL team for weekly loop
+let nflTeam: Team | null = null;
+let nflConference: Conference | null = null;
+
 // NCAA schools and college conference
 let ncaaSchools: { fbs: NCAASchool[]; fcs: NCAASchool[] } = { fbs: [], fcs: [] };
 let playerNCAASchool: NCAASchool | null = null;
@@ -123,8 +173,12 @@ const usedChildhoodEvents = new Set<number>();
 // BUG FIX 3: Track if state championship won this season
 let wonStateThisSeason = false;
 
+// Weekly flow state machine (transient loop state, not on Player)
+let currentWeekState: WeekState = createWeekState();
+
 // Total weeks in a high school regular season
 const HS_SEASON_WEEKS = 10;
+const NFL_SEASON_WEEKS = 17;
 
 // Track weekly and season stats for awards
 interface SeasonStats {
@@ -146,6 +200,89 @@ let currentSeasonStats: SeasonStats = {
 };
 
 //============================================
+// TAB SWITCHING AND UI COORDINATION
+// Handles tab content refresh and UI wiring. Rendering lives in ui.ts.
+//============================================
+
+// Refresh tab content when user switches to a tab
+function handleTabSwitch(tabId: TabId): void {
+	if (!currentPlayer) {
+		return;
+	}
+
+	// Update stat bars whenever any tab is opened (keeps bars current)
+	ui.updateAllStats(currentPlayer);
+
+	const activeTeam = currentPlayer.phase === 'nfl'
+		? getNFLTeam()
+		: currentPlayer.phase === 'college'
+			? getCollegeTeam()
+			: currentPlayer.phase === 'high_school'
+				? getHSTeam()
+				: currentTeam;
+	let lifeRecord = 'No team record yet.';
+	let lifeNextOpponent = 'No upcoming opponent.';
+	if (
+		activeTeam &&
+		(currentPlayer.phase === 'high_school'
+			|| currentPlayer.phase === 'college'
+			|| currentPlayer.phase === 'nfl')
+	) {
+		lifeRecord = `Record: ${activeTeam.wins}-${activeTeam.losses}`;
+		const nextGame = activeTeam.schedule.find((entry) => !entry.played);
+		if (nextGame) {
+			lifeNextOpponent = `Next: Week ${nextGame.week} vs ${nextGame.opponentName}`;
+		} else {
+			lifeNextOpponent = 'Next: Season complete';
+		}
+	}
+	ui.updateLifeStatus(lifeRecord, lifeNextOpponent);
+
+	if (tabId === 'stats') {
+		ui.updateStatsTab(currentPlayer);
+	} else if (tabId === 'team') {
+		// Build team tab content from current game state
+		const teamName = currentPlayer.teamName || 'No Team';
+		const history = currentPlayer.careerHistory;
+		let record = '0-0';
+		if (history.length > 0) {
+			const latest = history[history.length - 1];
+			record = `${latest.wins}-${latest.losses}`;
+		}
+
+		// Get standings text from the active conference
+		let standingsText = '';
+		const nflConf = getNFLConference();
+		const hsConf = getHSConference();
+		const collegeConf = getCollegeConference();
+		if (nflConf && currentPlayer.phase === 'nfl') {
+			standingsText = formatStandings(nflConf, currentPlayer.teamName);
+		} else if (hsConf && currentPlayer.phase === 'high_school') {
+			standingsText = formatStandings(hsConf, currentPlayer.teamName);
+		} else if (collegeConf && currentPlayer.phase === 'college') {
+			standingsText = formatStandings(collegeConf, currentPlayer.teamName);
+		}
+
+		// Get schedule from the appropriate team for current phase
+		const schedule = activeTeam ? activeTeam.schedule : [];
+		const week = currentPlayer.currentWeek;
+
+		// Coach personality from team
+		const coachInfo = activeTeam ? `Coach (${activeTeam.coachPersonality})` : '';
+
+		ui.updateTeamTab(teamName, record, standingsText, schedule, week, coachInfo);
+	} else if (tabId === 'activities') {
+		refreshActivitiesTabForCurrentPhase();
+	} else if (tabId === 'career') {
+		ui.updateCareerTab(currentPlayer);
+	}
+}
+
+//============================================
+// GAME INITIALIZATION AND SAVE/LOAD
+// Startup sequence, new game creation, and save file management.
+//============================================
+
 async function initGame(): Promise<void> {
 	// Load name lists from CSV files
 	await loadNameLists();
@@ -153,19 +290,42 @@ async function initGame(): Promise<void> {
 	// Load NCAA school data for college phase
 	ncaaSchools = await loadNCAASchools();
 
+	// Register tab content refresh callback
+	setOnTabSwitch(handleTabSwitch);
+
+	// Initialize the shared game loop engine with context from main.ts
+	const gameContext: GameContext = {
+		getPlayer: () => currentPlayer!,
+		getAllEvents: () => allEvents,
+		save: () => { if (currentPlayer) saveGame(currentPlayer); },
+		clearStory: () => clearStory(),
+		addHeadline: (text: string) => addStoryHeadline(text),
+		addText: (text: string) => addStoryText(text),
+		addResult: (text: string) => ui.addResult(text),
+	};
+	initGameLoop(gameContext);
+
+	// Initialize phase modules with context and transition callbacks
+	initHighSchoolPhase(gameContext, () => {
+		showCollegeChoiceScreen(gameContext);
+	});
+
 	const storyLog = document.getElementById('story-log');
 	if (!storyLog) {
 		return;
 	}
 
-	// Set up standings and schedule button listeners for both new and resumed games
-	setupStatusPanelListeners();
+	// Hide tab bar until game starts (shown after character creation or resume)
+	hideTabBar();
 
 	// Check for existing save
 	if (hasSave()) {
 		currentPlayer = loadGame();
 		if (currentPlayer) {
-			// Resume existing game
+			// Resume existing game: show tab bar for current phase
+			updateTabBar(currentPlayer.phase);
+			showTabBar();
+			switchTab('life');
 			addStoryHeadline('Welcome Back');
 			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
 				+ `Age ${currentPlayer.age}`);
@@ -186,6 +346,120 @@ async function initGame(): Promise<void> {
 	ui.showChoices([
 		{ text: 'Start New Game', primary: true, action: startCharacterCreation },
 	]);
+}
+
+//============================================
+interface CollegeChoiceOption {
+	school: NCAASchool;
+	label: string;
+	depthChart: DepthChartStatus;
+	description: string;
+}
+
+//============================================
+// PHASE TRANSITIONS
+// Handoff logic between career phases. Each transition sets up the next
+// phase and delegates to the appropriate phase module.
+//============================================
+
+function showCollegeChoiceScreen(gameContext: GameContext): void {
+	if (!currentPlayer) {
+		return;
+	}
+
+	const allSchools = [...ncaaSchools.fbs, ...ncaaSchools.fcs];
+	if (allSchools.length === 0) {
+		beginCollegePhase(gameContext, ncaaSchools, () => {
+			startNFLCareerPhase(gameContext, retirePlayer);
+		});
+		return;
+	}
+
+	const powerConferences = new Set([
+		'Atlantic Coast Conference',
+		'Big Ten Conference',
+		'Big 12 Conference',
+		'Southeastern Conference',
+		'Pac-12 Conference',
+	]);
+
+	const powerSchools = allSchools.filter((school) => (
+		school.subdivision === 'FBS' && powerConferences.has(school.conference)
+	));
+	const fbsSchools = allSchools.filter((school) => school.subdivision === 'FBS');
+	const fcsSchools = allSchools.filter((school) => school.subdivision === 'FCS');
+
+	const usedNames = new Set<string>();
+	const pickUniqueSchool = (pool: NCAASchool[], fallback: NCAASchool[]): NCAASchool => {
+		const uniquePool = pool.filter((school) => !usedNames.has(formatSchoolName(school)));
+		const source = uniquePool.length > 0 ? uniquePool : fallback.filter(
+			(school) => !usedNames.has(formatSchoolName(school))
+		);
+		const chosen = source.length > 0
+			? source[randomInRange(0, source.length - 1)]
+			: fallback[randomInRange(0, fallback.length - 1)];
+		usedNames.add(formatSchoolName(chosen));
+		return chosen;
+	};
+
+	const ambitiousSchool = pickUniqueSchool(
+		currentPlayer.recruitingStars >= 4 ? powerSchools : fbsSchools,
+		allSchools
+	);
+	const balancedSchool = pickUniqueSchool(
+		currentPlayer.recruitingStars >= 3 ? fbsSchools : allSchools,
+		allSchools
+	);
+	const earlyPlaySchool = pickUniqueSchool(
+		fcsSchools.length > 0 ? fcsSchools : allSchools,
+		allSchools
+	);
+
+	const options: CollegeChoiceOption[] = [
+		{
+			school: ambitiousSchool,
+			label: `${formatSchoolName(ambitiousSchool)} - Big Program`,
+			depthChart: 'backup',
+			description: 'More prestige, tougher depth chart, likely backup to start.',
+		},
+		{
+			school: balancedSchool,
+			label: `${formatSchoolName(balancedSchool)} - Balanced Fit`,
+			depthChart: 'backup',
+			description: 'Solid program with a fair shot to climb the rotation.',
+		},
+		{
+			school: earlyPlaySchool,
+			label: `${formatSchoolName(earlyPlaySchool)} - Smaller School`,
+			depthChart: 'starter',
+			description: 'Lower profile, but much better chance to start right away.',
+		},
+	];
+
+	clearStory();
+	addStoryHeadline('Choose Your College');
+	addStoryText('You have options now. Bigger schools bring more prestige, but they may not hand you a starting role.');
+	addStoryText('Smaller programs can get you on the field faster. Pick the path you want.');
+
+	ui.showChoices(options.map((option) => ({
+		text: option.label,
+		primary: option.depthChart === 'starter',
+		action: () => {
+			clearStory();
+			addStoryHeadline('College Decision');
+			addStoryText(`You chose ${formatSchoolName(option.school)}.`);
+			addStoryText(option.description);
+			beginCollegePhase(
+				gameContext,
+				ncaaSchools,
+				() => {
+					startNFLCareerPhase(gameContext, retirePlayer);
+				},
+				option.school,
+				option.depthChart,
+			);
+		},
+	})));
 }
 
 //============================================
@@ -272,6 +546,11 @@ function startNewGame(firstName: string, lastName: string): void {
 	usedChildhoodEvents.clear();
 	wonStateThisSeason = false;
 
+	// Show tab bar for childhood phase
+	updateTabBar(currentPlayer.phase);
+	showTabBar();
+	switchTab('life');
+
 	// Update UI with birth stats
 	ui.updateAllStats(currentPlayer);
 	ui.updateHeader(currentPlayer);
@@ -320,6 +599,11 @@ function getSizeDescription(size: number): string {
 }
 
 //============================================
+// CHILDHOOD AND YOUTH (PRE-FOOTBALL PHASES)
+// Ages 0-13. Character growth events and the decision to play football.
+// These are pre-football phases with no weekly game loop.
+//============================================
+
 function advanceChildhood(): void {
 	if (!currentPlayer) {
 		return;
@@ -339,15 +623,28 @@ function advanceChildhood(): void {
 	ui.updateHeader(currentPlayer);
 	clearStory();
 
+	// If the player skipped youth football, still move on to high school at the normal age
+	if (currentPlayer.age >= 14 && currentPlayer.storyFlags.skip_youth_football) {
+		addStoryHeadline(`Age ${currentPlayer.age}: High School`);
+		addStoryText(
+			'You never joined the youth league, but high school football is here now. '
+			+ 'This is your chance to prove you belong.'
+		);
+		ui.showChoices([
+			{ text: 'Try out for high school football', primary: true, action: startHighSchool },
+		]);
+		return;
+	}
+
 	// Check if ready for youth football
-	if (currentPlayer.age >= 10) {
+	if (currentPlayer.age >= 10 && !currentPlayer.storyFlags.skip_youth_football) {
 		addStoryHeadline(`Age ${currentPlayer.age}: Time to Play`);
 		addStoryText('Your friends are signing up for youth football. '
 			+ 'You have been watching games on TV for years. '
 			+ 'This could be the start of something big.');
 		ui.showChoices([
 			{ text: 'Sign up for football!', primary: true, action: startYouthFootball },
-			{ text: 'Not yet...', primary: false, action: advanceChildhood },
+			{ text: 'Not yet...', primary: false, action: declineYouthFootball },
 		]);
 		return;
 	}
@@ -395,6 +692,23 @@ function applyChildhoodGrowth(player: Player): void {
 	player.core.health = clampStat(player.core.health + randomInRange(0, 2));
 	player.core.confidence = clampStat(player.core.confidence + randomInRange(-1, 2));
 	player.core.discipline = clampStat(player.core.discipline + randomInRange(0, 2));
+}
+
+//============================================
+function declineYouthFootball(): void {
+	if (!currentPlayer) {
+		return;
+	}
+
+	currentPlayer.storyFlags.skip_youth_football = true;
+	saveGame(currentPlayer);
+
+	addStoryText('You decide you are not ready for organized football yet. '
+		+ 'For now, you would rather grow up at your own pace.');
+
+	ui.showChoices([
+		{ text: 'Continue...', primary: true, action: advanceChildhood },
+	]);
 }
 
 //============================================
@@ -546,6 +860,71 @@ function getChildhoodEvent(player: Player): ChildhoodEvent {
 				],
 			},
 		);
+	} else if (player.age <= 13) {
+		// Preteen events for players who are not in youth football
+		events.push(
+			{
+				text: 'Your friends invite you to an after-school pickup game at the park.',
+				choices: [
+					{
+						text: 'Join in and compete',
+						primary: true,
+						effects: { athleticism: 2, confidence: 1 },
+						flavor: 'No coaches, no pads, just instinct and bragging rights.',
+					},
+					{
+						text: 'Hang back and watch how everyone moves',
+						effects: { footballIq: 2 },
+						flavor: 'You learn a lot just by seeing who creates space and who panics.',
+					},
+				],
+			},
+			{
+				text: 'A PE teacher suggests you might be a natural athlete if you stick with sports.',
+				choices: [
+					{
+						text: 'Start training harder on your own',
+						effects: { athleticism: 2, discipline: 1 },
+						flavor: 'You start taking your body seriously, even without a team yet.',
+					},
+					{
+						text: 'Smile and keep things casual',
+						effects: { confidence: 1 },
+						flavor: 'No pressure. You are still figuring out what kind of player you want to be.',
+					},
+				],
+			},
+			{
+				text: 'You spend the summer tossing a football around with friends at the park.',
+				choices: [
+					{
+						text: 'Practice routes and catches',
+						effects: { technique: 2, athleticism: 1 },
+						flavor: 'Your hands get steadier and your cuts get sharper.',
+					},
+					{
+						text: 'Mess around and invent trick plays',
+						effects: { footballIq: 1, confidence: 2 },
+						flavor: 'Half of it is nonsense, but some of it actually works.',
+					},
+				],
+			},
+			{
+				text: 'Middle school gets more serious. Teachers and coaches start noticing who is disciplined.',
+				choices: [
+					{
+						text: 'Get organized and stay on top of things',
+						effects: { discipline: 2, confidence: 1 },
+						flavor: 'You start building habits that matter later.',
+					},
+					{
+						text: 'Rely on talent and improvise',
+						effects: { confidence: 2, discipline: -1 },
+						flavor: 'Sometimes it works. Sometimes it definitely does not.',
+					},
+				],
+			},
+		);
 	}
 
 	// Filter out already-used events
@@ -580,6 +959,10 @@ function startYouthFootball(): void {
 
 	currentPlayer.phase = 'youth';
 	saveGame(currentPlayer);
+
+	// Update tab bar for youth phase (same as childhood)
+	updateTabBar(currentPlayer.phase);
+	switchTab('life');
 
 	clearStory();
 	addStoryHeadline('Youth Football');
@@ -731,6 +1114,11 @@ function getYouthEvent(player: Player): ChildhoodEvent {
 }
 
 //============================================
+// HIGH SCHOOL ENTRY AND POSITION SELECTION
+// Transition into football. Position suggestion, selection, and handoff
+// to hs_phase.ts for the weekly game loop.
+//============================================
+
 function startHighSchool(): void {
 	if (!currentPlayer) {
 		return;
@@ -740,6 +1128,10 @@ function startHighSchool(): void {
 	currentPlayer.currentSeason = 0;
 	currentPlayer.currentWeek = 0;
 	saveGame(currentPlayer);
+
+	// Update tab bar for high school (adds Team and Career tabs)
+	updateTabBar(currentPlayer.phase);
+	switchTab('life');
 
 	clearStory();
 	addStoryHeadline('Welcome to High School Football');
@@ -859,7 +1251,7 @@ function setPositionAndContinue(position: Position): void {
 	addStoryText('But everyone starts somewhere.');
 
 	ui.showChoices([
-		{ text: 'Start the season', primary: true, action: startHighSchoolSeason },
+		{ text: 'Start the season', primary: true, action: startHSSeason },
 	]);
 }
 
@@ -891,7 +1283,7 @@ function resumeGame(): void {
 			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
 				+ `${currentPlayer.position || 'Undecided'}, Age ${currentPlayer.age}`);
 			ui.showChoices([
-				{ text: 'Continue Season', primary: true, action: startHighSchoolSeason },
+				{ text: 'Continue Season', primary: true, action: resumeHighSchoolSeason },
 			]);
 			break;
 		case 'college':
@@ -900,7 +1292,7 @@ function resumeGame(): void {
 			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
 				+ `Age ${currentPlayer.age} - College`);
 			ui.showChoices([
-				{ text: 'Continue College', primary: true, action: beginCollege },
+				{ text: 'Continue College', primary: true, action: resumeCollegeSeason },
 			]);
 			break;
 		case 'nfl':
@@ -909,7 +1301,7 @@ function resumeGame(): void {
 			addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
 				+ `Age ${currentPlayer.age} - ${currentPlayer.teamName || 'NFL'}`);
 			ui.showChoices([
-				{ text: 'Continue NFL Career', primary: true, action: playNFLSeason },
+				{ text: 'Continue NFL Career', primary: true, action: resumeNFLSeason },
 			]);
 			break;
 		case 'legacy':
@@ -928,6 +1320,11 @@ function resumeGame(): void {
 }
 
 //============================================
+// STORY DISPLAY HELPERS
+// Functions for writing to the story log panel. These are thin wrappers
+// around DOM manipulation. Complex rendering logic belongs in ui.ts.
+//============================================
+
 // BitLife-style: never clear the timeline, just add a divider
 // Old entries stay visible and scrollable
 function clearStory(): void {
@@ -992,1733 +1389,18 @@ function addStoryText(text: string): void {
 }
 
 //============================================
-// HIGH SCHOOL WEEKLY LOOP
+// GAME LOOPS MOVED TO MODULES:
+// HS loop -> src/hs_phase.ts
+// College loop -> src/college_phase.ts
+// NFL loop -> src/nfl_phase.ts
+// Shared weekly flow -> src/game_loop.ts
 //============================================
 
-async function startHighSchoolSeason(): Promise<void> {
-	if (!currentPlayer) {
-		return;
-	}
-
-	// BUG FIX 1: Reuse same high school team across 4 years
-	if (persistentHSTeam === null) {
-		// First season: generate a new team and store it
-		const schoolName = generateSchoolName();
-		persistentHSTeam = generateHighSchoolTeam(schoolName);
-		currentTeam = persistentHSTeam;
-		currentPlayer.teamName = schoolName;
-		// Apply team colors
-		const hsPalette = generateTeamPalette();
-		applyPalette(hsPalette);
-		currentPlayer.teamPalette = hsPalette;
-	} else {
-		// Subsequent seasons: reuse the team but reset wins/losses
-		currentTeam = persistentHSTeam;
-		// Reset record for new season
-		currentTeam.wins = 0;
-		currentTeam.losses = 0;
-		// Regenerate schedule with new opponents
-		const newSchedule: ScheduleEntry[] = [];
-		const scheduleLength = currentTeam.schedule.length;
-		for (let week = 1; week <= scheduleLength; week++) {
-			const opponentStrength = randomInRange(35, 95);
-			const opponent: ScheduleEntry = {
-				opponentName: generateOpponentName(),
-				opponentStrength,
-				week,
-				played: false,
-				teamScore: 0,
-				opponentScore: 0,
-			};
-			newSchedule.push(opponent);
-		}
-		currentTeam.schedule = newSchedule;
-		// Slightly improve team strength
-		currentTeam.strength = clampStat(
-			currentTeam.strength + randomInRange(1, 4)
-		);
-	}
-
-	currentPlayer.currentSeason += 1;
-	currentPlayer.currentWeek = 0;
-
-	// Load events on first season
-	if (allEvents.length === 0) {
-		allEvents = await loadEvents();
-	}
-
-	// Reset season stats for awards tracking
-	currentSeasonStats = {
-		totalYards: 0,
-		totalTouchdowns: 0,
-		totalTackles: 0,
-		totalInterceptions: 0,
-		gamesPlayed: 0,
-		playerOfTheWeekCount: 0,
-	};
-
-	// Reset championship flag for new season
-	wonStateThisSeason = false;
-
-	saveGame(currentPlayer);
-	ui.updateHeader(currentPlayer);
-	ui.updateAllStats(currentPlayer);
-
-	clearStory();
-	addStoryHeadline(
-		`Season ${currentPlayer.currentSeason}: ${currentPlayer.teamName}`
-	);
-	addStoryText(
-		`The ${currentPlayer.teamName} are ready for a new season. `
-		+ `Coach ${getCoachTitle(currentTeam)} has the roster set.`
-	);
-
-	const status = currentPlayer.depthChart === 'starter'
-		? 'You are the starting ' + currentPlayer.position + '.'
-		: 'You are listed as ' + currentPlayer.depthChart
-			+ ' at ' + currentPlayer.position + '.';
-	addStoryText(status);
-
-	// Update status bar
-	updateStatusBar(
-		`Record: ${currentTeam.wins}-${currentTeam.losses}`,
-		currentPlayer.recruitingStars > 0
-			? `Recruiting: ${currentPlayer.recruitingStars} stars`
-			: ''
-	);
-
-	ui.showChoices([
-		{ text: 'Begin Preseason', primary: true, action: startPreseason },
-	]);
-}
-
 //============================================
-function getCoachTitle(team: Team): string {
-	switch (team.coachPersonality) {
-		case 'supportive': return 'Williams (known for developing young talent)';
-		case 'demanding': return 'Jackson (expects perfection every week)';
-		case 'volatile': return 'Martinez (a wildcard who keeps everyone guessing)';
-	}
-}
-
-//============================================
-function startPreseason(): void {
-	if (!currentPlayer || !currentTeam) {
-		return;
-	}
-
-	// Week -1: Tryouts
-	currentPlayer.currentWeek = -1;
-	saveGame(currentPlayer);
-
-	clearStory();
-	addStoryHeadline('Preseason: Tryouts');
-	addStoryText('Preseason week. The coaching staff is evaluating the roster.');
-
-	if (currentPlayer.depthChart === 'backup') {
-		addStoryText(
-			'You are a backup looking to earn your shot as a starter. '
-			+ 'Everyone is watching. What is your strategy?'
-		);
-		ui.showChoices([
-			{
-				text: 'Outwork everyone at practice',
-				primary: false,
-				action: () => handleTryoutChoice(
-					'outwork',
-					{ technique: 3, discipline: 2 }
-				),
-			},
-			{
-				text: 'Show off your athleticism',
-				primary: false,
-				action: () => handleTryoutChoice(
-					'athleticism',
-					{ athleticism: 2, confidence: 2 }
-				),
-			},
-			{
-				text: 'Study the playbook',
-				primary: false,
-				action: () => handleTryoutChoice(
-					'playbook',
-					{ footballIq: 3 }
-				),
-			},
-		]);
-	} else {
-		addStoryText(
-			'You are the starter. Now it is about staying sharp and '
-			+ 'staying healthy.'
-		);
-		ui.showChoices([
-			{
-				text: 'Move to Week 0',
-				primary: true,
-				action: preseasonFirstScrimmage,
-			},
-		]);
-	}
-}
-
-//============================================
-function handleTryoutChoice(strategy: string, effects: Record<string, number>): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	// Apply stat changes
-	for (const [stat, delta] of Object.entries(effects)) {
-		const key = stat as keyof CoreStats;
-		if (key in currentPlayer.core) {
-			currentPlayer.core[key] = clampStat(currentPlayer.core[key] + delta);
-		}
-	}
-	ui.updateAllStats(currentPlayer);
-	saveGame(currentPlayer);
-
-	// Flavor text for each choice
-	let flavor = '';
-	switch (strategy) {
-		case 'outwork':
-			flavor = 'You stay late, run extra drills, and push yourself harder '
-				+ 'than anyone else. The coaches are taking notice.';
-			break;
-		case 'athleticism':
-			flavor = 'You line up and show what you can do athletically. '
-				+ 'The coaching staff exchanged impressed looks.';
-			break;
-		case 'playbook':
-			flavor = 'You study film and memorize the scheme. During practice, '
-				+ 'you are always in the right spot, making smart reads.';
-			break;
-	}
-	addStoryText(flavor);
-
-	// Roll to see if they earn starter role (30% base chance)
-	const earnChance = Math.max(
-		30,
-		Math.min(
-			80,
-			30
-			+ (currentPlayer.core.technique - 50) / 2
-			+ (currentPlayer.core.confidence - 50) / 2
-		)
-	);
-
-	const roll = randomInRange(1, 100);
-	if (roll <= earnChance) {
-		currentPlayer.depthChart = 'starter';
-		addStoryText(
-			'Coach pulled you aside: "You earned it. You are starting '
-			+ 'next Friday."'
-		);
-	} else {
-		addStoryText(
-			'Coach nods respectfully, but does not commit. You are still '
-			+ 'in the conversation.'
-		);
-	}
-
-	saveGame(currentPlayer);
-	ui.updateAllStats(currentPlayer);
-
-	ui.showChoices([
-		{
-			text: 'Move to Week 0',
-			primary: true,
-			action: preseasonFirstScrimmage,
-		},
-	]);
-}
-
-//============================================
-function preseasonFirstScrimmage(): void {
-	if (!currentPlayer || !currentTeam) {
-		return;
-	}
-
-	currentPlayer.currentWeek = 0;
-	saveGame(currentPlayer);
-
-	clearStory();
-	addStoryHeadline('Preseason: First Scrimmage');
-	addStoryText('Week 0. A full-speed practice game against the second team.');
-
-	// Quick scrimmage sim with a weaker opponent
-	const result = simulateGame(currentPlayer, currentTeam, 35);
-
-	addStoryText(result.storyText);
-	const statParts: string[] = [];
-	for (const [key, val] of Object.entries(result.playerStatLine)) {
-		statParts.push(`${key}: ${val}`);
-	}
-	const statLineStr = statParts.join(' | ');
-	addResult(statLineStr);
-
-	// Slight confidence boost for scrimmage
-	currentPlayer.core.confidence = clampStat(
-		currentPlayer.core.confidence + randomInRange(1, 2)
-	);
-	saveGame(currentPlayer);
-	ui.updateAllStats(currentPlayer);
-
-	ui.showChoices([
-		{
-			text: 'Begin Regular Season',
-			primary: true,
-			action: startWeek,
-		},
-	]);
-}
-
-//============================================
-function startWeek(): void {
-	if (!currentPlayer || !currentTeam) {
-		return;
-	}
-
-	// Advance week (start from week 1)
-	if (currentPlayer.currentWeek === 0) {
-		currentPlayer.currentWeek = 1;
-	} else {
-		currentPlayer.currentWeek += 1;
-	}
-	saveGame(currentPlayer);
-
-	clearStory();
-	addStoryHeadline(
-		`Week ${currentPlayer.currentWeek} of ${HS_SEASON_WEEKS}`
-	);
-
-	// Show the opponent for this week
-	const scheduleIdx = currentPlayer.currentWeek - 1;
-	if (scheduleIdx < currentTeam.schedule.length) {
-		const opp = currentTeam.schedule[scheduleIdx];
-		addStoryText(
-			`This week: vs ${opp.opponentName}`
-		);
-	}
-
-	// Step 1: choose weekly focus
-	addStoryText('What do you want to focus on this week?');
-	showWeeklyFocusUI();
-}
-
-//============================================
-function showWeeklyFocusUI(): void {
-	const focusOptions: { text: string; key: WeeklyFocus }[] = [
-		{ text: 'Train', key: 'train' },
-		{ text: 'Film Study', key: 'film_study' },
-		{ text: 'Recovery', key: 'recovery' },
-		{ text: 'Social', key: 'social' },
-		{ text: 'Teamwork', key: 'teamwork' },
-	];
-
-	ui.showChoices(focusOptions.map(opt => ({
-		text: opt.text,
-		primary: false,
-		action: () => handleWeeklyFocus(opt.key),
-	})));
-}
-
-//============================================
-function handleWeeklyFocus(focus: WeeklyFocus): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	// Apply focus and get story text
-	const focusStory = applyWeeklyFocus(currentPlayer, focus);
-	addStoryText(focusStory);
-	ui.updateAllStats(currentPlayer);
-	saveGame(currentPlayer);
-
-	// Step 2: check for random event (35% chance)
-	const eventRoll = randomInRange(1, 100);
-	if (eventRoll <= 35 && allEvents.length > 0) {
-		// Build stats record for filtering
-		const statsRecord: Record<string, number> = {
-			athleticism: currentPlayer.core.athleticism,
-			technique: currentPlayer.core.technique,
-			footballIq: currentPlayer.core.footballIq,
-			discipline: currentPlayer.core.discipline,
-			health: currentPlayer.core.health,
-			confidence: currentPlayer.core.confidence,
-		};
-
-		const eligible = filterEvents(
-			allEvents,
-			'high_school',
-			currentPlayer.currentWeek,
-			currentPlayer.position,
-			currentPlayer.storyFlags,
-			statsRecord,
-		);
-
-		const event = selectEvent(eligible);
-		if (event) {
-			showEventCard(event);
-			return;
-		}
-	}
-
-	// No event: go straight to game day
-	proceedToGameDay();
-}
-
-//============================================
-function showEventCard(event: GameEvent): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	// Show event as a modal
-	const choiceActions = event.choices.map(choice => ({
-		text: choice.text,
-		action: () => {
-			// Apply choice effects
-			const flavor = applyEventChoice(currentPlayer!, choice);
-			ui.hideEventModal();
-
-			// Show the outcome
-			addStoryHeadline(event.title);
-			addStoryText(flavor);
-			ui.updateAllStats(currentPlayer!);
-			saveGame(currentPlayer!);
-
-			// Continue to game day
-			ui.showChoices([
-				{ text: 'Game Day', primary: true, action: proceedToGameDay },
-			]);
-		},
-	}));
-
-	ui.showEventModal(event.title, event.description, choiceActions);
-}
-
-//============================================
-function proceedToGameDay(): void {
-	if (!currentPlayer || !currentTeam) {
-		return;
-	}
-
-	const scheduleIdx = currentPlayer.currentWeek - 1;
-	if (scheduleIdx >= currentTeam.schedule.length) {
-		// Past end of schedule, go to season end
-		endSeason();
-		return;
-	}
-
-	const opponent = currentTeam.schedule[scheduleIdx];
-
-	// Simulate the game
-	const result = simulateGame(
-		currentPlayer,
-		currentTeam,
-		opponent.opponentStrength,
-	);
-
-	// Record the result in schedule
-	opponent.played = true;
-	opponent.teamScore = result.teamScore;
-	opponent.opponentScore = result.opponentScore;
-
-	// Update team record
-	if (result.result === 'win') {
-		currentTeam.wins += 1;
-	} else if (result.result === 'loss') {
-		currentTeam.losses += 1;
-	}
-
-	// Confidence adjusts based on result
-	if (result.result === 'win') {
-		currentPlayer.core.confidence = clampStat(
-			currentPlayer.core.confidence + randomInRange(1, 3)
-		);
-	} else {
-		currentPlayer.core.confidence = clampStat(
-			currentPlayer.core.confidence + randomInRange(-3, 0)
-		);
-	}
-
-	// Track season stats for awards
-	// Stat keys from week_sim: passYards, rushYards, recYards, passTds, rushTds, recTds, tackles, passInts
-	currentSeasonStats.gamesPlayed += 1;
-	const stats = result.playerStatLine;
-
-	// totalYards = passYards + rushYards + recYards
-	const passYards = typeof stats['passYards'] === 'number' ? stats['passYards'] : 0;
-	const rushYards = typeof stats['rushYards'] === 'number' ? stats['rushYards'] : 0;
-	const recYards = typeof stats['recYards'] === 'number' ? stats['recYards'] : 0;
-	// Runner/receiver stats use 'yards' key
-	const genericYards = typeof stats['yards'] === 'number' ? stats['yards'] : 0;
-	currentSeasonStats.totalYards += passYards + rushYards + recYards + genericYards;
-
-	// totalTouchdowns = passTds + rushTds + recTds
-	const passTds = typeof stats['passTds'] === 'number' ? stats['passTds'] : 0;
-	const rushTds = typeof stats['rushTds'] === 'number' ? stats['rushTds'] : 0;
-	const recTds = typeof stats['recTds'] === 'number' ? stats['recTds'] : 0;
-	// Runner/receiver stats use 'tds' key
-	const genericTds = typeof stats['tds'] === 'number' ? stats['tds'] : 0;
-	currentSeasonStats.totalTouchdowns += passTds + rushTds + recTds + genericTds;
-
-	// totalTackles = tackles
-	const tackles = typeof stats['tackles'] === 'number' ? stats['tackles'] : 0;
-	currentSeasonStats.totalTackles += tackles;
-
-	// totalInterceptions = passInts (for QBs) or ints (for defenders)
-	const passInts = typeof stats['passInts'] === 'number' ? stats['passInts'] : 0;
-	const defInts = typeof stats['ints'] === 'number' ? stats['ints'] : 0;
-	currentSeasonStats.totalInterceptions += passInts + defInts;
-
-	// Player of the Week: probabilistic per The Show spec
-	// Elite: 15-25%, Great: 5-12%, Good: 1-3%, otherwise 0%
-	let potwChance = 0;
-	if (result.playerRating === 'elite') {
-		potwChance = randomInRange(15, 25);
-	} else if (result.playerRating === 'great') {
-		potwChance = randomInRange(5, 12);
-	} else if (result.playerRating === 'good') {
-		potwChance = randomInRange(1, 3);
-	}
-	const potwRoll = randomInRange(1, 100);
-	if (potwRoll <= potwChance) {
-		currentSeasonStats.playerOfTheWeekCount += 1;
-	}
-
-	saveGame(currentPlayer);
-	ui.updateAllStats(currentPlayer);
-
-	// Display game result
-	clearStory();
-	addStoryHeadline('Game Day');
-	addStoryText(result.storyText);
-
-	// Format stat line
-	const statParts: string[] = [];
-	for (const [key, val] of Object.entries(result.playerStatLine)) {
-		statParts.push(`${key}: ${val}`);
-	}
-	const statLineStr = statParts.join(' | ');
-	addResult(statLineStr);
-
-	const scoreStr = `${currentTeam.teamName} ${result.teamScore} - `
-		+ `${opponent.opponentName} ${result.opponentScore}`;
-	addResult(scoreStr);
-
-	// Show player of the week if awarded this week
-	if (potwRoll <= potwChance) {
-		addResult('*** PLAYER OF THE WEEK ***');
-	}
-
-	// Update status bar
-	updateStatusBar(
-		`Record: ${currentTeam.wins}-${currentTeam.losses}`,
-		currentPlayer.recruitingStars > 0
-			? `Recruiting: ${currentPlayer.recruitingStars} stars`
-			: ''
-	);
-
-	// Check if season is over
-	if (currentPlayer.currentWeek >= HS_SEASON_WEEKS) {
-		ui.showChoices([
-			{ text: 'Season Summary', primary: true, action: endSeason },
-		]);
-	} else {
-		ui.showChoices([
-			{ text: 'Next Week', primary: true, action: startWeek },
-		]);
-	}
-}
-
-//============================================
-function endSeason(): void {
-	if (!currentPlayer || !currentTeam) {
-		return;
-	}
-
-	// Check for playoffs
-	if (currentTeam.wins >= 6) {
-		// Team qualifies for playoffs
-		ui.showChoices([
-			{
-				text: 'Playoff Time!',
-				primary: true,
-				action: startPlayoffs,
-			},
-		]);
-		return;
-	}
-
-	// No playoffs: go to season summary
-	completeSeasonSummary();
-}
-
-//============================================
-function startPlayoffs(): void {
-	if (!currentPlayer || !currentTeam) {
-		return;
-	}
-
-	clearStory();
-	addStoryHeadline('Playoff Time!');
-	addStoryText(
-		`The ${currentTeam.teamName} qualified for the playoffs with a `
-		+ `${currentTeam.wins}-${currentTeam.losses} record!`
-	);
-	addStoryText('Your playoff run begins. One team stands in the way of states.');
-
-	saveGame(currentPlayer);
-
-	// Start first playoff game
-	playPlayoffGame(1);
-}
-
-//============================================
-function playPlayoffGame(playoffRound: number): void {
-	if (!currentPlayer || !currentTeam) {
-		return;
-	}
-
-	// 3 rounds max: regional -> state -> championship
-	if (playoffRound > 3) {
-		// BUG FIX 3: Only show championship message once per season
-		if (!wonStateThisSeason) {
-			wonStateThisSeason = true;
-			// Won state championship!
-			clearStory();
-			addStoryHeadline('STATE CHAMPIONS!');
-			addStoryText(
-				`The ${currentTeam.teamName} are State Champions! `
-				+ 'You did it. You took your team all the way.'
-			);
-			addStoryText(
-				'This is the biggest moment of your high school career. '
-				+ 'The scouts will remember.'
-			);
-			if (currentPlayer.recruitingStars < 5) {
-				currentPlayer.recruitingStars = 5;
-			}
-			// Track championship in big decisions
-			currentPlayer.bigDecisions.push(
-				`Won State Championship in Season ${currentPlayer.currentSeason}`
-			);
-		}
-
-		saveGame(currentPlayer);
-		ui.updateAllStats(currentPlayer);
-
-		ui.showChoices([
-			{
-				text: 'End Season',
-				primary: true,
-				action: completeSeasonSummary,
-			},
-		]);
-		return;
-	}
-
-	// BUG FIX 3: Generate opponent with significantly higher strength for playoffs
-	// Make state championships rare (~8% for average team)
-	let opponentStrength: number;
-	if (playoffRound === 1) {
-		// Regional: moderate difficulty
-		opponentStrength = randomInRange(65, 80);
-	} else if (playoffRound === 2) {
-		// State Semifinal: much harder
-		opponentStrength = randomInRange(78, 92);
-	} else {
-		// State Final: extremely difficult
-		opponentStrength = randomInRange(88, 98);
-	}
-	const roundNames = ['Regional Playoff', 'State Semifinal', 'State Final'];
-	const roundName = roundNames[playoffRound - 1];
-
-	clearStory();
-	addStoryHeadline(roundName);
-	addStoryText(
-		'One game. Winner advances to the next round. '
-		+ 'Everything you worked for comes down to this.'
-	);
-
-	// Weekly focus before playoff game
-	addStoryText('What do you focus on this week?');
-	ui.showChoices([
-		{
-			text: 'Train',
-			primary: false,
-			action: () => preparePlayoffGame(playoffRound, 'train', opponentStrength),
-		},
-		{
-			text: 'Film Study',
-			primary: false,
-			action: () => preparePlayoffGame(playoffRound, 'film_study', opponentStrength),
-		},
-		{
-			text: 'Recovery',
-			primary: false,
-			action: () => preparePlayoffGame(playoffRound, 'recovery', opponentStrength),
-		},
-	]);
-}
-
-//============================================
-function preparePlayoffGame(
-	playoffRound: number,
-	focus: WeeklyFocus,
-	opponentStrength: number
-): void {
-	if (!currentPlayer || !currentTeam) {
-		return;
-	}
-
-	// Apply weekly focus
-	const focusStory = applyWeeklyFocus(currentPlayer, focus);
-	addStoryText(focusStory);
-	ui.updateAllStats(currentPlayer);
-	saveGame(currentPlayer);
-
-	// Simulate playoff game
-	const result = simulateGame(currentPlayer, currentTeam, opponentStrength);
-
-	// Track stats
-	// Track playoff stats using correct keys from week_sim
-	currentSeasonStats.gamesPlayed += 1;
-	const pStats = result.playerStatLine;
-	const pPassYards = typeof pStats['passYards'] === 'number' ? pStats['passYards'] : 0;
-	const pRushYards = typeof pStats['rushYards'] === 'number' ? pStats['rushYards'] : 0;
-	const pRecYards = typeof pStats['recYards'] === 'number' ? pStats['recYards'] : 0;
-	const pGenYards = typeof pStats['yards'] === 'number' ? pStats['yards'] : 0;
-	currentSeasonStats.totalYards += pPassYards + pRushYards + pRecYards + pGenYards;
-	const pPassTds = typeof pStats['passTds'] === 'number' ? pStats['passTds'] : 0;
-	const pRushTds = typeof pStats['rushTds'] === 'number' ? pStats['rushTds'] : 0;
-	const pRecTds = typeof pStats['recTds'] === 'number' ? pStats['recTds'] : 0;
-	const pGenTds = typeof pStats['tds'] === 'number' ? pStats['tds'] : 0;
-	currentSeasonStats.totalTouchdowns += pPassTds + pRushTds + pRecTds + pGenTds;
-	const pTackles = typeof pStats['tackles'] === 'number' ? pStats['tackles'] : 0;
-	currentSeasonStats.totalTackles += pTackles;
-	if (result.playerRating === 'elite') {
-		currentSeasonStats.playerOfTheWeekCount += 1;
-	}
-
-	saveGame(currentPlayer);
-	ui.updateAllStats(currentPlayer);
-
-	clearStory();
-	const roundNames = ['Regional Playoff', 'State Semifinal', 'State Final'];
-	addStoryHeadline(roundNames[playoffRound - 1]);
-	addStoryText(result.storyText);
-
-	// Format stat line
-	const statParts: string[] = [];
-	for (const [key, val] of Object.entries(result.playerStatLine)) {
-		statParts.push(`${key}: ${val}`);
-	}
-	const statLineStr = statParts.join(' | ');
-	addResult(statLineStr);
-
-	if (result.result === 'win') {
-		currentTeam.wins += 1;
-		addResult('PLAYOFF WIN!');
-		currentPlayer.core.confidence = clampStat(
-			currentPlayer.core.confidence + randomInRange(2, 4)
-		);
-
-		ui.showChoices([
-			{
-				text: 'Advance',
-				primary: true,
-				action: () => playPlayoffGame(playoffRound + 1),
-			},
-		]);
-	} else {
-		currentTeam.losses += 1;
-		addResult('Playoff Loss. Season Over.');
-		currentPlayer.core.confidence = clampStat(
-			currentPlayer.core.confidence + randomInRange(-3, 0)
-		);
-
-		ui.showChoices([
-			{
-				text: 'End Season',
-				primary: true,
-				action: completeSeasonSummary,
-			},
-		]);
-	}
-
-	saveGame(currentPlayer);
-}
-
-//============================================
-function completeSeasonSummary(): void {
-	if (!currentPlayer || !currentTeam) {
-		return;
-	}
-
-	clearStory();
-	addStoryHeadline('Season Over');
-	addStoryText(
-		`Final record: ${currentTeam.wins}-${currentTeam.losses}`
-	);
-
-	// Season narrative based on record
-	// Guard against division by zero if no games played
-	const totalGames = currentTeam.wins + currentTeam.losses;
-	const winPct = totalGames > 0 ? currentTeam.wins / totalGames : 0;
-	let seasonStory: string;
-	if (winPct >= 0.8) {
-		seasonStory = 'An incredible season. The scouts are paying attention.';
-	} else if (winPct >= 0.6) {
-		seasonStory = 'A solid season. You proved you belong on this team.';
-	} else if (winPct >= 0.4) {
-		seasonStory = 'A mixed season with some bright spots and tough losses.';
-	} else {
-		seasonStory = 'A tough season, but you learned more from the '
-			+ 'losses than you ever would from easy wins.';
-	}
-	addStoryText(seasonStory);
-
-	// Depth chart promotion check
-	if (currentPlayer.depthChart === 'backup') {
-		// Check if performance warrants promotion
-		if (currentPlayer.core.technique >= 35
-			&& currentPlayer.core.confidence >= 40) {
-			currentPlayer.depthChart = 'starter';
-			addStoryText(
-				'Coach pulled you aside after the last game. '
-				+ '"You earned it. You are starting next season."'
-			);
-		} else {
-			addStoryText(
-				'You are still on the depth chart as a backup. '
-				+ 'Keep working.'
-			);
-		}
-	} else if (currentPlayer.depthChart === 'starter') {
-		addStoryText('You held your starting spot all season. Respect.');
-	}
-
-	// Calculate and award honors
-	const seasonAwards: string[] = [];
-
-	// All-Conference: avg stat >= 60
-	const avgStats = Math.round(
-		(currentPlayer.core.technique + currentPlayer.core.athleticism) / 2
-	);
-	if (avgStats >= 60) {
-		seasonAwards.push('All-Conference');
-		addStoryText(
-			'The coaches voted you to the All-Conference team. '
-			+ 'Your name is in the papers.'
-		);
-	}
-
-	// All-State: avg stat >= 75
-	if (avgStats >= 75) {
-		seasonAwards.push('All-State');
-		addStoryText(
-			'You made All-State. This is the highest honor in high school football. '
-			+ 'Your family is so proud.'
-		);
-	}
-
-	// Record season in career history (one entry per season, append-only)
-	currentPlayer.careerHistory.push({
-		phase: 'high_school',
-		year: currentPlayer.seasonYear,
-		age: currentPlayer.age,
-		team: currentTeam.teamName,
-		position: currentPlayer.position,
-		wins: currentTeam.wins,
-		losses: currentTeam.losses,
-		depthChart: currentPlayer.depthChart,
-		highlights: [
-			`Player of the Week: ${currentSeasonStats.playerOfTheWeekCount} times`,
-		],
-		awards: seasonAwards,
-	});
-
-	// Recruiting stars for juniors/seniors
-	if (currentPlayer.age >= 16) {
-		const overallRating = Math.round(
-			(currentPlayer.core.athleticism
-			+ currentPlayer.core.technique
-			+ currentPlayer.core.footballIq
-			+ currentPlayer.core.confidence) / 4
-		);
-		if (overallRating >= 75) {
-			currentPlayer.recruitingStars = 5;
-		} else if (overallRating >= 60) {
-			currentPlayer.recruitingStars = 4;
-		} else if (overallRating >= 45) {
-			currentPlayer.recruitingStars = 3;
-		} else if (overallRating >= 30) {
-			currentPlayer.recruitingStars = 2;
-		} else {
-			currentPlayer.recruitingStars = 1;
-		}
-		addStoryText(
-			`Recruiting update: You are rated as a `
-			+ `${currentPlayer.recruitingStars}-star recruit.`
-		);
-	}
-
-	// Age up and prepare for next season
-	currentPlayer.age += 1;
-	currentPlayer.seasonYear += 1;
-	currentPlayer.currentWeek = 0;
-	saveGame(currentPlayer);
-	ui.updateHeader(currentPlayer);
-
-	// Check if high school is over (age 18 = graduated)
-	if (currentPlayer.age >= 18) {
-		ui.showChoices([
-			{
-				text: 'Graduate and move on',
-				primary: true,
-				action: graduateHighSchool,
-			},
-		]);
-	} else {
-		ui.showChoices([
-			{
-				text: 'Start next season',
-				primary: true,
-				action: startHighSchoolSeason,
-			},
-		]);
-	}
-}
-
-//============================================
-function graduateHighSchool(): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	currentPlayer.phase = 'college';
-	saveGame(currentPlayer);
-
-	clearStory();
-	addStoryHeadline('Graduation Day');
-
-	if (currentPlayer.recruitingStars >= 4) {
-		addStoryText(
-			'The college offers are pouring in. You did it. '
-			+ 'All those early mornings and late practices paid off.'
-		);
-	} else if (currentPlayer.recruitingStars >= 2) {
-		addStoryText(
-			'A few colleges showed interest. Not the biggest programs, '
-			+ 'but a chance is all you need.'
-		);
-	} else {
-		addStoryText(
-			'The recruiting trail was quiet, but you refuse to give up. '
-			+ 'There has to be a program willing to take a chance on you.'
-		);
-	}
-
-	addStoryText('The next chapter begins...');
-
-	ui.showChoices([
-		{
-			text: 'Head to college',
-			primary: true,
-			action: beginCollege,
-		},
-	]);
-}
-
-//============================================
-// COLLEGE PHASE - weekly loop like high school
+// RETIREMENT AND LEGACY
+// End-of-career summary and Hall of Fame checks.
 //============================================
 
-let collegeTeam: Team | null = null;
-const COLLEGE_SEASON_WEEKS = 12;
-
-//============================================
-function beginCollege(): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	currentPlayer.collegeYear = 0;
-	collegeTeam = null;
-	currentConference = null;
-	// Reset high school team when entering college
-	persistentHSTeam = null;
-
-	// Use NCAA schools if available, otherwise fall back to college.ts
-	const allSchools = [...ncaaSchools.fbs, ...ncaaSchools.fcs];
-	if (allSchools.length > 0) {
-		// Assign a real NCAA school based on recruiting stars
-		playerNCAASchool = assignPlayerCollege(
-			currentPlayer.recruitingStars,
-			allSchools
-		);
-		currentPlayer.teamName = formatSchoolName(playerNCAASchool);
-
-		// Generate conference for college
-		const playerTeamStrength = (currentPlayer.core.athleticism
-			+ currentPlayer.core.technique) / 2;
-		currentConference = generateConference(
-			currentPlayer.teamName,
-			playerTeamStrength
-		);
-	} else {
-		// Fallback if NCAA data didn't load
-		currentPlayer.teamName = '';
-		startCollege(currentPlayer);
-	}
-
-	// Apply new team colors for college
-	const collegePalette = generateTeamPalette();
-	applyPalette(collegePalette);
-	currentPlayer.teamPalette = collegePalette;
-	clearStory();
-	addStoryHeadline('College Football');
-	addStoryText(`You have committed to ${currentPlayer.teamName}. `
-		+ 'Your college career is about to begin.');
-
-	// Player starts as backup in college (earn your spot again)
-	currentPlayer.depthChart = 'backup';
-	saveGame(currentPlayer);
-	ui.updateHeader(currentPlayer);
-
-	ui.showChoices([
-		{ text: 'Start Freshman Season', primary: true, action: startCollegeSeason },
-	]);
-}
-
-//============================================
-function startCollegeSeason(): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	currentPlayer.collegeYear += 1;
-	currentPlayer.currentSeason += 1;
-	currentPlayer.currentWeek = 0;
-
-	// Generate college team (reuse same team name across years)
-	// Use NCAA schedule if player has an assigned school, else fall back to HS generator
-	const allSchools = [...ncaaSchools.fbs, ...ncaaSchools.fcs];
-	if (!collegeTeam) {
-		collegeTeam = generateHighSchoolTeam(currentPlayer.teamName);
-		// College teams are stronger than high school
-		collegeTeam.strength = randomInRange(55, 95);
-		// Replace schedule with real NCAA schedule if available
-		if (playerNCAASchool && allSchools.length > 0) {
-			const ncaaSchedule = generateCollegeSchedule(playerNCAASchool, allSchools);
-			collegeTeam.schedule = ncaaSchedule.map(entry => ({
-				opponentName: entry.opponentName,
-				opponentStrength: entry.opponentStrength,
-				week: entry.week,
-				played: false,
-				teamScore: 0,
-				opponentScore: 0,
-			}));
-		}
-	} else {
-		// New season: reset record, regenerate schedule
-		collegeTeam.wins = 0;
-		collegeTeam.losses = 0;
-		// Cap strength to prevent unrealistic power creep over 4 years
-		collegeTeam.strength = Math.min(95, collegeTeam.strength + randomInRange(1, 3));
-		// Generate new season schedule
-		if (playerNCAASchool && allSchools.length > 0) {
-			const ncaaSchedule = generateCollegeSchedule(playerNCAASchool, allSchools);
-			collegeTeam.schedule = ncaaSchedule.map(entry => ({
-				opponentName: entry.opponentName,
-				opponentStrength: entry.opponentStrength,
-				week: entry.week,
-				played: false,
-				teamScore: 0,
-				opponentScore: 0,
-			}));
-		} else {
-			const tempTeam = generateHighSchoolTeam('temp');
-			collegeTeam.schedule = tempTeam.schedule;
-		}
-	}
-
-	clearStory();
-	const yearLabels = ['Freshman', 'Sophomore', 'Junior', 'Senior'];
-	const yearLabel = yearLabels[currentPlayer.collegeYear - 1] || `Year ${currentPlayer.collegeYear}`;
-	addStoryHeadline(`College ${yearLabel} Season`);
-	addStoryText(
-		`${currentPlayer.teamName} - ${yearLabel} year. `
-		+ `The competition is faster, stronger, and smarter than high school.`
-	);
-
-	// Promotion check at start of season
-	if (currentPlayer.collegeYear >= 2 && currentPlayer.depthChart === 'backup') {
-		if (currentPlayer.core.technique >= 50
-			&& currentPlayer.core.confidence >= 45) {
-			currentPlayer.depthChart = 'starter';
-			addStoryText(
-				'Coach called your name at the team meeting. '
-				+ 'You earned the starting job.'
-			);
-		} else {
-			addStoryText(
-				'Still fighting for a starting spot. Keep working.'
-			);
-		}
-	}
-
-	saveGame(currentPlayer);
-	ui.updateHeader(currentPlayer);
-	ui.updateAllStats(currentPlayer);
-
-	ui.showChoices([
-		{ text: 'Begin Week 1', primary: true, action: startCollegeWeek },
-	]);
-}
-
-//============================================
-function startCollegeWeek(): void {
-	if (!currentPlayer || !collegeTeam) {
-		return;
-	}
-
-	currentPlayer.currentWeek += 1;
-	saveGame(currentPlayer);
-
-	clearStory();
-	addStoryHeadline(
-		`Week ${currentPlayer.currentWeek} of ${COLLEGE_SEASON_WEEKS}`
-	);
-
-	// Show opponent
-	const schedIdx = currentPlayer.currentWeek - 1;
-	if (schedIdx < collegeTeam.schedule.length) {
-		const opp = collegeTeam.schedule[schedIdx];
-		addStoryText(`This week: vs ${opp.opponentName}`);
-	}
-
-	// Weekly focus choice
-	addStoryText('What do you want to focus on this week?');
-	showWeeklyFocusUI_College();
-}
-
-//============================================
-function showWeeklyFocusUI_College(): void {
-	const focusOptions: { text: string; key: WeeklyFocus }[] = [
-		{ text: 'Train', key: 'train' },
-		{ text: 'Film Study', key: 'film_study' },
-		{ text: 'Recovery', key: 'recovery' },
-		{ text: 'Social / NIL', key: 'social' },
-		{ text: 'Teamwork', key: 'teamwork' },
-	];
-
-	ui.showChoices(focusOptions.map(opt => ({
-		text: opt.text,
-		primary: false,
-		action: () => handleCollegeWeeklyFocus(opt.key),
-	})));
-}
-
-//============================================
-function handleCollegeWeeklyFocus(focus: WeeklyFocus): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	// Apply focus and get story text
-	const focusStory = applyWeeklyFocus(currentPlayer, focus);
-	addStoryText(focusStory);
-	ui.updateAllStats(currentPlayer);
-	saveGame(currentPlayer);
-
-	// Check for NIL deal on social focus
-	if (focus === 'social' && currentPlayer.collegeYear >= 2) {
-		const nilDeal = generateNILDeal(currentPlayer);
-		if (nilDeal) {
-			addStoryText(nilDeal.storyText);
-			currentPlayer.career.money += nilDeal.amount;
-			saveGame(currentPlayer);
-		}
-	}
-
-	// Random event (30% chance)
-	const eventRoll = randomInRange(1, 100);
-	if (eventRoll <= 30 && allEvents.length > 0) {
-		const statsRecord: Record<string, number> = {
-			athleticism: currentPlayer.core.athleticism,
-			technique: currentPlayer.core.technique,
-			footballIq: currentPlayer.core.footballIq,
-			discipline: currentPlayer.core.discipline,
-			health: currentPlayer.core.health,
-			confidence: currentPlayer.core.confidence,
-		};
-
-		// Filter for college events, fall back to HS events
-		let eligible = filterEvents(
-			allEvents, 'college',
-			currentPlayer.currentWeek,
-			currentPlayer.position,
-			currentPlayer.storyFlags, statsRecord,
-		);
-		if (eligible.length === 0) {
-			eligible = filterEvents(
-				allEvents, 'high_school',
-				currentPlayer.currentWeek,
-				currentPlayer.position,
-				currentPlayer.storyFlags, statsRecord,
-			);
-		}
-
-		const event = selectEvent(eligible);
-		if (event) {
-			showCollegeEventCard(event);
-			return;
-		}
-	}
-
-	// No event: proceed to game
-	proceedToCollegeGame();
-}
-
-//============================================
-function showCollegeEventCard(event: GameEvent): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	const choiceActions = event.choices.map(choice => ({
-		text: choice.text,
-		action: () => {
-			const flavor = applyEventChoice(currentPlayer!, choice);
-			ui.hideEventModal();
-			addStoryHeadline(event.title);
-			addStoryText(flavor);
-			ui.updateAllStats(currentPlayer!);
-			saveGame(currentPlayer!);
-			ui.showChoices([
-				{ text: 'Game Day', primary: true, action: proceedToCollegeGame },
-			]);
-		},
-	}));
-
-	ui.showEventModal(event.title, event.description, choiceActions);
-}
-
-//============================================
-function proceedToCollegeGame(): void {
-	if (!currentPlayer || !collegeTeam) {
-		return;
-	}
-
-	const schedIdx = currentPlayer.currentWeek - 1;
-	if (schedIdx >= collegeTeam.schedule.length) {
-		endCollegeSeason();
-		return;
-	}
-
-	const opponent = collegeTeam.schedule[schedIdx];
-
-	// College opponents are tougher
-	const collegeOpponentStrength = Math.min(
-		100, opponent.opponentStrength + randomInRange(10, 20)
-	);
-
-	const result = simulateGame(
-		currentPlayer, collegeTeam, collegeOpponentStrength
-	);
-
-	// Record result
-	opponent.played = true;
-	opponent.teamScore = result.teamScore;
-	opponent.opponentScore = result.opponentScore;
-
-	if (result.result === 'win') {
-		collegeTeam.wins += 1;
-		currentPlayer.core.confidence = clampStat(
-			currentPlayer.core.confidence + randomInRange(1, 3)
-		);
-	} else {
-		collegeTeam.losses += 1;
-		currentPlayer.core.confidence = clampStat(
-			currentPlayer.core.confidence + randomInRange(-3, 0)
-		);
-	}
-
-	// Draft stock updates for juniors/seniors
-	if (currentPlayer.collegeYear >= 3) {
-		const draftStock = calculateDraftStock(currentPlayer);
-		currentPlayer.draftStock = draftStock;
-	}
-
-	saveGame(currentPlayer);
-	ui.updateAllStats(currentPlayer);
-
-	clearStory();
-	addStoryHeadline('Game Day');
-	addStoryText(result.storyText);
-
-	// Stat line
-	const statParts: string[] = [];
-	for (const [key, val] of Object.entries(result.playerStatLine)) {
-		statParts.push(`${key}: ${val}`);
-	}
-	addResult(statParts.join(' | '));
-	addResult(
-		`${collegeTeam.teamName} ${result.teamScore} - `
-		+ `${opponent.opponentName} ${result.opponentScore}`
-	);
-
-	// Show draft stock for juniors/seniors
-	if (currentPlayer.collegeYear >= 3) {
-		addStoryText(`Draft stock: ${currentPlayer.draftStock}/100`);
-	}
-
-	// Check if season is over
-	if (currentPlayer.currentWeek >= COLLEGE_SEASON_WEEKS) {
-		ui.showChoices([
-			{ text: 'Season Summary', primary: true, action: endCollegeSeason },
-		]);
-	} else {
-		ui.showChoices([
-			{ text: 'Next Week', primary: true, action: startCollegeWeek },
-		]);
-	}
-}
-
-//============================================
-function endCollegeSeason(): void {
-	if (!currentPlayer || !collegeTeam) {
-		return;
-	}
-
-	clearStory();
-	const yearLabels = ['Freshman', 'Sophomore', 'Junior', 'Senior'];
-	const yearLabel = yearLabels[currentPlayer.collegeYear - 1] || `Year ${currentPlayer.collegeYear}`;
-	addStoryHeadline(`${yearLabel} Season Over`);
-	addStoryText(
-		`Final record: ${collegeTeam.wins}-${collegeTeam.losses}`
-	);
-
-	// Season narrative
-	// Guard against division by zero
-	const collegeTotal = collegeTeam.wins + collegeTeam.losses;
-	const winPct = collegeTotal > 0 ? collegeTeam.wins / collegeTotal : 0;
-	if (winPct >= 0.75) {
-		addStoryText(
-			'An incredible season. Bowl game bound. '
-			+ 'The scouts are paying serious attention.'
-		);
-	} else if (winPct >= 0.5) {
-		addStoryText(
-			'A solid winning season at the college level.'
-		);
-	} else {
-		addStoryText(
-			'A tough season. But you grew as a player.'
-		);
-	}
-
-	// Starter promotion
-	if (currentPlayer.depthChart === 'backup'
-		&& currentPlayer.core.technique >= 50) {
-		currentPlayer.depthChart = 'starter';
-		addStoryText('You earned the starting job for next season.');
-	}
-
-	// Record season
-	currentPlayer.careerHistory.push({
-		phase: 'college',
-		year: currentPlayer.seasonYear,
-		age: currentPlayer.age,
-		team: currentPlayer.teamName,
-		position: currentPlayer.position,
-		wins: collegeTeam.wins,
-		losses: collegeTeam.losses,
-		depthChart: currentPlayer.depthChart,
-		highlights: [],
-		awards: [],
-	});
-
-	// Age advances after the season, not before (freshmen are 18, not 19)
-	currentPlayer.age += 1;
-	currentPlayer.seasonYear += 1;
-	currentPlayer.currentWeek = 0;
-	saveGame(currentPlayer);
-	ui.updateHeader(currentPlayer);
-
-	// Show end-of-year options
-	const buttons: { text: string; primary: boolean; action: () => void }[] = [];
-
-	// Draft declaration: seniors must enter, juniors can declare if eligible
-	if (currentPlayer.collegeYear >= 4) {
-		// Senior: must enter draft, no option to stay
-		buttons.push({
-			text: 'Enter NFL Draft',
-			primary: true,
-			action: declareForDraft,
-		});
-	} else if (currentPlayer.collegeYear >= 3) {
-		// Junior: optional early declaration if eligible
-		const declareCheck = checkDeclarationEligibility(
-			currentPlayer, currentPlayer.collegeYear
-		);
-		if (declareCheck.canDeclare) {
-			buttons.push({
-				text: 'Declare for NFL Draft',
-				primary: true,
-				action: declareForDraft,
-			});
-		}
-	}
-
-	if (currentPlayer.collegeYear < 4) {
-		buttons.push({
-			text: 'Next Season',
-			primary: buttons.length === 0,
-			action: startCollegeSeason,
-		});
-	}
-
-	ui.showChoices(buttons);
-}
-
-//============================================
-function declareForDraft(): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	currentPlayer.phase = 'nfl';
-	saveGame(currentPlayer);
-
-	clearStory();
-	addStoryHeadline('Declaring for the NFL Draft');
-
-	if (currentPlayer.draftStock >= 80) {
-		addStoryText(
-			'You are projected as a first-round pick. '
-			+ 'The dream is about to become reality.'
-		);
-	} else if (currentPlayer.draftStock >= 50) {
-		addStoryText(
-			'You have a shot at the mid rounds. '
-			+ 'Not a lock, but your name is on the board.'
-		);
-	} else {
-		addStoryText(
-			'You are a long shot, but stranger things have happened. '
-			+ 'All it takes is one team to believe in you.'
-		);
-	}
-
-	ui.showChoices([
-		{
-			text: 'Draft Day',
-			primary: true,
-			action: startNFLCareer,
-		},
-	]);
-}
-
-//============================================
-function startNFLCareer(): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	clearStory();
-	addStoryHeadline('NFL Draft Day');
-
-	// Simple draft simulation based on draft stock
-	const stock = currentPlayer.draftStock;
-	let round: number;
-	let teamIdx: number;
-	let draftStory: string;
-
-	if (stock >= 85) {
-		round = 1;
-		draftStory = 'Your name is called in the first round. '
-			+ 'You walk across the stage, shake hands, and put on the hat. '
-			+ 'This is the moment you have worked for your entire life.';
-	} else if (stock >= 65) {
-		round = randomInRange(2, 3);
-		draftStory = `Round ${round}. Your phone rings. `
-			+ 'You are going to the league. '
-			+ 'Not the first name called, but you made it.';
-	} else if (stock >= 40) {
-		round = randomInRange(4, 6);
-		draftStory = `Day three. Round ${round}. `
-			+ 'Most people counted you out, but one team saw something. '
-			+ 'You are an NFL player.';
-	} else {
-		round = 7;
-		draftStory = 'The draft ends without your name being called. '
-			+ 'But within minutes, your phone rings. '
-			+ 'An undrafted free agent deal. You have a shot.';
-	}
-
-	// Pick a random NFL team
-	const nflTeams = [
-		'Arizona Cardinals', 'Atlanta Falcons', 'Baltimore Ravens',
-		'Buffalo Bills', 'Carolina Panthers', 'Chicago Bears',
-		'Cincinnati Bengals', 'Cleveland Browns', 'Dallas Cowboys',
-		'Denver Broncos', 'Detroit Lions', 'Green Bay Packers',
-		'Houston Texans', 'Indianapolis Colts', 'Jacksonville Jaguars',
-		'Kansas City Chiefs', 'Las Vegas Raiders', 'Los Angeles Chargers',
-		'Los Angeles Rams', 'Miami Dolphins', 'Minnesota Vikings',
-		'New England Patriots', 'New Orleans Saints', 'New York Giants',
-		'New York Jets', 'Philadelphia Eagles', 'Pittsburgh Steelers',
-		'San Francisco 49ers', 'Seattle Seahawks',
-		'Tampa Bay Buccaneers', 'Tennessee Titans',
-		'Washington Commanders',
-	];
-	teamIdx = randomInRange(0, nflTeams.length - 1);
-	const team = nflTeams[teamIdx];
-
-	currentPlayer.teamName = team;
-	// Apply real NFL team colors
-	const nflPalette = generateNFLPalette(team);
-	applyPalette(nflPalette);
-	currentPlayer.teamPalette = nflPalette;
-	currentPlayer.bigDecisions.push(
-		`Drafted by ${team} in round ${round}`
-	);
-
-	addStoryText(draftStory);
-	addResult(`Selected by the ${team}`);
-	addResult(`Round ${round}`);
-
-	saveGame(currentPlayer);
-	ui.updateHeader(currentPlayer);
-
-	// NFL career placeholder until nfl.ts is wired
-	ui.showChoices([
-		{
-			text: 'Begin NFL Career',
-			primary: true,
-			action: playNFLSeason,
-		},
-	]);
-}
-
-
-
-//============================================
-function playNFLSeason(): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	currentPlayer.nflYear += 1;
-	currentPlayer.age += 1;
-	currentPlayer.currentSeason += 1;
-	clearStory();
-	addStoryHeadline(
-		`NFL Season ${currentPlayer.nflYear} - ${currentPlayer.teamName}`
-	);
-
-	// Simulate NFL season using nfl.ts module
-	const seasonResult = simulateNFLSeason(currentPlayer, currentPlayer.nflYear);
-
-	// Display season narrative and stats
-	addStoryText(seasonResult.storyText);
-	addResult(`Team record: ${seasonResult.wins}-${seasonResult.losses}`);
-	addResult(`Season salary: $${seasonResult.salary.toLocaleString()}`);
-
-	// Add salary to career earnings
-	currentPlayer.career.money += seasonResult.salary;
-
-	// Display any awards earned
-	for (const award of seasonResult.awards) {
-		addStoryText(`Award earned: ${award}`);
-	}
-
-	// NFL midseason event (meaningful decision each season)
-	const nflEvent = getNFLMidseasonEvent(currentPlayer, currentPlayer.nflYear);
-	addStoryHeadline(nflEvent.title);
-	addStoryText(nflEvent.description);
-
-	saveGame(currentPlayer);
-	ui.updateAllStats(currentPlayer);
-	ui.updateHeader(currentPlayer);
-
-	// Check for retirement using nfl.ts logic
-	const retirementCheck = checkRetirement(currentPlayer);
-	const shouldRetire = retirementCheck.shouldRetire;
-
-	const choiceButtons: { text: string; primary: boolean; action: () => void }[] = [];
-
-	// Show event choices
-	for (const choice of nflEvent.choices) {
-		choiceButtons.push({
-			text: choice.text,
-			primary: false,
-			action: () => {
-				if (!currentPlayer) return;
-				applyNFLEventChoice(currentPlayer, choice.effects);
-				addStoryText(choice.flavor);
-				ui.updateAllStats(currentPlayer);
-				saveGame(currentPlayer);
-			},
-		});
-	}
-
-	if (shouldRetire) {
-		choiceButtons.push({
-			text: 'Retire',
-			primary: true,
-			action: retirePlayer,
-		});
-	}
-
-	choiceButtons.push({
-		text: shouldRetire ? 'One More Season' : 'Next Season',
-		primary: !shouldRetire,
-		action: playNFLSeason,
-	});
-
-	ui.showChoices(choiceButtons);
-}
-
-//============================================
-interface NFLEvent {
-	title: string;
-	description: string;
-	choices: {
-		text: string;
-		effects: Record<string, number>;
-		flavor: string;
-	}[];
-}
-
-//============================================
-function getNFLSeasonEvent(player: Player, year: number): NFLEvent {
-	const events: NFLEvent[] = [
-		{
-			title: 'Contract Negotiation',
-			description: 'Your agent says the team wants to extend your contract. '
-				+ 'Do you push for more money or lock in security?',
-			choices: [
-				{
-					text: 'Push for max money',
-					effects: { confidence: 3 },
-					flavor: 'You bet on yourself. The negotiations drag on but '
-						+ 'you land a bigger deal.',
-				},
-				{
-					text: 'Take the security',
-					effects: { discipline: 3, confidence: -1 },
-					flavor: 'You lock in a long-term deal. '
-						+ 'Less flashy, but your future is secure.',
-				},
-			],
-		},
-		{
-			title: 'Injury Decision',
-			description: 'The trainers say you can play through the injury, '
-				+ 'but there is a risk of making it worse.',
-			choices: [
-				{
-					text: 'Play through it',
-					effects: { confidence: 4, health: -5 },
-					flavor: 'You gut it out. The crowd roars, '
-						+ 'but your body pays the price.',
-				},
-				{
-					text: 'Sit out and heal',
-					effects: { health: 5, confidence: -2 },
-					flavor: 'You sit and watch from the sideline. '
-						+ 'Hard to watch, but the right call.',
-				},
-			],
-		},
-		{
-			title: 'Media Spotlight',
-			description: 'A reporter asks you a loaded question about '
-				+ 'your teammate after a tough loss.',
-			choices: [
-				{
-					text: 'Defend your teammate',
-					effects: { discipline: 2, confidence: 1 },
-					flavor: 'You have his back publicly. '
-						+ 'The locker room respects it.',
-				},
-				{
-					text: 'Keep it real',
-					effects: { confidence: 2, discipline: -2 },
-					flavor: 'You speak honestly. Some teammates are not happy, '
-						+ 'but the media loves it.',
-				},
-			],
-		},
-		{
-			title: 'Rookie Mentorship',
-			description: 'A young player drafted to your position asks '
-				+ 'if you will mentor them.',
-			choices: [
-				{
-					text: 'Take them under your wing',
-					effects: { discipline: 3, footballIq: 2 },
-					flavor: 'Teaching someone else makes you better too. '
-						+ 'The kid has real potential.',
-				},
-				{
-					text: 'Focus on your own game',
-					effects: { technique: 2, confidence: 1 },
-					flavor: 'You stay locked in on your own performance. '
-						+ 'Nothing personal, just business.',
-				},
-			],
-		},
-		{
-			title: 'Trade Rumors',
-			description: 'The trade deadline is approaching and your name '
-				+ 'keeps coming up in rumors.',
-			choices: [
-				{
-					text: 'Request a trade to a contender',
-					effects: { confidence: 3, discipline: -1 },
-					flavor: 'You want a ring. The front office grants your wish '
-						+ 'and ships you to a playoff team.',
-				},
-				{
-					text: 'Stay loyal to your team',
-					effects: { discipline: 3 },
-					flavor: 'You stay put. The fans appreciate it, '
-						+ 'even if the wins are not there.',
-				},
-			],
-		},
-		{
-			title: 'Playoff Push',
-			description: 'Your team is fighting for a playoff spot in Week 17. '
-				+ 'Win and you are in.',
-			choices: [
-				{
-					text: 'Rise to the occasion',
-					effects: { confidence: 5, health: -2 },
-					flavor: 'You play the game of your life. '
-						+ 'The team punches its ticket to the playoffs.',
-				},
-				{
-					text: 'Trust the process',
-					effects: { discipline: 2, footballIq: 2 },
-					flavor: 'You play within yourself and let the team do its thing. '
-						+ 'Calm under pressure.',
-				},
-			],
-		},
-	];
-
-	// Pick one based on year to avoid repeats
-	const idx = (year - 1) % events.length;
-	return events[idx];
-}
-
-//============================================
 function retirePlayer(): void {
 	if (!currentPlayer) {
 		return;
@@ -2726,6 +1408,10 @@ function retirePlayer(): void {
 
 	currentPlayer.phase = 'legacy';
 	saveGame(currentPlayer);
+
+	// Update tab bar for legacy phase (Life, Stats, Career)
+	updateTabBar(currentPlayer.phase);
+	switchTab('life');
 
 	clearStory();
 	addStoryHeadline('The End of an Era');
@@ -2800,84 +1486,8 @@ function retirePlayer(): void {
 }
 
 //============================================
-function generateSchoolName(): string {
-	// Silly minor-league-style high school names
-	const prefixes = [
-		'Westfield', 'North Valley', 'Lincoln', 'Riverside',
-		'Cedar Creek', 'Oakmont', 'Fairview', 'Heritage',
-		'Summit', 'Crestwood', 'Lakewood', 'Eastside',
-		'Mountainview', 'Bayshore', 'Pinecrest', 'Highland',
-		'Pine Bluff', 'Lakeview', 'Milltown', 'Copper Hills',
-		'Dry Creek', 'Maple Fork', 'River City', 'Willow Springs',
-		'Elkhorn', 'Blue Ridge', 'Fox Hollow', 'Stonebridge',
-	];
-	const mascots = [
-		// Animals
-		'Alpacas', 'Bumblebees', 'Cobras', 'Ferrets', 'Foxes',
-		'Frogs', 'Gophers', 'Jackrabbits', 'Lemurs', 'Narwhals',
-		'Puffins', 'Raccoons', 'Seals', 'Squids', 'Turtles',
-		'Wombats', 'Lobsters', 'Platypus', 'Tadpoles', 'Zebras',
-		// Food
-		'Avocados', 'Beets', 'Hot Peppers', 'Kumquats', 'Spuds',
-		// Plants
-		'Dandelions', 'Clovers', 'Marigolds', 'Ferns',
-		// Rare weird
-		'Wyverns',
-	];
-	const prefix = prefixes[randomInRange(0, prefixes.length - 1)];
-	const mascot = mascots[randomInRange(0, mascots.length - 1)];
-	return `${prefix} ${mascot}`;
-}
-
-//============================================
-// Wrapper functions that delegate to ui.ts or local helpers
-// (needed because main.ts inline functions still reference these names)
+// ENTRY POINT
 //============================================
 
-function updateStatusBar(record: string, recruiting: string): void {
-	ui.updateStatusBar(record, recruiting);
-}
-
-function addResult(text: string): void {
-	ui.addResult(text);
-}
-
-//============================================
-// Wire standings and schedule toggle buttons in the status panel
-function setupStatusPanelListeners(): void {
-	const standingsBtn = document.getElementById('standings-toggle');
-	if (standingsBtn) {
-		standingsBtn.addEventListener('click', () => {
-			if (!currentPlayer) {
-				return;
-			}
-			// Show correct conference for current phase
-			if (hsConference && currentTeam) {
-				ui.toggleStandings(
-					formatStandings(hsConference, currentTeam.teamName)
-				);
-			} else if (currentConference && currentPlayer) {
-				ui.toggleStandings(
-					formatStandings(currentConference, currentPlayer.teamName)
-				);
-			}
-		});
-	}
-
-	const scheduleBtn = document.getElementById('schedule-toggle');
-	if (scheduleBtn) {
-		scheduleBtn.addEventListener('click', () => {
-			if (!currentPlayer || !currentTeam) {
-				return;
-			}
-			ui.toggleSchedule(
-				currentTeam.schedule, currentPlayer.currentWeek,
-				currentPlayer.teamName
-			);
-		});
-	}
-}
-
-//============================================
 // Start the game when DOM is ready
 document.addEventListener('DOMContentLoaded', initGame);

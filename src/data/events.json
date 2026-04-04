@@ -428,7 +428,8 @@
 			"max_week": 13,
 			"min_stats": {
 				"athleticism": 60
-			}
+			},
+			"excludes_flag": "committed_to_college"
 		},
 		"choices": [
 			{
@@ -604,7 +605,8 @@
 			"max_week": 12,
 			"min_stats": {
 				"athleticism": 65
-			}
+			},
+			"excludes_flag": "transferred_high_school"
 		},
 		"choices": [
 			{
@@ -799,7 +801,7 @@
 					"technique": 2,
 					"confidence": 1
 				},
-				"flavor": "You dominate these next few games. The film speaks for itself. Better late than never—coaches see you and start calling."
+				"flavor": "You dominate these next few games. The film speaks for itself. Better late than never-coaches see you and start calling."
 			},
 			{
 				"text": "Second-guess your own abilities",
@@ -1032,7 +1034,8 @@
 			"max_week": 13,
 			"min_stats": {
 				"athleticism": 55
-			}
+			},
+			"excludes_flag": "committed_to_college"
 		},
 		"choices": [
 			{
@@ -1122,7 +1125,8 @@
 			"max_week": 13,
 			"min_stats": {
 				"athleticism": 60
-			}
+			},
+			"excludes_flag": "committed_to_college"
 		},
 		"choices": [
 			{
@@ -1156,7 +1160,7 @@
 	},
 	{
 		"id": "recruiting_signing_day_pressure",
-		"title": "National Signing Day—You're Not Signed Yet",
+		"title": "National Signing Day-You're Not Signed Yet",
 		"description": "It's signing day. Every other top recruit is posting their announcements. You don't have an offer locked in yet.",
 		"phase": "high_school",
 		"tags": ["recruiting", "confidence", "pressure"],
@@ -1171,7 +1175,7 @@
 		},
 		"choices": [
 			{
-				"text": "Stay calm—your offer is coming",
+				"text": "Stay calm-your offer is coming",
 				"effects": {
 					"discipline": 4,
 					"confidence": 2,
@@ -1186,7 +1190,7 @@
 					"discipline": -2,
 					"popularity": 1
 				},
-				"flavor": "You take the first scholarship that comes. Maybe it was the right call, maybe not. But the stress is over. Commit or regret—either way, you're done waiting."
+				"flavor": "You take the first scholarship that comes. Maybe it was the right call, maybe not. But the stress is over. Commit or regret-either way, you're done waiting."
 			},
 			{
 				"text": "Use social media to stay visible",
@@ -1255,7 +1259,8 @@
 			"min_stats": {
 				"leadership": 40,
 				"discipline": 40
-			}
+			},
+			"excludes_flag": "is_team_captain"
 		},
 		"choices": [
 			{
@@ -1331,7 +1336,7 @@
 	},
 	{
 		"id": "coach_team_chemistry_falling_apart",
-		"title": "Team Chemistry Is Falling Apart—You Need to Lead",
+		"title": "Team Chemistry Is Falling Apart-You Need to Lead",
 		"description": "Cliques forming. Players bickering. Coach is losing control. The locker room feels divided right before playoffs.",
 		"phase": "high_school",
 		"tags": ["coach", "leadership", "discipline"],
@@ -1342,7 +1347,8 @@
 			"max_week": 13,
 			"min_stats": {
 				"leadership": 45
-			}
+			},
+			"excludes_flag": "healed_team_chemistry"
 		},
 		"choices": [
 			{
@@ -1377,7 +1383,7 @@
 	},
 	{
 		"id": "social_grades_slipping",
-		"title": "Your Grades Are Falling—Eligibility Risk",
+		"title": "Your Grades Are Falling-Eligibility Risk",
 		"description": "Coach called you in. Your GPA just dropped below 2.5. You're at risk of losing eligibility. College scouts care about this too.",
 		"phase": "high_school",
 		"tags": ["social", "discipline", "academic"],
@@ -1484,7 +1490,7 @@
 				"flavor": "You do the interview and talk honestly about your journey. The article is great. Coaches and teammates respect your openness."
 			},
 			{
-				"text": "Decline—keep your head down",
+				"text": "Decline-keep your head down",
 				"effects": {
 					"discipline": 2,
 					"confidence": 1
@@ -1549,7 +1555,7 @@
 	},
 	{
 		"id": "social_viral_post_bad",
-		"title": "An Old Post of Yours Just Went Viral—Bad Way",
+		"title": "An Old Post of Yours Just Went Viral-Bad Way",
 		"description": "Something dumb you posted two years ago is circulating. Out of context. Recruiters are seeing it.",
 		"phase": "high_school",
 		"tags": ["social", "discipline", "confidence"],
@@ -1602,7 +1608,8 @@
 			"max_week": 13,
 			"min_stats": {
 				"athleticism": 65
-			}
+			},
+			"excludes_flag": "committed_to_college"
 		},
 		"choices": [
 			{
@@ -1648,7 +1655,8 @@
 			"max_week": 13,
 			"min_stats": {
 				"athleticism": 65
-			}
+			},
+			"excludes_flag": "committed_to_college"
 		},
 		"choices": [
 			{
@@ -2054,13 +2062,14 @@
 	{
 		"id": "drivers_license_test",
 		"title": "Time for Your Driver's License",
-		"description": "You're finally 16! Time to get your driver's license. Are you ready?",
+		"description": "You're old enough to go for your driver's license now. Are you ready?",
 		"phase": "high_school",
 		"tags": ["academic"],
 		"weight": 8,
 		"is_big_decision": true,
 		"conditions": {
-			"min_week": 1
+			"min_week": 1,
+			"excludes_flag": "has_drivers_license"
 		},
 		"choices": [
 			{
