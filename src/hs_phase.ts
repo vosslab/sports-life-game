@@ -11,7 +11,7 @@ import {
 } from './team.js';
 import {
 	WeeklyFocus, GameResult,
-	applyWeeklyFocus, simulateGame, evaluateDepthChartUpdate, runPracticeSession,
+	applySeasonGoal, applyWeeklyFocus, simulateGame, evaluateDepthChartUpdate, runPracticeSession,
 } from './week_sim.js';
 import { updateRecruitingStars, generateOffers } from './recruiting.js';
 import {
@@ -32,7 +32,7 @@ import {
 } from './activities.js';
 import type { GameContext } from './game_loop.js';
 import {
-	showWeeklyFocusUI, handleWeeklyFocus, proceedToEventCheck,
+	showWeeklyFocusUI, handleWeeklyFocus, applyGoalAndProceed, proceedToEventCheck,
 	resetWeekState, getWeekState, initGameLoop,
 	simulateWeekSilently, showYearRecap,
 } from './game_loop.js';
@@ -568,27 +568,23 @@ function startWeek(): void {
 		);
 	}
 
-	// Step 1: choose weekly focus
-	ctx.addText('What do you want to focus on this week?');
-	showWeeklyFocusUI('high_school', (focus: WeeklyFocus) => {
-		handleWeeklyFocus(
-			'high_school',
-			focus,
-			proceedToGameDay,
-			() => {
-				if (player.depthChart !== 'starter') {
-					const practiceResult = runPracticeSession(player);
-					ctx!.addText(`Practice grade: ${practiceResult.grade}`);
-					ctx!.addText(practiceResult.storyText);
-					if (practiceResult.depthUpdate.changed) {
-						ctx!.addText(practiceResult.depthUpdate.message);
-						ui.updateHeader(player);
-					}
-					ctx!.save();
+	// Apply season goal and proceed (no weekly focus popup)
+	applyGoalAndProceed(
+		'high_school',
+		proceedToGameDay,
+		() => {
+			if (player.depthChart !== 'starter') {
+				const practiceResult = runPracticeSession(player);
+				ctx!.addText(`Practice grade: ${practiceResult.grade}`);
+				ctx!.addText(practiceResult.storyText);
+				if (practiceResult.depthUpdate.changed) {
+					ctx!.addText(practiceResult.depthUpdate.message);
+					ui.updateHeader(player);
 				}
-			},
-		);
-	});
+				ctx!.save();
+			}
+		},
+	);
 }
 
 //============================================
@@ -898,8 +894,8 @@ function preparePlayoffGame(
 	}
 	const player = ctx.getPlayer();
 
-	// Apply weekly focus
-	const focusStory = applyWeeklyFocus(player, focus);
+	// Apply season goal effects
+	const focusStory = applySeasonGoal(player);
 	ctx.addText(focusStory);
 	ui.updateAllStats(player);
 	ctx.save();

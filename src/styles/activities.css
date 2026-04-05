@@ -1,3 +1,47 @@
+/* Goal selector at top of Activities tab */
+
+.goal-selector {
+	padding: 10px 12px;
+	margin-bottom: 8px;
+	background: var(--bg-secondary);
+	border-radius: 10px;
+	border-left: 3px solid var(--goal-color, #e09040);
+}
+
+.goal-selector-label {
+	display: block;
+	font-weight: 700;
+	font-size: 0.9em;
+	margin-bottom: 6px;
+	color: var(--goal-color, #e09040);
+}
+
+.goal-dropdown {
+	width: 100%;
+	padding: 8px 10px;
+	font-size: 0.95em;
+	font-weight: 600;
+	color: var(--text-primary);
+	background: var(--bg-card);
+	border: 1px solid var(--goal-color, #e09040);
+	border-radius: 8px;
+	cursor: pointer;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+.goal-dropdown:focus {
+	outline: 2px solid var(--goal-color, #e09040);
+	outline-offset: 1px;
+}
+
+.goal-description {
+	font-size: 0.82em;
+	color: var(--text-secondary);
+	margin-top: 6px;
+	font-style: italic;
+}
+
 /* Activity cards, effects, budget display */
 
 .activities-budget {
@@ -21,6 +65,7 @@
 	border-radius: 10px;
 	padding: 12px;
 	margin: 6px 4px;
+	border-left: 3px solid var(--activity-color);
 }
 
 .activity-card.activity-locked {
@@ -42,7 +87,7 @@
 .activity-effects {
 	font-size: 0.8em;
 	font-family: monospace;
-	color: var(--accent-blue);
+	color: var(--activity-color);
 	margin-bottom: 8px;
 }
 

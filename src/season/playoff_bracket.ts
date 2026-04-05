@@ -28,6 +28,18 @@ export interface PlayoffRound {
 
 //============================================
 // The playoff bracket
+function rollOvertimePoints(): number {
+	const roll = randomInRange(1, 100);
+	if (roll <= 55) {
+		return 3;
+	}
+	if (roll <= 95) {
+		return 7;
+	}
+	return 6;
+}
+
+//============================================
 export class PlayoffBracket {
 	seeds: PlayoffSeed[];
 	rounds: PlayoffRound[];
@@ -241,7 +253,7 @@ export class PlayoffBracket {
 
 		// No ties in playoffs: overtime if needed
 		if (homeScore === awayScore) {
-			const overtimePoints = randomInRange(3, 7);
+				const overtimePoints = rollOvertimePoints();
 			const winProb = 0.5 + ((homeStrength - awayStrength) / 200);
 			if (Math.random() < winProb) {
 				homeScore += overtimePoints;

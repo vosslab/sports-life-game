@@ -10,13 +10,18 @@ export interface EventChoice {
 	flavor: string;
 	sets_flag?: string;
 	clears_flag?: string;
+	progress_flag?: string;
 }
 
 //============================================
 // Event condition constraints
 export interface EventConditions {
+	min_age?: number;
+	max_age?: number;
 	min_week?: number;
 	max_week?: number;
+	min_college_year?: number;
+	max_college_year?: number;
 	positions?: string[];
 	min_stats?: Record<string, number>;
 	max_stats?: Record<string, number>;
@@ -36,12 +41,19 @@ export interface GameEvent {
 	is_big_decision: boolean;
 	conditions: EventConditions;
 	choices: EventChoice[];
+	event_category?: 'core' | 'social' | 'identity' | 'big_decision';
+	family?: string;
 }
 
 //============================================
 // Load events from per-phase JSON files and combine into one array
 export async function loadEvents(): Promise<GameEvent[]> {
-	const phases = ['childhood', 'youth', 'high_school', 'college', 'nfl'];
+	const phases = [
+		'childhood_1', 'childhood_2', 'childhood_3',
+		'childhood_4', 'childhood_5', 'childhood_6',
+		'childhood_7', 'childhood_8', 'childhood_9',
+		'youth', 'high_school', 'college', 'nfl',
+	];
 	// Fetch all phase files in parallel
 	const fetches = phases.map((phase) =>
 		fetch(`src/data/events/${phase}.json`).then((r) => r.json())
@@ -59,7 +71,9 @@ export function filterEvents(
 	week: number,
 	position: string | null,
 	flags: Record<string, boolean>,
-	stats: Record<string, number>
+	stats: Record<string, number>,
+	collegeYear?: number,
+	age?: number,
 ): GameEvent[] {
 	return events.filter((event) => {
 		// Check phase match
@@ -76,6 +90,30 @@ export function filterEvents(
 		}
 		if (conditions.max_week !== undefined && week > conditions.max_week) {
 			return false;
+		}
+
+		// Check college year range when present
+		if (conditions.min_college_year !== undefined) {
+			if (collegeYear === undefined || collegeYear < conditions.min_college_year) {
+				return false;
+			}
+		}
+		if (conditions.max_college_year !== undefined) {
+			if (collegeYear === undefined || collegeYear > conditions.max_college_year) {
+				return false;
+			}
+		}
+
+		// Check age range
+		if (conditions.min_age !== undefined) {
+			if (age === undefined || age < conditions.min_age) {
+				return false;
+			}
+		}
+		if (conditions.max_age !== undefined) {
+			if (age === undefined || age > conditions.max_age) {
+				return false;
+			}
 		}
 
 		// Check position (empty positions array means any position is OK)
@@ -160,6 +198,19 @@ export function selectEvent(eligible: GameEvent[]): GameEvent | null {
 }
 
 //============================================
+// Select one event strictly from a specific category. Returns null if none match.
+export function selectEventByCategory(
+	eligible: GameEvent[],
+	category: string,
+): GameEvent | null {
+	const filtered = eligible.filter(e => e.event_category === category);
+	if (filtered.length === 0) {
+		return null;
+	}
+	return selectEvent(filtered);
+}
+
+//============================================
 // Apply event choice to player: modify stats, set/clear flags, return flavor
 export function applyEventChoice(
 	player: Player,
@@ -222,6 +273,11 @@ export function applyEventChoice(
 	// Clear flag if specified
 	if (choice.clears_flag !== undefined) {
 		player.storyFlags[choice.clears_flag] = false;
+	}
+
+	// Increment flag progress if specified
+	if (choice.progress_flag !== undefined) {
+		player.flagProgress[choice.progress_flag] = (player.flagProgress[choice.progress_flag] || 0) + 1;
 	}
 
 	// Return flavor text

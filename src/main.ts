@@ -574,8 +574,8 @@ function showCollegeChoiceScreen(gameContext: GameContext): void {
 		{
 			school: earlyPlaySchool,
 			label: `${formatSchoolName(earlyPlaySchool)} - Smaller School`,
-			depthChart: 'starter',
-			description: 'Lower profile, but much better chance to start right away.',
+			depthChart: 'backup',
+			description: 'Lower profile and a quicker path into the rotation, but not a free starting job.',
 		},
 	];
 
@@ -586,7 +586,7 @@ function showCollegeChoiceScreen(gameContext: GameContext): void {
 
 	ui.waitForInteraction('College Decision', options.map((option) => ({
 		text: option.label,
-		primary: option.depthChart === 'starter',
+		primary: option.school === balancedSchool,
 		action: () => {
 			clearStory();
 			addStoryHeadline('College Decision');

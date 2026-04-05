@@ -1,0 +1,96 @@
+[
+	{
+		"id": "age3_mvp_backyard",
+		"title": "Backyard MVP",
+		"description": "You declared yourself MVP of the backyard league. The league consists of you.",
+		"phase": "childhood",
+		"tags": ["toddler", "imagination"],
+		"event_category": "identity",
+		"weight": 10,
+		"is_big_decision": false,
+		"conditions": { "min_age": 3, "max_age": 3 },
+		"choices": [
+			{
+				"text": "Give yourself a trophy (a stick)",
+				"effects": { "confidence": 2, "athleticism": 1 },
+				"flavor": "The acceptance speech is mostly babbling but the confidence is real."
+			},
+			{
+				"text": "Start training for next season immediately",
+				"effects": { "athleticism": 2, "discipline": 1 },
+				"flavor": "Run around the yard five times. Fall twice. Get up both times. Season prep complete.",
+				"progress_flag": "selfStarter"
+			}
+		]
+	},
+	{
+		"id": "age3_fastest_ever",
+		"title": "The Fastest Player Ever",
+		"description": "You pretend to be 'the fastest player ever.' You run the same route between the couch and the wall 20+ times.",
+		"phase": "childhood",
+		"tags": ["toddler", "imagination"],
+		"event_category": "identity",
+		"weight": 9,
+		"is_big_decision": false,
+		"conditions": { "min_age": 3, "max_age": 3 },
+		"choices": [
+			{
+				"text": "Run faster each time. Beat the record.",
+				"effects": { "athleticism": 2, "confidence": 1 },
+				"flavor": "The world record was 4 seconds. Now it is 3.8. The crowd goes wild. The crowd is the cat."
+			},
+			{
+				"text": "Add commentary while running",
+				"effects": { "confidence": 2 },
+				"flavor": "'And he breaks through the defense!' Nobody is playing defense. The imagination is elite."
+			}
+		]
+	},
+	{
+		"id": "age3_sibling_trash_talk",
+		"title": "First Trash Talk",
+		"description": "You tell your older sibling you are better at everything. Evidence is questionable.",
+		"phase": "childhood",
+		"tags": ["toddler", "social"],
+		"event_category": "social",
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": { "min_age": 3, "max_age": 3 },
+		"choices": [
+			{
+				"text": "Double down. List every way you are better.",
+				"effects": { "confidence": 2 },
+				"flavor": "'I am faster, stronger, and I eat more chicken nuggets.' Devastating argument."
+			},
+			{
+				"text": "Challenge them to prove it",
+				"effects": { "athleticism": 1, "confidence": 1 },
+				"flavor": "You lose the race badly but insist the starting position was unfair."
+			}
+		]
+	},
+	{
+		"id": "age3_repetition_machine",
+		"title": "Repetition Machine",
+		"description": "You found one physical activity you like and now you do it nonstop. Adults are baffled.",
+		"phase": "childhood",
+		"tags": ["toddler", "motor"],
+		"event_category": "core",
+		"weight": 9,
+		"is_big_decision": false,
+		"conditions": { "min_age": 3, "max_age": 3 },
+		"choices": [
+			{
+				"text": "Jump off the same step 40 times",
+				"effects": { "athleticism": 2, "durability": 1 },
+				"flavor": "The landing technique improves by attempt 30. By attempt 40 it is automatic."
+			},
+			{
+				"text": "Throw the same ball at the same wall forever",
+				"effects": { "athleticism": 1, "discipline": 1 },
+				"flavor": "Thud. Thud. Thud. The neighbors are concerned. You are focused.",
+				"progress_flag": "selfStarter"
+			}
+		]
+	}
+]

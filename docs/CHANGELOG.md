@@ -4,14 +4,170 @@
 
 ### Additions and New Features
 
-- **iPad landscape layout** (`src/styles/layout.css`, `src/styles/buttons.css`,
-  `src/styles/tabs.css`, `src/styles/story.css`): Added
-  `@media (min-width: 768px) and (orientation: landscape)` query targeting iPad 10th
-  gen landscape (1180x820 CSS px). Widens app container from 920px to 1140px, compacts
-  header, story entries, choice buttons, and tab bar for the shorter viewport height.
-  Sidebar gets more width (400px max) since landscape has horizontal room.
+- **Childhood event revamp for ages 1-9** (`src/data/events/childhood_1.json` through
+  `childhood_9.json`, `src/events.ts`, `src/player.ts`, `src/childhood/kid_years.ts`,
+  `src/childhood/peewee_years.ts`): Replaced flat 26-event childhood pool with 42
+  age-banded events across nine per-age JSON files. Ages 1-3 use exact-age targeting
+  with sensory/motor focus (no technique or footballIq). Ages 4-6 use exact or narrow
+  ranges with social formation and competition themes. Ages 7-9 add pre-athletic
+  identity with flag callbacks from earlier choices. Four-layer event dedup prevents
+  repetition: `seenEventIds` (exact), `seenEventFamilies` (near-duplicate), tag
+  count caps (tonal balance), and category-aware yearly picking (`core`, `social`,
+  `identity`, `big_decision`). Eight personality flags accumulate via `flagProgress`
+  counters and promote to `storyFlags` at threshold (fearlessKid, poorLoser,
+  selfStarter, naturalLeader, quietWorker, roughAndTumble, showoff, bookish). Five
+  big decisions replace the single family-move event. Yearly summary sentences
+  display after events, gated by flag count (strong statements require 2+ flags).
+  Deleted old `childhood.json`.
+
+- **Goal-based season system replaces weekly focus popup** (`src/player.ts`,
+  `src/week_sim.ts`, `src/weekly/weekly_engine.ts`): Replaced the per-week 5-option
+  focus popup with a persistent season goal system. Players choose from 3-4 broader
+  goals at season start (Grind Mode, Stay Healthy, Be Popular/Build the Brand, Hit
+  the Books). Goals persist week-to-week and auto-apply stat effects without requiring
+  a popup each week. Every 5 games, a check-in re-prompts the player to keep or change
+  their goal. Activities tab now shows a sidebar dropdown to change goal anytime.
+  `SeasonGoal` type added to `Player`. `applySeasonGoal()` replaces the old
+  `applyWeeklyFocus()` function. NFL phase drops the academic goal (3 options).
+
+- **GPA visible in stat bar** (`src/ui.ts`, `index.html`, `src/styles/stats.css`):
+  GPA now appears as a stat bar during high school and college phases with academic
+  standing label (e.g., "3.2 Good Standing"). Hidden during NFL/childhood/legacy.
+  "Hit the Books" goal boosts GPA +0.1 to +0.2 per week; other goals cause slight
+  GPA drift (-0.05 to +0.05).
+
+- **Dedicated goal and activity colors** (`src/styles/base.css`, `src/styles/modals.css`,
+  `src/styles/activities.css`): New CSS variables `--goal-color` (amber #e09040) and
+  `--activity-color` (teal #26a69a) give goal selection modals and activity cards
+  visually distinct accents from regular choice buttons. New `goal-style` modal theme
+  with amber border and highlight for the current goal. Activity cards now have a
+  teal left border accent.
+
+- **4th quarter clutch moment system v3** (`src/clutch_moment.ts`,
+  `src/weekly/weekly_engine.ts`): Interactive decision point during close playoff and
+  key regular season games. Eight situation archetypes: comeback_drive, hold_lead,
+  tie_game, red_zone, backed_up, must_have_stop, ice_game, and final_play (rare
+  last-play-of-the-game moments like Hail Mary, game-winning FG, goal line stand).
+  Situation derivation now factors random field position overrides (~8% backed_up,
+  ~7% red_zone regardless of score), kicker-specific routing, and playoff-scaled
+  final_play rarity (12% playoffs, 5% regular). Choice pools expanded to 8-13 per
+  position including final_play specials: QB Hail Mary, RB pylon dive, WR jump ball,
+  OL/DL goal line trench, defender goal line stand and strip attempt, kicker game-
+  winner and block attempt. Legacy tags tightened: only heroic big successes, balanced
+  playoff big successes, final_play moments, and heroic playoff disasters get logged
+  to bigDecisions. Safe-risk big successes no longer generate legacy tags. Partial
+  success narratives enriched with football-specific outcomes (forced punt, clock
+  drained, moved into FG range, fourth down).
+
+- **High school recruiting stage** (`src/recruiting_profile.ts`, `src/recruiting.ts`,
+  `src/high_school/hs_recruiting.ts`, `src/high_school/hs_varsity.ts`, `src/player.ts`):
+  Replaced the old batch 3-offer system with a full multi-year recruiting experience.
+  Junior year (age 16) adds pre-season choices (elite camp, highlight reel, training)
+  and post-season offer review with unofficial visits, verbal commit options, and
+  NCAA eligibility registration. Senior year (age 17) adds official visits with
+  impression cards (campus vibe, coach trust, playing time path, family reaction),
+  signing day with decommitment drama, and coaching change events. Multi-state offer
+  system tracks schools through watchlist, interest, soft offer, verbal offer,
+  committable offer, committed, and signed states with enforced state machine transitions.
+  Academic eligibility (at_risk/solid/excellent) gates which schools offer. Buzz and
+  exposure meters track recruiting heat separately from raw talent. Film grade progresses
+  from none through elite. School interest stores schoolId strings (not full objects)
+  for lean saves. Profile is versioned (`version: 1`) for future migration.
+- **Walk-on, JUCO, and prep school paths** (`src/high_school/hs_postgrad.ts`,
+  `src/high_school/juco_season_builder.ts`, `src/college/college_entry.ts`): Players
+  with zero offers at signing day choose between walking on at a random FCS school,
+  playing a JUCO season (8-week season with generated fictional teams), or attending
+  prep school (training year with stat growth). JUCO and prep paths re-enter recruiting
+  after one year with fresh offers from real NCAA schools. Routing handled by a single
+  `getPostHighSchoolRoute()` helper checked at the top of college_entry handler.
+- **8 recruiting events** (`src/data/events/high_school.json`): Added college scout in
+  stands, coach DM on social media, recruiting ranking published, teammate gets big
+  offer, camp invite mid-season, GPA warning from counselor, highlight clip goes viral,
+  and rival school recruits teammate. All use `requires_flag: "hs_varsity"` to fire
+  only during varsity years (ages 16-17). Pure stat effects only -- no event system
+  changes for buzz.
 
 ### Fixes and Maintenance
+
+- **Recruiting events no longer leak into college** (`src/high_school/hs_recruiting.ts`,
+  `src/high_school/hs_postgrad.ts`): The `hs_varsity` story flag was set at age 16 but
+  never cleared, causing recruiting events to fire during college via the weekly engine's
+  HS event fallback. Now cleared via `clearRecruitingFlags()` at every college transition.
+- **Signing day offers now show school records and varied roles**
+  (`src/high_school/hs_recruiting.ts`, `src/recruiting.ts`, `src/recruiting_profile.ts`):
+  Each offer displays simulated last-season record (wins-losses), conference rank, and
+  national rank (if ranked). Role projection expanded from 2 outcomes to 10+ based on
+  scholarship type, division, readiness, interest, and star rating. Walk-ons correctly
+  show "scout team likely" or "shot to earn playing time." Strong coach relationships
+  noted in offer details.
+
+### Behavior or Interface Changes
+
+- **Recruiting replaces old 3-offer flow** (`src/high_school/hs_varsity.ts`): The old
+  `handleSeasonEnd()` code that generated 3 college offers in one batch at end of senior
+  year is fully replaced. `hs_varsity.ts` now delegates entirely to recruiting hooks
+  via `runRecruitingHookForStartOfYear()` and `runRecruitingHookForEndOfSeason()` from
+  `hs_recruiting.ts`. No recruiting logic remains in the varsity handler.
+
+- **iPad landscape layout** (`src/styles/layout.css`, `src/styles/buttons.css`,
+  `src/styles/tabs.css`, `src/styles/story.css`, `src/tabs.ts`): Replaced the old
+  portrait iPad media query (`min-width: 768px`) with a landscape-only query
+  (`min-width: 768px and orientation: landscape`) targeting iPad 10th gen landscape
+  (1180x820 CSS px). Two-column sidebar layout, hidden stat strip, and hidden tabs
+  now only activate in landscape. App container widened from 920px to 1140px, with
+  compact header, story entries, choice buttons, and tab bar for shorter viewport
+  height. Sidebar gets more width (400px max). Updated `isSidebarVisible()` in
+  `tabs.ts` to match the new landscape-only query.
+
+### Fixes and Maintenance
+
+- **Overtime scoring now uses realistic single-possession outcomes** (`src/week_sim.ts`,
+  `src/season/season_simulator.ts`, `src/season/playoff_bracket.ts`): Replaced the
+  loose `3-8`/`3-7` overtime point adds with a weighted OT result helper that mostly
+  yields a field goal or touchdown, keeping tie-game final scores from exploding into
+  unrealistic overtime margins.
+
+- **Overtime scores can no longer drop below regulation totals** (`src/week_sim.ts`):
+  Stored both regulation scores before overtime and clamped final overtime scores so
+  the OT branch can only add points, never accidentally report a lower final score
+  than the regulation tie.
+
+- **Senior-only college events no longer fire for freshmen** (`src/events.ts`,
+  `src/weekly/weekly_engine.ts`, `src/game_loop.ts`, `src/data/events/college.json`):
+  Added college-year gating to the event filter and marked the Senior Day event as
+  senior-only, which prevents freshman and other underclass college seasons from
+  showing "last game in college" story text.
+
+- **Frosh/soph depth chart no longer starts below varsity** (`src/high_school/hs_frosh_soph.ts`):
+  Freshman entry on the frosh/soph team now starts in the rotation instead of hard
+  resetting to bench, and stronger early players can open as starters so the lower
+  high-school level feels easier to break into than varsity.
+
+- **NFL combine and draft results now appear in the rookie transition** (`src/nfl_handlers/nfl_rookie.ts`):
+  Added combine narrative, draft-day story text, the drafted team, round, and overall
+  pick to the new year-handler rookie flow so players can see how pre-draft evaluation
+  and draft selection went before the NFL season starts.
+
+- **College offer screen now shows school details and projected role** (`src/high_school/hs_recruiting.ts`,
+  `src/ui.ts`, `src/popup.ts`, `src/styles/buttons.css`): Signing day choices now
+  show city/state, division, conference, scholarship type, visit trust, and whether
+  coaches project you as a starter candidate or backup, and the selected school now
+  explicitly sets the incoming college depth-chart role instead of relying on stale
+  state.
+
+- **Team colors drive the full UI theme** (`src/theme.ts`, `src/styles/modals.css`):
+  Swapped the old gold/yellow headline accent over to the active team text color so
+  school and pro palettes now control the main background/title contrast, and removed
+  the remaining hardcoded teal activity modal styling so overlays stay inside the same
+  palette.
+
+- **High school and college pacing rebalance** (`src/weekly/weekly_engine.ts`,
+  `src/week_sim.ts`, `src/main.ts`): Removed the separate weekly activity prompt by
+  auto-resolving a background activity from the chosen weekly focus, and random event
+  choices now flow straight into the game instead of requiring an extra "Game Day"
+  click. Tightened bench/backup promotion odds and stopped smaller-school college
+  options from granting an automatic starting job, so earning the field takes longer
+  while school seasons require fewer button presses.
 
 - **Team color palette not applied** (`src/high_school/hs_frosh_soph.ts`,
   `src/high_school/hs_varsity.ts`, `src/college/college_entry.ts`,

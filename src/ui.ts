@@ -3,7 +3,8 @@
 // Popup and modal functions live in popup.ts and are re-exported
 // here for backward compatibility with files using `import * as ui`.
 
-import { Player, CareerPhase } from './player.js';
+import { Player, CareerPhase, SeasonGoal, getAcademicStanding } from './player.js';
+import { GoalInfo } from './week_sim.js';
 import { ScheduleEntry } from './team.js';
 import { Activity, WeekState } from './activities.js';
 import type { StatLine } from './week_sim.js';
@@ -26,6 +27,7 @@ export {
 // Type definitions for choice options
 export interface ChoiceOption {
 	text: string;
+	description?: string;
 	primary?: boolean;
 	action: () => void;
 }
@@ -63,7 +65,7 @@ export function updateStatBar(statName: string, value: number): void {
 	valEl.textContent = Math.round(clamped).toString();
 }
 
-// Update all 7 visible stat bars from player state
+// Update all visible stat bars from player state
 export function updateAllStats(player: Player): void {
 	updateStatBar('athleticism', player.core.athleticism);
 	updateStatBar('technique', player.core.technique);
@@ -72,6 +74,23 @@ export function updateAllStats(player: Player): void {
 	updateStatBar('health', player.core.health);
 	updateStatBar('confidence', player.core.confidence);
 	updateStatBar('popularity', player.career.popularity);
+
+	// GPA: map 0.0-4.0 to 0-100 for the bar, show actual value + standing
+	const gpaRow = document.getElementById('gpa-row');
+	const showGpa = player.phase === 'high_school' || player.phase === 'college';
+	if (gpaRow) {
+		gpaRow.style.display = showGpa ? '' : 'none';
+	}
+	if (showGpa) {
+		const gpaPercent = (player.gpa / 4.0) * 100;
+		updateStatBar('gpa', gpaPercent);
+		// Override the numeric display with actual GPA + standing
+		const gpaValEl = findElement('val-gpa');
+		if (gpaValEl) {
+			const standing = getAcademicStanding(player.gpa);
+			gpaValEl.textContent = `${player.gpa.toFixed(1)} ${standing}`;
+		}
+	}
 }
 
 //============================================
@@ -229,7 +248,19 @@ export function showChoices(options: ChoiceOption[]): void {
 		if (option.primary) {
 			button.classList.add('primary');
 		}
-		button.textContent = option.text;
+
+		const label = document.createElement('span');
+		label.className = 'choice-button-label';
+		label.textContent = option.text;
+		button.appendChild(label);
+
+		if (option.description) {
+			const description = document.createElement('span');
+			description.className = 'choice-button-description';
+			description.textContent = option.description;
+			button.appendChild(description);
+		}
+
 		button.addEventListener('click', () => option.action());
 		panel.appendChild(button);
 	}
@@ -472,6 +503,11 @@ export function renderActivitiesTab(
 	isUnlocked: (activity: Activity) => boolean,
 	effectPreview: (activity: Activity) => string,
 	onSelect: (activity: Activity) => void,
+	goalInfo?: {
+		goals: GoalInfo[];
+		currentGoal: SeasonGoal;
+		onGoalChange: (goal: SeasonGoal) => void;
+	},
 ): void {
 	const content = document.getElementById('activities-content');
 	if (!content) {
@@ -489,7 +525,47 @@ export function renderActivitiesTab(
 		return;
 	}
 
-	// Action budget display at top
+	// Goal selector at top of Activities tab
+	if (goalInfo) {
+		const goalSection = document.createElement('div');
+		goalSection.className = 'goal-selector';
+
+		const goalLabel = document.createElement('label');
+		goalLabel.className = 'goal-selector-label';
+		goalLabel.textContent = 'Season Goal:';
+		goalLabel.setAttribute('for', 'goal-dropdown');
+		goalSection.appendChild(goalLabel);
+
+		const goalSelect = document.createElement('select');
+		goalSelect.id = 'goal-dropdown';
+		goalSelect.className = 'goal-dropdown';
+		for (const goal of goalInfo.goals) {
+			const option = document.createElement('option');
+			option.value = goal.key;
+			option.textContent = `${goal.name} - ${goal.effectHint}`;
+			if (goal.key === goalInfo.currentGoal) {
+				option.selected = true;
+			}
+			goalSelect.appendChild(option);
+		}
+		goalSelect.addEventListener('change', () => {
+			goalInfo.onGoalChange(goalSelect.value as SeasonGoal);
+		});
+		goalSection.appendChild(goalSelect);
+
+		// Show description of current goal
+		const currentGoalInfo = goalInfo.goals.find(g => g.key === goalInfo.currentGoal);
+		if (currentGoalInfo) {
+			const goalDesc = document.createElement('div');
+			goalDesc.className = 'goal-description';
+			goalDesc.textContent = currentGoalInfo.description;
+			goalSection.appendChild(goalDesc);
+		}
+
+		content.appendChild(goalSection);
+	}
+
+	// Action budget display
 	const budget = document.createElement('div');
 	budget.className = 'activities-budget';
 	const remaining = weekState.actionBudget - weekState.actionsUsed;

@@ -11,6 +11,8 @@ import { startSeason } from '../weekly/weekly_engine.js';
 import { buildCollegeSeason } from './college_season_builder.js';
 import { formatSchoolName, assignPlayerCollege } from '../ncaa.js';
 import { generateTeamPalette, applyPalette } from '../theme.js';
+import { getPostHighSchoolRoute } from '../recruiting.js';
+import { runJucoYear, runPrepYear } from '../high_school/hs_postgrad.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -30,6 +32,17 @@ export const collegeEntryHandler: YearHandler = {
 	ageEnd: 18,
 
 	startYear(player: Player, ctx: CareerContext): void {
+		// Route JUCO/prep players to post-grad handler instead of college
+		const route = getPostHighSchoolRoute(player);
+		if (route === 'juco') {
+			runJucoYear(player, ctx);
+			return;
+		}
+		if (route === 'prep') {
+			runPrepYear(player, ctx);
+			return;
+		}
+
 		applyAgeDrift(player);
 		player.collegeYear = 1;
 		// Apply new team colors for college

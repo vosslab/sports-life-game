@@ -1,0 +1,165 @@
+[
+	{
+		"id": "late_neighborhood_draft",
+		"title": "Neighborhood Draft",
+		"description": "You organized a neighborhood draft for backyard football. No one else understood the rules.",
+		"phase": "childhood",
+		"tags": ["competition", "leadership"],
+		"weight": 10,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 7, "max_age": 7 },
+		"choices": [
+			{
+				"text": "Pick the teams yourself. You are the commissioner.",
+				"effects": { "leadership": 2, "confidence": 1 },
+				"flavor": "Draft order determined by rock-paper-scissors. Appeals process: none."
+			},
+			{
+				"text": "Let everyone pick and just play",
+				"effects": { "discipline": 1, "confidence": 1, "athleticism": 1 },
+				"flavor": "Less drama, more football. The game starts in under five minutes for once."
+			}
+		]
+	},
+	{
+		"id": "late_scorekeeping",
+		"title": "Unofficial Scorekeeper",
+		"description": "You are keeping score in a game where nobody asked for a scorekeeper.",
+		"phase": "childhood",
+		"tags": ["competition", "focus"],
+		"weight": 9,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 7, "max_age": 7 },
+		"choices": [
+			{
+				"text": "Announce the score loudly after every play",
+				"effects": { "confidence": 2, "footballIq": 1 },
+				"flavor": "'That is 14-7!' Nobody cares. You care enough for everyone."
+			},
+			{
+				"text": "Keep it to yourself and use it as motivation",
+				"effects": { "discipline": 2, "footballIq": 1 },
+				"flavor": "You know you are down by one touchdown. Nobody else does. Quiet competitiveness.",
+				"progress_flag": "quietWorker"
+			}
+		]
+	},
+	{
+		"id": "late_beat_the_better_kid",
+		"title": "The Kid to Beat",
+		"description": "There is one kid who is clearly better than everyone else. You have been studying how they play.",
+		"phase": "childhood",
+		"tags": ["competition", "focus"],
+		"weight": 9,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 7, "max_age": 7 },
+		"choices": [
+			{
+				"text": "Challenge them directly and compete head to head",
+				"effects": { "confidence": 2, "athleticism": 1 },
+				"flavor": "You lost. But you made them work for it. They noticed."
+			},
+			{
+				"text": "Practice in secret and wait for the right moment",
+				"effects": { "discipline": 2, "athleticism": 1 },
+				"flavor": "Extra hours in the yard. When the moment comes, you will be ready."
+			}
+		]
+	},
+	{
+		"id": "late_cant_stop",
+		"title": "Cannot Stop",
+		"description": "Nobody told you to keep going. You just did not want to stop throwing the ball against the garage.",
+		"phase": "childhood",
+		"tags": ["discipline", "identity"],
+		"weight": 8,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 7, "max_age": 8 },
+		"choices": [
+			{
+				"text": "Keep going until Mom yells dinner",
+				"effects": { "discipline": 2, "athleticism": 1, "durability": 1 },
+				"flavor": "Thud. Thud. Thud. The neighbors stopped asking if you were okay. Mom yelled twice.",
+				"progress_flag": "selfStarter"
+			},
+			{
+				"text": "Try to beat your own record from yesterday",
+				"effects": { "discipline": 2, "confidence": 1 },
+				"flavor": "Yesterday was 47 catches in a row. Today is 52. Tomorrow the record falls again."
+			}
+		]
+	},
+	{
+		"id": "late_include_or_exclude",
+		"title": "The Weaker Kid",
+		"description": "A smaller kid wants to join your game. He is not very good. Your team is up next.",
+		"phase": "childhood",
+		"tags": ["social", "leadership"],
+		"weight": 7,
+		"is_big_decision": true,
+		"event_category": "big_decision",
+		"conditions": { "min_age": 7, "max_age": 8 },
+		"choices": [
+			{
+				"text": "Let them play. Put them somewhere they can help.",
+				"effects": { "leadership": 3, "confidence": 1 },
+				"flavor": "You put them on the line. They try hard. Your team wins anyway. Good leadership."
+			},
+			{
+				"text": "Tell them next game. You need to win this one.",
+				"effects": { "confidence": 2, "leadership": -1 },
+				"flavor": "You won the game. The kid watched from the sideline. It felt different than you expected."
+			}
+		]
+	},
+	{
+		"id": "late_fearless_variant",
+		"title": "No Fear",
+		"description": "A big kid is running straight at you during backyard football. Everyone else gets out of the way.",
+		"phase": "childhood",
+		"tags": ["competition", "courage"],
+		"weight": 7,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 7, "max_age": 8, "requires_flag": "fearlessKid" },
+		"choices": [
+			{
+				"text": "Lower your shoulder and meet them head on",
+				"effects": { "confidence": 3, "durability": 1, "health": -1 },
+				"flavor": "BOOM. You both go down. The other kids go silent. Then someone says 'that kid is crazy.' Badge of honor."
+			},
+			{
+				"text": "Stand your ground and wrap up the tackle",
+				"effects": { "discipline": 2, "athleticism": 1, "durability": 1 },
+				"flavor": "Clean stop. Textbook. The fearless kid is also becoming a smart player."
+			}
+		]
+	},
+	{
+		"id": "late_family_move",
+		"title": "New House",
+		"description": "Your family is moving to a different part of town. New neighborhood, new school, new everything.",
+		"phase": "childhood",
+		"tags": ["life", "social"],
+		"weight": 3,
+		"is_big_decision": true,
+		"event_category": "big_decision",
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Be excited about the fresh start",
+				"effects": { "confidence": 2, "discipline": 1 },
+				"flavor": "New room, new kids to compete with. Change is fuel."
+			},
+			{
+				"text": "Be upset about leaving friends",
+				"effects": { "discipline": 2, "confidence": -1 },
+				"flavor": "It is hard leaving your crew. But adapting is a skill you will use forever."
+			}
+		]
+	}
+]

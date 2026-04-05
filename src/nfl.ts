@@ -760,6 +760,7 @@ const testPlayer: Player = {
 	teamName: 'Kansas City Chiefs',
 	teamStrength: 90,
 	gpa: 3.0,
+	seasonGoal: 'grind',
 	relationships: { 'Coach': 80 },
 	storyFlags: {},
 	storyLog: [],
@@ -783,6 +784,11 @@ const testPlayer: Player = {
 	eligibilityYears: 4,
 	avatarConfig: null,
 	milestones: {},
+	recruitingProfile: null,
+	seenEventIds: {},
+	seenEventFamilies: {},
+	eventTagCounts: {},
+	flagProgress: {},
 };
 
 const draftResult = getNFLDraftResult(testPlayer);

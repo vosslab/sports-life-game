@@ -36,7 +36,7 @@ export const hsFroshSophHandler: YearHandler = {
 		// Generate HS identity at age 14
 		if (player.age === 14 && player.hsName === '') {
 			generateHSIdentity(player);
-			player.depthChart = 'bench';
+			player.depthChart = getInitialFroshSophDepthChart(player);
 			// Apply team colors for the new high school
 			const hsPalette = generateTeamPalette();
 			applyPalette(hsPalette);
@@ -114,4 +114,14 @@ function generateHSIdentity(player: Player): void {
 	const mascotIdx = Math.floor(Math.random() * mascots.length);
 	player.hsName = names[nameIdx];
 	player.hsMascot = mascots[mascotIdx];
+}
+
+//============================================
+// Frosh/soph teams should be easier to break into than varsity.
+function getInitialFroshSophDepthChart(player: Player): 'starter' | 'backup' {
+	const readiness = player.core.athleticism + player.core.technique + player.core.footballIq;
+	if (readiness >= 160 || player.core.athleticism >= 65 || player.core.technique >= 65) {
+		return 'starter';
+	}
+	return 'backup';
 }

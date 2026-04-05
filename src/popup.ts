@@ -16,7 +16,7 @@ import type { ChoiceOption } from './ui.js';
 function showModal(
 	title: string,
 	description: string,
-	options: { text: string; primary?: boolean; action: () => void }[],
+	options: { text: string; description?: string; primary?: boolean; action: () => void }[],
 	styleClass: string,
 	autoHideOnClick: boolean,
 ): void {
@@ -31,7 +31,7 @@ function showModal(
 	descEl.textContent = description;
 
 	// Apply style class (remove previous theme first)
-	card.classList.remove('decision-style', 'narrative-style', 'activity-style');
+	card.classList.remove('decision-style', 'narrative-style', 'activity-style', 'goal-style');
 	if (styleClass) {
 		card.classList.add(styleClass);
 	}
@@ -44,7 +44,19 @@ function showModal(
 		if (option.primary) {
 			button.classList.add('primary');
 		}
-		button.textContent = option.text;
+
+		const label = document.createElement('span');
+		label.className = 'choice-button-label';
+		label.textContent = option.text;
+		button.appendChild(label);
+
+		if (option.description) {
+			const descriptionEl = document.createElement('span');
+			descriptionEl.className = 'choice-button-description';
+			descriptionEl.textContent = option.description;
+			button.appendChild(descriptionEl);
+		}
+
 		button.addEventListener('click', () => {
 			if (autoHideOnClick) {
 				hideModal();
@@ -64,7 +76,7 @@ function hideModal(): void {
 	const modal = getElement('game-modal');
 	const card = modal.querySelector('.modal-card') as HTMLElement;
 	modal.classList.add('hidden');
-	card.classList.remove('decision-style', 'narrative-style', 'activity-style');
+	card.classList.remove('decision-style', 'narrative-style', 'activity-style', 'goal-style');
 }
 
 //============================================
@@ -101,6 +113,8 @@ export function waitForInteraction(
 		styleClass = 'narrative-style';
 	} else if (style === 'activity') {
 		styleClass = 'activity-style';
+	} else if (style === 'goal') {
+		styleClass = 'goal-style';
 	}
 	showModal(title, description ?? '', options, styleClass, true);
 }

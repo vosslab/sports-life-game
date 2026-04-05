@@ -2,6 +2,7 @@
 
 import { TeamPalette } from './theme.js';
 import { AvatarConfig, randomAvatarConfig } from './avatar.js';
+import { RecruitingProfile } from './recruiting_profile.js';
 
 //============================================
 // Core visible stats (0-100 scale)
@@ -39,6 +40,10 @@ export type Position = 'QB' | 'RB' | 'WR' | 'TE' | 'OL' | 'DL' | 'LB' | 'CB' | '
 //============================================
 // Career phases
 export type CareerPhase = 'childhood' | 'youth' | 'high_school' | 'college' | 'nfl' | 'legacy';
+
+//============================================
+// Season goals (replaces per-week focus choices)
+export type SeasonGoal = 'grind' | 'healthy' | 'popular' | 'academic';
 
 //============================================
 // Depth chart status
@@ -218,6 +223,9 @@ export interface Player {
 	gpa: number;             // 0.0-4.0 scale
 	relationships: Record<string, number>; // name -> 0-100 score
 
+	// Season goal (persistent across weeks, replaces per-week focus)
+	seasonGoal: SeasonGoal;
+
 	// Story and progression
 	storyFlags: StoryFlags;
 	storyLog: string[];      // recent story entries
@@ -227,6 +235,7 @@ export interface Player {
 	// Recruiting (HS/college)
 	recruitingStars: number; // 0-5
 	collegeOffers: string[];
+	recruitingProfile: RecruitingProfile | null;
 	draftStock: number;      // 0-100
 
 	// Career year tracking (persisted for save/load)
@@ -259,6 +268,14 @@ export interface Player {
 
 	// Milestones: tracks which milestone events have fired
 	milestones: Record<string, boolean>;
+
+	// Childhood event tracking (prevents repeats and tonal duplicates)
+	seenEventIds: Record<string, boolean>;
+	seenEventFamilies: Record<string, boolean>;
+	eventTagCounts: Record<string, number>;
+
+	// Incremental progress toward personality flags (promoted to storyFlags at threshold)
+	flagProgress: Record<string, number>;
 }
 
 //============================================
@@ -339,6 +356,7 @@ export function createPlayer(firstName: string, lastName: string): Player {
 		bigDecisions: [],
 
 		gpa: 2.5,
+		seasonGoal: 'grind',
 		relationships: {
 			'Mom': randomInRange(60, 90),
 			'Dad': randomInRange(50, 85),
@@ -347,6 +365,7 @@ export function createPlayer(firstName: string, lastName: string): Player {
 
 		recruitingStars: 0,
 		collegeOffers: [],
+		recruitingProfile: null,
 		draftStock: 0,
 
 		collegeYear: 0,
@@ -379,6 +398,12 @@ export function createPlayer(firstName: string, lastName: string): Player {
 
 		// Initialize milestone tracking
 		milestones: {},
+
+		// Initialize childhood event tracking
+		seenEventIds: {},
+		seenEventFamilies: {},
+		eventTagCounts: {},
+		flagProgress: {},
 	};
 
 	return player;

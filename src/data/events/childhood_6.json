@@ -1,0 +1,98 @@
+[
+	{
+		"id": "mid_recess_conditioning",
+		"title": "Recess Conditioning",
+		"description": "You ran laps during recess 'for conditioning.' Other kids are concerned.",
+		"phase": "childhood",
+		"tags": ["physical", "discipline"],
+		"event_category": "core",
+		"weight": 9,
+		"is_big_decision": false,
+		"conditions": { "min_age": 6, "max_age": 6 },
+		"choices": [
+			{
+				"text": "Keep running. This is the work.",
+				"effects": { "athleticism": 2, "discipline": 2 },
+				"flavor": "The teacher asked if you were being punished. You said no. She did not believe you.",
+				"progress_flag": "selfStarter"
+			},
+			{
+				"text": "Recruit others to run with you",
+				"effects": { "leadership": 2, "athleticism": 1 },
+				"flavor": "Three kids join. Two quit after one lap. The third keeps up. Accountability partner found."
+			}
+		]
+	},
+	{
+		"id": "mid_practice_unprompted",
+		"title": "Self-Directed Practice",
+		"description": "Nobody told you to practice. You went outside and threw a ball against the wall for an hour.",
+		"phase": "childhood",
+		"tags": ["physical", "discipline"],
+		"event_category": "core",
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": { "min_age": 6, "max_age": 6 },
+		"choices": [
+			{
+				"text": "Keep going until it gets dark",
+				"effects": { "discipline": 2, "athleticism": 1, "durability": 1 },
+				"flavor": "Thud. Thud. Thud. The rhythm is meditative. Your arm is sore. You do not stop.",
+				"progress_flag": "selfStarter"
+			},
+			{
+				"text": "Switch to a different drill after a while",
+				"effects": { "athleticism": 2, "discipline": 1 },
+				"flavor": "Throwing, then catching, then sprints. A full workout at age 6. Coaches would be impressed."
+			}
+		]
+	},
+	{
+		"id": "mid_cheat_or_fair",
+		"title": "The Shortcut",
+		"description": "During a race at field day, you notice you could cut a corner and nobody would see.",
+		"phase": "childhood",
+		"tags": ["competition", "discipline"],
+		"event_category": "big_decision",
+		"weight": 7,
+		"is_big_decision": true,
+		"conditions": { "min_age": 6, "max_age": 6 },
+		"choices": [
+			{
+				"text": "Run the full course. Win it clean.",
+				"effects": { "discipline": 3, "confidence": 1 },
+				"flavor": "You finish second. But you know the truth. And that matters more than a ribbon."
+			},
+			{
+				"text": "Cut the corner. Nobody saw.",
+				"effects": { "confidence": 2, "discipline": -2 },
+				"flavor": "You won. But something feels off. You cannot explain it yet."
+			}
+		]
+	},
+	{
+		"id": "mid_structured_drills",
+		"title": "First Structured Drills",
+		"description": "An older kid at the park is showing everyone how to do proper football drills.",
+		"phase": "childhood",
+		"tags": ["physical", "discipline"],
+		"event_category": "core",
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": { "min_age": 6, "max_age": 6 },
+		"choices": [
+			{
+				"text": "Follow every instruction carefully",
+				"effects": { "discipline": 2, "athleticism": 1 },
+				"flavor": "You line up, set your feet, and run the route. The older kid says 'not bad.'",
+				"progress_flag": "quietWorker"
+			},
+			{
+				"text": "Try to show off and go beyond the drill",
+				"effects": { "confidence": 2, "athleticism": 1 },
+				"flavor": "You add a spin move nobody asked for. It does not work. But the ambition is noted.",
+				"progress_flag": "showoff"
+			}
+		]
+	}
+]

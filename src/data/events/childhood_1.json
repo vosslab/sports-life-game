@@ -1,0 +1,94 @@
+[
+	{
+		"id": "age1_nap_resistance",
+		"title": "Nap Resistance Training",
+		"description": "Baby refuses nap. Practices aggressive crawling drills across the living room.",
+		"phase": "childhood",
+		"tags": ["toddler", "motor"],
+		"event_category": "core",
+		"weight": 10,
+		"is_big_decision": false,
+		"conditions": { "min_age": 1, "max_age": 1 },
+		"choices": [
+			{
+				"text": "Crawl toward anything spherical",
+				"effects": { "athleticism": 1 },
+				"flavor": "Ball. Must reach ball. Blocks, stuffed animals, and books ignored. Only ball matters."
+			},
+			{
+				"text": "Pull up on furniture and cruise around",
+				"effects": { "confidence": 1 },
+				"flavor": "The coffee table is now a highway. Nothing in this house is safe."
+			}
+		]
+	},
+	{
+		"id": "age1_high_chair_physics",
+		"title": "High Chair Physics Lab",
+		"description": "You throw food off the high chair repeatedly and study the bounce with scientific focus.",
+		"phase": "childhood",
+		"tags": ["toddler", "motor"],
+		"event_category": "core",
+		"weight": 10,
+		"is_big_decision": false,
+		"conditions": { "min_age": 1, "max_age": 1 },
+		"choices": [
+			{
+				"text": "Throw harder. Need more data.",
+				"effects": { "athleticism": 1 },
+				"flavor": "Peas travel six feet. Mashed potatoes stick to the wall. Research continues."
+			},
+			{
+				"text": "Laugh after each throw and do it again",
+				"effects": { "health": 1 },
+				"flavor": "The joy is in the repetition. Also in making Mom's eye twitch."
+			}
+		]
+	},
+	{
+		"id": "age1_fall_recovery",
+		"title": "Gravity Test",
+		"description": "You fall down. Again. But you laugh and immediately try to stand back up.",
+		"phase": "childhood",
+		"tags": ["toddler", "resilience"],
+		"event_category": "core",
+		"weight": 9,
+		"is_big_decision": false,
+		"conditions": { "min_age": 1, "max_age": 1 },
+		"choices": [
+			{
+				"text": "Get right back up. No crying.",
+				"effects": { "durability": 1, "confidence": 1 },
+				"flavor": "Floor is temporary. Standing is the mission."
+			},
+			{
+				"text": "Cry briefly, then get distracted and try again",
+				"effects": { "health": 1 },
+				"flavor": "Two seconds of tears, then a butterfly. Then back to walking. Emotional range."
+			}
+		]
+	},
+	{
+		"id": "age1_sibling_toy_grab",
+		"title": "Territory Dispute",
+		"description": "Older sibling has a toy. You want it. Negotiation is not in your vocabulary yet.",
+		"phase": "childhood",
+		"tags": ["toddler", "social"],
+		"event_category": "social",
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": { "min_age": 1, "max_age": 1 },
+		"choices": [
+			{
+				"text": "Grab it and hold on with surprising grip strength",
+				"effects": { "athleticism": 1, "confidence": 1 },
+				"flavor": "Tiny hands, iron will. The toy is yours now. Possession is the law."
+			},
+			{
+				"text": "Scream until an adult intervenes",
+				"effects": { "health": 1 },
+				"flavor": "The scream works. It always works. Lungs are developing nicely."
+			}
+		]
+	}
+]

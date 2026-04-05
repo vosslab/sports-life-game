@@ -1,0 +1,161 @@
+[
+	{
+		"id": "mid_candy_land",
+		"title": "Board Game Incident",
+		"description": "You flipped the board after losing Candy Land. Investigation ongoing.",
+		"phase": "childhood",
+		"tags": ["social", "competition"],
+		"family": "tantrum",
+		"event_category": "social",
+		"weight": 10,
+		"is_big_decision": false,
+		"conditions": { "min_age": 4, "max_age": 4 },
+		"choices": [
+			{
+				"text": "Demand a rematch. Best of three.",
+				"effects": { "confidence": 2, "discipline": -1 },
+				"flavor": "You lost two more. The board was flipped two more times. Pattern emerging.",
+				"progress_flag": "poorLoser"
+			},
+			{
+				"text": "Apologize and reset the board",
+				"effects": { "discipline": 2 },
+				"flavor": "Mom is proud. You still think the game was rigged, but you kept it together."
+			},
+			{
+				"text": "Announce you are done with board games forever",
+				"effects": { "confidence": 1 },
+				"flavor": "This boycott lasts approximately forty-five minutes."
+			}
+		]
+	},
+	{
+		"id": "mid_rules_negotiation",
+		"title": "Rules Lawyer",
+		"description": "You learned the rules of tag. You immediately found a loophole.",
+		"phase": "childhood",
+		"tags": ["social", "school"],
+		"event_category": "core",
+		"weight": 9,
+		"is_big_decision": false,
+		"conditions": { "min_age": 4, "max_age": 4 },
+		"choices": [
+			{
+				"text": "Exploit the loophole mercilessly",
+				"effects": { "confidence": 2, "discipline": -1 },
+				"flavor": "'Base' is wherever you are standing. Nobody agreed to this. You do not care."
+			},
+			{
+				"text": "Suggest a rule change to make it fairer",
+				"effects": { "discipline": 2, "leadership": 1 },
+				"flavor": "The other kids agree to your amendment. First legislative achievement."
+			}
+		]
+	},
+	{
+		"id": "mid_too_serious",
+		"title": "Taking It Too Seriously",
+		"description": "It is a casual game of kickball at recess. You are treating it like the Super Bowl.",
+		"phase": "childhood",
+		"tags": ["competition", "school"],
+		"event_category": "core",
+		"weight": 9,
+		"is_big_decision": false,
+		"conditions": { "min_age": 4, "max_age": 4 },
+		"choices": [
+			{
+				"text": "Play to win. Always.",
+				"effects": { "athleticism": 2, "confidence": 1 },
+				"flavor": "You kicked it over the fence. Home run. The game stopped because there is no ball now."
+			},
+			{
+				"text": "Dial it back and let everyone have fun",
+				"effects": { "discipline": 1, "leadership": 1 },
+				"flavor": "You still won, but people actually wanted to play with you again."
+			}
+		]
+	},
+	{
+		"id": "mid_scary_playground",
+		"title": "The Tall Climbing Wall",
+		"description": "The big kids' climbing wall at the park. It is taller than you thought.",
+		"phase": "childhood",
+		"tags": ["physical", "courage"],
+		"event_category": "core",
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": { "min_age": 4, "max_age": 5 },
+		"choices": [
+			{
+				"text": "Race to the top",
+				"effects": { "athleticism": 2, "confidence": 1, "durability": 1 },
+				"flavor": "Hands scraped. Knees skinned. Made it to the top. Worth every scratch.",
+				"progress_flag": "fearless"
+			},
+			{
+				"text": "Climb carefully, one handhold at a time",
+				"effects": { "discipline": 2, "athleticism": 1 },
+				"flavor": "Slow and steady. You made it. Less dramatic, equally effective."
+			},
+			{
+				"text": "Watch from the ground",
+				"effects": { "discipline": 1 },
+				"flavor": "Not today. You decide the swings are fine. Nothing wrong with knowing your limits."
+			}
+		]
+	},
+	{
+		"id": "mid_birthday_sports",
+		"title": "Birthday Party Plan",
+		"description": "It is your birthday. Your parents ask what kind of party you want.",
+		"phase": "childhood",
+		"tags": ["social", "life"],
+		"event_category": "core",
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": { "min_age": 4, "max_age": 6 },
+		"choices": [
+			{
+				"text": "Sports party at the park",
+				"effects": { "athleticism": 2, "confidence": 1 },
+				"flavor": "Football, relay races, capture the flag. Your friends are exhausted but smiling."
+			},
+			{
+				"text": "Big party with the whole class",
+				"effects": { "confidence": 2 },
+				"flavor": "Everyone shows up. Cake, games, presents. You are the center of attention.",
+				"progress_flag": "showoff"
+			},
+			{
+				"text": "Small party with close friends",
+				"effects": { "discipline": 1, "confidence": 1 },
+				"flavor": "Just your best friends. Quality over quantity."
+			}
+		]
+	},
+	{
+		"id": "mid_wrestling_cousin",
+		"title": "Wrestling in the Yard",
+		"description": "Older cousin challenges you to wrestle in the grass. He is bigger but you are quick.",
+		"phase": "childhood",
+		"tags": ["physical", "family"],
+		"event_category": "core",
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": { "min_age": 4, "max_age": 6 },
+		"choices": [
+			{
+				"text": "Use speed and dodge around",
+				"effects": { "athleticism": 2 },
+				"flavor": "You are too fast to pin down. Your cousin cannot believe it.",
+				"progress_flag": "roughAndTumble"
+			},
+			{
+				"text": "Try to power through",
+				"effects": { "confidence": 2, "durability": 1, "health": -1 },
+				"flavor": "You get tossed around but refuse to quit. Toughness matters.",
+				"progress_flag": "roughAndTumble"
+			}
+		]
+	}
+]

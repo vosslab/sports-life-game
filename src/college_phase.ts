@@ -14,7 +14,7 @@ import {
 } from './week_sim.js';
 import {
 	GameContext, resetWeekState, getWeekState,
-	showWeeklyFocusUI, handleWeeklyFocus, proceedToEventCheck,
+	showWeeklyFocusUI, handleWeeklyFocus, applyGoalAndProceed, proceedToEventCheck,
 	simulateWeekSilently, showYearRecap,
 } from './game_loop.js';
 import type { YearSimRecap } from './game_loop.js';
@@ -346,29 +346,9 @@ function startCollegeWeek(): void {
 		ctx.addText(`This week: vs ${opp.opponentName}`);
 	}
 
-	// Weekly focus choice
-	ctx.addText('What do you want to focus on this week?');
-	showWeeklyFocusUI('college', (focus: WeeklyFocus) => {
-		handleCollegeWeeklyFocus(focus);
-	});
-}
-
-//============================================
-// Handle college weekly focus with NIL deal check
-function handleCollegeWeeklyFocus(focus: WeeklyFocus): void {
-	if (!ctx) {
-		return;
-	}
-	const player = ctx.getPlayer();
-
-	if (!player) {
-		return;
-	}
-
-	// Pass the NIL deal check as extraLogic to handleWeeklyFocus
-	handleWeeklyFocus(
+	// Apply season goal and proceed (no weekly focus popup)
+	applyGoalAndProceed(
 		'college',
-		focus,
 		proceedToCollegeGame,
 		() => {
 			if (player.depthChart !== 'starter') {
@@ -382,8 +362,8 @@ function handleCollegeWeeklyFocus(focus: WeeklyFocus): void {
 				ctx!.save();
 			}
 
-			// Check for NIL deal on social focus
-			if (focus === 'social' && player.collegeYear >= 2) {
+			// Check for NIL deal when goal is 'popular' (brand building)
+			if (player.seasonGoal === 'popular' && player.collegeYear >= 2) {
 				const nilDeal = generateNILDeal(player);
 				if (nilDeal) {
 					ctx!.addText(nilDeal.storyText);

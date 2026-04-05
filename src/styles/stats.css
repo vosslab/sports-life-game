@@ -94,6 +94,13 @@
 	flex-shrink: 0;
 }
 
+/* GPA row: wider value field for standing text */
+.gpa-row .stat-value {
+	width: auto;
+	min-width: 28px;
+	font-size: 0.75em;
+}
+
 /* Sidebar stat bars (compact version) */
 #sidebar-stats .stat-row {
 	margin: 4px 0;

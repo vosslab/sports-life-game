@@ -1,0 +1,96 @@
+[
+	{
+		"id": "age2_dog_race",
+		"title": "Versus the Family Dog",
+		"description": "You challenged the family dog to a race across the living room. Loss disputed. Rematch demanded.",
+		"phase": "childhood",
+		"tags": ["toddler", "competition"],
+		"event_category": "core",
+		"weight": 10,
+		"is_big_decision": false,
+		"conditions": { "min_age": 2, "max_age": 2 },
+		"choices": [
+			{
+				"text": "Demand a rematch immediately",
+				"effects": { "confidence": 2 },
+				"flavor": "The dog won. You refuse to accept the results. The race was unfair. Four legs is cheating."
+			},
+			{
+				"text": "Chase the dog around the yard instead",
+				"effects": { "athleticism": 2 },
+				"flavor": "The race becomes a pursuit. The dog thinks it is a game. You think it is training."
+			}
+		]
+	},
+	{
+		"id": "age2_throwing_contest",
+		"title": "Throwing Contest",
+		"description": "You turn everything into a throwing contest. Balls, toys, shoes, the remote.",
+		"phase": "childhood",
+		"tags": ["toddler", "motor"],
+		"event_category": "core",
+		"weight": 9,
+		"is_big_decision": false,
+		"conditions": { "min_age": 2, "max_age": 2 },
+		"choices": [
+			{
+				"text": "Throw as far as possible. Distance matters.",
+				"effects": { "athleticism": 2 },
+				"flavor": "The remote clears the couch. New personal record. Dad is not impressed."
+			},
+			{
+				"text": "Aim for targets. Accuracy matters.",
+				"effects": { "athleticism": 1, "confidence": 1 },
+				"flavor": "The laundry basket is the goal. You hit it one out of ten times. Progress."
+			}
+		]
+	},
+	{
+		"id": "age2_sore_loser",
+		"title": "Made-Up Game Meltdown",
+		"description": "You invented a game with your own rules. You still lost. This is unacceptable.",
+		"phase": "childhood",
+		"tags": ["toddler", "emotion"],
+		"family": "tantrum",
+		"event_category": "core",
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": { "min_age": 2, "max_age": 2 },
+		"choices": [
+			{
+				"text": "Change the rules so you win retroactively",
+				"effects": { "confidence": 2, "discipline": -1 },
+				"flavor": "Actually the floor is lava now and you were the only one not touching it. You win."
+			},
+			{
+				"text": "Knock everything over and storm off",
+				"effects": { "confidence": 1, "durability": 1 },
+				"flavor": "Full tantrum. Blocks everywhere. But you come back in three minutes ready to play again.",
+				"progress_flag": "poorLoser"
+			}
+		]
+	},
+	{
+		"id": "age2_mine_phase",
+		"title": "The 'Mine' Phase",
+		"description": "You say 'mine' to objects that are clearly not yours. The park bench. Another kid's snack. A bird.",
+		"phase": "childhood",
+		"tags": ["toddler", "social"],
+		"event_category": "social",
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": { "min_age": 2, "max_age": 2 },
+		"choices": [
+			{
+				"text": "Claim everything. Expand the empire.",
+				"effects": { "confidence": 2 },
+				"flavor": "The sandbox is yours. The slide is yours. Territorial instincts strong."
+			},
+			{
+				"text": "Share when asked nicely",
+				"effects": { "discipline": 1, "confidence": 1 },
+				"flavor": "You give back the shovel. Reluctantly. Growth is slow."
+			}
+		]
+	}
+]

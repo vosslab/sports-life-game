@@ -11,6 +11,7 @@ import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.j
 import { applyAgeDrift, coachAssignPosition } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { filterEvents, selectEvent, applyEventChoice, GameEvent } from '../events.js';
+import { promoteFlags } from './kid_years.js';
 
 //============================================
 export const peeweeHandler: YearHandler = {
@@ -52,8 +53,8 @@ export const peeweeHandler: YearHandler = {
 		};
 
 		const eligible = filterEvents(
-			ctx.events, 'youth', 0, player.position,
-			player.storyFlags, statsRecord,
+			ctx.events, 'childhood', 0, player.position,
+			player.storyFlags, statsRecord, undefined, player.age,
 		);
 
 		const event = selectEvent(eligible);
@@ -94,6 +95,7 @@ function presentEventThenContinue(
 			ctx.addResult(flavor);
 			ctx.updateStats(player);
 			ctx.save();
+			promoteFlags(player);
 			showContinue(player, ctx);
 		},
 	}));

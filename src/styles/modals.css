@@ -131,7 +131,7 @@
 .activity-style h2 {
 	font-size: 1.15em;
 	margin-bottom: 8px;
-	color: #5ec4b6;
+	color: var(--accent-gold);
 	font-weight: 800;
 }
 
@@ -148,9 +148,50 @@
 .activity-style #modal-options .choice-button {
 	padding: 14px 16px;
 	font-size: 1em;
-	border-color: #3a8a7e;
+	border-color: var(--activity-color);
 }
 
 .activity-style #modal-options .choice-button:hover {
-	background: rgba(94, 196, 182, 0.15);
+	background: color-mix(in srgb, var(--activity-color) 18%, transparent);
+}
+
+/*============================================*/
+/* Goal style: amber accent, centered (season goal selection) */
+/*============================================*/
+
+.goal-style {
+	min-width: 280px;
+	text-align: center;
+}
+
+.goal-style h2 {
+	font-size: 1.15em;
+	margin-bottom: 8px;
+	color: var(--goal-color);
+	font-weight: 800;
+}
+
+.goal-style p {
+	font-size: 0.9em;
+	color: var(--text-secondary);
+	margin-bottom: 12px;
+}
+
+.goal-style p:empty {
+	display: none;
+}
+
+.goal-style #modal-options .choice-button {
+	padding: 14px 16px;
+	font-size: 1em;
+	border: 1px solid var(--goal-color);
+}
+
+.goal-style #modal-options .choice-button:hover {
+	background: color-mix(in srgb, var(--goal-color) 18%, transparent);
+}
+
+.goal-style #modal-options .choice-button.primary {
+	background: color-mix(in srgb, var(--goal-color) 25%, var(--bg-card));
+	border-color: var(--goal-color);
 }

@@ -1,18 +1,18 @@
 // week_sim.ts - weekly simulation engine for game loops and events
 
 import {
-	Player, CoreStats, Position, PositionBucket, PerformanceRating, DepthChartStatus,
-	clampStat, randomInRange, getPositionBucket, modifyStat,
+	Player, CoreStats, CareerPhase, Position, PositionBucket, PerformanceRating, DepthChartStatus,
+	SeasonGoal, clampStat, randomInRange, getPositionBucket, modifyStat, modifyGpa,
 } from './player.js';
 import { Team } from './team.js';
 
 //============================================
-// Weekly focus system
+// Legacy type alias kept for any remaining references during migration
 export type WeeklyFocus = 'train' | 'film_study' | 'recovery' | 'social' | 'teamwork';
 
 //============================================
-// Flavor text pools for weekly focus (randomly selected each week)
-const TRAIN_FLAVOR: string[] = [
+// Flavor text pools for season goals (randomly selected each week)
+const GRIND_FLAVOR: string[] = [
 	'Your extra reps are paying off. Coaches are starting to trust you more.',
 	'You stayed late running drills until the lights shut off.',
 	'Coach pulled you aside after practice and said he noticed your improvement.',
@@ -23,18 +23,7 @@ const TRAIN_FLAVOR: string[] = [
 	'A tough session, but you walked off the field feeling sharper.',
 ];
 
-const FILM_STUDY_FLAVOR: string[] = [
-	'Studying film all week, you noticed patterns in the opponent offense.',
-	'You found a tendency in the film that nobody else caught.',
-	'Hours of film review are paying off. You see the game in slow motion now.',
-	'Coach quizzed you on formations and you nailed every one.',
-	'The playbook is starting to feel like a second language.',
-	'You spotted a blitz package on film that could give the team an edge.',
-	'Late nights in the film room. Your eyes are tired but your mind is sharp.',
-	'You drew up adjustments from film that impressed the coaching staff.',
-];
-
-const RECOVERY_FLAVOR: string[] = [
+const HEALTHY_FLAVOR: string[] = [
 	'A full week of rest and ice baths. Your body feels like new.',
 	'You took it easy and let your body recover. Smart move.',
 	'Sleep, stretching, and cold tubs. You feel recharged.',
@@ -45,32 +34,44 @@ const RECOVERY_FLAVOR: string[] = [
 	'Sometimes the best training is no training. You feel great.',
 ];
 
-const SOCIAL_FLAVOR: string[] = [
+const POPULAR_FLAVOR: string[] = [
 	'You hung out with teammates all week. Your bond is stronger.',
 	'Team dinner, group chat, and weekend plans. You are one of the crew now.',
 	'You made some new friends outside of football. Life feels balanced.',
 	'A fun week off the field. Your confidence got a nice boost.',
 	'You went to a party and everyone knew your name. Feels good.',
 	'Teammates invited you to everything this week. You belong here.',
-	'You skipped a few study sessions, but the vibes were worth it.',
 	'Social media blew up after your highlight got shared around school.',
+	'By focusing on team chemistry, your voice carries more weight in the locker room.',
 ];
 
-const TEAMWORK_FLAVOR: string[] = [
-	'By focusing on team chemistry, your voice carries more weight in the locker room.',
-	'You helped a younger player with their technique after practice.',
-	'The team ran extra drills together. Everyone is on the same page.',
-	'You organized a team workout. Coaches noticed the leadership.',
-	'A teammate was struggling and you pulled them aside to talk. It helped.',
-	'You led stretches and kept the energy positive all week.',
-	'The locker room feels tighter. That is your influence.',
-	'Teammates are starting to look to you when things get tough.',
+const ACADEMIC_FLAVOR: string[] = [
+	'You aced the history test. Coach likes players who handle their business.',
+	'Hours in the library are paying off. Your GPA is climbing.',
+	'You stayed disciplined and finished every assignment on time.',
+	'The academic advisor said you are one of the best student-athletes.',
+	'Film study and textbook study. Your brain is getting a workout.',
+	'Studying film all week, you noticed patterns nobody else caught.',
+	'Coach quizzed you on formations and you nailed every one.',
+	'The playbook is starting to feel like a second language.',
 ];
 
 //============================================
 // Pick a random string from a flavor pool
 function pickFlavor(pool: string[]): string {
 	return pool[randomInRange(0, pool.length - 1)];
+}
+
+//============================================
+function rollOvertimePoints(): number {
+	const roll = randomInRange(1, 100);
+	if (roll <= 55) {
+		return 3;
+	}
+	if (roll <= 95) {
+		return 7;
+	}
+	return 6;
 }
 
 //============================================
@@ -102,63 +103,62 @@ export interface PracticeResult {
 }
 
 //============================================
-// Apply weekly focus to player stats.
-// Each focus has a real trade-off: gaining one thing costs another.
+// Apply season goal effects to player stats each week.
+// Each goal has a real trade-off: gaining one thing costs another.
 // Health decays every week from the grind of football (wear and tear).
-export function applyWeeklyFocus(player: Player, focus: WeeklyFocus): string {
+export function applySeasonGoal(player: Player): string {
+	const goal = player.seasonGoal;
 	let storyText = '';
 
 	// Weekly wear and tear: minor health cost from the grind
 	const wearAndTear = randomInRange(0, 2);
 	modifyStat(player, 'health', -wearAndTear);
 
-	switch (focus) {
-		case 'train': {
-			// Train hard: technique gain, slight health cost
-			const trainGain = randomInRange(3, 6);
-			modifyStat(player, 'technique', trainGain);
+	switch (goal) {
+		case 'grind': {
+			// Grind mode: technique + athleticism up, health down, discipline up
+			modifyStat(player, 'technique', randomInRange(3, 6));
+			modifyStat(player, 'athleticism', randomInRange(1, 3));
 			modifyStat(player, 'health', -randomInRange(0, 1));
-			modifyStat(player, 'confidence', randomInRange(0, 1));
-			storyText = pickFlavor(TRAIN_FLAVOR);
+			modifyStat(player, 'discipline', randomInRange(0, 2));
+			// Slight GPA decay from neglecting class
+			modifyGpa(player, -randomInRange(0, 5) / 100);
+			storyText = pickFlavor(GRIND_FLAVOR);
 			break;
 		}
 
-		case 'film_study': {
-			// Study film: good IQ gain, slight technique from understanding
-			const filmGain = randomInRange(3, 5);
-			modifyStat(player, 'footballIq', filmGain);
+		case 'healthy': {
+			// Stay healthy: big HP recovery, moderate stat maintenance
+			modifyStat(player, 'health', randomInRange(5, 8));
 			modifyStat(player, 'technique', randomInRange(0, 1));
-			modifyStat(player, 'discipline', randomInRange(0, 1));
-			storyText = pickFlavor(FILM_STUDY_FLAVOR);
-			break;
-		}
-
-		case 'recovery': {
-			// Recovery: big health recovery, undoes the wear and tear and then some
-			const recoveryGain = randomInRange(5, 8);
-			modifyStat(player, 'health', recoveryGain);
 			modifyStat(player, 'confidence', randomInRange(0, 1));
-			storyText = pickFlavor(RECOVERY_FLAVOR);
+			// Neutral GPA effect
+			modifyGpa(player, randomInRange(-2, 2) / 100);
+			storyText = pickFlavor(HEALTHY_FLAVOR);
 			break;
 		}
 
-		case 'social': {
-			// Social: popularity and confidence, but discipline drops
+		case 'popular': {
+			// Be popular / build brand: popularity and confidence up, discipline down
 			const socialGain = randomInRange(3, 5);
 			player.career.popularity = clampStat(player.career.popularity + socialGain);
 			modifyStat(player, 'confidence', randomInRange(2, 4));
 			modifyStat(player, 'discipline', -randomInRange(1, 3));
-			storyText = pickFlavor(SOCIAL_FLAVOR);
+			player.hidden.leadership = clampStat(player.hidden.leadership + randomInRange(1, 3));
+			// Slight GPA decay from partying
+			modifyGpa(player, -randomInRange(0, 5) / 100);
+			storyText = pickFlavor(POPULAR_FLAVOR);
 			break;
 		}
 
-		case 'teamwork': {
-			// Teamwork: leadership and discipline, slight confidence
-			const leadershipGain = randomInRange(3, 5);
-			player.hidden.leadership = clampStat(player.hidden.leadership + leadershipGain);
-			modifyStat(player, 'discipline', randomInRange(1, 2));
-			modifyStat(player, 'confidence', randomInRange(1, 2));
-			storyText = pickFlavor(TEAMWORK_FLAVOR);
+		case 'academic': {
+			// Hit the books: GPA up, IQ up, discipline up, less athletic growth
+			modifyStat(player, 'footballIq', randomInRange(3, 5));
+			modifyStat(player, 'discipline', randomInRange(1, 3));
+			modifyStat(player, 'technique', randomInRange(0, 1));
+			// Strong GPA improvement
+			modifyGpa(player, randomInRange(10, 20) / 100);
+			storyText = pickFlavor(ACADEMIC_FLAVOR);
 			break;
 		}
 	}
@@ -181,6 +181,86 @@ export function applyWeeklyFocus(player: Player, focus: WeeklyFocus): string {
 	}
 
 	return storyText;
+}
+
+//============================================
+// Legacy wrapper: old phase handlers still pass a WeeklyFocus, but we apply the
+// player's season goal instead. The focus arg is ignored.
+export function applyWeeklyFocus(player: Player, _focus: WeeklyFocus): string {
+	return applySeasonGoal(player);
+}
+
+//============================================
+// Goal display info for UI
+export interface GoalInfo {
+	key: SeasonGoal;
+	name: string;
+	description: string;
+	effectHint: string;
+}
+
+//============================================
+// Get available goals for a career phase
+export function getGoalsForPhase(phase: CareerPhase): GoalInfo[] {
+	const goals: GoalInfo[] = [
+		{
+			key: 'grind',
+			name: 'Grind Mode',
+			description: phase === 'college'
+				? 'Earn the starting job. Train hard every week.'
+				: phase === 'nfl'
+					? 'Peak performance. Push your body to the limit.'
+					: 'Train harder than everyone else.',
+			effectHint: 'TEC/ATH up, HP down',
+		},
+		{
+			key: 'healthy',
+			name: 'Stay Healthy',
+			description: phase === 'nfl'
+				? 'Longevity focus. Protect your body for the long haul.'
+				: 'Recovery and balance. Stay on the field.',
+			effectHint: 'HP up, moderate stats',
+		},
+		{
+			key: 'popular',
+			name: phase === 'high_school' ? 'Be Popular' : 'Build the Brand',
+			description: phase === 'nfl'
+				? 'Endorsements, media, and fan engagement.'
+				: phase === 'college'
+					? 'NIL deals, social life, and building your name.'
+					: 'Social life and confidence. Be the big name on campus.',
+			effectHint: 'POP/CON up, DIS down',
+		},
+	];
+
+	// Academic goal only available in HS and college
+	if (phase === 'high_school' || phase === 'college') {
+		goals.push({
+			key: 'academic',
+			name: 'Hit the Books',
+			description: phase === 'college'
+				? 'Keep your eligibility. GPA and football IQ improve.'
+				: 'Focus on academics. GPA and discipline improve.',
+			effectHint: 'GPA/IQ/DIS up, less athletic growth',
+		});
+	}
+
+	return goals;
+}
+
+//============================================
+// Map season goal to preferred background activity IDs
+export function getPreferredActivitiesForGoal(goal: SeasonGoal): string[] {
+	switch (goal) {
+		case 'grind':
+			return ['hs_extra_practice', 'hs_weight_room', 'col_position_drills', 'nfl_advanced_training'];
+		case 'healthy':
+			return ['hs_rest_recover', 'col_recovery', 'nfl_recovery'];
+		case 'popular':
+			return ['hs_hang_with_friends', 'col_team_bonding', 'col_nil_meeting', 'nfl_media', 'nfl_endorsement'];
+		case 'academic':
+			return ['hs_study_hall', 'col_film_study', 'nfl_film_breakdown'];
+	}
 }
 
 //============================================
@@ -535,18 +615,24 @@ export function simulateGame(
 	const winProbability = 1 / (1 + Math.exp(-0.07 * teamDifferential));
 
 	let result: 'win' | 'loss';
-	const regulationTieScore = teamScore;
+	const regulationTeamScore = teamScore;
+	const regulationOpponentScore = opponentScore;
+	const regulationTieScore = teamScore === opponentScore ? teamScore : undefined;
 	if (teamScore === opponentScore) {
 		// Tie: simulate overtime with less-biased win probability
 		// Formula: 0.7 * original prob + 0.15 gives range 0.15-0.85, centered at 0.5
 		const otWinProbability = winProbability * 0.7 + 0.15;
 		result = Math.random() < otWinProbability ? 'win' : 'loss';
-		const overtimePoints = randomInRange(3, 8);
+			const overtimePoints = rollOvertimePoints();
 		if (result === 'win') {
 			teamScore += overtimePoints;
 		} else {
 			opponentScore += overtimePoints;
 		}
+
+		// Overtime should only add points, never reduce either team's regulation score.
+		teamScore = Math.max(teamScore, regulationTeamScore);
+		opponentScore = Math.max(opponentScore, regulationOpponentScore);
 	} else {
 		result = teamScore > opponentScore ? 'win' : 'loss';
 	}
@@ -938,21 +1024,21 @@ export function evaluateDepthChartUpdate(
 	if (player.depthChart === 'backup') {
 		let promotionChance = 0;
 		if (playerGrade === 'A') {
-			promotionChance = 50;
+			promotionChance = 35;
 		} else if (playerGrade === 'B') {
-			promotionChance = 30;
+			promotionChance = 18;
 		} else if (playerGrade === 'C') {
-			promotionChance = 10;
+			promotionChance = 4;
 		}
 
-		if (player.core.technique >= 50) {
-			promotionChance += 10;
-		}
-		if (player.core.footballIq >= 50) {
+		if (player.core.technique >= 60) {
 			promotionChance += 8;
 		}
-		if (player.core.confidence >= 50) {
-			promotionChance += 5;
+		if (player.core.footballIq >= 60) {
+			promotionChance += 6;
+		}
+		if (player.core.confidence >= 60) {
+			promotionChance += 4;
 		}
 
 		if (promotionChance > 0 && randomInRange(1, 100) <= promotionChance) {
@@ -969,24 +1055,22 @@ export function evaluateDepthChartUpdate(
 	if (player.depthChart === 'bench') {
 		let promotionChance = 0;
 		if (playerGrade === 'A') {
-			promotionChance = 45;
+			promotionChance = 24;
 		} else if (playerGrade === 'B') {
-			promotionChance = 30;
+			promotionChance = 12;
 		} else if (playerGrade === 'C') {
-			promotionChance = 15;
-		} else if (playerGrade === 'D') {
-			promotionChance = 5;
+			promotionChance = 4;
 		}
 
 		// Stat bonuses help bench players earn a look
-		if (player.core.technique >= 45) {
-			promotionChance += 10;
-		}
-		if (player.core.footballIq >= 45) {
+		if (player.core.technique >= 55) {
 			promotionChance += 8;
 		}
-		if (player.core.discipline >= 40) {
-			promotionChance += 5;
+		if (player.core.footballIq >= 55) {
+			promotionChance += 6;
+		}
+		if (player.core.discipline >= 50) {
+			promotionChance += 4;
 		}
 
 		if (promotionChance > 0 && randomInRange(1, 100) <= promotionChance) {
@@ -1035,19 +1119,19 @@ export function runPracticeSession(player: Player): PracticeResult {
 	if (player.depthChart === 'backup' || player.depthChart === 'bench') {
 		let promotionChance = 0;
 		if (grade === 'A') {
-			promotionChance = player.depthChart === 'bench' ? 28 : 42;
+			promotionChance = player.depthChart === 'bench' ? 16 : 28;
 		} else if (grade === 'B') {
-			promotionChance = player.depthChart === 'bench' ? 10 : 18;
+			promotionChance = player.depthChart === 'bench' ? 6 : 12;
 		}
 
-		if (player.core.technique >= 55) {
-			promotionChance += 8;
-		}
-		if (player.core.footballIq >= 55) {
+		if (player.core.technique >= 65) {
 			promotionChance += 6;
 		}
-		if (player.core.discipline >= 50) {
-			promotionChance += 4;
+		if (player.core.footballIq >= 65) {
+			promotionChance += 5;
+		}
+		if (player.core.discipline >= 60) {
+			promotionChance += 3;
 		}
 
 		if (promotionChance > 0 && randomInRange(1, 100) <= promotionChance) {

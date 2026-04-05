@@ -10,6 +10,18 @@ import { SeasonGame } from './game_model.js';
 import { GameResult } from '../week_sim.js';
 
 //============================================
+function rollOvertimePoints(): number {
+	const roll = randomInRange(1, 100);
+	if (roll <= 55) {
+		return 3;
+	}
+	if (roll <= 95) {
+		return 7;
+	}
+	return 6;
+}
+
+//============================================
 // Simulate all non-player games for the current week.
 // Called after the player's game has been recorded.
 export function simulateNonPlayerGames(season: LeagueSeason): void {
@@ -55,7 +67,7 @@ function simulateGameBetweenTeams(season: LeagueSeason, game: SeasonGame): void 
 		// Simulate overtime
 		const strengthDiff = homeTeam.strength - awayTeam.strength;
 		const winProb = 0.5 + (strengthDiff / 200);
-		const overtimePoints = randomInRange(3, 7);
+			const overtimePoints = rollOvertimePoints();
 
 		if (Math.random() < winProb) {
 			season.recordGameResult(game.id, homeScore + overtimePoints, awayScore);

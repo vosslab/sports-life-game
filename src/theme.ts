@@ -440,11 +440,15 @@ export function applyPalette(palette: TeamPalette): void {
 	// Accent colors: extract hue and saturation from palette accent
 	root.setProperty('--accent-blue', palette.accent);
 
-	// Accent gold: lighter version of accent with same hue and saturation
+	// Use the palette text color for headline/high-contrast accents so the UI
+	// reads like school colors instead of falling back to the old gold/yellow theme.
+	root.setProperty('--accent-gold', palette.text);
+
+	// Accent highlight: lighter version of accent with same hue and saturation
 	const accentRgb = hexToRgb(palette.accent);
 	const accentHsl = rgbToHsl(accentRgb.r, accentRgb.g, accentRgb.b);
 	const accentLighter = hslToHex(accentHsl.h, accentHsl.s, 70);
-	root.setProperty('--accent-gold', accentLighter);
+	root.setProperty('--accent-yellow', accentLighter);
 
 	// Button colors
 	root.setProperty('--button-big', palette.accent);
@@ -455,7 +459,6 @@ export function applyPalette(palette: TeamPalette): void {
 
 	// Stat bar colors (keep defaults, team palette doesn't override these)
 	root.setProperty('--accent-green', '#4caf50');
-	root.setProperty('--accent-yellow', '#ffc107');
 	root.setProperty('--accent-red', '#f44336');
 
 	// Text colors

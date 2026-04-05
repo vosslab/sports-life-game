@@ -499,6 +499,7 @@ console.assert(
 		teamName: 'Alabama',
 		teamStrength: 95,
 		gpa: 3.0,
+		seasonGoal: 'grind',
 		relationships: { 'Coach': 75 },
 		storyFlags: {},
 		storyLog: [],
@@ -522,6 +523,11 @@ console.assert(
 		eligibilityYears: 4,
 		avatarConfig: null,
 		milestones: {},
+		recruitingProfile: null,
+		seenEventIds: {},
+		seenEventFamilies: {},
+		eventTagCounts: {},
+		flagProgress: {},
 	}) >= 50,
 	'Draft stock should be respectable for good player'
 );

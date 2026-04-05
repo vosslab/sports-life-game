@@ -10,7 +10,7 @@ import { Player, CareerPhase, randomInRange } from './player.js';
 import {
 	GameEvent, filterEvents, selectEvent, applyEventChoice,
 } from './events.js';
-import { WeeklyFocus, applyWeeklyFocus } from './week_sim.js';
+import { WeeklyFocus, applySeasonGoal, applyWeeklyFocus } from './week_sim.js';
 import {
 	Activity, WeekState, createWeekState, canDoActivity,
 	getActivitiesForPhase, isActivityUnlocked, applyActivity, getEffectPreview, formatActivityResult,
@@ -93,8 +93,9 @@ export function showWeeklyFocusUI(
 // HANDLE WEEKLY FOCUS (consolidated from 3 duplicates)
 //============================================
 
-// Apply weekly focus, then show activities prompt.
-// extraLogic runs after focus is applied (e.g., college NIL deal check).
+// Apply season goal effects, then show activities prompt.
+// extraLogic runs after goal is applied (e.g., college NIL deal check).
+// The focus parameter is ignored (kept for backward compat with callers).
 export function handleWeeklyFocus(
 	phase: CareerPhase,
 	focus: WeeklyFocus,
@@ -106,9 +107,9 @@ export function handleWeeklyFocus(
 	}
 	const player = ctx.getPlayer();
 
-	// Apply focus and show story text
-	const focusStory = applyWeeklyFocus(player, focus);
-	ctx.addText(focusStory);
+	// Apply season goal effects (focus arg is ignored)
+	const goalStory = applySeasonGoal(player);
+	ctx.addText(goalStory);
 	ui.updateAllStats(player);
 	ctx.save();
 
@@ -120,6 +121,16 @@ export function handleWeeklyFocus(
 	// Advance to activities prompt
 	currentWeekState.phase = 'activity_prompt';
 	showActivitiesPrompt(phase, onGameDay);
+}
+
+// Skip the focus popup and apply the season goal directly.
+// Callers use this instead of showWeeklyFocusUI + handleWeeklyFocus.
+export function applyGoalAndProceed(
+	phase: CareerPhase,
+	onGameDay: () => void,
+	extraLogic?: () => void,
+): void {
+	handleWeeklyFocus(phase, 'train', onGameDay, extraLogic);
 }
 
 //============================================
@@ -250,11 +261,11 @@ export function proceedToEventCheck(
 		};
 
 		// Try phase-specific events only (do not fall back to other phases)
-		let eligible = filterEvents(
-			allEvents, phase,
-			player.currentWeek, player.position,
-			player.storyFlags, statsRecord,
-		);
+			let eligible = filterEvents(
+				allEvents, phase,
+				player.currentWeek, player.position,
+				player.storyFlags, statsRecord, player.collegeYear,
+			);
 
 		const event = selectEvent(eligible);
 		if (event) {
@@ -314,7 +325,7 @@ function showEventCard(
 
 // Result from a single silently simulated week
 export interface SilentWeekResult {
-	focusChosen: WeeklyFocus;
+	goalApplied: string;
 	eventTitle: string | null;
 	eventChoiceText: string | null;
 }
@@ -324,17 +335,15 @@ export interface SilentWeekResult {
 // The caller is responsible for game-day simulation (phase-specific).
 export function simulateWeekSilently(): SilentWeekResult {
 	if (!ctx) {
-		return { focusChosen: 'train', eventTitle: null, eventChoiceText: null };
+		return { goalApplied: 'grind', eventTitle: null, eventChoiceText: null };
 	}
 	const player = ctx.getPlayer();
 
 	// Reset weekly state
 	resetWeekState();
 
-	// Pick a random focus
-	const focuses: WeeklyFocus[] = ['train', 'film_study', 'recovery', 'social', 'teamwork'];
-	const focus = focuses[Math.floor(Math.random() * focuses.length)];
-	applyWeeklyFocus(player, focus);
+	// Apply the player's season goal effects
+	applySeasonGoal(player);
 
 	// Event check (same logic as proceedToEventCheck but silent)
 	let eventTitle: string | null = null;
@@ -354,19 +363,19 @@ export function simulateWeekSilently(): SilentWeekResult {
 			confidence: player.core.confidence,
 		};
 
-		let eligible = filterEvents(
-			allEvents, player.phase,
-			player.currentWeek, player.position,
-			player.storyFlags, statsRecord,
-		);
+			let eligible = filterEvents(
+				allEvents, player.phase,
+				player.currentWeek, player.position,
+				player.storyFlags, statsRecord, player.collegeYear,
+			);
 
 		if (eligible.length === 0 && (player.phase === 'nfl' || player.phase === 'college')) {
-			eligible = filterEvents(
-				allEvents, 'high_school',
-				player.currentWeek, player.position,
-				player.storyFlags, statsRecord,
-			);
-		}
+				eligible = filterEvents(
+					allEvents, 'high_school',
+					player.currentWeek, player.position,
+					player.storyFlags, statsRecord, player.collegeYear,
+				);
+			}
 
 		const event = selectEvent(eligible);
 		if (event && event.choices.length > 0) {
@@ -378,7 +387,7 @@ export function simulateWeekSilently(): SilentWeekResult {
 	}
 
 	ctx.save();
-	return { focusChosen: focus, eventTitle, eventChoiceText };
+	return { goalApplied: player.seasonGoal, eventTitle, eventChoiceText };
 }
 
 //============================================

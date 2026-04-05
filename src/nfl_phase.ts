@@ -20,7 +20,7 @@ import { simulateGame, evaluateDepthChartUpdate, runPracticeSession } from './we
 import { generateNFLPalette, applyPalette } from './theme.js';
 import { checkRetirement, getNFLDraftResult, getNFLTeams } from './nfl.js';
 import {
-	showWeeklyFocusUI, handleWeeklyFocus, proceedToEventCheck,
+	showWeeklyFocusUI, handleWeeklyFocus, applyGoalAndProceed, proceedToEventCheck,
 	initGameLoop,
 } from './game_loop.js';
 import type { GameContext, YearSimRecap } from './game_loop.js';
@@ -465,24 +465,9 @@ function startNFLWeek(onRetire: () => void): void {
 		ctx.addText(`This week: vs ${opponent.opponentName}`);
 	}
 
-	ctx.addText('What is your focus this week?');
-	showWeeklyFocusUI(player.phase as CareerPhase, (focus: WeeklyFocus) => {
-		handleNFLWeeklyFocus(focus, onRetire);
-	});
-}
-
-//============================================
-function handleNFLWeeklyFocus(focus: WeeklyFocus, onRetire: () => void): void {
-	if (!ctx) {
-		return;
-	}
-	const player = ctx.getPlayer();
-
-	// Use the shared handleWeeklyFocus which applies focus, shows activities,
-	// and leads to event check. Pass proceedToNFLGame as the onGameDay callback.
-	handleWeeklyFocus(
+	// Apply season goal and proceed (no weekly focus popup)
+	applyGoalAndProceed(
 		player.phase as CareerPhase,
-		focus,
 		() => proceedToNFLGame(onRetire),
 		() => {
 			if (player.depthChart !== 'starter') {

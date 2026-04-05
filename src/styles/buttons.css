@@ -32,6 +32,22 @@
 	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.choice-button-label {
+	display: block;
+	font-weight: 700;
+	line-height: 1.25;
+}
+
+.choice-button-description {
+	display: block;
+	margin-top: 5px;
+	font-size: 0.82em;
+	font-weight: 500;
+	line-height: 1.35;
+	color: var(--text-secondary);
+	white-space: pre-line;
+}
+
 .choice-button:hover {
 	background: var(--button-hover);
 }

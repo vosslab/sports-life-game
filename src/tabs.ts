@@ -126,9 +126,9 @@ export function switchTab(tabId: TabId): void {
 }
 
 //============================================
-// Check if sidebar is visible (iPad width)
+// Check if sidebar is visible (iPad landscape only)
 export function isSidebarVisible(): boolean {
-	return window.matchMedia('(min-width: 768px)').matches;
+	return window.matchMedia('(min-width: 768px) and (orientation: landscape)').matches;
 }
 
 // Re-render the tab bar buttons for a given career phase

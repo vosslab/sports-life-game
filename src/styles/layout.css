@@ -258,48 +258,7 @@
 }
 
 /*============================================*/
-/* iPad layout: two-column dashboard          */
-/*============================================*/
-
-@media (min-width: 768px) {
-	/* On iPad, hide the header portrait (sidebar has it) */
-	#player-header #player-portrait {
-		display: none;
-	}
-
-	/* Dashboard becomes a two-column grid */
-	#dashboard {
-		flex-direction: row;
-		gap: 10px;
-	}
-
-	/* Main column takes ~58% */
-	#main-column {
-		flex: 1.4;
-	}
-
-	/* Sidebar visible and takes ~42% */
-	#sidebar {
-		display: flex;
-		flex: 1;
-		max-width: 340px;
-		min-width: 260px;
-	}
-
-	/* Hide phone-only stat strip on iPad */
-	#life-stats-strip {
-		display: none !important;
-	}
-
-	/* Hide stats and activities tabs on iPad (sidebar covers them) */
-	.tab-button[data-tab="stats"],
-	.tab-button[data-tab="activities"] {
-		display: none;
-	}
-}
-
-/*============================================*/
-/* iPad landscape: wider layout, compact vert */
+/* iPad landscape: two-column dashboard       */
 /*============================================*/
 
 @media (min-width: 768px) and (orientation: landscape) {
@@ -307,6 +266,11 @@
 	#app {
 		max-width: 1140px;
 		gap: 4px;
+	}
+
+	/* Hide the header portrait (sidebar has it) */
+	#player-header #player-portrait {
+		display: none;
 	}
 
 	/* Compact header to save vertical space */
@@ -322,14 +286,34 @@
 		font-size: 0.8em;
 	}
 
-	/* Tighter dashboard gap */
+	/* Dashboard becomes a two-column layout */
 	#dashboard {
+		flex-direction: row;
 		gap: 6px;
 	}
 
-	/* Give sidebar more room in landscape */
+	/* Main column takes ~58% */
+	#main-column {
+		flex: 1.4;
+	}
+
+	/* Sidebar visible with more room in landscape */
 	#sidebar {
+		display: flex;
+		flex: 1;
 		max-width: 400px;
+		min-width: 260px;
+	}
+
+	/* Hide phone-only stat strip (sidebar covers it) */
+	#life-stats-strip {
+		display: none !important;
+	}
+
+	/* Hide stats and activities tabs (sidebar covers them) */
+	.tab-button[data-tab="stats"],
+	.tab-button[data-tab="activities"] {
+		display: none;
 	}
 
 	/* Compact week card */

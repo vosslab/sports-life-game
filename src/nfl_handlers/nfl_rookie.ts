@@ -10,6 +10,7 @@ import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildNFLSeason } from './nfl_season_builder.js';
 import { generateNFLPalette, applyPalette } from '../theme.js';
+import { getNFLDraftResult } from '../nfl.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -31,6 +32,29 @@ export const nflRookieHandler: YearHandler = {
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
 		player.nflYear = 1;
+
+		ctx.addHeadline('NFL Scouting Combine');
+		ctx.addText(generateCombineNarrative(player));
+
+		ctx.addHeadline('NFL Draft Day');
+		const draftResult = getNFLDraftResult(player);
+		player.teamName = draftResult.team;
+
+		const draftLabel = draftResult.round === 0
+			? `Signed by ${draftResult.team} as undrafted free agent`
+			: `Drafted by ${draftResult.team} - Round ${draftResult.round}, Pick ${draftResult.pick}`;
+		player.bigDecisions.push(draftLabel);
+
+		ctx.addText(draftResult.storyText);
+		ctx.addResult(`Selected by ${draftResult.team}`);
+		if (draftResult.round > 0) {
+			ctx.addResult(
+				`Round ${draftResult.round} `
+				+ `(${draftResult.pick}${getOrdinalSuffix(draftResult.pick)} overall)`
+			);
+		} else {
+			ctx.addResult('Undrafted free agent signing');
+		}
 
 		// Generate NFL season (assigns player to a real team if name doesn't match)
 		const season = buildNFLSeason(player.teamName);
@@ -107,6 +131,63 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 				ctx.updateStats(player);
 				advanceToNextYear(player, ctx);
 			},
-		},
-	]);
+			},
+		]);
+	}
+
+//============================================
+function generateCombineNarrative(player: Player): string {
+	const ath = player.core.athleticism;
+	const tech = player.core.technique;
+	const iq = player.core.footballIq;
+	const disc = player.core.discipline;
+
+	let athResult = '';
+	if (ath >= 80) {
+		athResult = 'You lit up the athletic testing. The 40 and jumps got scouts buzzing.';
+	} else if (ath >= 60) {
+		athResult = 'Your athletic testing was solid. You looked like you belonged in the draft pool.';
+	} else {
+		athResult = 'The athletic testing was rough. Your timed drills did not help your case.';
+	}
+
+	let techResult = '';
+	if (tech >= 75) {
+		techResult = ' Position drills were crisp and clean. Coaches saw a pro-ready player.';
+	} else if (tech >= 55) {
+		techResult = ' Position drills were steady, but not enough to create a big jump.';
+	} else {
+		techResult = ' Position drills exposed some raw spots that still need work.';
+	}
+
+	let interviewResult = '';
+	if (iq >= 70 && disc >= 60) {
+		interviewResult = ' In team interviews, you came off prepared, mature, and easy to trust.';
+	} else if (iq >= 50) {
+		interviewResult = ' Interviews were fine. You answered well enough without stealing the room.';
+	} else {
+		interviewResult = ' Interview sessions were shaky, and some teams questioned your readiness.';
+	}
+
+	return athResult + techResult + interviewResult;
+}
+
+//============================================
+function getOrdinalSuffix(value: number): string {
+	const mod100 = value % 100;
+	if (mod100 >= 11 && mod100 <= 13) {
+		return 'th';
+	}
+
+	const mod10 = value % 10;
+	if (mod10 === 1) {
+		return 'st';
+	}
+	if (mod10 === 2) {
+		return 'nd';
+	}
+	if (mod10 === 3) {
+		return 'rd';
+	}
+	return 'th';
 }

@@ -3008,5 +3008,248 @@
 				"flavor": "You miss some reps but your body is ready for Friday."
 			}
 		]
+	},
+	{
+		"id": "recruiting_scout_in_stands",
+		"title": "College Scout in the Stands",
+		"description": "A college coach is spotted in the bleachers with a clipboard. Your teammates are buzzing about it. All eyes are on the field tonight.",
+		"phase": "high_school",
+		"tags": ["recruiting", "discipline", "confidence"],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 10,
+			"requires_flag": "hs_varsity"
+		},
+		"choices": [
+			{
+				"text": "Play it cool and trust your preparation",
+				"effects": { "discipline": 4, "confidence": 1 },
+				"flavor": "You stick to your reads and play fundamentally sound football. The scout scribbles a few notes and nods. That is the kind of player coaches want."
+			},
+			{
+				"text": "Try to show off with big plays",
+				"effects": { "confidence": 4, "health": -2, "discipline": -1 },
+				"flavor": "You go for the highlight reel. One play is spectacular, but you take a hard hit trying to do too much. Coach pulls you aside: 'Play your game, not theirs.'"
+			},
+			{
+				"text": "Introduce yourself after the game",
+				"effects": { "popularity": 4, "confidence": 2 },
+				"flavor": "After the final whistle, you walk over, shake the scout's hand, and introduce yourself. He seems impressed by your maturity. 'I like your film,' he says."
+			}
+		]
+	},
+	{
+		"id": "recruiting_coach_dm",
+		"title": "Coach DM on Social Media",
+		"description": "A college recruiting coordinator just sent you a direct message on social media. Your heart skips a beat when you see the blue checkmark.",
+		"phase": "high_school",
+		"tags": ["recruiting", "social", "discipline"],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 1,
+			"max_week": 12,
+			"requires_flag": "hs_varsity"
+		},
+		"choices": [
+			{
+				"text": "Reply professionally and thank them",
+				"effects": { "footballIq": 2, "discipline": 3 },
+				"flavor": "You type out a careful, respectful reply thanking them for the interest and sharing your stats. Your coach would be proud of how you handled that."
+			},
+			{
+				"text": "Screenshot it and post to your story",
+				"effects": { "popularity": 5, "discipline": -3 },
+				"flavor": "The screenshot gets hundreds of likes. Your classmates think you are the man. But a teammate's dad who coaches at a different school texts your coach: 'Tell your kid to keep that stuff private.'"
+			},
+			{
+				"text": "Ignore it for now",
+				"effects": { "discipline": 3 },
+				"flavor": "You decide to wait and talk to your high school coach first before responding. Smart move. Coach helps you craft the perfect reply the next day."
+			}
+		]
+	},
+	{
+		"id": "recruiting_ranking_published",
+		"title": "Recruiting Ranking Published",
+		"description": "The local newspaper just published their annual list of the top high school football recruits in the area. Your name is on it.",
+		"phase": "high_school",
+		"tags": ["recruiting", "popularity", "discipline"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 3,
+			"max_week": 9,
+			"requires_flag": "hs_varsity"
+		},
+		"choices": [
+			{
+				"text": "Share it everywhere on social media",
+				"effects": { "popularity": 5, "confidence": 2 },
+				"flavor": "Your post blows up. Friends, family, even kids from rival schools are congratulating you. It feels good to be recognized."
+			},
+			{
+				"text": "Stay humble and keep working",
+				"effects": { "discipline": 4, "technique": 1 },
+				"flavor": "You tape the article to your locker but say nothing about it. Your coach notices and nods approvingly. 'Rankings don't win games,' he says. 'Work ethic does.'"
+			},
+			{
+				"text": "Use it as fuel to train even harder",
+				"effects": { "technique": 3, "athleticism": 1 },
+				"flavor": "The ranking lights a fire under you. You add extra reps after practice and push yourself in the weight room. You want to prove the ranking right."
+			}
+		]
+	},
+	{
+		"id": "recruiting_teammate_offer",
+		"title": "Teammate Gets Big Offer",
+		"description": "Your teammate just announced he received a Division I scholarship offer. The whole school is celebrating. You are happy for him, but it stings a little.",
+		"phase": "high_school",
+		"tags": ["recruiting", "leadership", "confidence"],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 1,
+			"max_week": 12,
+			"requires_flag": "hs_varsity"
+		},
+		"choices": [
+			{
+				"text": "Congratulate him and mean it",
+				"effects": { "leadership": 4, "confidence": 1 },
+				"flavor": "You are the first one to shake his hand. 'You earned it, bro.' He pulls you in for a hug. The whole team sees your character in that moment."
+			},
+			{
+				"text": "Feel jealous but keep it inside",
+				"effects": { "confidence": -3, "discipline": 1 },
+				"flavor": "You smile and say the right things, but inside it eats at you. Why not me? The doubt lingers through practice all week."
+			},
+			{
+				"text": "Channel it into your own training",
+				"effects": { "technique": 3, "athleticism": 1 },
+				"flavor": "Seeing his success flips a switch. If he can do it, you can too. You start arriving at the weight room before anyone else."
+			}
+		]
+	},
+	{
+		"id": "recruiting_camp_invite_midseason",
+		"title": "Camp Invite Arrives Mid-Season",
+		"description": "An invitation to a spring recruiting showcase lands in your inbox. It is a major event where dozens of college coaches will be watching.",
+		"phase": "high_school",
+		"tags": ["recruiting", "discipline", "popularity"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 4,
+			"max_week": 10,
+			"requires_flag": "hs_varsity"
+		},
+		"choices": [
+			{
+				"text": "Plan to attend after the season",
+				"effects": { "popularity": 3, "confidence": 2 },
+				"flavor": "You mark the date and start preparing mentally. Having something to look forward to after the season keeps you motivated through the grind."
+			},
+			{
+				"text": "Decline to stay focused on your team",
+				"effects": { "discipline": 3, "leadership": 3 },
+				"flavor": "You tell your coach you are all-in on the team right now. He puts his hand on your shoulder: 'That is what a leader does.' Your teammates respect the choice."
+			}
+		]
+	},
+	{
+		"id": "recruiting_gpa_warning",
+		"title": "GPA Warning from Counselor",
+		"description": "Your school counselor pulls you aside after class. Your grades have been slipping and she is worried about your NCAA eligibility.",
+		"phase": "high_school",
+		"tags": ["recruiting", "academics", "discipline"],
+		"weight": 7,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 8,
+			"requires_flag": "hs_varsity"
+		},
+		"choices": [
+			{
+				"text": "Buckle down and hit the books",
+				"effects": { "discipline": 4, "footballIq": 2, "popularity": -2 },
+				"flavor": "You start staying after school for extra help. Your friends think you have gone soft, but your GPA ticks back up. College coaches notice transcripts."
+			},
+			{
+				"text": "Get a tutor to help catch up",
+				"effects": { "discipline": 3, "footballIq": 1 },
+				"flavor": "A senior honor student agrees to tutor you twice a week. The sessions are rough at first, but you start understanding the material. Your counselor is relieved."
+			},
+			{
+				"text": "Blow it off and focus on football",
+				"effects": { "discipline": -4, "confidence": 2 },
+				"flavor": "You shrug it off. Football is your ticket, not algebra. But your coach gets a call from the principal's office. 'Fix your grades or you sit,' coach warns."
+			}
+		]
+	},
+	{
+		"id": "recruiting_highlight_viral",
+		"title": "Highlight Clip Goes Viral",
+		"description": "Someone filmed your best play from Friday's game and posted it online. It already has thousands of views and is getting shared by recruiting accounts.",
+		"phase": "high_school",
+		"tags": ["recruiting", "social", "popularity"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 3,
+			"max_week": 11,
+			"requires_flag": "hs_varsity"
+		},
+		"choices": [
+			{
+				"text": "Repost it everywhere",
+				"effects": { "popularity": 5, "confidence": 3 },
+				"flavor": "You share it across every platform. The engagement is insane. Your DMs are flooded with messages from classmates, reporters, and a few college accounts."
+			},
+			{
+				"text": "Let the tape speak for itself",
+				"effects": { "discipline": 4 },
+				"flavor": "You resist the urge to hype yourself up. Coaches who matter will find it on their own. Your restraint impresses your high school coach."
+			},
+			{
+				"text": "Tag college coaches in the comments",
+				"effects": { "popularity": 3, "discipline": -2, "confidence": 2 },
+				"flavor": "You tag a dozen coaching accounts. Most ignore it, but two actually respond with fire emojis. Your buddy says you are shameless. Maybe, but it worked."
+			}
+		]
+	},
+	{
+		"id": "recruiting_rival_flips_teammate",
+		"title": "Rival School Recruits Your Teammate",
+		"description": "Word got out that a rival high school's coaching staff has been talking to one of your key teammates about transferring. The locker room is tense.",
+		"phase": "high_school",
+		"tags": ["recruiting", "leadership", "discipline"],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 9,
+			"requires_flag": "hs_varsity"
+		},
+		"choices": [
+			{
+				"text": "Talk to your teammate about staying",
+				"effects": { "leadership": 4, "confidence": 1 },
+				"flavor": "You pull him aside at lunch. 'We need you here, man. We have something special this year.' He looks conflicted, but your words seem to land."
+			},
+			{
+				"text": "Focus on your own path",
+				"effects": { "discipline": 4, "technique": 1 },
+				"flavor": "You keep your head down and let the drama play out. Whatever happens, you are going to control what you can control. Extra film study after practice."
+			},
+			{
+				"text": "Talk trash about the rival school",
+				"effects": { "confidence": 3, "discipline": -3 },
+				"flavor": "You go off about the rival program in the group chat. It fires up some teammates, but your coach gets wind of it and calls you into his office."
+			}
+		]
 	}
 ]

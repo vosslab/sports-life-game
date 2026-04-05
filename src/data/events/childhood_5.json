@@ -1,0 +1,141 @@
+[
+	{
+		"id": "mid_self_bench",
+		"title": "Self-Imposed Benching",
+		"description": "You benched yourself briefly after a bad play. Then immediately un-benched yourself.",
+		"phase": "childhood",
+		"tags": ["competition", "emotion"],
+		"event_category": "core",
+		"weight": 10,
+		"is_big_decision": false,
+		"conditions": { "min_age": 5, "max_age": 5 },
+		"choices": [
+			{
+				"text": "Storm back in with maximum intensity",
+				"effects": { "confidence": 2, "athleticism": 1 },
+				"flavor": "The benching lasted eleven seconds. The comeback was immediate and aggressive."
+			},
+			{
+				"text": "Take a breath, then calmly rejoin",
+				"effects": { "discipline": 2, "confidence": 1 },
+				"flavor": "Brief timeout. Emotional reset. Back in the game. Maturity: unlocked."
+			}
+		]
+	},
+	{
+		"id": "mid_performance_comparison",
+		"title": "The Faster Kid",
+		"description": "You notice another kid is faster than you. This is the first time this has happened.",
+		"phase": "childhood",
+		"tags": ["competition", "social"],
+		"event_category": "core",
+		"weight": 9,
+		"is_big_decision": false,
+		"conditions": { "min_age": 5, "max_age": 5 },
+		"choices": [
+			{
+				"text": "Challenge them to race every single day",
+				"effects": { "athleticism": 2, "confidence": 1 },
+				"flavor": "Monday: lost. Tuesday: lost. Wednesday: lost by less. Progress."
+			},
+			{
+				"text": "Switch to something you are better at",
+				"effects": { "confidence": 1, "discipline": 1 },
+				"flavor": "You cannot be the fastest at everything. But you can be the best at throwing."
+			},
+			{
+				"text": "Convince yourself they got lucky",
+				"effects": { "confidence": 2 },
+				"flavor": "The wind was helping them. Your shoes were untied. Many external factors."
+			}
+		]
+	},
+	{
+		"id": "mid_bully_encounter",
+		"title": "The Bigger Kid",
+		"description": "A bigger kid at school keeps pushing you around at lunch. Today they took your dessert.",
+		"phase": "childhood",
+		"tags": ["social", "courage"],
+		"event_category": "big_decision",
+		"weight": 7,
+		"is_big_decision": true,
+		"conditions": { "min_age": 5, "max_age": 6 },
+		"choices": [
+			{
+				"text": "Stand up to them",
+				"effects": { "confidence": 3, "health": -1 },
+				"flavor": "You puff up your chest and say NO. They are surprised. It does not go perfectly, but you earned respect.",
+				"progress_flag": "fearless"
+			},
+			{
+				"text": "Tell a teacher",
+				"effects": { "discipline": 2, "confidence": 1 },
+				"flavor": "The teacher handles it. The bully gets in trouble. System works."
+			},
+			{
+				"text": "Walk away and avoid them",
+				"effects": { "discipline": 1, "health": 1, "confidence": -1 },
+				"flavor": "You avoid the conflict. Smart, but it stings a little."
+			}
+		]
+	},
+	{
+		"id": "mid_homework_battle",
+		"title": "Homework vs. Outside",
+		"description": "Mom says homework first. The sun is out. The neighborhood kids are already playing.",
+		"phase": "childhood",
+		"tags": ["school", "discipline"],
+		"event_category": "core",
+		"weight": 9,
+		"is_big_decision": false,
+		"conditions": { "min_age": 5, "max_age": 6 },
+		"choices": [
+			{
+				"text": "Do the homework first, play after",
+				"effects": { "discipline": 3 },
+				"flavor": "You knock it out in 20 minutes. Mom is impressed. You still caught the last hour of daylight.",
+				"progress_flag": "bookish"
+			},
+			{
+				"text": "Play first, homework in the dark",
+				"effects": { "athleticism": 1, "discipline": -2 },
+				"flavor": "The homework is sloppy. The handwriting is illegible. But you scored three touchdowns."
+			},
+			{
+				"text": "Negotiate a deal with Mom",
+				"effects": { "discipline": 1, "confidence": 1 },
+				"flavor": "Half now, half later. Diplomacy wins. Both sides claim victory."
+			}
+		]
+	},
+	{
+		"id": "mid_talent_show",
+		"title": "Talent Show Decision",
+		"description": "The school talent show is coming up. Some kids are singing. Some are dancing.",
+		"phase": "childhood",
+		"tags": ["social", "confidence"],
+		"event_category": "core",
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": { "min_age": 5, "max_age": 6 },
+		"choices": [
+			{
+				"text": "Do a sports trick routine on stage",
+				"effects": { "confidence": 3, "athleticism": 1 },
+				"flavor": "You juggle a ball on stage. The crowd goes wild. Future star energy.",
+				"progress_flag": "showoff"
+			},
+			{
+				"text": "Help backstage instead",
+				"effects": { "discipline": 2, "leadership": 1 },
+				"flavor": "You run the curtain and help other kids. The teacher calls you the MVP of the show.",
+				"progress_flag": "quietWorker"
+			},
+			{
+				"text": "Skip it and play outside",
+				"effects": { "athleticism": 1 },
+				"flavor": "Not your thing. Free time better spent running."
+			}
+		]
+	}
+]

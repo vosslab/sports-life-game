@@ -1,0 +1,71 @@
+[
+	{
+		"id": "late_skip_party",
+		"title": "The Birthday Party",
+		"description": "Your friend's birthday party is today. But the older kids said they are playing football at the park at the same time.",
+		"phase": "childhood",
+		"tags": ["discipline", "identity"],
+		"weight": 10,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 9, "max_age": 9 },
+		"choices": [
+			{
+				"text": "Go to the park. The older kids never invite you.",
+				"effects": { "athleticism": 2, "confidence": 1 },
+				"flavor": "You showed up. You got picked last. You did not care. You were in the game. Cake acquired later."
+			},
+			{
+				"text": "Go to the party. Your friend would be upset.",
+				"effects": { "confidence": 1, "health": 1 },
+				"flavor": "You ate three slices of cake and won the relay race in the backyard. Good enough."
+			}
+		]
+	},
+	{
+		"id": "late_faster_than_marcus",
+		"title": "Faster Than Marcus",
+		"description": "Marcus beat you in the race at recess. You cannot stop thinking about it. You want another shot.",
+		"phase": "childhood",
+		"tags": ["discipline", "competition"],
+		"weight": 9,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 9, "max_age": 9 },
+		"choices": [
+			{
+				"text": "Race Marcus every day until you win",
+				"effects": { "athleticism": 2, "discipline": 2 },
+				"flavor": "Monday: lost. Tuesday: lost by less. Friday: dead tie. Next Monday: you won. Marcus wants a rematch."
+			},
+			{
+				"text": "Beat Marcus at something else instead",
+				"effects": { "confidence": 2, "athleticism": 1 },
+				"flavor": "You cannot outrun him. But you can out-throw him, out-catch him, and out-tackle him. That works."
+			}
+		]
+	},
+	{
+		"id": "late_new_game",
+		"title": "New Game vs. Outside",
+		"description": "New video game just dropped. All your friends are playing online. But the weather is perfect.",
+		"phase": "childhood",
+		"tags": ["discipline", "identity"],
+		"weight": 8,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 9, "max_age": 9 },
+		"choices": [
+			{
+				"text": "Go outside. The game will still be there tonight.",
+				"effects": { "athleticism": 2, "discipline": 1 },
+				"flavor": "You ran around until dark. Came home, played the game, fell asleep on the couch. Full day."
+			},
+			{
+				"text": "Play the game. It is raining in your brain.",
+				"effects": { "confidence": 1, "footballIq": 1 },
+				"flavor": "You played Madden for four hours. You learned three new formations. Not a total loss."
+			}
+		]
+	}
+]

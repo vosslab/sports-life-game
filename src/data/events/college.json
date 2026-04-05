@@ -10,7 +10,9 @@
 		],
 		"weight": 7,
 		"is_big_decision": false,
-		"conditions": {},
+		"conditions": {
+			"min_college_year": 4
+		},
 		"choices": [
 			{
 				"text": "Study all night, then hit practice hungover",

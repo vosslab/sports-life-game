@@ -1,0 +1,129 @@
+[
+	{
+		"id": "late_replay_loss",
+		"title": "The Loss That Stuck",
+		"description": "You replayed a loss in your head for two days. Adjustments planned.",
+		"phase": "childhood",
+		"tags": ["competition", "focus"],
+		"weight": 10,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 8, "max_age": 8 },
+		"choices": [
+			{
+				"text": "Break down what went wrong and fix it",
+				"effects": { "footballIq": 1, "discipline": 2 },
+				"flavor": "You drew plays on notebook paper. The Xs and Os do not quite make sense yet, but the instinct is there."
+			},
+			{
+				"text": "Use the anger as fuel for next time",
+				"effects": { "confidence": 2, "athleticism": 1 },
+				"flavor": "The loss burns. Good. That fire is useful."
+			},
+			{
+				"text": "Shake it off and move on",
+				"effects": { "health": 1, "discipline": 1 },
+				"flavor": "It is one game. There will be more. Healthy perspective at a young age."
+			}
+		]
+	},
+	{
+		"id": "late_picked_first",
+		"title": "Picked First",
+		"description": "For the first time, you got picked first in a playground game. Both captains wanted you.",
+		"phase": "childhood",
+		"tags": ["identity", "social"],
+		"weight": 9,
+		"is_big_decision": false,
+		"event_category": "identity",
+		"conditions": { "min_age": 8, "max_age": 8 },
+		"choices": [
+			{
+				"text": "Act like you expected it",
+				"effects": { "confidence": 2, "athleticism": 1 },
+				"flavor": "You walk over like this happens every day. It does not. But it might start."
+			},
+			{
+				"text": "Pick the weaker team to prove a point",
+				"effects": { "confidence": 1, "leadership": 2 },
+				"flavor": "Bold move. Your team is worse on paper. You carry them. Everyone remembers.",
+				"progress_flag": "naturalLeader"
+			}
+		]
+	},
+	{
+		"id": "late_harder_opponents",
+		"title": "Choosing Harder Opponents",
+		"description": "You could play with kids your age or join the older kids' game. The older kids hit harder.",
+		"phase": "childhood",
+		"tags": ["competition", "courage"],
+		"weight": 8,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 8, "max_age": 9 },
+		"choices": [
+			{
+				"text": "Play with the older kids",
+				"effects": { "athleticism": 2, "confidence": 1, "durability": 1 },
+				"flavor": "You get knocked around. But you hold your own. The older kids start picking you first.",
+				"progress_flag": "fearless"
+			},
+			{
+				"text": "Dominate kids your age",
+				"effects": { "confidence": 2, "athleticism": 1 },
+				"flavor": "Easy wins feel good but something is missing. You are the big fish in a small pond."
+			}
+		]
+	},
+	{
+		"id": "late_embarrassment_recovery",
+		"title": "The Bad Day",
+		"description": "You dropped an easy catch in front of everyone. They laughed. Your face is on fire.",
+		"phase": "childhood",
+		"tags": ["competition", "emotion"],
+		"weight": 8,
+		"is_big_decision": true,
+		"event_category": "big_decision",
+		"conditions": { "min_age": 8, "max_age": 9 },
+		"choices": [
+			{
+				"text": "Go home and practice catches until your hands hurt",
+				"effects": { "discipline": 3, "confidence": 1, "durability": 1 },
+				"flavor": "200 catches against the wall that evening. You will never drop that ball again."
+			},
+			{
+				"text": "Laugh it off and make a joke",
+				"effects": { "confidence": 2, "health": 1 },
+				"flavor": "You turn it into a bit. The laughing shifts from at you to with you. Recovery complete."
+			},
+			{
+				"text": "Avoid playing for a few days",
+				"effects": { "health": 1, "confidence": -1 },
+				"flavor": "The sting fades. You come back next week. But the memory lingers."
+			}
+		]
+	},
+	{
+		"id": "late_leader_variant",
+		"title": "Captain Material",
+		"description": "The game is falling apart. Kids are arguing about calls. Someone needs to take charge.",
+		"phase": "childhood",
+		"tags": ["social", "leadership"],
+		"weight": 7,
+		"is_big_decision": false,
+		"event_category": "core",
+		"conditions": { "min_age": 8, "max_age": 9, "requires_flag": "naturalLeader" },
+		"choices": [
+			{
+				"text": "Settle the argument and get the game moving",
+				"effects": { "leadership": 3, "confidence": 1 },
+				"flavor": "You make the call. Both sides grumble. But they play. That is what leaders do."
+			},
+			{
+				"text": "Pick sides and back your friend",
+				"effects": { "confidence": 2, "leadership": -1 },
+				"flavor": "Loyalty is good. But picking favorites as a leader creates problems."
+			}
+		]
+	}
+]

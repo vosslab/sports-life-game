@@ -12,7 +12,8 @@
 
 import { Player, CareerPhase, randomInRange, createEmptySeasonStats, modifyStat } from '../player.js';
 import { CareerContext, SeasonConfig, WeekAdvanceResult } from '../core/year_handler.js';
-import { WeeklyFocus, applyWeeklyFocus, simulateGame, evaluateDepthChartUpdate } from '../week_sim.js';
+import { SeasonGoal } from '../player.js';
+import { applySeasonGoal, getGoalsForPhase, GoalInfo, getPreferredActivitiesForGoal, simulateGame, evaluateDepthChartUpdate } from '../week_sim.js';
 import { Team } from '../team.js';
 import {
 	Activity, WeekState, createWeekState, getActivitiesForPhase,
@@ -25,6 +26,9 @@ import { accumulateGameStats } from '../player.js';
 import { switchTab, hideTabBar, showTabBar } from '../tabs.js';
 import * as ui from '../ui.js';
 import { checkMilestones } from '../milestones.js';
+import {
+	ClutchGameContext, buildClutchMoment, resolveClutchMoment,
+} from '../clutch_moment.js';
 
 // Season layer imports
 import { LeagueSeason } from '../season/season_model.js';
@@ -72,8 +76,10 @@ export function startSeason(
 	// Hide the main action bar - weekly engine uses popups for all decisions
 	ui.hideMainActionBar();
 
-	// Start the first week
-	advanceToNextWeek(player, ctx);
+	// Show goal selection at season start
+	showGoalSelection(player, ctx, 'What is your goal this season?', () => {
+		advanceToNextWeek(player, ctx);
+	});
 }
 
 //============================================
@@ -111,38 +117,62 @@ function advanceToNextWeek(player: Player, ctx: CareerContext): void {
 		ctx.addText(`This week: vs ${opponentName}`);
 	}
 
-	// Show weekly focus choices
-	showFocusChoices(player, ctx);
+	// Every 5 games, re-prompt the player about their season goal
+	if (player.currentWeek > 0 && player.currentWeek % 5 === 0) {
+		showGoalSelection(player, ctx, 'Check-in: adjust your season goal?', () => {
+			applyGoalAndAdvance(player, ctx);
+		});
+	} else {
+		// Apply season goal effects (no weekly popup)
+		applyGoalAndAdvance(player, ctx);
+	}
 }
 
 //============================================
-// Phase 1: Weekly focus selection
-function showFocusChoices(player: Player, ctx: CareerContext): void {
-	const socialLabel = player.phase === 'college' ? 'Social / NIL' : 'Social';
-
-	const focusOptions: { text: string; key: WeeklyFocus }[] = [
-		{ text: 'Train (TEC up, HP down)', key: 'train' },
-		{ text: 'Film Study (IQ up)', key: 'film_study' },
-		{ text: 'Recovery (HP up)', key: 'recovery' },
-		{ text: `${socialLabel} (POP/CONF up, DISC down)`, key: 'social' },
-		{ text: 'Teamwork (LEAD/DISC up)', key: 'teamwork' },
-	];
-
-	ctx.waitForInteraction('Weekly Focus', focusOptions.map(opt => ({
-		text: opt.text,
-		primary: false,
-		action: () => handleFocusSelected(player, ctx, opt.key),
-	})));
-}
-
-//============================================
-// Phase 2: Apply focus, show stat changes briefly, then activity prompt
-function handleFocusSelected(
-	player: Player, ctx: CareerContext, focus: WeeklyFocus,
+// Show goal selection modal (used at season start and every 5 games)
+function showGoalSelection(
+	player: Player, ctx: CareerContext, title: string, onDone: () => void,
 ): void {
-	// Apply focus effects
-	const focusStory = applyWeeklyFocus(player, focus);
-	ctx.addText(focusStory);
+	const goals = getGoalsForPhase(player.phase);
+
+	// Build choice buttons from available goals
+	const choices = goals.map(goal => ({
+		text: `${goal.name} (${goal.effectHint})`,
+		description: goal.description,
+		primary: goal.key === player.seasonGoal,
+		action: () => {
+			player.seasonGoal = goal.key;
+			ctx.addText(`Season goal set: ${goal.name}.`);
+			ctx.save();
+			onDone();
+		},
+	}));
+
+	// Add "keep current" option when re-prompting (not first selection)
+	if (player.currentWeek > 0) {
+		const currentGoal = goals.find(g => g.key === player.seasonGoal);
+		const currentName = currentGoal ? currentGoal.name : player.seasonGoal;
+		choices.unshift({
+			text: `Keep: ${currentName}`,
+			description: 'Stay the course with your current goal.',
+			primary: true,
+			action: () => {
+				ctx.addText(`Staying focused: ${currentName}.`);
+				ctx.save();
+				onDone();
+			},
+		});
+	}
+
+	ctx.waitForInteraction(title, choices, undefined, 'goal');
+}
+
+//============================================
+// Phase 1: Apply season goal effects (no popup, goal persists from season start)
+function applyGoalAndAdvance(player: Player, ctx: CareerContext): void {
+	// Apply the season goal's stat effects
+	const goalStory = applySeasonGoal(player);
+	ctx.addText(goalStory);
 	ctx.updateStats(player);
 	ctx.save();
 
@@ -150,37 +180,10 @@ function handleFocusSelected(
 		return;
 	}
 
-	// Go straight to activity prompt
-	activeEngine.weekState.phase = 'activity_prompt';
-
-	ctx.addText('Pick an activity or skip to game day.');
-
-	// Build activity buttons inline
-	const activities = getActivitiesForPhase(player.phase, player);
-	const activityChoices = activities
-		.filter(a => isActivityUnlocked(a, player))
-		.map(a => {
-			const preview = getEffectPreview(a);
-			return {
-				text: `${a.name} (${preview})`,
-				primary: false,
-				action: () => handleActivitySelected(player, ctx, a),
-			};
-		});
-
-	// Add skip button at the end
-	activityChoices.push({
-		text: 'Skip to Game Day',
-		primary: true,
-		action: () => {
-			if (activeEngine) {
-				activeEngine.weekState.phase = 'activity_done';
-			}
-			proceedToEventCheck(player, ctx);
-		},
-	});
-
-	ctx.waitForInteraction('Weekly Activities', activityChoices, undefined, 'activity');
+	// Auto-resolve the side activity from the season goal
+	activeEngine.weekState.phase = 'activity_done';
+	applyBackgroundActivityFromGoal(player, ctx);
+	proceedToEventCheck(player, ctx);
 }
 
 //============================================
@@ -188,12 +191,26 @@ function handleFocusSelected(
 function showActivities(player: Player, ctx: CareerContext): void {
 	const activities = getActivitiesForPhase(player.phase, player);
 
+	// Build goal info for the sidebar dropdown
+	const goals = getGoalsForPhase(player.phase);
+	const goalInfoParam = goals.length > 0 ? {
+		goals,
+		currentGoal: player.seasonGoal,
+		onGoalChange: (newGoal: SeasonGoal) => {
+			player.seasonGoal = newGoal;
+			ctx.save();
+			// Re-render to update the goal description
+			showActivities(player, ctx);
+		},
+	} : undefined;
+
 	ui.renderActivitiesTab(
 		activities,
 		activeEngine ? activeEngine.weekState : createWeekState(),
 		(activity: Activity) => isActivityUnlocked(activity, player),
 		(activity: Activity) => getEffectPreview(activity),
 		(activity: Activity) => handleActivitySelected(player, ctx, activity),
+		goalInfoParam,
 	);
 }
 
@@ -223,6 +240,44 @@ function handleActivitySelected(
 }
 
 //============================================
+// Apply a lightweight background activity that matches the season goal.
+function applyBackgroundActivityFromGoal(
+	player: Player, ctx: CareerContext,
+): void {
+	const unlockedActivities = getActivitiesForPhase(player.phase, player)
+		.filter(a => isActivityUnlocked(a, player));
+	if (unlockedActivities.length === 0) {
+		return;
+	}
+
+	// Get preferred activities for the current season goal
+	const preferredIds = getPreferredActivitiesForGoal(player.seasonGoal);
+
+	let chosenActivity = unlockedActivities[0];
+	for (const activityId of preferredIds) {
+		const match = unlockedActivities.find(activity => activity.id === activityId);
+		if (match) {
+			chosenActivity = match;
+			break;
+		}
+	}
+
+	const result = applyActivity(chosenActivity, player);
+	if (activeEngine) {
+		activeEngine.weekState.actionsUsed += 1;
+	}
+
+	ctx.addText(`Side activity: ${chosenActivity.name}.`);
+	ctx.addText(result.flavorText);
+	const appliedText = formatActivityResult(result);
+	if (appliedText.length > 0) {
+		ui.addStatChange(appliedText);
+	}
+	ctx.updateStats(player);
+	ctx.save();
+}
+
+//============================================
 // Phase 3: Random event check
 function proceedToEventCheck(player: Player, ctx: CareerContext): void {
 	if (!activeEngine) {
@@ -247,7 +302,7 @@ function proceedToEventCheck(player: Player, ctx: CareerContext): void {
 		let eligible = filterEvents(
 			ctx.events, player.phase,
 			player.currentWeek, player.position,
-			player.storyFlags, statsRecord,
+			player.storyFlags, statsRecord, player.collegeYear,
 		);
 
 		// Fall back to HS events for NFL/college
@@ -255,7 +310,7 @@ function proceedToEventCheck(player: Player, ctx: CareerContext): void {
 			eligible = filterEvents(
 				ctx.events, 'high_school',
 				player.currentWeek, player.position,
-				player.storyFlags, statsRecord,
+				player.storyFlags, statsRecord, player.collegeYear,
 			);
 		}
 
@@ -287,13 +342,7 @@ function showEventCard(
 			ctx.addText(flavor);
 			ctx.updateStats(player);
 			ctx.save();
-
-			// Show "Game Day" button to continue
-			ctx.showChoices([{
-				text: 'Game Day',
-				primary: true,
-				action: () => proceedToGame(player, ctx),
-			}]);
+			proceedToGame(player, ctx);
 		},
 	}));
 
@@ -333,6 +382,83 @@ function proceedToGame(player: Player, ctx: CareerContext): void {
 
 	// Simulate the game
 	const gameResult = simulateGame(player, team, opponentStrength);
+
+	// Check for clutch moment before recording the result
+	// Key game: undefeated or late in the season (last 3 weeks)
+	const preGameRecord = activeEngine.season.getPlayerRecord();
+	const isUndefeated = preGameRecord.losses === 0 && preGameRecord.wins >= 3;
+	const isLateSeason = activeEngine.season.getCurrentWeek()
+		>= activeEngine.config.seasonLength - 2;
+	const isKeyGame = isUndefeated || isLateSeason;
+
+	const clutchContext: ClutchGameContext = {
+		teamName: player.teamName,
+		opponentName,
+		teamScore: gameResult.teamScore,
+		opponentScore: gameResult.opponentScore,
+		isPlayoff: false,
+		isKeyGame,
+		isStarter: player.depthChart === 'starter',
+		position: player.position,
+		positionBucket: player.positionBucket,
+	};
+
+	const clutchMoment = buildClutchMoment(player, clutchContext);
+
+	if (clutchMoment) {
+		// Show the clutch moment popup before the game result
+		const clutchOptions = clutchMoment.choices.map(choice => ({
+			text: choice.label,
+			description: choice.description,
+			action: () => {
+				// Resolve the clutch moment and adjust score
+				const resolution = resolveClutchMoment(player, clutchContext, choice.id, clutchMoment.situationType);
+				gameResult.teamScore = Math.max(0, gameResult.teamScore + resolution.points);
+				// Recalculate win/loss after adjustment (handle ties via overtime coin flip)
+				if (gameResult.teamScore > gameResult.opponentScore) {
+					gameResult.result = 'win';
+				} else if (gameResult.teamScore < gameResult.opponentScore) {
+					gameResult.result = 'loss';
+				} else {
+					// Scores tied after clutch: simulate OT coin flip
+					gameResult.result = Math.random() < 0.5 ? 'win' : 'loss';
+					if (gameResult.result === 'win') {
+						gameResult.teamScore += 3;
+					} else {
+						gameResult.opponentScore += 3;
+					}
+				}
+				// Show the clutch narrative
+				ctx.addHeadline('4th Quarter - Clutch Moment');
+				ctx.addText(resolution.narrative);
+				ctx.addText(resolution.spotlightText);
+				// Log signature moments to bigDecisions
+				if (resolution.legacyTag) {
+					player.bigDecisions.push(resolution.legacyTag);
+				}
+				// Continue with normal post-game flow
+				showRegularSeasonPostGame(player, ctx, gameResult, opponentName);
+			},
+		}));
+		ctx.waitForInteraction('4th Quarter - Clutch Moment', clutchOptions, clutchMoment.scene, 'narrative');
+		return;
+	}
+
+	// No clutch moment: show post-game immediately
+	showRegularSeasonPostGame(player, ctx, gameResult, opponentName);
+}
+
+//============================================
+// Post-game display and advancement for regular season games
+function showRegularSeasonPostGame(
+	player: Player,
+	ctx: CareerContext,
+	gameResult: ReturnType<typeof simulateGame>,
+	opponentName: string,
+): void {
+	if (!activeEngine) {
+		return;
+	}
 
 	// Record the result into the season (atomic: updates both teams)
 	recordPlayerGameResult(activeEngine.season, gameResult);
@@ -437,10 +563,8 @@ function simulateRestOfSeason(player: Player, ctx: CareerContext): void {
 
 		weeksSimulated += 1;
 
-		// Random focus
-		const focuses: WeeklyFocus[] = ['train', 'film_study', 'recovery', 'social', 'teamwork'];
-		const focus = focuses[Math.floor(Math.random() * focuses.length)];
-		applyWeeklyFocus(player, focus);
+		// Apply season goal effects
+		applySeasonGoal(player);
 
 		// Get opponent for this week
 		const playerGame = activeEngine.season.getPlayerGame();
@@ -615,41 +739,109 @@ function startPlayoffs(
 
 			const gameResult = simulateGame(player, team, opponentStrength, true);
 
-			// Record result
-			if (playerGame.homeTeamId === bracket.playerTeamId) {
-				bracket.recordResult(playerGame.id, gameResult.teamScore, gameResult.opponentScore);
-			} else {
-				bracket.recordResult(playerGame.id, gameResult.opponentScore, gameResult.teamScore);
-			}
+			// Check for clutch moment in playoff game
+			const clutchContext: ClutchGameContext = {
+				teamName: player.teamName,
+				opponentName,
+				teamScore: gameResult.teamScore,
+				opponentScore: gameResult.opponentScore,
+				isPlayoff: true,
+				isKeyGame: false,
+				isStarter: player.depthChart === 'starter',
+				position: player.position,
+				positionBucket: player.positionBucket,
+			};
 
-			// Accumulate stats
-			accumulateGameStats(player, gameResult.playerStatLine);
-
-			// Show result
-			ctx.addHeadline(
-				`${player.teamName} ${gameResult.teamScore} - ${opponentName} ${gameResult.opponentScore}`
-			);
-			ctx.addText(gameResult.storyText);
-
-			// Simulate other playoff games this round
-			simulateNonPlayerPlayoffGames(bracket);
-
-			// Check if eliminated
-			if (bracket.isEliminated(bracket.playerTeamId)) {
-				ctx.addText('Season over. Eliminated from the playoffs.');
-				finalizeSeason(player, ctx);
+			const clutchMoment = buildClutchMoment(player, clutchContext);
+			if (clutchMoment) {
+				// Show clutch popup, then continue to post-game
+				const clutchOptions = clutchMoment.choices.map(choice => ({
+					text: choice.label,
+					description: choice.description,
+					action: () => {
+						const resolution = resolveClutchMoment(player, clutchContext, choice.id, clutchMoment.situationType);
+						gameResult.teamScore = Math.max(0, gameResult.teamScore + resolution.points);
+						if (gameResult.teamScore > gameResult.opponentScore) {
+							gameResult.result = 'win';
+						} else if (gameResult.teamScore < gameResult.opponentScore) {
+							gameResult.result = 'loss';
+						} else {
+							// Scores tied after clutch: simulate OT coin flip
+							gameResult.result = Math.random() < 0.5 ? 'win' : 'loss';
+							if (gameResult.result === 'win') {
+								gameResult.teamScore += 3;
+							} else {
+								gameResult.opponentScore += 3;
+							}
+						}
+						ctx.addHeadline('4th Quarter - Clutch Moment');
+						ctx.addText(resolution.narrative);
+						ctx.addText(resolution.spotlightText);
+						if (resolution.legacyTag) {
+							player.bigDecisions.push(resolution.legacyTag);
+						}
+						showPlayoffPostGame(player, ctx, gameResult, opponentName, playerGame, bracket);
+					},
+				}));
+				ctx.waitForInteraction(
+					'4th Quarter - Clutch Moment', clutchOptions, clutchMoment.scene, 'narrative',
+				);
 				return;
 			}
 
-			// Advance to next round
-			bracket.advanceRound();
-
-			ctx.waitForInteraction('Next Round', [{
-				text: 'Next Round',
-				primary: true,
-				action: () => startPlayoffs(player, ctx, bracket),
-			}]);
+			// No clutch moment: show post-game immediately
+			showPlayoffPostGame(player, ctx, gameResult, opponentName, playerGame, bracket);
 		},
+	}]);
+}
+
+//============================================
+// Post-game display and advancement for playoff games
+function showPlayoffPostGame(
+	player: Player,
+	ctx: CareerContext,
+	gameResult: ReturnType<typeof simulateGame>,
+	opponentName: string,
+	playerGame: { id: string; homeTeamId: string },
+	bracket: PlayoffBracket,
+): void {
+	if (!activeEngine) {
+		return;
+	}
+
+	// Record result
+	if (playerGame.homeTeamId === bracket.playerTeamId) {
+		bracket.recordResult(playerGame.id, gameResult.teamScore, gameResult.opponentScore);
+	} else {
+		bracket.recordResult(playerGame.id, gameResult.opponentScore, gameResult.teamScore);
+	}
+
+	// Accumulate stats
+	accumulateGameStats(player, gameResult.playerStatLine);
+
+	// Show result
+	ctx.addHeadline(
+		`${player.teamName} ${gameResult.teamScore} - ${opponentName} ${gameResult.opponentScore}`
+	);
+	ctx.addText(gameResult.storyText);
+
+	// Simulate other playoff games this round
+	simulateNonPlayerPlayoffGames(bracket);
+
+	// Check if eliminated
+	if (bracket.isEliminated(bracket.playerTeamId)) {
+		ctx.addText('Season over. Eliminated from the playoffs.');
+		finalizeSeason(player, ctx);
+		return;
+	}
+
+	// Advance to next round
+	bracket.advanceRound();
+
+	ctx.waitForInteraction('Next Round', [{
+		text: 'Next Round',
+		primary: true,
+		action: () => startPlayoffs(player, ctx, bracket),
 	}]);
 }
 

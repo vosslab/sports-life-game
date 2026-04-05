@@ -2,17 +2,19 @@
 //
 // Same school/mascot as frosh/soph. Driver license milestone at 16.
 // Depth chart resets (likely backup on varsity).
-// Recruiting stars actively tracked. College offers at end of senior year.
+// Recruiting is handled entirely by hs_recruiting.ts via two hooks.
 
 import { Player, randomInRange } from '../player.js';
 import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
-import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildHighSchoolSeason } from './hs_season_builder.js';
 import { updateRecruitingStars } from '../recruiting.js';
-import { assignPlayerCollege, formatSchoolName, NCAASchool } from '../ncaa.js';
 import { applyPalette } from '../theme.js';
+import {
+	runRecruitingHookForStartOfYear,
+	runRecruitingHookForEndOfSeason,
+} from './hs_recruiting.js';
 
 //============================================
 // Season config for varsity
@@ -50,7 +52,6 @@ export const hsVarsityHandler: YearHandler = {
 		}
 
 		// Build new season using the season layer
-		// Player team drawn from the same pool as opponents (35-90)
 		const playerStrength = randomInRange(35, 90);
 		player.teamStrength = playerStrength;
 
@@ -68,17 +69,19 @@ export const hsVarsityHandler: YearHandler = {
 		// Build the season
 		const season = buildHighSchoolSeason(player.hsName, player.hsMascot, playerStrength);
 
-		// Start the season via the weekly engine
-		ctx.waitForInteraction('Varsity Season', [{
-			text: 'Start Season',
-			primary: true,
-			action: () => {
-				startSeason(
-					player, ctx, SEASON_CONFIG, season,
-					() => handleSeasonEnd(player, ctx),
-				);
-			},
-		}]);
+		// Run recruiting pre-season hook, then start football season
+		runRecruitingHookForStartOfYear(player, ctx, () => {
+			ctx.waitForInteraction('Varsity Season', [{
+				text: 'Start Season',
+				primary: true,
+				action: () => {
+					startSeason(
+						player, ctx, SEASON_CONFIG, season,
+						() => handleSeasonEnd(player, ctx),
+					);
+				},
+			}]);
+		});
 	},
 
 	getSeasonConfig(): SeasonConfig {
@@ -88,88 +91,15 @@ export const hsVarsityHandler: YearHandler = {
 
 //============================================
 // Called when the weekly engine finishes the season
+// Delegates entirely to the recruiting post-season hook
 function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	// Update recruiting stars after season
 	updateRecruitingStars(player);
 
-	if (player.age === 17) {
-		// Senior year: generate and show real college offers
-		ctx.addHeadline('Senior Season Complete');
-		ctx.addText(`Recruiting: ${player.recruitingStars} stars`);
-		ctx.addText('College scouts have been watching. The offers are in.');
-
-		// Generate 3 college offers based on recruiting stars
-		const allSchools = [...ctx.ncaaSchools.fbs, ...ctx.ncaaSchools.fcs];
-		const offers: NCAASchool[] = [];
-		const usedNames = new Set<string>();
-		// Retry up to 10 times to get 3 distinct schools
-		let attempts = 0;
-		while (offers.length < 3 && allSchools.length > 0 && attempts < 10) {
-			const school = assignPlayerCollege(player.recruitingStars, allSchools);
-			if (!usedNames.has(school.commonName)) {
-				offers.push(school);
-				usedNames.add(school.commonName);
-			}
-			attempts += 1;
-		}
-
-		// Fallback: fill remaining slots with random schools if fewer than 3 offers
-		if (offers.length < 3 && allSchools.length > 0) {
-			for (let i = offers.length; i < 3; i++) {
-				const fallbackSchool = allSchools[randomInRange(0, allSchools.length - 1)];
-				if (!usedNames.has(fallbackSchool.commonName)) {
-					offers.push(fallbackSchool);
-					usedNames.add(fallbackSchool.commonName);
-				}
-			}
-		}
-
-		if (offers.length === 0) {
-			// Guard: if allSchools is empty, create a hardcoded default
-			if (allSchools.length === 0) {
-				const defaultSchool: NCAASchool = {
-					fullName: 'State University',
-					commonName: 'State',
-					nickname: 'Wildcats',
-					city: 'Springfield',
-					state: 'Generic',
-					subdivision: 'FBS',
-					conference: 'Independent',
-				};
-				offers.push(defaultSchool);
-			} else {
-				// Final fallback: pick any school if nothing worked
-				const fallback = allSchools[randomInRange(0, allSchools.length - 1)];
-				offers.push(fallback);
-			}
-		}
-
-		// Build choice buttons for each offer
-		const offerChoices = offers.map(school => {
-			const displayName = formatSchoolName(school);
-			const tierLabel = school.subdivision === 'FBS' ? 'FBS' : 'FCS';
-			return {
-				text: `${displayName} (${tierLabel})`,
-				primary: false,
-				action: () => {
-					player.teamName = displayName;
-					player.phase = 'college';
-					ctx.addResult(`${player.firstName} commits to ${displayName}!`);
-					ctx.updateStats(player);
-					ctx.save();
-					advanceToNextYear(player, ctx);
-				},
-			};
-		});
-
-		ctx.waitForInteraction('College Offers', offerChoices);
-	} else {
-		// Junior year: continue
-		ctx.addText('Junior season is over.');
-		ctx.waitForInteraction('Offseason', [{
-			text: 'Continue to Next Year',
-			primary: true,
-			action: () => advanceToNextYear(player, ctx),
-		}]);
-	}
+	// Recruiting handles all post-season flow (offers, visits, signing)
+	runRecruitingHookForEndOfSeason(player, ctx, () => {
+		// This callback is only reached if recruiting has nothing to do
+		// (should not happen for ages 16-17, but safe fallback)
+		ctx.addText('Season is over.');
+	});
 }
