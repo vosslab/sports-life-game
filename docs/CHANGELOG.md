@@ -1,5 +1,127 @@
 # Changelog
 
+## 2026-04-04 (UI/UX Dashboard Redesign)
+
+### Additions and New Features
+
+- **iPad dashboard layout** (`index.html`, `styles.css`): Restructured app into
+  two-column dashboard on screens >= 768px. Left column has week card + story +
+  choices. Right sidebar shows player identity, stat bars, phase-specific career
+  info, and This Week checklist. Phone layout falls back to single column with
+  compact stat strip.
+- **Current-week card** (`styles.css`, `src/ui.ts`): Added context card above
+  story showing age, year label, week, phase badge with phase-specific accent
+  color, pressure indicator, and next opponent with emoji.
+- **Sidebar: Player + Development** (`src/ui.ts`): Sidebar shows player name,
+  position, team with emoji, depth chart, all 7 stat bars (compact), and most
+  recent stat change text.
+- **Sidebar: Season + Career** (`src/ui.ts`): Phase-specific career section.
+  HS shows recruiting stars and offers. College shows NIL, draft stock. NFL shows
+  contract, earnings, retirement pressure. Hidden during childhood/youth.
+- **Sidebar: This Week panel** (`src/ui.ts`): Checklist showing focus, activity,
+  event, and game day status. Makes weekly rhythm immediately visible.
+- **Team emoji system** (`src/team_emoji.ts`): Maps team name keywords to emoji
+  (Bears -> bear, Eagles -> eagle, etc.). Shown in header, team tab, sidebar,
+  and week card opponent display.
+- **Milestone event cards** (`src/ui.ts`, `styles.css`): `showMilestoneCard()`
+  renders prominent gold-bordered cards in the story timeline for big life moments.
+- **Mini stat strip** (`index.html`, `src/ui.ts`): Phone-only compact 3-bar strip
+  (HP, TEC, IQ) visible on Life tab. Hidden when sidebar is visible on iPad.
+- **Phase accent colors** (`styles.css`): Six phase-specific colors used on week
+  card border and badge (childhood=blue, HS=green, college=orange, NFL=gold, etc.).
+
+### Behavior or Interface Changes
+
+- **Max width** (`styles.css`): Increased from 600px to 920px to fill iPad screen.
+- **Text contrast** (`styles.css`): Bumped `--text-secondary` from `#a0a0b0` to
+  `#b8b8c8` for better WCAG AA compliance.
+- **Stat spacing** (`styles.css`): Increased stat row margins from 3px to 6px and
+  panel padding from 6px to 12px.
+- **Action budget wording** (`src/ui.ts`): Changed from "Actions: 2/3 used" to
+  "1 action remaining" for clarity.
+- **Focus states** (`styles.css`): Added `:focus-visible` outlines on choice
+  buttons and tab buttons for keyboard accessibility.
+- **Tab bar on iPad**: CSS hides Stats and Activities tab buttons on wide screens
+  since sidebar covers that content.
+- **Choices panel overflow** (`styles.css`): Added `max-height: 40vh` and scroll
+  to prevent choice buttons from pushing below viewport.
+
+### Decisions and Failures
+
+- Sidebar uses three visual groups (Player+Dev, Season+Career, This Week) instead
+  of five separate boxes to avoid visual clutter on iPad.
+- Week card is part of normal layout flow, not sticky-pinned, to avoid eating
+  vertical space on smaller iPads.
+- Milestone card rendering is a simple v1 in ui.ts rather than a separate module.
+
+## 2026-04-04 (NFL CSV Wiring + Bug Fixes)
+
+### Additions and New Features
+
+- **NFL teams CSV loader** (`src/nfl.ts`): Added `loadNFLTeams()` async loader and
+  `getNFLTeams()` sync accessor that read team data from `src/data/nfl_teams.csv`.
+  Follows the same `fetch()` pattern used by `loadNCAASchools()` in `src/ncaa.ts`.
+- **Wired NFL modules to CSV** (`src/nfl_handlers/nfl_season_builder.ts`,
+  `src/nfl_phase.ts`, `src/nfl.ts`): All three hardcoded NFL team arrays now read
+  from the CSV loader. Team strengths are randomized per season (55-90). Hardcoded
+  arrays kept as fallbacks if CSV fails to load.
+- **Added missing DOM elements** (`index.html`): Added `team-record` and
+  `recruiting-status` divs inside `life-status` section so `updateStatusBar()`
+  calls from `hs_phase.ts` actually render.
+
+### Fixes and Maintenance
+
+- **Kicker confidence double-count** (`src/week_sim.ts:576`): Kickers had confidence
+  in their base formula (0.5 weight) but also received the global confidence
+  adjustment. Added `bucket !== 'kicker'` to the skip condition alongside QB.
+
+## 2026-04-04 (Deep Bug Review - 22 Bugs Found, Fixes Applied)
+
+### Fixes and Maintenance
+
+- **Save migration gaps** (`src/save.ts`): Added migrations for `storyLog`, `careerHistory`,
+  `bigDecisions`, `collegeOffers` (default `[]`), `storyFlags`, `milestones` (default `{}`),
+  `teamStrength` (default 50), `positionBucket` (default null), `recruitingStars` (default 0),
+  `draftStock` (default 0), `useRealTeamNames` (default true). Also patches per-entry
+  `careerHistory` for missing `ties`, `highlights`, and `awards` fields on old saves.
+- **SeasonRecord ties field** (`src/player.ts`): Added `ties: number` to `SeasonRecord`
+  interface. Updated all `careerHistory.push` sites in `weekly_engine.ts`, `college_phase.ts`,
+  `nfl_phase.ts`, `hs_phase.ts` to include `ties`.
+- **Conference standings filter** (`src/season/standings_model.ts:131`): Changed `||` to `&&`
+  so only games where both teams are in the conference count toward conference records.
+- **DOM element guards** (`src/ui.ts`): Added `findElement()` helper for optional lookups.
+  `updateStatusBar()`, `showStandings()`, `hideStandings()`, `toggleStandings()`,
+  `showSchedule()`, `hideSchedule()`, `toggleSchedule()` now use safe lookups with early
+  return instead of throwing when elements are missing from HTML.
+- **QB confidence double-count** (`src/week_sim.ts:576`): Global confidence adjustment now
+  skipped for QB position since confidence is already weighted 0.2 in the QB formula.
+- **clampStat misused for wins** (`src/nfl.ts:152`): Replaced `clampStat()` (0-100) with
+  `Math.max(0, Math.min(17, ...))` for NFL win counts.
+- **Money going negative** (`src/nfl_handlers/nfl_rookie.ts:77`,
+  `src/nfl_handlers/nfl_veteran.ts:116`): Added `Math.max(0, ...)` guard on money subtraction
+  in offseason choice handlers.
+
+### Decisions and Failures
+
+- Deep bug review found 22 bugs total across 4 subsystems. 3 critical, 5 high, 8 medium, 6 low.
+- Bugs 11 (missing Super Bowl round), 14 (redshirt 5th year unimplemented), 15 (childhood
+  event index collision), 19 (duplicate game loops), 20 (non-conf teams in standings), 21-22
+  (dead code) were documented but deferred as lower priority or requiring design decisions.
+
+## 2026-04-04 (Bug Fixes: NFL Team Name and Retirement Season Count)
+
+### Fixes and Maintenance
+
+- **Bug 7 fix**: In `src/nfl_handlers/nfl_early.ts`, `src/nfl_handlers/nfl_peak.ts`,
+  and `src/nfl_handlers/nfl_veteran.ts`, moved intro text display to after
+  `buildNFLSeason()` and team name sync. Previously the player would see their old
+  team name in the intro text if `buildNFLSeason` assigned a new team.
+- **Bug 8 fix**: In `src/nfl_handlers/nfl_late.ts` and `src/nfl_handlers/nfl_veteran.ts`,
+  moved `player.nflYear += 1` into the "Start Season" / "Play One More Season" action
+  callback so it only increments when the player commits to playing. Retiring without
+  playing now reports the correct season count. The season headline still shows the
+  upcoming season number via `player.nflYear + 1` before the increment fires.
+
 ## 2026-04-04 (Playoff Bracket Bug Fixes)
 
 ### Fixes and Maintenance

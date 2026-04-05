@@ -3,6 +3,78 @@
 import { Player, randomInRange, clampStat, modifyStat, createEmptySeasonStats } from './player.js';
 
 //============================================
+// NFL team data loaded from CSV
+export interface NFLTeamEntry {
+	name: string;       // "Arizona Cardinals"
+	mascot: string;     // "Cardinals"
+	city: string;       // "Phoenix"
+	division: string;   // "NFC West"
+	conference: string; // "NFC"
+}
+
+//============================================
+// Module-level cache for loaded NFL teams
+let cachedNFLTeams: NFLTeamEntry[] = [];
+
+//============================================
+// Parse a single CSV line into an NFLTeamEntry
+function parseNFLTeamLine(line: string): NFLTeamEntry | null {
+	const parts = line.split(',');
+	if (parts.length < 5) return null;
+
+	const name = parts[0].trim();
+	const mascot = parts[1].trim();
+	const city = parts[2].trim();
+	const division = parts[3].trim();
+	const conference = parts[4].trim();
+
+	if (name.length === 0) return null;
+
+	return { name, mascot, city, division, conference };
+}
+
+//============================================
+// Load NFL teams from CSV file
+export async function loadNFLTeams(): Promise<NFLTeamEntry[]> {
+	// Return cached data if already loaded
+	if (cachedNFLTeams.length > 0) {
+		return cachedNFLTeams;
+	}
+
+	const teams: NFLTeamEntry[] = [];
+
+	try {
+		const response = await fetch('src/data/nfl_teams.csv');
+		if (response.ok) {
+			const text = await response.text();
+			const lines = text.split('\n');
+
+			// Skip header line
+			for (let i = 1; i < lines.length; i++) {
+				const line = lines[i].trim();
+				if (line.length === 0) continue;
+
+				const team = parseNFLTeamLine(line);
+				if (team) {
+					teams.push(team);
+				}
+			}
+		}
+	} catch (error) {
+		console.error('Failed to load NFL teams:', error);
+	}
+
+	cachedNFLTeams = teams;
+	return teams;
+}
+
+//============================================
+// Get cached NFL teams (synchronous, requires prior loadNFLTeams call)
+export function getNFLTeams(): NFLTeamEntry[] {
+	return cachedNFLTeams;
+}
+
+//============================================
 // NFL Season results
 export interface NFLSeasonResult {
 	wins: number;
@@ -50,8 +122,8 @@ export interface HallOfFameEligibility {
 }
 
 //============================================
-// NFL teams
-const NFL_TEAMS = [
+// Fallback NFL team names (used only if CSV fails to load)
+const NFL_TEAMS_FALLBACK = [
 	'Arizona Cardinals', 'Atlanta Falcons', 'Baltimore Ravens',
 	'Buffalo Bills', 'Carolina Panthers', 'Chicago Bears',
 	'Cincinnati Bengals', 'Cleveland Browns', 'Dallas Cowboys',
@@ -64,6 +136,16 @@ const NFL_TEAMS = [
 	'San Francisco 49ers', 'Seattle Seahawks', 'Tampa Bay Buccaneers',
 	'Tennessee Titans', 'Washington Commanders'
 ];
+
+//============================================
+// Get NFL team names from cached CSV data or fallback
+function getNFLTeamNames(): string[] {
+	const teams = getNFLTeams();
+	if (teams.length > 0) {
+		return teams.map(t => t.name);
+	}
+	return NFL_TEAMS_FALLBACK;
+}
 
 //============================================
 // Simulate draft day experience
@@ -120,7 +202,8 @@ export function getNFLDraftResult(player: Player): DraftResult {
 	const pick = round === 0 ? 0 :
 		randomInRange(pickRange[0], Math.min(pickRange[1], 260));
 
-	const team = NFL_TEAMS[randomInRange(0, NFL_TEAMS.length - 1)];
+	const teamNames = getNFLTeamNames();
+	const team = teamNames[randomInRange(0, teamNames.length - 1)];
 
 	let storyText = '';
 	if (round === 0) {
@@ -149,7 +232,8 @@ export function simulateNFLSeason(
 
 	// Base wins on team strength
 	const baseWins = 8 + Math.floor(player.teamStrength / 20);
-	const wins = clampStat(baseWins + randomInRange(-3, 3));
+	// Clamp wins to 0-17 (not 0-100 like stats)
+	const wins = Math.max(0, Math.min(17, baseWins + randomInRange(-3, 3)));
 	const losses = 17 - wins;
 
 	// Generate player stats based on position and performance
@@ -702,7 +786,7 @@ const testPlayer: Player = {
 
 const draftResult = getNFLDraftResult(testPlayer);
 console.assert(
-	NFL_TEAMS.includes(draftResult.team),
+	getNFLTeamNames().includes(draftResult.team),
 	'Draft should assign valid NFL team'
 );
 

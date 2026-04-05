@@ -128,8 +128,9 @@ export function calculateConferenceStandings(
 	}
 
 	// Filter games to those involving at least one conference team
+	// Only count games where both teams are in the conference
 	const confGames = games.filter(game =>
-		confTeams.has(game.homeTeamId) || confTeams.has(game.awayTeamId)
+		confTeams.has(game.homeTeamId) && confTeams.has(game.awayTeamId)
 	);
 
 	return calculateStandings(confGames, confTeams);

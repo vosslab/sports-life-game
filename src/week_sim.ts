@@ -572,8 +572,10 @@ function calculatePlayerPerformance(player: Player): number {
 	// Add health factor
 	performanceScore += (player.core.health - 50) * 0.2;
 
-	// Add confidence factor
-	performanceScore += (player.core.confidence - 50) * 0.15;
+	// Add confidence factor (skip for QB, already included in formula)
+	if (bucket !== 'passer' && bucket !== 'kicker') {
+		performanceScore += (player.core.confidence - 50) * 0.15;
+	}
 
 	return clampStat(performanceScore);
 }

@@ -6,6 +6,8 @@ import { Activity, WeekState } from './activities.js';
 import type { StatLine } from './week_sim.js';
 import { generatePortraitSVG, randomAvatarConfig } from './avatar.js';
 import type { Archetype } from './avatar.js';
+import { getTeamEmoji, formatTeamWithEmoji } from './team_emoji.js';
+import { isSidebarVisible } from './tabs.js';
 
 //============================================
 // Type definitions for choice options
@@ -23,6 +25,11 @@ function getElement(id: string): HTMLElement {
 		throw new Error(`DOM element not found: ${id}`);
 	}
 	return el;
+}
+
+// Optional element lookup - returns null if not found
+function findElement(id: string): HTMLElement | null {
+	return document.getElementById(id);
 }
 
 //============================================
@@ -91,9 +98,9 @@ export function updateHeader(player: Player): void {
 	// Full name
 	nameEl.textContent = `${player.firstName} ${player.lastName}`;
 
-	// Position and team on same line
+	// Position and team on same line (with emoji)
 	const posText = player.position || 'TBD';
-	const teamText = player.teamName || 'Free Agent';
+	const teamText = player.teamName ? formatTeamWithEmoji(player.teamName) : 'Free Agent';
 	posEl.textContent = posText;
 	teamEl.textContent = teamText;
 
@@ -258,11 +265,15 @@ export function hideEventModal(): void {
 
 // Update footer status bar with team record and recruiting info
 export function updateStatusBar(record: string, recruiting: string): void {
-	const recordEl = getElement('team-record');
-	const recruitEl = getElement('recruiting-status');
+	const recordEl = findElement('team-record');
+	const recruitEl = findElement('recruiting-status');
 
-	recordEl.textContent = record;
-	recruitEl.textContent = recruiting;
+	if (recordEl) {
+		recordEl.textContent = record;
+	}
+	if (recruitEl) {
+		recruitEl.textContent = recruiting;
+	}
 }
 
 //============================================
@@ -321,8 +332,11 @@ export function showGameResult(
 
 // Show standings panel with formatted standings
 export function showStandings(formattedStandings: string): void {
-	const panel = getElement('standings-panel');
-	const content = getElement('standings-content');
+	const panel = findElement('standings-panel');
+	const content = findElement('standings-content');
+	if (!panel || !content) {
+		return;
+	}
 
 	// Process formatted text to highlight player's team (lines starting with >>>)
 	const lines = formattedStandings.split('\n');
@@ -349,13 +363,19 @@ export function showStandings(formattedStandings: string): void {
 
 // Hide standings panel
 export function hideStandings(): void {
-	const panel = getElement('standings-panel');
+	const panel = findElement('standings-panel');
+	if (!panel) {
+		return;
+	}
 	panel.classList.add('hidden');
 }
 
 // Toggle standings panel visibility
 export function toggleStandings(formattedStandings: string): void {
-	const panel = getElement('standings-panel');
+	const panel = findElement('standings-panel');
+	if (!panel) {
+		return;
+	}
 
 	if (panel.classList.contains('hidden')) {
 		showStandings(formattedStandings);
@@ -374,8 +394,11 @@ export function showSchedule(
 	currentWeek: number,
 	teamName: string
 ): void {
-	const panel = getElement('schedule-panel');
-	const content = getElement('schedule-content');
+	const panel = findElement('schedule-panel');
+	const content = findElement('schedule-content');
+	if (!panel || !content) {
+		return;
+	}
 
 	// Build schedule output
 	let output = `Season Schedule - ${teamName}:\n`;
@@ -406,7 +429,10 @@ export function showSchedule(
 
 // Hide schedule panel
 export function hideSchedule(): void {
-	const panel = getElement('schedule-panel');
+	const panel = findElement('schedule-panel');
+	if (!panel) {
+		return;
+	}
 	panel.classList.add('hidden');
 }
 
@@ -416,7 +442,10 @@ export function toggleSchedule(
 	currentWeek: number,
 	teamName: string
 ): void {
-	const panel = getElement('schedule-panel');
+	const panel = findElement('schedule-panel');
+	if (!panel) {
+		return;
+	}
 
 	if (panel.classList.contains('hidden')) {
 		showSchedule(schedule, currentWeek, teamName);
@@ -511,7 +540,8 @@ export function updateTeamTab(
 	// Team name header
 	const header = document.createElement('div');
 	header.className = 'team-tab-header';
-	header.innerHTML = `<strong>${teamName}</strong> (${record})`;
+	const teamEmoji = getTeamEmoji(teamName);
+	header.innerHTML = `<strong>${teamEmoji} ${teamName}</strong> (${record})`;
 	content.appendChild(header);
 
 	// Coach info
@@ -615,7 +645,7 @@ export function renderActivitiesTab(
 	const budget = document.createElement('div');
 	budget.className = 'activities-budget';
 	const remaining = weekState.actionBudget - weekState.actionsUsed;
-	budget.textContent = `Actions: ${weekState.actionsUsed}/${weekState.actionBudget} used this week`;
+	budget.textContent = `${remaining} action${remaining !== 1 ? 's' : ''} remaining this week`;
 	content.appendChild(budget);
 
 	// Show read-only message if not in activity_prompt phase
@@ -953,4 +983,513 @@ export function formatStatLine(statLine: StatLine): string {
 		parts.push(`${label}: ${val}`);
 	}
 	return parts.join(' | ');
+}
+
+//============================================
+// CURRENT-WEEK CARD
+//============================================
+
+// Phase CSS class names for accent colors
+const PHASE_CSS_CLASSES: Record<CareerPhase, string> = {
+	childhood: 'phase-childhood',
+	youth: 'phase-youth',
+	high_school: 'phase-high-school',
+	college: 'phase-college',
+	nfl: 'phase-nfl',
+	legacy: 'phase-legacy',
+};
+
+// Year labels for college and high school
+function getYearLabel(player: Player): string {
+	if (player.phase === 'childhood') {
+		return `Age ${player.age}`;
+	}
+	if (player.phase === 'youth') {
+		return `Age ${player.age}, Youth Football`;
+	}
+	if (player.phase === 'high_school') {
+		const hsYearLabels: Record<number, string> = {
+			14: 'Freshman Year', 15: 'Sophomore Year',
+			16: 'Junior Year', 17: 'Senior Year',
+		};
+		return `Age ${player.age}, ${hsYearLabels[player.age] || 'High School'}`;
+	}
+	if (player.phase === 'college') {
+		const colYearLabels = ['', 'Freshman', 'Sophomore', 'Junior', 'Senior'];
+		const label = colYearLabels[player.collegeYear] || `Year ${player.collegeYear}`;
+		return `Age ${player.age}, ${label} Year`;
+	}
+	if (player.phase === 'nfl') {
+		return `Age ${player.age}, NFL Year ${player.nflYear}`;
+	}
+	return `Age ${player.age}`;
+}
+
+// Update the current-week card with player context
+export function updateWeekCard(
+	player: Player,
+	opponent: string,
+	pressure: string,
+): void {
+	const card = document.getElementById('current-week-card');
+	if (!card) {
+		return;
+	}
+
+	// Show the card
+	card.classList.remove('hidden');
+
+	// Set phase CSS class for accent color
+	for (const cls of Object.values(PHASE_CSS_CLASSES)) {
+		card.classList.remove(cls);
+	}
+	card.classList.add(PHASE_CSS_CLASSES[player.phase]);
+
+	// Phase badge
+	const badge = document.getElementById('week-card-phase-badge');
+	if (badge) {
+		badge.textContent = getPhaseLabel(player.phase);
+	}
+
+	// Age + year label
+	const ageLabel = document.getElementById('week-card-age-label');
+	if (ageLabel) {
+		ageLabel.textContent = getYearLabel(player);
+	}
+
+	// Week label
+	const weekLabel = document.getElementById('week-card-week-label');
+	if (weekLabel) {
+		if (player.currentWeek > 0) {
+			weekLabel.textContent = `Week ${player.currentWeek}`;
+		} else {
+			weekLabel.textContent = '';
+		}
+	}
+
+	// Pressure indicator
+	const pressureEl = document.getElementById('week-card-pressure');
+	if (pressureEl) {
+		if (pressure) {
+			pressureEl.textContent = pressure;
+			pressureEl.classList.remove('hidden');
+		} else {
+			pressureEl.classList.add('hidden');
+		}
+	}
+
+	// Opponent
+	const opponentEl = document.getElementById('week-card-opponent');
+	if (opponentEl) {
+		if (opponent) {
+			opponentEl.textContent = `vs ${formatTeamWithEmoji(opponent)}`;
+			opponentEl.classList.remove('hidden');
+		} else {
+			opponentEl.classList.add('hidden');
+		}
+	}
+}
+
+// Hide the week card (e.g., during character creation)
+export function hideWeekCard(): void {
+	const card = document.getElementById('current-week-card');
+	if (card) {
+		card.classList.add('hidden');
+	}
+}
+
+//============================================
+// MINI STAT STRIP (phone only)
+//============================================
+
+// Update the compact 3-bar stat strip shown on phone Life tab
+export function updateMiniStatStrip(player: Player): void {
+	const strip = document.getElementById('life-stats-strip');
+	if (!strip) {
+		return;
+	}
+
+	// Hide on iPad (sidebar covers stats) and during early childhood (no meaningful stats)
+	if (isSidebarVisible() || player.phase === 'childhood') {
+		strip.classList.add('hidden');
+		return;
+	}
+
+	strip.classList.remove('hidden');
+
+	// Update the 3 mini bars
+	updateMiniBar('health', player.core.health);
+	updateMiniBar('technique', player.core.technique);
+	updateMiniBar('footballIq', player.core.footballIq);
+}
+
+// Update a single mini stat bar
+function updateMiniBar(statName: string, value: number): void {
+	const bar = document.getElementById(`mini-bar-${statName}`);
+	if (!bar) {
+		return;
+	}
+	const clamped = Math.max(0, Math.min(100, value));
+	bar.style.width = `${clamped}%`;
+
+	// Color based on value
+	bar.classList.remove('stat-high', 'stat-mid', 'stat-low');
+	if (clamped >= 70) {
+		bar.classList.add('stat-high');
+	} else if (clamped >= 40) {
+		bar.classList.add('stat-mid');
+	} else {
+		bar.classList.add('stat-low');
+	}
+}
+
+//============================================
+// SIDEBAR: PLAYER + DEVELOPMENT
+//============================================
+
+// Render sidebar stat bars (creates them once, updates on subsequent calls)
+function renderSidebarStatBars(player: Player): void {
+	const container = document.getElementById('sidebar-stats');
+	if (!container) {
+		return;
+	}
+
+	// Stat definitions for sidebar
+	const stats: { key: string; label: string; value: number }[] = [
+		{ key: 'athleticism', label: 'ATH', value: player.core.athleticism },
+		{ key: 'technique', label: 'TEC', value: player.core.technique },
+		{ key: 'footballIq', label: 'IQ', value: player.core.footballIq },
+		{ key: 'discipline', label: 'DSC', value: player.core.discipline },
+		{ key: 'health', label: 'HP', value: player.core.health },
+		{ key: 'confidence', label: 'CON', value: player.core.confidence },
+		{ key: 'popularity', label: 'POP', value: player.career.popularity },
+	];
+
+	// Create bars if not yet created
+	if (container.children.length === 0) {
+		for (const stat of stats) {
+			const row = document.createElement('div');
+			row.className = 'stat-row';
+
+			const label = document.createElement('span');
+			label.className = 'stat-label';
+			label.textContent = stat.label;
+			row.appendChild(label);
+
+			const bar = document.createElement('div');
+			bar.className = 'stat-bar';
+			const fill = document.createElement('div');
+			fill.className = 'stat-fill';
+			fill.id = `sb-bar-${stat.key}`;
+			bar.appendChild(fill);
+			row.appendChild(bar);
+
+			const val = document.createElement('span');
+			val.className = 'stat-value';
+			val.id = `sb-val-${stat.key}`;
+			val.textContent = '0';
+			row.appendChild(val);
+
+			container.appendChild(row);
+		}
+	}
+
+	// Update values
+	for (const stat of stats) {
+		const barEl = document.getElementById(`sb-bar-${stat.key}`);
+		const valEl = document.getElementById(`sb-val-${stat.key}`);
+		if (barEl && valEl) {
+			const clamped = Math.max(0, Math.min(100, stat.value));
+			barEl.style.width = `${clamped}%`;
+			barEl.classList.remove('stat-high', 'stat-mid', 'stat-low');
+			if (clamped >= 70) {
+				barEl.classList.add('stat-high');
+			} else if (clamped >= 40) {
+				barEl.classList.add('stat-mid');
+			} else {
+				barEl.classList.add('stat-low');
+			}
+			valEl.textContent = Math.round(clamped).toString();
+		}
+	}
+}
+
+// Update sidebar player identity section
+function updateSidebarPlayerIdentity(player: Player): void {
+	const nameEl = document.getElementById('sidebar-player-name');
+	const detailEl = document.getElementById('sidebar-player-detail');
+	const portraitEl = document.getElementById('sidebar-portrait');
+
+	if (nameEl) {
+		nameEl.textContent = `${player.firstName} ${player.lastName}`;
+	}
+
+	if (detailEl) {
+		const parts: string[] = [];
+		if (player.position) {
+			parts.push(player.position);
+		}
+		if (player.teamName) {
+			parts.push(formatTeamWithEmoji(player.teamName));
+		}
+		if (player.depthChart && (player.phase === 'high_school' || player.phase === 'college' || player.phase === 'nfl')) {
+			const depthLabel = player.depthChart.charAt(0).toUpperCase() + player.depthChart.slice(1);
+			parts.push(depthLabel);
+		}
+		detailEl.textContent = parts.join(' | ');
+	}
+
+	// Portrait
+	if (portraitEl && player.avatarConfig) {
+		const config = randomAvatarConfig(
+			`${player.firstName} ${player.lastName}`,
+			{ archetype: 'player', age: player.age },
+		);
+		portraitEl.innerHTML = generatePortraitSVG(config);
+	}
+}
+
+// Show recent stat change text in sidebar
+export function showRecentChange(text: string): void {
+	const el = document.getElementById('sidebar-recent-change');
+	if (!el) {
+		return;
+	}
+	if (text) {
+		el.textContent = text;
+		el.classList.remove('hidden');
+	} else {
+		el.classList.add('hidden');
+	}
+}
+
+//============================================
+// SIDEBAR: SEASON + CAREER (phase-specific)
+//============================================
+
+// Update sidebar season+career section based on current phase
+export function updateSeasonCareer(player: Player): void {
+	const container = document.getElementById('sidebar-season-career');
+	if (!container) {
+		return;
+	}
+
+	// Hide for phases with no career content
+	if (player.phase === 'childhood' || player.phase === 'youth') {
+		container.classList.add('hidden');
+		return;
+	}
+
+	container.classList.remove('hidden');
+	container.innerHTML = '';
+
+	// Section label
+	const label = document.createElement('div');
+	label.className = 'sidebar-section-label';
+	label.textContent = 'Season & Career';
+	container.appendChild(label);
+
+	// Season record
+	const history = player.careerHistory;
+	if (history.length > 0) {
+		const current = history[history.length - 1];
+		const record = `${current.wins}-${current.losses}`;
+		addSidebarRow(container, 'Record', record);
+	}
+
+	// Phase-specific rows
+	if (player.phase === 'high_school') {
+		addSidebarRow(container, 'Stars', getStarDisplay(player.recruitingStars));
+		if (player.collegeOffers.length > 0) {
+			addSidebarRow(container, 'Offers', player.collegeOffers.length.toString());
+			addSidebarRow(container, 'Top Offer', player.collegeOffers[0]);
+		}
+	} else if (player.phase === 'college') {
+		const yearLabels = ['', 'Freshman', 'Sophomore', 'Junior', 'Senior'];
+		addSidebarRow(container, 'Year', yearLabels[player.collegeYear] || `Year ${player.collegeYear}`);
+		if (player.career.money > 0) {
+			addSidebarRow(container, 'NIL', formatMoney(player.career.money));
+		}
+		if (player.collegeYear >= 3) {
+			addSidebarRow(container, 'Draft Stock', player.draftStock.toString());
+		}
+	} else if (player.phase === 'nfl') {
+		addSidebarRow(container, 'NFL Year', player.nflYear.toString());
+		addSidebarRow(container, 'Earnings', formatMoney(player.career.money));
+		addSidebarRow(container, 'Draft Stock', player.draftStock.toString());
+		// Retirement pressure for older players
+		if (player.age >= 32) {
+			const athleticism = player.core.athleticism;
+			let pressureText = 'Low';
+			if (player.age >= 37 || athleticism < 30) {
+				pressureText = 'High';
+			} else if (player.age >= 35 || athleticism < 40) {
+				pressureText = 'Medium';
+			}
+			addSidebarRow(container, 'Retirement', pressureText);
+		}
+	} else if (player.phase === 'legacy') {
+		// Total career stats
+		let totalWins = 0;
+		let totalLosses = 0;
+		for (const season of player.careerHistory) {
+			totalWins += season.wins;
+			totalLosses += season.losses;
+		}
+		addSidebarRow(container, 'Career Record', `${totalWins}-${totalLosses}`);
+		addSidebarRow(container, 'Earnings', formatMoney(player.career.money));
+		addSidebarRow(container, 'Seasons', player.careerHistory.length.toString());
+	}
+}
+
+// Helper: add a row to a sidebar section
+function addSidebarRow(container: HTMLElement, label: string, value: string): void {
+	const row = document.createElement('div');
+	row.className = 'stats-summary-row';
+	const labelSpan = document.createElement('span');
+	labelSpan.className = 'stats-summary-label';
+	labelSpan.textContent = label;
+	const valueSpan = document.createElement('span');
+	valueSpan.className = 'stats-summary-value';
+	valueSpan.textContent = value;
+	row.appendChild(labelSpan);
+	row.appendChild(valueSpan);
+	container.appendChild(row);
+}
+
+//============================================
+// SIDEBAR: THIS WEEK PANEL
+//============================================
+
+// Update the This Week checklist in the sidebar
+export function updateThisWeekPanel(
+	weekState: WeekState | null,
+	opponent: string,
+	focusLabel: string,
+): void {
+	const section = document.getElementById('sidebar-this-week');
+	const checklist = document.getElementById('week-checklist');
+	if (!section || !checklist) {
+		return;
+	}
+
+	// Hide if no week state (offseason, childhood, etc.)
+	if (!weekState) {
+		section.classList.add('hidden');
+		return;
+	}
+
+	section.classList.remove('hidden');
+	checklist.innerHTML = '';
+
+	// Focus item
+	const focusDone = weekState.phase !== 'focus';
+	addChecklistItem(checklist, focusDone, focusDone ? `Focus: ${focusLabel}` : 'Choose focus');
+
+	// Activity item
+	const remaining = weekState.actionBudget - weekState.actionsUsed;
+	const activityDone = weekState.phase === 'activity_done' || weekState.phase === 'event' || weekState.phase === 'game' || weekState.phase === 'results';
+	if (activityDone || remaining <= 0) {
+		addChecklistItem(checklist, true, 'Activity done');
+	} else if (weekState.phase === 'activity_prompt') {
+		addChecklistItem(checklist, false, `${remaining} action remaining`);
+	} else {
+		addChecklistItem(checklist, false, 'Activity: upcoming');
+	}
+
+	// Event item
+	const eventDone = weekState.phase === 'game' || weekState.phase === 'results';
+	addChecklistItem(checklist, eventDone, eventDone ? 'Event resolved' : 'Event: pending');
+
+	// Game day item
+	const gameDone = weekState.phase === 'results';
+	if (opponent) {
+		const opponentWithEmoji = formatTeamWithEmoji(opponent);
+		addChecklistItem(checklist, gameDone, gameDone ? `Game: vs ${opponentWithEmoji}` : `Game Day: vs ${opponentWithEmoji}`);
+	} else {
+		addChecklistItem(checklist, false, 'Game Day');
+	}
+}
+
+// Helper: add a checklist item
+function addChecklistItem(container: HTMLElement, done: boolean, text: string): void {
+	const item = document.createElement('div');
+	item.className = 'week-checklist-item';
+
+	const icon = document.createElement('div');
+	icon.className = 'week-checklist-icon';
+	if (done) {
+		icon.classList.add('done');
+		icon.textContent = 'x';
+	} else {
+		icon.classList.add('pending');
+	}
+	item.appendChild(icon);
+
+	const label = document.createElement('div');
+	label.className = 'week-checklist-label';
+	if (done) {
+		label.classList.add('done');
+	}
+	label.textContent = text;
+	item.appendChild(label);
+
+	container.appendChild(item);
+}
+
+//============================================
+// SIDEBAR: MASTER UPDATE
+//============================================
+
+// Update all sidebar sections (called on every state change)
+export function updateSidebar(
+	player: Player,
+	weekState: WeekState | null,
+	opponent: string,
+	focusLabel: string,
+): void {
+	if (!isSidebarVisible()) {
+		return;
+	}
+
+	updateSidebarPlayerIdentity(player);
+	renderSidebarStatBars(player);
+	updateSeasonCareer(player);
+	updateThisWeekPanel(weekState, opponent, focusLabel);
+}
+
+//============================================
+// MILESTONE EVENT CARDS
+//============================================
+
+// Show a milestone card in the story timeline
+export function showMilestoneCard(
+	title: string,
+	description: string,
+	impact: string,
+): void {
+	const storyLog = getElement('story-log');
+
+	const card = document.createElement('div');
+	card.className = 'milestone-card';
+
+	const titleEl = document.createElement('div');
+	titleEl.className = 'milestone-title';
+	titleEl.textContent = title;
+	card.appendChild(titleEl);
+
+	const descEl = document.createElement('div');
+	descEl.className = 'milestone-desc';
+	descEl.textContent = description;
+	card.appendChild(descEl);
+
+	if (impact) {
+		const impactEl = document.createElement('div');
+		impactEl.className = 'milestone-impact';
+		impactEl.textContent = impact;
+		card.appendChild(impactEl);
+	}
+
+	storyLog.appendChild(card);
+	autoScroll();
 }

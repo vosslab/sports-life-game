@@ -8,6 +8,7 @@
     "dev": "tsc --watch"
   },
   "devDependencies": {
+    "playwright": "^1.59.1",
     "typescript": "^5.4"
   },
   "license": "GPL-3.0"

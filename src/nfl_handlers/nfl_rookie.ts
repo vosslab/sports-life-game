@@ -74,7 +74,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 			action: () => {
 				modifyStat(player, 'athleticism', 3);
 				modifyStat(player, 'technique', 1);
-				player.career.money -= 100000;
+				player.career.money = Math.max(0, player.career.money - 100000);
 				ctx.addText(`${player.firstName} invests $100k in elite personal training.`);
 				ctx.updateStats(player);
 				advanceToNextYear(player, ctx);

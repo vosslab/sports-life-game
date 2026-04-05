@@ -18,7 +18,7 @@ import { Team, Conference, generateConference, simulateConferenceWeek } from './
 import { WeeklyFocus } from './week_sim.js';
 import { simulateGame, evaluateDepthChartUpdate, runPracticeSession } from './week_sim.js';
 import { generateNFLPalette, applyPalette } from './theme.js';
-import { checkRetirement, getNFLDraftResult } from './nfl.js';
+import { checkRetirement, getNFLDraftResult, getNFLTeams } from './nfl.js';
 import {
 	showWeeklyFocusUI, handleWeeklyFocus, proceedToEventCheck,
 	initGameLoop,
@@ -259,6 +259,7 @@ function startNFLSeason(onRetire: () => void): void {
 		position: player.position,
 		wins: 0,
 		losses: 0,
+		ties: 0,
 		depthChart: player.depthChart,
 		highlights: [],
 		awards: [],
@@ -290,14 +291,18 @@ function startNFLSeason(onRetire: () => void): void {
 //============================================
 // Generate a Team object for the NFL season with 17-game schedule
 function generateNFLSeasonTeam(player: Player): Team {
-	const nflTeamNames = [
-		'Cardinals', 'Falcons', 'Ravens', 'Bills', 'Panthers', 'Bears',
-		'Bengals', 'Browns', 'Cowboys', 'Broncos', 'Lions', 'Packers',
-		'Texans', 'Colts', 'Jaguars', 'Chiefs', 'Raiders', 'Chargers',
-		'Rams', 'Dolphins', 'Vikings', 'Patriots', 'Saints', 'Giants',
-		'Jets', 'Eagles', 'Steelers', '49ers', 'Seahawks',
-		'Buccaneers', 'Titans', 'Commanders',
-	];
+	// Get mascot names from CSV data, with hardcoded fallback
+	const csvTeams = getNFLTeams();
+	const nflTeamNames = csvTeams.length > 0
+		? csvTeams.map(t => t.mascot)
+		: [
+			'Cardinals', 'Falcons', 'Ravens', 'Bills', 'Panthers', 'Bears',
+			'Bengals', 'Browns', 'Cowboys', 'Broncos', 'Lions', 'Packers',
+			'Texans', 'Colts', 'Jaguars', 'Chiefs', 'Raiders', 'Chargers',
+			'Rams', 'Dolphins', 'Vikings', 'Patriots', 'Saints', 'Giants',
+			'Jets', 'Eagles', 'Steelers', '49ers', 'Seahawks',
+			'Buccaneers', 'Titans', 'Commanders',
+		];
 
 	// Build 17-game schedule with NFL-level opponent strength (55-95)
 	const schedule: Array<{

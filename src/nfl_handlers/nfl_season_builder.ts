@@ -13,60 +13,37 @@ import {
 } from '../season/season_builder.js';
 import { randomInRange } from '../player.js';
 import { CoachPersonality } from '../team.js';
+import { getNFLTeams, NFLTeamEntry } from '../nfl.js';
 
 //============================================
-// NFL team data: conference, division, display name, strength range
+// NFL team data used internally for season building
 interface NFLTeamData {
 	name: string;
 	conference: string;   // "AFC" or "NFC"
 	division: string;     // "East", "West", "North", "South"
-	strength: number;     // base strength 50-95
+	strength: number;     // base strength 55-90
 }
 
 //============================================
-// Full 32-team NFL roster with divisions
-const NFL_ROSTER: NFLTeamData[] = [
-	// AFC East
-	{ name: 'Buffalo Bills', conference: 'AFC', division: 'East', strength: 82 },
-	{ name: 'Miami Dolphins', conference: 'AFC', division: 'East', strength: 78 },
-	{ name: 'New England Patriots', conference: 'AFC', division: 'East', strength: 70 },
-	{ name: 'New York Jets', conference: 'AFC', division: 'East', strength: 72 },
-	// AFC North
-	{ name: 'Baltimore Ravens', conference: 'AFC', division: 'North', strength: 85 },
-	{ name: 'Cincinnati Bengals', conference: 'AFC', division: 'North', strength: 80 },
-	{ name: 'Cleveland Browns', conference: 'AFC', division: 'North', strength: 65 },
-	{ name: 'Pittsburgh Steelers', conference: 'AFC', division: 'North', strength: 75 },
-	// AFC South
-	{ name: 'Houston Texans', conference: 'AFC', division: 'South', strength: 80 },
-	{ name: 'Indianapolis Colts', conference: 'AFC', division: 'South', strength: 68 },
-	{ name: 'Jacksonville Jaguars', conference: 'AFC', division: 'South', strength: 72 },
-	{ name: 'Tennessee Titans', conference: 'AFC', division: 'South', strength: 65 },
-	// AFC West
-	{ name: 'Denver Broncos', conference: 'AFC', division: 'West', strength: 70 },
-	{ name: 'Kansas City Chiefs', conference: 'AFC', division: 'West', strength: 92 },
-	{ name: 'Las Vegas Raiders', conference: 'AFC', division: 'West', strength: 62 },
-	{ name: 'Los Angeles Chargers', conference: 'AFC', division: 'West', strength: 78 },
-	// NFC East
-	{ name: 'Dallas Cowboys', conference: 'NFC', division: 'East', strength: 76 },
-	{ name: 'New York Giants', conference: 'NFC', division: 'East', strength: 60 },
-	{ name: 'Philadelphia Eagles', conference: 'NFC', division: 'East', strength: 88 },
-	{ name: 'Washington Commanders', conference: 'NFC', division: 'East', strength: 72 },
-	// NFC North
-	{ name: 'Chicago Bears', conference: 'NFC', division: 'North', strength: 68 },
-	{ name: 'Detroit Lions', conference: 'NFC', division: 'North', strength: 85 },
-	{ name: 'Green Bay Packers', conference: 'NFC', division: 'North', strength: 80 },
-	{ name: 'Minnesota Vikings', conference: 'NFC', division: 'North', strength: 78 },
-	// NFC South
-	{ name: 'Atlanta Falcons', conference: 'NFC', division: 'South', strength: 70 },
-	{ name: 'Carolina Panthers', conference: 'NFC', division: 'South', strength: 58 },
-	{ name: 'New Orleans Saints', conference: 'NFC', division: 'South', strength: 68 },
-	{ name: 'Tampa Bay Buccaneers', conference: 'NFC', division: 'South', strength: 75 },
-	// NFC West
-	{ name: 'Arizona Cardinals', conference: 'NFC', division: 'West', strength: 62 },
-	{ name: 'Los Angeles Rams', conference: 'NFC', division: 'West', strength: 74 },
-	{ name: 'San Francisco 49ers', conference: 'NFC', division: 'West', strength: 90 },
-	{ name: 'Seattle Seahawks', conference: 'NFC', division: 'West', strength: 72 },
-];
+// Build NFL roster from CSV data with random strength values
+function buildNFLRoster(): NFLTeamData[] {
+	const csvTeams = getNFLTeams();
+
+	// Extract division short name from CSV "NFC West" -> "West"
+	return csvTeams.map((entry: NFLTeamEntry) => {
+		// Division column is "NFC West" etc., extract the short part
+		const divParts = entry.division.split(' ');
+		const divisionShort = divParts.length > 1 ? divParts[1] : divParts[0];
+
+		return {
+			name: entry.name,
+			conference: entry.conference,
+			division: divisionShort,
+			// Random base strength each season (55-90 range)
+			strength: randomInRange(55, 90),
+		};
+	});
+}
 
 //============================================
 // Build a complete NFL season
@@ -75,29 +52,32 @@ export function buildNFLSeason(
 ): LeagueSeason {
 	resetGameIdCounter();
 
+	// Build roster from CSV data each season (strengths randomized)
+	const roster = buildNFLRoster();
+
 	// Find the player's team data
-	const playerData = NFL_ROSTER.find(t => t.name === playerTeamName);
+	const playerData = roster.find(t => t.name === playerTeamName);
 	if (!playerData) {
 		// Fallback: assign to a random team
-		const fallback = NFL_ROSTER[randomInRange(0, NFL_ROSTER.length - 1)];
-		return buildNFLSeasonWithData(fallback.name);
+		const fallback = roster[randomInRange(0, roster.length - 1)];
+		return buildNFLSeasonWithData(fallback.name, roster);
 	}
 
-	return buildNFLSeasonWithData(playerTeamName);
+	return buildNFLSeasonWithData(playerTeamName, roster);
 }
 
 //============================================
 // Internal: build the season from known team name
-function buildNFLSeasonWithData(playerTeamName: string): LeagueSeason {
+function buildNFLSeasonWithData(
+	playerTeamName: string,
+	roster: NFLTeamData[],
+): LeagueSeason {
 	const teams = new Map<TeamId, SeasonTeam>();
 	let playerTeamId = '';
 
-	// Create all 32 teams with season-level strength variance
-	for (const data of NFL_ROSTER) {
-		// Add random variance per season (-8 to +8)
-		const seasonStrength = Math.max(40, Math.min(99,
-			data.strength + randomInRange(-8, 8)
-		));
+	// Create all 32 teams (strength already randomized in buildNFLRoster)
+	for (const data of roster) {
+		const seasonStrength = data.strength;
 
 		const teamId = makeTeamId(data.name);
 		const parts = splitTeamName(data.name);
@@ -311,7 +291,8 @@ function randomCoachPersonality(): CoachPersonality {
 
 //============================================
 // Simple assertions
-console.assert(NFL_ROSTER.length === 32, 'NFL roster should have 32 teams');
+console.assert(getNFLTeams().length === 32 || getNFLTeams().length === 0,
+	'NFL roster should have 32 teams when loaded');
 console.assert(makeTeamId('Kansas City Chiefs') === 'kansas_city_chiefs', 'Team id generation');
 const split = splitTeamName('San Francisco 49ers');
 console.assert(split.city === 'San Francisco', 'City should be San Francisco');

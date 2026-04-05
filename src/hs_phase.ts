@@ -951,6 +951,7 @@ function completeSeasonSummary(): void {
 		position: player.position,
 		wins: persistentHSTeam.wins,
 		losses: persistentHSTeam.losses,
+		ties: 0,
 		depthChart: player.depthChart,
 		highlights: [
 			`Player of the Week: ${currentSeasonStats.playerOfTheWeekCount} times`,

@@ -11,7 +11,7 @@
 	--bg-secondary: #16213e;
 	--bg-card: #0f3460;
 	--text-primary: #e8e8e8;
-	--text-secondary: #a0a0b0;
+	--text-secondary: #b8b8c8;
 	--accent-green: #4caf50;
 	--accent-yellow: #ffc107;
 	--accent-red: #f44336;
@@ -23,6 +23,13 @@
 	--button-big: #27ae60;
 	--button-big-hover: #2ecc71;
 	--modal-bg: rgba(0, 0, 0, 0.85);
+	/* Phase accent colors */
+	--phase-childhood: #64b5f6;
+	--phase-youth: #4fc3f7;
+	--phase-high-school: #66bb6a;
+	--phase-college: #ffa726;
+	--phase-nfl: #ffd700;
+	--phase-legacy: #ab47bc;
 }
 
 html, body {
@@ -47,7 +54,7 @@ html, body {
 	flex-direction: column;
 	height: 100vh;
 	height: 100dvh;
-	max-width: 600px;
+	max-width: 920px;
 	margin: 0 auto;
 	padding: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom));
 	padding-top: max(8px, env(safe-area-inset-top));
@@ -92,18 +99,171 @@ html, body {
 	margin: 0 6px;
 }
 
+/*============================================*/
+/* Dashboard: main column + sidebar grid      */
+/*============================================*/
+
+#dashboard {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	gap: 6px;
+}
+
+#main-column {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	gap: 6px;
+}
+
+/*============================================*/
+/* Current-week card                          */
+/*============================================*/
+
+#current-week-card {
+	background: var(--bg-card);
+	border-radius: 8px;
+	padding: 10px 14px;
+	border-left: 4px solid var(--accent-blue);
+	flex-shrink: 0;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+#current-week-card.hidden {
+	display: none;
+}
+
+#week-card-phase-badge {
+	font-size: 0.7em;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	padding: 2px 8px;
+	border-radius: 4px;
+	background: var(--accent-blue);
+	color: var(--bg-primary);
+}
+
+#week-card-context {
+	flex: 1;
+	min-width: 120px;
+}
+
+#week-card-age-label {
+	font-weight: 700;
+	font-size: 0.95em;
+}
+
+#week-card-week-label {
+	font-size: 0.82em;
+	color: var(--text-secondary);
+}
+
+#week-card-pressure {
+	font-size: 0.78em;
+	font-weight: 600;
+	color: var(--accent-yellow);
+	padding: 2px 8px;
+	border-radius: 4px;
+	background: rgba(255, 193, 7, 0.15);
+}
+
+#week-card-pressure.hidden {
+	display: none;
+}
+
+#week-card-opponent {
+	font-size: 0.85em;
+	color: var(--text-primary);
+	font-weight: 600;
+}
+
+#week-card-opponent.hidden {
+	display: none;
+}
+
+/* Phase-specific week card border colors */
+#current-week-card.phase-childhood { border-left-color: var(--phase-childhood); }
+#current-week-card.phase-youth { border-left-color: var(--phase-youth); }
+#current-week-card.phase-high-school { border-left-color: var(--phase-high-school); }
+#current-week-card.phase-college { border-left-color: var(--phase-college); }
+#current-week-card.phase-nfl { border-left-color: var(--phase-nfl); }
+#current-week-card.phase-legacy { border-left-color: var(--phase-legacy); }
+
+/* Phase badge colors match border */
+#current-week-card.phase-childhood #week-card-phase-badge { background: var(--phase-childhood); }
+#current-week-card.phase-youth #week-card-phase-badge { background: var(--phase-youth); }
+#current-week-card.phase-high-school #week-card-phase-badge { background: var(--phase-high-school); }
+#current-week-card.phase-college #week-card-phase-badge { background: var(--phase-college); }
+#current-week-card.phase-nfl #week-card-phase-badge { background: var(--phase-nfl); }
+#current-week-card.phase-legacy #week-card-phase-badge { background: var(--phase-legacy); }
+
+/*============================================*/
+/* Phone-only compact stat strip              */
+/*============================================*/
+
+#life-stats-strip {
+	display: flex;
+	gap: 8px;
+	padding: 6px 10px;
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	flex-shrink: 0;
+	cursor: pointer;
+}
+
+#life-stats-strip.hidden {
+	display: none;
+}
+
+.mini-stat {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.mini-stat-label {
+	font-size: 0.7em;
+	font-weight: 600;
+	color: var(--text-secondary);
+	width: 24px;
+	flex-shrink: 0;
+}
+
+.mini-stat-bar {
+	flex: 1;
+	height: 8px;
+	background: var(--bar-bg);
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.mini-stat-fill {
+	height: 100%;
+	border-radius: 4px;
+	transition: width 0.4s ease, background-color 0.4s ease;
+	width: 0%;
+}
+
 /* Stats panel */
 #stats-panel {
 	background: var(--bg-secondary);
 	border-radius: 8px;
-	padding: 6px 10px;
+	padding: 10px 12px;
 	flex-shrink: 0;
 }
 
 .stat-row {
 	display: flex;
 	align-items: center;
-	margin: 3px 0;
+	margin: 6px 0;
 	gap: 8px;
 }
 
@@ -138,14 +298,14 @@ html, body {
 	flex-shrink: 0;
 }
 
-/* Story panel: scrollable story log */
+/* Life status bar: record and opponent info */
 #life-status {
 	background: var(--bg-card);
 	border-radius: 8px;
 	padding: 8px 12px;
 	font-size: 0.88em;
 	color: var(--text-secondary);
-	flex-shrink: 0;
+	flex-shrink: 1;
 }
 
 #life-record {
@@ -197,13 +357,43 @@ html, body {
 	font-style: italic;
 }
 
-/* Choices panel: big tap-friendly buttons */
+/* Milestone event cards in story timeline */
+.milestone-card {
+	background: var(--bg-card);
+	border: 2px solid var(--accent-gold);
+	border-radius: 12px;
+	padding: 14px 16px;
+	margin: 12px 0;
+}
+
+.milestone-card .milestone-title {
+	font-weight: 800;
+	font-size: 1.1em;
+	color: var(--accent-gold);
+	margin-bottom: 6px;
+}
+
+.milestone-card .milestone-desc {
+	font-size: 0.92em;
+	line-height: 1.5;
+	margin-bottom: 6px;
+}
+
+.milestone-card .milestone-impact {
+	font-size: 0.82em;
+	color: var(--text-secondary);
+	font-style: italic;
+}
+
+/* Choices panel: pinned at bottom, never scrolls away */
 #choices-panel {
 	flex-shrink: 0;
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
 	padding: 4px 0;
+	max-height: 35vh;
+	overflow-y: auto;
 }
 
 .choice-button {
@@ -235,6 +425,11 @@ html, body {
 	background: var(--button-hover);
 	transform: scale(0.98);
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.choice-button:focus-visible {
+	outline: 2px solid var(--accent-gold);
+	outline-offset: 2px;
 }
 
 .choice-button.primary {
@@ -335,6 +530,11 @@ html, body {
 
 .tab-button:active {
 	color: var(--text-primary);
+}
+
+.tab-button:focus-visible {
+	outline: 2px solid var(--accent-gold);
+	outline-offset: -2px;
 }
 
 /* Tab panel visibility */
@@ -585,16 +785,238 @@ html, body {
 	transition: opacity 0.3s ease;
 }
 
-/* Scrollbar styling for story panel */
-#story-panel::-webkit-scrollbar {
+/* Scrollbar styling for story panel and sidebar */
+#story-panel::-webkit-scrollbar,
+#sidebar::-webkit-scrollbar {
 	width: 4px;
 }
 
-#story-panel::-webkit-scrollbar-track {
+#story-panel::-webkit-scrollbar-track,
+#sidebar::-webkit-scrollbar-track {
 	background: transparent;
 }
 
-#story-panel::-webkit-scrollbar-thumb {
+#story-panel::-webkit-scrollbar-thumb,
+#sidebar::-webkit-scrollbar-thumb {
 	background: var(--bar-bg);
 	border-radius: 2px;
+}
+
+/*============================================*/
+/* Sidebar (hidden on phone, visible on iPad) */
+/*============================================*/
+
+#sidebar {
+	display: none;
+	flex-direction: column;
+	gap: 8px;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	padding: 4px;
+}
+
+#sidebar.hidden {
+	display: none;
+}
+
+/* Sidebar section groups */
+#sidebar-player-dev,
+#sidebar-season-career,
+#sidebar-this-week {
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	padding: 12px;
+}
+
+#sidebar-season-career.hidden,
+#sidebar-this-week.hidden {
+	display: none;
+}
+
+/* Sidebar section label (reuse existing style) */
+.sidebar-section-label {
+	font-size: 0.75em;
+	font-weight: 700;
+	color: var(--accent-gold);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 8px;
+}
+
+/* Sidebar player identity */
+#sidebar-player-identity {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+#sidebar-portrait {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	overflow: hidden;
+	background: var(--bg-primary);
+	flex-shrink: 0;
+}
+
+#sidebar-portrait svg {
+	width: 100%;
+	height: 100%;
+}
+
+#sidebar-player-name {
+	font-weight: 700;
+	font-size: 0.95em;
+}
+
+#sidebar-player-detail {
+	font-size: 0.8em;
+	color: var(--text-secondary);
+}
+
+/* Sidebar stat bars (compact version) */
+#sidebar-stats .stat-row {
+	margin: 4px 0;
+}
+
+#sidebar-stats .stat-label {
+	width: 70px;
+	font-size: 0.75em;
+}
+
+#sidebar-stats .stat-bar {
+	height: 10px;
+	border-radius: 5px;
+}
+
+#sidebar-stats .stat-fill {
+	border-radius: 5px;
+}
+
+#sidebar-stats .stat-value {
+	width: 24px;
+	font-size: 0.75em;
+}
+
+/* Recent stat change line */
+#sidebar-recent-change {
+	font-size: 0.78em;
+	color: var(--accent-green);
+	font-style: italic;
+	margin-top: 6px;
+	padding-top: 6px;
+	border-top: 1px solid var(--bar-bg);
+}
+
+#sidebar-recent-change.hidden {
+	display: none;
+}
+
+/* This Week checklist */
+.week-checklist-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 0;
+	font-size: 0.82em;
+}
+
+.week-checklist-icon {
+	width: 18px;
+	height: 18px;
+	border-radius: 4px;
+	border: 2px solid var(--bar-bg);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.7em;
+	flex-shrink: 0;
+	color: var(--text-secondary);
+}
+
+.week-checklist-icon.done {
+	background: var(--accent-green);
+	border-color: var(--accent-green);
+	color: var(--bg-primary);
+}
+
+.week-checklist-icon.pending {
+	border-color: var(--accent-yellow);
+}
+
+.week-checklist-label {
+	flex: 1;
+	color: var(--text-secondary);
+}
+
+.week-checklist-label.done {
+	color: var(--text-primary);
+}
+
+.week-checklist-action {
+	font-size: 0.75em;
+	padding: 3px 8px;
+	background: var(--button-bg);
+	color: var(--text-primary);
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.week-checklist-action:hover {
+	background: var(--button-hover);
+}
+
+.week-checklist-action:focus-visible {
+	outline: 2px solid var(--accent-gold);
+	outline-offset: 1px;
+}
+
+/* Sidebar summary rows (compact) */
+#sidebar-season-career .stats-summary-row {
+	padding: 3px 0;
+	font-size: 0.85em;
+}
+
+/*============================================*/
+/* iPad layout: two-column dashboard          */
+/*============================================*/
+
+@media (min-width: 768px) {
+	/* On iPad, hide the header portrait (sidebar has it) */
+	#player-header #player-portrait {
+		display: none;
+	}
+
+	/* Dashboard becomes a two-column grid */
+	#dashboard {
+		flex-direction: row;
+		gap: 10px;
+	}
+
+	/* Main column takes ~58% */
+	#main-column {
+		flex: 1.4;
+	}
+
+	/* Sidebar visible and takes ~42% */
+	#sidebar {
+		display: flex;
+		flex: 1;
+		max-width: 340px;
+		min-width: 260px;
+	}
+
+	/* Hide phone-only stat strip on iPad */
+	#life-stats-strip {
+		display: none !important;
+	}
+
+	/* Hide stats and activities tabs on iPad (sidebar covers them) */
+	.tab-button[data-tab="stats"],
+	.tab-button[data-tab="activities"] {
+		display: none;
+	}
 }

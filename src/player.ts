@@ -168,6 +168,7 @@ export interface SeasonRecord {
 	position: Position | null;
 	wins: number;
 	losses: number;
+	ties: number;
 	depthChart: DepthChartStatus;
 	highlights: string[];
 	awards: string[];

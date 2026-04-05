@@ -604,6 +604,7 @@ function finalizeSeason(player: Player, ctx: CareerContext): void {
 		position: player.position,
 		wins: record.wins,
 		losses: record.losses,
+		ties: record.ties,
 		depthChart: player.depthChart,
 		highlights: [],
 		awards: [],

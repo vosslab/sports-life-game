@@ -113,7 +113,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 			primary: false,
 			action: () => {
 				player.hidden.leadership = clampStat(player.hidden.leadership + 3);
-				player.career.money -= 1000000;
+				player.career.money = Math.max(0, player.career.money - 1000000);
 				modifyStat(player, 'discipline', 2);
 				ctx.addText(`${player.firstName} restructures to help the team, taking a $1M pay cut.`);
 				ctx.updateStats(player);

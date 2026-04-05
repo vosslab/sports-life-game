@@ -60,10 +60,11 @@ import {
 } from './ncaa.js';
 import {
 	simulateNFLSeason, getNFLMidseasonEvent, applyNFLEventChoice,
-	checkRetirement,
+	checkRetirement, loadNFLTeams,
 } from './nfl.js';
 import {
 	updateTabBar, switchTab, hideTabBar, showTabBar, setOnTabSwitch,
+	isSidebarVisible, updateSidebarVisibility, initSidebarListener,
 } from './tabs.js';
 import type { TabId } from './tabs.js';
 import {
@@ -191,9 +192,53 @@ function buildCareerContext(): void {
 		showEventModal: (title, desc, choices) => ui.showEventModal(title, desc, choices),
 		hideEventModal: () => ui.hideEventModal(),
 		save: () => { if (currentPlayer) saveGame(currentPlayer); },
-		updateStats: (player) => ui.updateAllStats(player),
-		updateHeader: (player) => ui.updateHeader(player),
+		updateStats: (player) => { ui.updateAllStats(player); refreshDashboard(); },
+		updateHeader: (player) => { ui.updateHeader(player); refreshDashboard(); },
 	};
+}
+
+// Track the last focus label chosen this week (for This Week panel display)
+let lastFocusLabel = '';
+
+// Track the last recent stat change text (for sidebar development section)
+let lastRecentChange = '';
+
+//============================================
+// DASHBOARD UPDATE HELPER
+// Centralized function to refresh sidebar, week card, and mini stat strip.
+// Called alongside updateAllStats/updateHeader at key state change points.
+//============================================
+
+function refreshDashboard(): void {
+	if (!currentPlayer) {
+		return;
+	}
+
+	// Get opponent info from active season
+	let opponentName = '';
+	let pressure = '';
+	const activeSeason = getActiveSeason();
+	if (activeSeason) {
+		const playerGame = activeSeason.getPlayerGame();
+		if (playerGame) {
+			const oppId = playerGame.getOpponentId(activeSeason.playerTeamId);
+			const opp = oppId ? activeSeason.getTeam(oppId) : undefined;
+			opponentName = opp ? opp.getDisplayName() : '';
+		}
+	}
+
+	// Determine pressure context
+	if (currentPlayer.phase === 'nfl' && currentPlayer.age >= 35) {
+		pressure = 'Contract year';
+	} else if (currentPlayer.phase === 'college' && currentPlayer.collegeYear >= 3) {
+		pressure = 'Draft watch';
+	}
+
+	// Update all dashboard components
+	ui.updateWeekCard(currentPlayer, opponentName, pressure);
+	ui.updateMiniStatStrip(currentPlayer);
+	ui.updateSidebar(currentPlayer, currentWeekState, opponentName, lastFocusLabel);
+	ui.showRecentChange(lastRecentChange);
 }
 
 // BUG FIX 3: Track if state championship won this season
@@ -236,8 +281,9 @@ function handleTabSwitch(tabId: TabId): void {
 		return;
 	}
 
-	// Update stat bars whenever any tab is opened (keeps bars current)
+	// Update stat bars and dashboard whenever any tab is opened
 	ui.updateAllStats(currentPlayer);
+	refreshDashboard();
 
 	// Get season data from the new season layer (single source of truth)
 	const activeSeason = getActiveSeason();
@@ -345,8 +391,14 @@ async function initGame(): Promise<void> {
 	// Load NCAA school data for college phase
 	ncaaSchools = await loadNCAASchools();
 
+	// Load NFL team data from CSV
+	await loadNFLTeams();
+
 	// Register tab content refresh callback
 	setOnTabSwitch(handleTabSwitch);
+
+	// Initialize sidebar resize listener
+	initSidebarListener();
 
 	// Initialize the shared game loop engine with context from main.ts
 	const gameContext: GameContext = {

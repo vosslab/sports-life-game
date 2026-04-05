@@ -74,6 +74,54 @@ export function loadGame(): Player | null {
 			{ archetype: 'player', age: player.age },
 		);
 	}
+	// Migration: array fields (must default to empty arrays)
+	if (player.storyLog === undefined) {
+		player.storyLog = [];
+	}
+	if (player.careerHistory === undefined) {
+		player.careerHistory = [];
+	}
+	if (player.bigDecisions === undefined) {
+		player.bigDecisions = [];
+	}
+	if (player.collegeOffers === undefined) {
+		player.collegeOffers = [];
+	}
+	// Migration: story and milestone tracking
+	if (player.storyFlags === undefined) {
+		player.storyFlags = {};
+	}
+	if (player.milestones === undefined) {
+		player.milestones = {};
+	}
+	// Migration: numeric/boolean fields
+	if (player.teamStrength === undefined) {
+		player.teamStrength = 50;
+	}
+	if (player.positionBucket === undefined) {
+		player.positionBucket = null;
+	}
+	if (player.recruitingStars === undefined) {
+		player.recruitingStars = 0;
+	}
+	if (player.draftStock === undefined) {
+		player.draftStock = 0;
+	}
+	if (player.useRealTeamNames === undefined) {
+		player.useRealTeamNames = true;
+	}
+	// Migration: patch careerHistory entries for fields added later
+	for (const entry of player.careerHistory) {
+		if (entry.ties === undefined) {
+			entry.ties = 0;
+		}
+		if (entry.highlights === undefined) {
+			entry.highlights = [];
+		}
+		if (entry.awards === undefined) {
+			entry.awards = [];
+		}
+	}
 	if (player.seasonStats === undefined) {
 		player.seasonStats = createEmptySeasonStats();
 	} else {

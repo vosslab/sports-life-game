@@ -453,6 +453,7 @@ function endCollegeSeason(): void {
 		position: player.position,
 		wins: collegeTeam.wins,
 		losses: collegeTeam.losses,
+		ties: 0,
 		depthChart: player.depthChart,
 		highlights: [],
 		awards: [],

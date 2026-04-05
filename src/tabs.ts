@@ -120,6 +120,11 @@ export function switchTab(tabId: TabId): void {
 }
 
 //============================================
+// Check if sidebar is visible (iPad width)
+export function isSidebarVisible(): boolean {
+	return window.matchMedia('(min-width: 768px)').matches;
+}
+
 // Re-render the tab bar buttons for a given career phase
 export function updateTabBar(phase: CareerPhase): void {
 	const tabBar = document.getElementById('tab-bar');
@@ -134,6 +139,7 @@ export function updateTabBar(phase: CareerPhase): void {
 	const tabs = getTabsForPhase(phase);
 
 	// Create a button for each tab
+	// (CSS hides stats/activities tabs on iPad via data-tab selectors)
 	for (const tab of tabs) {
 		const button = document.createElement('button');
 		button.className = 'tab-button';
@@ -158,6 +164,38 @@ export function updateTabBar(phase: CareerPhase): void {
 	if (availableIds.indexOf(currentTab) === -1) {
 		switchTab('life');
 	}
+
+	// Show or hide sidebar based on viewport
+	updateSidebarVisibility();
+}
+
+// Toggle sidebar visibility based on viewport width
+export function updateSidebarVisibility(): void {
+	const sidebar = document.getElementById('sidebar');
+	if (!sidebar) {
+		return;
+	}
+
+	if (isSidebarVisible()) {
+		sidebar.classList.remove('hidden');
+	} else {
+		sidebar.classList.add('hidden');
+	}
+}
+
+// Listen for viewport resize to toggle sidebar
+let resizeListenerAdded = false;
+
+export function initSidebarListener(): void {
+	if (resizeListenerAdded) {
+		return;
+	}
+	resizeListenerAdded = true;
+	window.addEventListener('resize', () => {
+		updateSidebarVisibility();
+	});
+	// Initial check
+	updateSidebarVisibility();
 }
 
 //============================================
