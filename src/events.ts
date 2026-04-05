@@ -202,6 +202,16 @@ export function applyEventChoice(
 				player.hidden.durability + delta
 			);
 		}
+
+		// Warn if stat name does not match any known stat
+		const knownStats = [
+			'athleticism', 'technique', 'footballIq', 'discipline',
+			'health', 'confidence', 'popularity', 'money',
+			'leadership', 'durability',
+		];
+		if (!knownStats.includes(statName)) {
+			console.warn(`Unknown stat name in event effect: "${statName}"`);
+		}
 	}
 
 	// Set flag if specified

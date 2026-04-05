@@ -27,6 +27,7 @@ export function calculateStandings(
 			pointsAgainst: 0,
 			conferenceWins: 0,
 			conferenceLosses: 0,
+			conferenceTies: 0,
 		});
 	}
 
@@ -93,6 +94,14 @@ export function calculateStandings(
 				}
 				if (awayRow) {
 					awayRow.conferenceWins += 1;
+				}
+			} else {
+				// Conference tie
+				if (homeRow) {
+					homeRow.conferenceTies += 1;
+				}
+				if (awayRow) {
+					awayRow.conferenceTies += 1;
 				}
 			}
 		}

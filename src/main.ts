@@ -189,9 +189,7 @@ function buildCareerContext(): void {
 		addText: (text: string) => addStoryText(text),
 		addResult: (text: string) => ui.addResult(text),
 		showChoices: (options) => ui.showChoices(options),
-		waitForInteraction: (title, options, description) => ui.waitForInteraction(title, options, description),
-		showEventModal: (title, desc, choices) => ui.showEventModal(title, desc, choices),
-		hideEventModal: () => ui.hideEventModal(),
+		waitForInteraction: (title, options, description, style) => ui.waitForInteraction(title, options, description, style),
 		save: () => { if (currentPlayer) saveGame(currentPlayer); },
 		updateStats: (player) => { ui.updateAllStats(player); refreshDashboard(); },
 		updateHeader: (player) => { ui.updateHeader(player); refreshDashboard(); },
@@ -1342,6 +1340,8 @@ function hardClearStory(): void {
 //============================================
 // Track the current collapsible section so addStoryText appends into it
 let currentStorySection: HTMLElement | null = null;
+let currentWeekSection: HTMLElement | null = null;
+let currentWeekHeader: HTMLElement | null = null;
 
 function addStoryHeadline(text: string): void {
 	const storyLog = document.getElementById('story-log');
@@ -1349,10 +1349,18 @@ function addStoryHeadline(text: string): void {
 		return;
 	}
 
-	// Only Age headlines get the collapsible carrot
 	const isAgeHeadline = /^Age \d+/.test(text);
+	const isWeekHeadline = /^Week \d+/.test(text);
 
 	if (isAgeHeadline) {
+		// Collapse previous week section if any
+		if (currentWeekSection && currentWeekHeader) {
+			currentWeekSection.classList.add('collapsed');
+			currentWeekHeader.classList.add('collapsed');
+		}
+		currentWeekSection = null;
+		currentWeekHeader = null;
+
 		// Create a clickable headline with collapse carrot
 		const header = document.createElement('div');
 		header.className = 'story-headline-toggle';
@@ -1377,13 +1385,47 @@ function addStoryHeadline(text: string): void {
 			section.classList.toggle('collapsed');
 			header.classList.toggle('collapsed');
 		});
+	} else if (isWeekHeadline && currentStorySection) {
+		// Auto-collapse previous week section
+		if (currentWeekSection && currentWeekHeader) {
+			currentWeekSection.classList.add('collapsed');
+			currentWeekHeader.classList.add('collapsed');
+		}
+
+		// Create collapsible week header inside the age section
+		const header = document.createElement('div');
+		header.className = 'story-headline-toggle';
+		const carrot = document.createElement('span');
+		carrot.className = 'story-carrot';
+		carrot.textContent = 'v ';
+		header.appendChild(carrot);
+		const label = document.createElement('span');
+		label.className = 'story-headline';
+		label.textContent = text;
+		header.appendChild(label);
+		currentStorySection.appendChild(header);
+
+		// Create collapsible week content container
+		const section = document.createElement('div');
+		section.className = 'story-section';
+		currentStorySection.appendChild(section);
+		currentWeekSection = section;
+		currentWeekHeader = header;
+
+		// Toggle collapse on click
+		header.addEventListener('click', () => {
+			section.classList.toggle('collapsed');
+			header.classList.toggle('collapsed');
+		});
 	} else {
 		// Non-collapsible headline (sub-events, milestones, etc.)
 		const p = document.createElement('p');
 		p.className = 'story-headline';
 		p.textContent = text;
-		if (currentStorySection) {
-			currentStorySection.appendChild(p);
+		// Put inside week section if active, else age section, else top level
+		const target = currentWeekSection || currentStorySection;
+		if (target) {
+			target.appendChild(p);
 		} else {
 			storyLog.appendChild(p);
 		}
@@ -1404,9 +1446,10 @@ function addStoryText(text: string): void {
 	if (storyLog) {
 		const p = document.createElement('p');
 		p.textContent = text;
-		// Append into current collapsible section if one exists
-		if (currentStorySection) {
-			currentStorySection.appendChild(p);
+		// Append into current week section, age section, or top level
+		const target = currentWeekSection || currentStorySection;
+		if (target) {
+			target.appendChild(p);
 		} else {
 			storyLog.appendChild(p);
 		}

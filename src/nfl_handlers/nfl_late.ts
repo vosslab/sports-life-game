@@ -45,6 +45,7 @@ export const nflLateHandler: YearHandler = {
 			// Show career summary and end
 			ctx.addHeadline('Career Complete');
 			ctx.addText(`${player.firstName} ${player.lastName} has completed their NFL career.`);
+			ctx.save();
 			return;
 		}
 
@@ -99,6 +100,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 		ctx.addText(`Career earnings: $${(player.career.money / 1000000).toFixed(1)}M`);
 		ctx.addHeadline('Career Complete');
 		ctx.addText(`${player.firstName} ${player.lastName} has completed their NFL career.`);
+		ctx.save();
 		return;
 	}
 

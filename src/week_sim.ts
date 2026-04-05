@@ -482,10 +482,9 @@ export function simulateGame(
 			? 1.5  // Low confidence amplifies negative variance
 			: 1.0; // Normal variance
 
-	const adjustedVariance = Math.max(
-		-12 * confidenceModifier,
-		Math.min(12 * confidenceModifier, baseVariance),
-	);
+	// Scale variance by confidence, then clamp to safe range
+	const scaledVariance = baseVariance * confidenceModifier;
+	const adjustedVariance = Math.max(-12, Math.min(12, scaledVariance));
 	performanceScore = clampStat(performanceScore + adjustedVariance);
 
 	// Depth chart affects how many real snaps the player sees.
@@ -778,6 +777,25 @@ function scaleStat(statLine: StatLine, multiplier: number): StatLine {
 			adjusted[key] = value;
 		}
 	}
+	// Enforce stat consistency: zero out dependent stats when base stat is zero
+	// No catches means no receiving yards or TDs
+	if (adjusted['receptions'] === 0) {
+		adjusted['recYards'] = 0;
+		adjusted['recTds'] = 0;
+	}
+	// No carries means no rushing yards or TDs
+	if (adjusted['carries'] === 0) {
+		adjusted['rushYards'] = 0;
+		adjusted['rushTds'] = 0;
+	}
+	// No pass attempts means no completions, yards, TDs, or INTs
+	if (adjusted['attempts'] === 0) {
+		adjusted['completions'] = 0;
+		adjusted['passYards'] = 0;
+		adjusted['passTds'] = 0;
+		adjusted['passInts'] = 0;
+	}
+
 	return adjusted;
 }
 

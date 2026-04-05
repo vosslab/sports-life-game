@@ -58,6 +58,9 @@ export const collegeEntryHandler: YearHandler = {
 
 			// Generate schedule and start season
 			const allSchools = [...ctx.ncaaSchools.fbs, ...ctx.ncaaSchools.fcs];
+			if (allSchools.length === 0) {
+				throw new Error('No NCAA schools loaded');
+			}
 			const playerSchool = allSchools.find(s => formatSchoolName(s) === player.teamName)
 				|| allSchools[0];
 			const season = buildCollegeSeason(playerSchool, allSchools);

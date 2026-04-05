@@ -1,25 +1,87 @@
 // popup.ts - dedicated popup and modal UI system
 //
-// Owns all overlay/modal rendering: choice popups, event modals,
-// and the persistent main action bar (Next Week / Age Up).
+// Owns all overlay/modal rendering via a single unified #game-modal.
+// Two visual themes: narrative (gold title, left-aligned) for events,
+// decision (bold, centered) for player choices.
 // Phase modules import directly from this file.
 
 import { getElement, findElement } from './dom_utils.js';
 import type { ChoiceOption } from './ui.js';
 
 //============================================
+// UNIFIED MODAL (single DOM element, two visual themes)
+//============================================
+
+// Internal: show the unified modal with the given style class
+function showModal(
+	title: string,
+	description: string,
+	options: { text: string; primary?: boolean; action: () => void }[],
+	styleClass: string,
+	autoHideOnClick: boolean,
+): void {
+	const modal = getElement('game-modal');
+	const card = modal.querySelector('.modal-card') as HTMLElement;
+	const titleEl = getElement('modal-title');
+	const descEl = getElement('modal-description');
+	const optionsEl = getElement('modal-options');
+
+	// Set content
+	titleEl.textContent = title;
+	descEl.textContent = description;
+
+	// Apply style class (remove previous theme first)
+	card.classList.remove('decision-style', 'narrative-style', 'activity-style');
+	if (styleClass) {
+		card.classList.add(styleClass);
+	}
+
+	// Clear and populate options
+	optionsEl.innerHTML = '';
+	for (const option of options) {
+		const button = document.createElement('button');
+		button.className = 'choice-button';
+		if (option.primary) {
+			button.classList.add('primary');
+		}
+		button.textContent = option.text;
+		button.addEventListener('click', () => {
+			if (autoHideOnClick) {
+				hideModal();
+			}
+			option.action();
+		});
+		optionsEl.appendChild(button);
+	}
+
+	// Show modal
+	modal.classList.remove('hidden');
+}
+
+//============================================
+// Hide the unified modal and clear style classes
+function hideModal(): void {
+	const modal = getElement('game-modal');
+	const card = modal.querySelector('.modal-card') as HTMLElement;
+	modal.classList.add('hidden');
+	card.classList.remove('decision-style', 'narrative-style', 'activity-style');
+}
+
+//============================================
 // CHOICE POPUP (BitLife-style modal for decisions)
 //============================================
 
-// Show a decision as a centered popup modal.
+// Show a decision or event as a centered popup modal.
 // If only one option is provided, renders it as the main bottom button
 // instead of a popup (single actions like "Continue" don't need a modal).
 // Title provides context (e.g. "Weekly Focus", "Offseason Decision").
 // Description is optional explanatory text below the title.
+// Style: 'decision' (default, centered bold) or 'narrative' (gold title, left-aligned).
 export function waitForInteraction(
 	title: string,
 	options: ChoiceOption[],
 	description?: string,
+	style?: string,
 ): void {
 	// Single option: render as the main bottom button, not a popup
 	if (options.length === 1) {
@@ -33,81 +95,20 @@ export function waitForInteraction(
 		return;
 	}
 
-	const modal = getElement('choice-popup');
-	const titleEl = getElement('choice-popup-title');
-	const descEl = getElement('choice-popup-description');
-	const optionsEl = getElement('choice-popup-options');
-
-	// Set content
-	titleEl.textContent = title;
-	descEl.textContent = description ?? '';
-
-	// Clear and populate choices
-	optionsEl.innerHTML = '';
-	for (const option of options) {
-		const button = document.createElement('button');
-		button.className = 'choice-button';
-		if (option.primary) {
-			button.classList.add('primary');
-		}
-		button.textContent = option.text;
-		button.addEventListener('click', () => {
-			// Hide popup before running the action
-			hideInteractionPopup();
-			option.action();
-		});
-		optionsEl.appendChild(button);
+	// Pick CSS theme class based on style parameter
+	let styleClass = 'decision-style';
+	if (style === 'narrative') {
+		styleClass = 'narrative-style';
+	} else if (style === 'activity') {
+		styleClass = 'activity-style';
 	}
-
-	// Show popup
-	modal.classList.remove('hidden');
+	showModal(title, description ?? '', options, styleClass, true);
 }
 
 //============================================
-// Hide choice popup
+// Hide the modal (exported for callers that need explicit control)
 export function hideInteractionPopup(): void {
-	const modal = getElement('choice-popup');
-	modal.classList.add('hidden');
-}
-
-//============================================
-// EVENT MODAL (narrative events with choices)
-//============================================
-
-// Show event modal with title, description, and choices
-export function showEventModal(
-	title: string,
-	description: string,
-	choices: { text: string; action: () => void }[],
-): void {
-	const modal = getElement('event-modal');
-	const titleEl = getElement('event-title');
-	const descEl = getElement('event-description');
-	const choicesEl = getElement('event-choices');
-
-	// Set content
-	titleEl.textContent = title;
-	descEl.textContent = description;
-
-	// Clear and populate choices
-	choicesEl.innerHTML = '';
-	for (const choice of choices) {
-		const button = document.createElement('button');
-		button.className = 'choice-button';
-		button.textContent = choice.text;
-		button.addEventListener('click', choice.action);
-		choicesEl.appendChild(button);
-	}
-
-	// Show modal
-	modal.classList.remove('hidden');
-}
-
-//============================================
-// Hide event modal
-export function hideEventModal(): void {
-	const modal = getElement('event-modal');
-	modal.classList.add('hidden');
+	hideModal();
 }
 
 //============================================
@@ -127,6 +128,12 @@ export function configureMainButtons(config: {
 	ageUpVisible: boolean;
 	ageUpAction?: () => void;
 }): void {
+	// Clear inline choices panel to avoid double buttons
+	const choicesPanel = findElement('choices-panel');
+	if (choicesPanel) {
+		choicesPanel.innerHTML = '';
+	}
+
 	const nextBtn = getElement('btn-next-week') as HTMLButtonElement;
 	const ageBtn = getElement('btn-age-up') as HTMLButtonElement;
 

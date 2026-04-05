@@ -18,7 +18,6 @@ import { waitForInteraction as _waitForInteraction } from './popup.js';
 // Re-export popup functions so `import * as ui` still works
 export {
 	waitForInteraction, hideInteractionPopup,
-	showEventModal, hideEventModal,
 	configureMainButtons, disableMainButtons, enableMainButtons,
 	hideMainActionBar, showMainActionBar, initMainActionBar,
 } from './popup.js';
@@ -211,6 +210,12 @@ function autoScroll(): void {
 
 // Show choice buttons
 export function showChoices(options: ChoiceOption[]): void {
+	// Hide main action bar when showing inline choices to avoid double buttons
+	const actionBar = findElement('main-action-bar');
+	if (actionBar) {
+		actionBar.style.display = 'none';
+	}
+
 	const panel = getElement('choices-panel');
 	panel.innerHTML = '';
 

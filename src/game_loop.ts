@@ -290,7 +290,6 @@ function showEventCard(
 		action: () => {
 			// Apply choice effects
 			const flavor = applyEventChoice(player, choice);
-			ui.hideEventModal();
 			// Restore tab bar after modal closes
 			showTabBar();
 
@@ -306,7 +305,7 @@ function showEventCard(
 		},
 	}));
 
-	ui.showEventModal(event.title, event.description, choiceActions);
+	ui.waitForInteraction(event.title, choiceActions, event.description, 'narrative');
 }
 
 //============================================

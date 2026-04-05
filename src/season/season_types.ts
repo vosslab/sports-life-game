@@ -23,6 +23,7 @@ export interface StandingsRow {
 	pointsAgainst: number;
 	conferenceWins: number;
 	conferenceLosses: number;
+	conferenceTies: number;
 }
 
 //============================================

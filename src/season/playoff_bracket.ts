@@ -268,6 +268,9 @@ export function createHSPlayoffBracket(
 	];
 	// Populate first round: 1v4, 2v3
 	const sorted = [...bracket.seeds].sort((a, b) => a.seed - b.seed);
+	if (sorted.length < 4) {
+		console.warn(`HS playoff bracket needs 4 seeds, got ${sorted.length}`);
+	}
 	if (sorted.length >= 4) {
 		bracket.rounds[0].games.push(new SeasonGame(
 			nextPlayoffGameId(), 0, sorted[0].teamId, sorted[3].teamId, true,
@@ -291,6 +294,9 @@ export function createCollegePlayoffBracket(
 		{ roundNumber: 2, roundName: 'National Championship', games: [] },
 	];
 	const sorted = [...bracket.seeds].sort((a, b) => a.seed - b.seed);
+	if (sorted.length < 4) {
+		console.warn(`College playoff bracket needs 4 seeds, got ${sorted.length}`);
+	}
 	if (sorted.length >= 4) {
 		bracket.rounds[0].games.push(new SeasonGame(
 			nextPlayoffGameId(), 0, sorted[0].teamId, sorted[3].teamId, false,
@@ -319,6 +325,9 @@ export function createNFLPlayoffBracket(
 
 	// Wild card: 2v7, 3v6, 4v5 (1-seed has bye)
 	const sorted = [...bracket.seeds].sort((a, b) => a.seed - b.seed);
+	if (sorted.length < 7) {
+		console.warn(`NFL playoff bracket needs 7 seeds, got ${sorted.length}`);
+	}
 	if (sorted.length >= 7) {
 		bracket.rounds[0].games.push(new SeasonGame(
 			nextPlayoffGameId(), 0, sorted[1].teamId, sorted[6].teamId, true,

@@ -58,11 +58,9 @@ export interface CareerContext {
 	addResult(text: string): void;
 	// Choice presentation (renders buttons on Life tab)
 	showChoices(options: ChoiceOption[]): void;
-	// Choice popup modal with title and description
-	waitForInteraction(title: string, options: ChoiceOption[], description?: string): void;
-	// Event modal (overlay with title, description, choices)
-	showEventModal(title: string, desc: string, choices: EventChoiceAction[]): void;
-	hideEventModal(): void;
+	// Choice/event popup modal with title and description
+	// style: 'decision' (default, centered bold) or 'narrative' (gold title, left-aligned)
+	waitForInteraction(title: string, options: ChoiceOption[], description?: string, style?: string): void;
 	// Persistence
 	save(): void;
 	// Stats display refresh
@@ -71,12 +69,6 @@ export interface CareerContext {
 	updateHeader(player: Player): void;
 }
 
-//============================================
-// Event choice action for modal display
-export interface EventChoiceAction {
-	text: string;
-	action: () => void;
-}
 
 //============================================
 // Transition result: what happens after a year ends

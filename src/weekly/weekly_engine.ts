@@ -69,6 +69,9 @@ export function startSeason(
 		onSeasonEnd,
 	};
 
+	// Hide the main action bar - weekly engine uses popups for all decisions
+	ui.hideMainActionBar();
+
 	// Start the first week
 	advanceToNextWeek(player, ctx);
 }
@@ -147,45 +150,37 @@ function handleFocusSelected(
 		return;
 	}
 
-	// Clear buttons during the stat review pause
-	ctx.waitForInteraction('Stat Review', []);
+	// Go straight to activity prompt
+	activeEngine.weekState.phase = 'activity_prompt';
 
-	// Brief pause to show stat changes, then present activity choices
-	setTimeout(() => {
-		if (!activeEngine) {
-			return;
-		}
-		activeEngine.weekState.phase = 'activity_prompt';
+	ctx.addText('Pick an activity or skip to game day.');
 
-		ctx.addText('Pick an activity or skip to game day.');
-
-		// Build activity buttons inline
-		const activities = getActivitiesForPhase(player.phase, player);
-		const activityChoices = activities
-			.filter(a => isActivityUnlocked(a, player))
-			.map(a => {
-				const preview = getEffectPreview(a);
-				return {
-					text: `${a.name} (${preview})`,
-					primary: false,
-					action: () => handleActivitySelected(player, ctx, a),
-				};
-			});
-
-		// Add skip button at the end
-		activityChoices.push({
-			text: 'Skip to Game Day',
-			primary: true,
-			action: () => {
-				if (activeEngine) {
-					activeEngine.weekState.phase = 'activity_done';
-				}
-				proceedToEventCheck(player, ctx);
-			},
+	// Build activity buttons inline
+	const activities = getActivitiesForPhase(player.phase, player);
+	const activityChoices = activities
+		.filter(a => isActivityUnlocked(a, player))
+		.map(a => {
+			const preview = getEffectPreview(a);
+			return {
+				text: `${a.name} (${preview})`,
+				primary: false,
+				action: () => handleActivitySelected(player, ctx, a),
+			};
 		});
 
-		ctx.waitForInteraction('Weekly Activities', activityChoices);
-	}, 1000);
+	// Add skip button at the end
+	activityChoices.push({
+		text: 'Skip to Game Day',
+		primary: true,
+		action: () => {
+			if (activeEngine) {
+				activeEngine.weekState.phase = 'activity_done';
+			}
+			proceedToEventCheck(player, ctx);
+		},
+	});
+
+	ctx.waitForInteraction('Weekly Activities', activityChoices, undefined, 'activity');
 }
 
 //============================================
@@ -286,7 +281,6 @@ function showEventCard(
 		text: choice.text,
 		action: () => {
 			const flavor = applyEventChoice(player, choice);
-			ctx.hideEventModal();
 			showTabBar();
 
 			ctx.addHeadline(event.title);
@@ -303,7 +297,7 @@ function showEventCard(
 		},
 	}));
 
-	ctx.showEventModal(event.title, event.description, choiceActions);
+	ctx.waitForInteraction(event.title, choiceActions, event.description, 'narrative');
 }
 
 //============================================
@@ -410,14 +404,92 @@ function proceedToGame(player: Player, ctx: CareerContext): void {
 		`Sync check: games played (${gamesPlayed}) should not exceed week (${weekNum})`
 	);
 
-	// Show "Next Week" button - this is the ONLY path forward
+	// Show "Next Week" button via the main action bar
 	const isLastWeek = activeEngine.season.getCurrentWeek()
 		>= activeEngine.config.seasonLength;
-	ctx.showChoices([{
-		text: isLastWeek ? 'End of Season' : 'Next Week',
-		primary: true,
-		action: () => advanceToNextWeek(player, ctx),
-	}]);
+	ui.configureMainButtons({
+		nextLabel: isLastWeek ? 'End of Season' : 'Next Week',
+		nextAction: () => advanceToNextWeek(player, ctx),
+		ageUpVisible: !isLastWeek,
+		ageUpAction: () => simulateRestOfSeason(player, ctx),
+	});
+	ui.showMainActionBar();
+}
+
+//============================================
+// Simulate remaining weeks silently (Age Up / fast-forward)
+function simulateRestOfSeason(player: Player, ctx: CareerContext): void {
+	if (!activeEngine) {
+		return;
+	}
+
+	ui.hideMainActionBar();
+	let weeksSimulated = 0;
+
+	// Loop through remaining weeks
+	while (true) {
+		const hasMoreWeeks = activeEngine.season.advanceWeek();
+		player.currentWeek = activeEngine.season.getCurrentWeek();
+
+		if (!hasMoreWeeks) {
+			break;
+		}
+
+		weeksSimulated += 1;
+
+		// Random focus
+		const focuses: WeeklyFocus[] = ['train', 'film_study', 'recovery', 'social', 'teamwork'];
+		const focus = focuses[Math.floor(Math.random() * focuses.length)];
+		applyWeeklyFocus(player, focus);
+
+		// Get opponent for this week
+		const playerGame = activeEngine.season.getPlayerGame();
+		if (!playerGame) {
+			continue;
+		}
+		const opponentStrength = getPlayerOpponentStrength(activeEngine.season);
+		const playerRecord = activeEngine.season.getPlayerRecord();
+		const team: Team = {
+			teamName: player.teamName,
+			strength: player.teamStrength,
+			wins: playerRecord.wins,
+			losses: playerRecord.losses,
+			schedule: [],
+			coachPersonality: 'supportive',
+		};
+
+		// Simulate game
+		const gameResult = simulateGame(player, team, opponentStrength);
+		recordPlayerGameResult(activeEngine.season, gameResult);
+		simulateNonPlayerGames(activeEngine.season);
+		accumulateGameStats(player, gameResult.playerStatLine);
+
+		// Depth chart update
+		const depthUpdate = evaluateDepthChartUpdate(player, gameResult.playerGrade);
+		if (depthUpdate.changed) {
+			player.depthChart = depthUpdate.newStatus;
+		}
+
+		// Confidence adjustment
+		if (gameResult.result === 'win') {
+			modifyStat(player, 'confidence', randomInRange(1, 3));
+		} else {
+			modifyStat(player, 'confidence', -randomInRange(1, 3));
+		}
+	}
+
+	// Show summary
+	ctx.clearStory();
+	const record = activeEngine.season.getPlayerRecord();
+	ctx.addHeadline('Season Simulated');
+	ctx.addText(`Fast-forwarded ${weeksSimulated} weeks.`);
+	ctx.addText(`Final record: ${record.wins}-${record.losses}`);
+	ctx.updateStats(player);
+	ctx.updateHeader(player);
+	ctx.save();
+
+	// Proceed to end of season (playoffs, etc.)
+	endSeason(player, ctx);
 }
 
 //============================================

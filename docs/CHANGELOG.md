@@ -1,5 +1,65 @@
 # Changelog
 
+## 2026-04-04 (Deep Bug Review)
+
+### Fixes and Maintenance
+
+- **Conference ties not tracked in standings** (`src/season/standings_model.ts`,
+  `src/season/season_types.ts`): Added `conferenceTies` field to `StandingsRow` and
+  tracking logic. Previously conference ties vanished from conference records, breaking
+  tiebreaker seeding.
+- **Forced retirement exits without saving** (`src/nfl_handlers/nfl_late.ts`): Added
+  `ctx.save()` calls before early returns in forced retirement (health/ability check)
+  and age-39 forced end paths. Player's final career state was never persisted.
+- **Confidence modifier only amplified negative variance** (`src/week_sim.ts`): Changed
+  variance calculation to multiply baseVariance by confidenceModifier before clamping,
+  making the effect symmetric for both positive and negative outcomes.
+- **Silent stat effect failure from event JSON typos** (`src/events.ts`): Added
+  `console.warn` when an unrecognized stat key is encountered in event effects.
+- **Unsafe allSchools[0] fallback** (`src/college/college_entry.ts`,
+  `src/college/college_core.ts`, `src/college/college_senior.ts`): Added length check
+  before fallback to prevent crash if NCAA schools fail to load.
+- **Playoff bracket seed count not validated** (`src/season/playoff_bracket.ts`): Added
+  `console.warn` when HS (needs 4), college (needs 4), or NFL (needs 7) brackets
+  receive fewer seeds than expected.
+- **Weekly Activities popup gets teal color theme** (`src/weekly/weekly_engine.ts`,
+  `src/styles/modals.css`, `src/popup.ts`): Weekly Focus and Weekly Activities popups
+  now have distinct color palettes. Focus uses default decision style, activities
+  use a teal accent theme (`activity-style`).
+- **Week sections collapsible and auto-collapse** (`src/main.ts`,
+  `src/styles/story.css`): "Week N" headlines are now collapsible like age headlines.
+  Previous week sections auto-collapse when a new week starts. Removed the 2000px
+  `max-height` cap on `.story-section` that was clipping the story log.
+- **Age Up button now appears during season** (`src/weekly/weekly_engine.ts`,
+  `src/styles/buttons.css`): Weekly engine now shows "Next Week" via the main action
+  bar with an "Age Up" button beside it. Age Up simulates remaining weeks silently.
+  Styled as a small red button at 1/4 width. `showChoices` now hides the main action
+  bar, and `configureMainButtons` clears inline choices, preventing double buttons.
+- **Removed "Stat Review" empty popup** (`src/weekly/weekly_engine.ts`): Was a broken
+  `waitForInteraction` call with zero options plus a 1-second `setTimeout` delay.
+  Focus selection now goes straight to activity choices with no pause or empty modal.
+- **Impossible stat lines after scaling** (`src/week_sim.ts`): `scaleStat()` rounded
+  each stat independently, producing lines like 5 receiving yards with 0 catches.
+  Added consistency enforcement: when base stats (receptions, carries, attempts) are
+  zero, dependent stats (yards, TDs) are also zeroed.
+
+### Behavior or Interface Changes
+
+- **Unified two modals into `waitForInteraction()`** (`index.html`, `src/popup.ts`,
+  `src/styles/modals.css`, `src/core/year_handler.ts`, `src/main.ts`,
+  `src/game_loop.ts`, `src/weekly/weekly_engine.ts`, `src/ui.ts`):
+  Replaced `#event-modal` and `#choice-popup` with a single `#game-modal` element.
+  Removed `showEventModal()`, `hideEventModal()`, and `EventChoiceAction` interface.
+  `waitForInteraction()` now accepts an optional `style` parameter (`'narrative'` or
+  `'decision'`) to select the visual theme. Event callers pass `style: 'narrative'`.
+  Single-option calls never show a popup; they render as the main bottom button.
+
+### Removals and Deprecations
+
+- **Removed stale `src/player.js` and `src/team.js`**: These compiled JS files were
+  outdated and missing fields from current TypeScript sources. With `moduleResolution:
+  "bundler"` in tsconfig, imports resolve to `.ts` files directly.
+
 ## 2026-04-04 (UX Playthrough Review and Fixes)
 
 ### Fixes and Maintenance
