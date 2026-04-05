@@ -1,0 +1,1492 @@
+[
+	{
+		"id": "nfl_veteran_advice",
+		"title": "Veteran Gives You the Talk",
+		"description": "A 10-year vet pulls you aside in the locker room. He wants to give you some real advice.",
+		"phase": "nfl",
+		"tags": [
+			"locker_room",
+			"leadership"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Listen closely, take it to heart",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1,
+					"leadership": 1
+				},
+				"flavor": "His wisdom shapes your rookie year. You avoid rookie mistakes."
+			},
+			{
+				"text": "Thank him but do your own thing",
+				"effects": {
+					"confidence": 1,
+					"athleticism": 1
+				},
+				"flavor": "You've got your own style. You learn the hard way instead."
+			}
+		]
+	},
+	{
+		"id": "nfl_rookie_mentoring",
+		"title": "Young Rookie Asks for Help",
+		"description": "A lost-looking rookie approaches you for advice in the facility.",
+		"phase": "nfl",
+		"tags": [
+			"locker_room",
+			"leadership"
+		],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Mentor him, help him acclimate",
+				"effects": {
+					"leadership": 2,
+					"confidence": 1
+				},
+				"flavor": "He's grateful. You become a leader. Locker room respects it."
+			},
+			{
+				"text": "Brush him off, everyone figures it out",
+				"effects": {
+					"confidence": 1
+				},
+				"flavor": "You're busy with your own thing. Cold but effective."
+			}
+		]
+	},
+	{
+		"id": "nfl_locker_room_argument",
+		"title": "Locker Room Argument",
+		"description": "You and a teammate have it out after a loss. Frustration boils over.",
+		"phase": "nfl",
+		"tags": [
+			"locker_room",
+			"discipline"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Cool down and apologize later",
+				"effects": {
+					"discipline": 2,
+					"leadership": 1
+				},
+				"flavor": "You squash it. Mutual respect afterward. Team chemistry better for it."
+			},
+			{
+				"text": "Let it fester, don't back down",
+				"effects": {
+					"confidence": 1,
+					"discipline": -2
+				},
+				"flavor": "Tension remains. Locker room is split. Bad vibes all week."
+			}
+		]
+	},
+	{
+		"id": "nfl_team_meeting_speech",
+		"title": "Chance to Speak in Team Meeting",
+		"description": "Coach asks if anyone wants to address the team. Everyone's looking at you.",
+		"phase": "nfl",
+		"tags": [
+			"locker_room",
+			"leadership"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Stand up and fire up the team",
+				"effects": {
+					"leadership": 3,
+					"confidence": 2
+				},
+				"flavor": "Your words resonate. Team energy shifts. You're a captain now."
+			},
+			{
+				"text": "Stay quiet, let someone else speak",
+				"effects": {
+					"discipline": 1
+				},
+				"flavor": "Safe choice. But missed opportunity to build your leadership."
+			}
+		]
+	},
+	{
+		"id": "nfl_pregame_bonding",
+		"title": "Pregame Ritual Bonding",
+		"description": "You start a ritual before games. Other guys want to join in.",
+		"phase": "nfl",
+		"tags": [
+			"locker_room",
+			"social"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Make it a team thing, build unity",
+				"effects": {
+					"leadership": 2,
+					"confidence": 1,
+					"popularity": 1
+				},
+				"flavor": "The ritual becomes sacred. Team feels more bonded. It works."
+			},
+			{
+				"text": "Keep it just for you, your own superstition",
+				"effects": {
+					"confidence": 2
+				},
+				"flavor": "Your ritual is your edge. Your performance improves."
+			}
+		]
+	},
+	{
+		"id": "nfl_press_conference",
+		"title": "Tough Press Conference Question",
+		"description": "A reporter asks you a pointed question about a bad loss. The whole room is listening.",
+		"phase": "nfl",
+		"tags": [
+			"media",
+			"discipline"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Own the loss, take responsibility",
+				"effects": {
+					"discipline": 2,
+					"leadership": 1,
+					"confidence": 1
+				},
+				"flavor": "Reporters respect your honesty. Fans see accountability. Good PR."
+			},
+			{
+				"text": "Deflect and make excuses",
+				"effects": {
+					"confidence": -1,
+					"discipline": -1
+				},
+				"flavor": "Everyone sees through it. Looks bad in the media."
+			}
+		]
+	},
+	{
+		"id": "nfl_viral_moment",
+		"title": "Social Media Viral Moment",
+		"description": "A highlight from your game goes viral. Millions of views overnight.",
+		"phase": "nfl",
+		"tags": [
+			"media",
+			"social"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Ride the wave, capitalize on the attention",
+				"effects": {
+					"popularity": 3,
+					"confidence": 2
+				},
+				"flavor": "You're famous now. Endorsement deals start coming in."
+			},
+			{
+				"text": "Stay humble, focus on consistency",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1
+				},
+				"flavor": "One viral moment doesn't define you. You keep grinding."
+			}
+		]
+	},
+	{
+		"id": "nfl_national_tv_spotlight",
+		"title": "National TV Spotlight Game",
+		"description": "Your team is primetime Sunday night football. The world is watching.",
+		"phase": "nfl",
+		"tags": [
+			"media",
+			"confidence"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Rise to the moment, monster performance",
+				"effects": {
+					"confidence": 3,
+					"athleticism": 2,
+					"draftStock": 2
+				},
+				"flavor": "Everyone saw that. You looked like an All-Pro. Game changes your trajectory."
+			},
+			{
+				"text": "Get caught up in the moment, play loose",
+				"effects": {
+					"confidence": 1,
+					"athleticism": 1
+				},
+				"flavor": "You're having fun but not locked in. Decent game, nothing special."
+			}
+		]
+	},
+	{
+		"id": "nfl_podcast_interview",
+		"title": "Podcast Interview Offer",
+		"description": "A popular sports podcast wants you for a deep-dive interview. No PR team, just real talk.",
+		"phase": "nfl",
+		"tags": [
+			"media",
+			"social"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Do it, be authentic and real",
+				"effects": {
+					"popularity": 2,
+					"confidence": 1
+				},
+				"flavor": "Listeners connect with you. Your stock goes up."
+			},
+			{
+				"text": "Pass, stick to official interviews",
+				"effects": {
+					"discipline": 1
+				},
+				"flavor": "Safer route. You avoid saying something that gets twisted."
+			}
+		]
+	},
+	{
+		"id": "nfl_sports_radio",
+		"title": "Sports Talk Radio Debate",
+		"description": "You're on the radio and callers are debating your performance. Some love you, some say you're overrated.",
+		"phase": "nfl",
+		"tags": [
+			"media",
+			"social"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Ignore the noise, focus on play",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You tune it out. Critics are always there. You improve instead."
+			},
+			{
+				"text": "Let it fuel you, prove them wrong",
+				"effects": {
+					"confidence": 2,
+					"athleticism": 1
+				},
+				"flavor": "Chip on your shoulder. You go off next week."
+			}
+		]
+	},
+	{
+		"id": "nfl_endorsement_deal",
+		"title": "Endorsement Deal Offer",
+		"description": "A major brand wants you for an endorsement. Real money. Your face on commercials.",
+		"phase": "nfl",
+		"tags": [
+			"business",
+			"money"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Sign it, get the bag",
+				"effects": {
+					"money": 4,
+					"confidence": 1
+				},
+				"flavor": "Bank account is looking good. You're set for life financially."
+			},
+			{
+				"text": "Hold out for a bigger deal",
+				"effects": {
+					"money": 2,
+					"discipline": 1
+				},
+				"flavor": "You negotiate hard. Get a better rate. Respect the hustle."
+			}
+		]
+	},
+	{
+		"id": "nfl_financial_advisor",
+		"title": "Financial Advisor Meeting",
+		"description": "Your agent sets up a meeting with a financial advisor. Time to get serious about money.",
+		"phase": "nfl",
+		"tags": [
+			"business",
+			"money"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Listen closely, invest the money right",
+				"effects": {
+					"money": 2,
+					"discipline": 1
+				},
+				"flavor": "Smart decisions early. You'll be rich long after football."
+			},
+			{
+				"text": "Spend it on cars and jewelry",
+				"effects": {
+					"money": -1,
+					"confidence": 1
+				},
+				"flavor": "You look good but you're not thinking long-term. Bad call."
+			}
+		]
+	},
+	{
+		"id": "nfl_charity_event",
+		"title": "Charity Event Invitation",
+		"description": "A charity wants you to headline an event. Give back to the community, meet donors.",
+		"phase": "nfl",
+		"tags": [
+			"business",
+			"social"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Show up and give your time",
+				"effects": {
+					"popularity": 2,
+					"leadership": 1,
+					"money": -1
+				},
+				"flavor": "You help raise money for a good cause. People remember the kindness."
+			},
+			{
+				"text": "Send a donation instead, skip the event",
+				"effects": {
+					"money": -2,
+					"discipline": 1
+				},
+				"flavor": "Money talks. You help but stay focused on the season."
+			}
+		]
+	},
+	{
+		"id": "nfl_contract_restructure",
+		"title": "Contract Restructure Offer",
+		"description": "Team wants to restructure your deal to free up cap space. Your agent says it's normal.",
+		"phase": "nfl",
+		"tags": [
+			"business",
+			"money"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Agree, show you're a team player",
+				"effects": {
+					"leadership": 1,
+					"confidence": 1,
+					"money": 1
+				},
+				"flavor": "Team appreciates the flexibility. You stay loyal. Everyone wins."
+			},
+			{
+				"text": "Push back, protect your money",
+				"effects": {
+					"money": 3,
+					"discipline": 1
+				},
+				"flavor": "You hold firm. Agent negotiates hard. You win this one."
+			}
+		]
+	},
+	{
+		"id": "nfl_agent_trade_push",
+		"title": "Agent Pushes for Trade Demand",
+		"description": "Your agent thinks a trade would get you more money or better opportunity. He wants to start the process.",
+		"phase": "nfl",
+		"tags": [
+			"business",
+			"decision"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Stay loyal, finish what you started",
+				"effects": {
+					"leadership": 2,
+					"discipline": 1,
+					"draftStock": 1
+				},
+				"flavor": "You're not a quitter. Scouts and fans respect the loyalty."
+			},
+			{
+				"text": "Request a trade, chase better situation",
+				"effects": {
+					"money": 2,
+					"confidence": 1
+				},
+				"flavor": "New team, fresh start. Could work out great or be messy."
+			}
+		]
+	},
+	{
+		"id": "nfl_new_coordinator",
+		"title": "New Offensive Coordinator",
+		"description": "The new coordinator wants to change everything. New plays, new philosophy. Total overhaul.",
+		"phase": "nfl",
+		"tags": [
+			"football",
+			"technique"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Master the new system, be adaptable",
+				"effects": {
+					"footballIq": 2,
+					"technique": 1,
+					"discipline": 1
+				},
+				"flavor": "You learn fast. New scheme highlights your strengths. You thrive."
+			},
+			{
+				"text": "Resist the change, stick with what works",
+				"effects": {
+					"confidence": 1,
+					"athleticism": 1
+				},
+				"flavor": "You're slow to adapt. Performance dips. Growing pains."
+			}
+		]
+	},
+	{
+		"id": "nfl_film_weakness",
+		"title": "Film Study Reveals Weakness",
+		"description": "You're studying your opponent's film and see a critical weakness that nobody's talking about.",
+		"phase": "nfl",
+		"tags": [
+			"football",
+			"technique"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Share it with the team, be the game-changer",
+				"effects": {
+					"leadership": 1,
+					"footballIq": 2,
+					"confidence": 1
+				},
+				"flavor": "Your find changes the game plan. You're responsible for the victory."
+			},
+			{
+				"text": "Keep it quiet and exploit it yourself",
+				"effects": {
+					"footballIq": 1,
+					"athleticism": 1
+				},
+				"flavor": "You're the only one who knows. You go off this Sunday."
+			}
+		]
+	},
+	{
+		"id": "nfl_joint_practice",
+		"title": "Joint Practice with Rival",
+		"description": "Your team has a joint practice with a division rival. Intensity is through the roof.",
+		"phase": "nfl",
+		"tags": [
+			"football",
+			"competition"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Dominate, send a message",
+				"effects": {
+					"athleticism": 2,
+					"confidence": 2,
+					"draftStock": 1
+				},
+				"flavor": "Rival respects you now. You've got their attention."
+			},
+			{
+				"text": "Control yourself, avoid the bait",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1
+				},
+				"flavor": "Stay composed. Fights break out, but you stay clean."
+			}
+		]
+	},
+	{
+		"id": "nfl_primetime_thursday",
+		"title": "Thursday Night Football Primetime",
+		"description": "Your team is Thursday night primetime. Short week, national audience.",
+		"phase": "nfl",
+		"tags": [
+			"football",
+			"confidence"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Embrace the spotlight, play lights out",
+				"effects": {
+					"confidence": 3,
+					"athleticism": 1
+				},
+				"flavor": "Thursday night is your night. You're electric."
+			},
+			{
+				"text": "Manage the short week, play smart",
+				"effects": {
+					"health": 1,
+					"footballIq": 1
+				},
+				"flavor": "You don't get caught up. Efficient play. Smart game management."
+			}
+		]
+	},
+	{
+		"id": "nfl_bye_week_choice",
+		"title": "Bye Week Recovery or Training",
+		"description": "Your bye week is here. Rest your body or keep training? The smart play is rest.",
+		"phase": "nfl",
+		"tags": [
+			"football",
+			"health"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Take it easy, recover fully",
+				"effects": {
+					"health": 3,
+					"durability": 1
+				},
+				"flavor": "You come back fresh. Mental reset too. Second half is your best football."
+			},
+			{
+				"text": "Hit the extra training, get ahead",
+				"effects": {
+					"athleticism": 1,
+					"confidence": 1,
+					"health": -1
+				},
+				"flavor": "You're still gassed from the first half. Good effort, risky."
+			}
+		]
+	},
+	{
+		"id": "nfl_preseason_reps",
+		"title": "Preseason Rep Management",
+		"description": "Coach is limiting your snaps in preseason to keep you healthy. You want to play more.",
+		"phase": "nfl",
+		"tags": [
+			"football",
+			"health"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Trust the plan, stay healthy",
+				"effects": {
+					"health": 2,
+					"discipline": 1,
+					"durability": 1
+				},
+				"flavor": "Smart coaching. You stay fresh for the season. No injuries."
+			},
+			{
+				"text": "Push for more snaps, prove yourself",
+				"effects": {
+					"confidence": 2,
+					"athleticism": 1,
+					"health": -1
+				},
+				"flavor": "You get more reps. Risk of injury but you feel ready."
+			}
+		]
+	},
+	{
+		"id": "nfl_playbook_install_stress",
+		"title": "Playbook Installation Stress",
+		"description": "New playbook is complex. You're stressed about learning it all in time.",
+		"phase": "nfl",
+		"tags": [
+			"football",
+			"technique"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Double down on film and study",
+				"effects": {
+					"footballIq": 3,
+					"discipline": 1
+				},
+				"flavor": "You're the first one in the facility. You master it. Confidence soars."
+			},
+			{
+				"text": "Take it in stride, you'll figure it out",
+				"effects": {
+					"confidence": 1,
+					"athleticism": 1
+				},
+				"flavor": "Learning on the fly. You get it done but with some hiccups."
+			}
+		]
+	},
+	{
+		"id": "nfl_family_at_game",
+		"title": "Family at the Game",
+		"description": "Your family is in the stands for a big game. You feel their support.",
+		"phase": "nfl",
+		"tags": [
+			"social",
+			"confidence"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Play for them, dedicate the game to family",
+				"effects": {
+					"confidence": 3,
+					"athleticism": 2
+				},
+				"flavor": "You're flying. Post-game hug with mom is everything. Worth it."
+			},
+			{
+				"text": "Block it out, focus on the play",
+				"effects": {
+					"footballIq": 2,
+					"discipline": 1
+				},
+				"flavor": "You separate emotion from performance. Controlled execution."
+			}
+		]
+	},
+	{
+		"id": "nfl_first_big_purchase",
+		"title": "First Big Purchase",
+		"description": "You're buying your first major thing as a pro. House, car, jewelry. Your moment.",
+		"phase": "nfl",
+		"tags": [
+			"business",
+			"social"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Buy smart, invest in real estate",
+				"effects": {
+					"money": 2,
+					"discipline": 1
+				},
+				"flavor": "House in a good neighborhood. Building wealth. Long-term thinking."
+			},
+			{
+				"text": "Flex on everyone, get the flashy stuff",
+				"effects": {
+					"popularity": 2,
+					"confidence": 1,
+					"money": -2
+				},
+				"flavor": "Your car is sick. Your chain is cold. Everyone knows you made it."
+			}
+		]
+	},
+	{
+		"id": "nfl_injury_scare",
+		"title": "Injury Scare in Practice",
+		"description": "You take a hit in practice. Something doesn't feel right. Could be nothing or could be serious.",
+		"phase": "nfl",
+		"tags": [
+			"football",
+			"health"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Report it, get checked out immediately",
+				"effects": {
+					"health": 1,
+					"durability": 2,
+					"discipline": 1
+				},
+				"flavor": "Smart move. Doctor clears you but you avoided a bigger problem."
+			},
+			{
+				"text": "Tough it out, don't be weak",
+				"effects": {
+					"confidence": 1,
+					"health": -2
+				},
+				"flavor": "You keep playing. It gets worse. Now you're seriously hurt."
+			}
+		]
+	},
+	{
+		"id": "nfl_teammate_cut",
+		"title": "Teammate Gets Cut",
+		"description": "A guy you've been grinding with all season just got released. Brutal reality of the business.",
+		"phase": "nfl",
+		"tags": [
+			"locker_room",
+			"social"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Reach out and support him",
+				"effects": {
+					"leadership": 2,
+					"discipline": 1
+				},
+				"flavor": "You help him figure out his next move. Respect the brotherhood."
+			},
+			{
+				"text": "Stay focused on your own career",
+				"effects": {
+					"confidence": 1,
+					"athleticism": 1
+				},
+				"flavor": "That's the league. You keep grinding. Survival of the fittest."
+			}
+		]
+	},
+	{
+		"id": "nfl_pro_bowl_vote",
+		"title": "Pro Bowl Voting Announced",
+		"description": "Pro Bowl voting results come in. You made it. First All-Pro nod.",
+		"phase": "nfl",
+		"tags": [
+			"achievement",
+			"confidence"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Embrace the honor, use it to motivate",
+				"effects": {
+					"confidence": 3,
+					"draftStock": 2,
+					"athleticism": 1
+				},
+				"flavor": "You're flying high. Rest of season is your best work."
+			},
+			{
+				"text": "Grateful but stay humble, focus on team",
+				"effects": {
+					"discipline": 2,
+					"leadership": 1
+				},
+				"flavor": "You keep it real. Team comes first. Scouts love the maturity."
+			}
+		]
+	},
+	{
+		"id": "nfl_community_service",
+		"title": "Community Service Event",
+		"description": "Team is doing a community service day. Build something with local kids.",
+		"phase": "nfl",
+		"tags": [
+			"social",
+			"leadership"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Show up and be fully present",
+				"effects": {
+					"popularity": 2,
+					"leadership": 1
+				},
+				"flavor": "Kids light up. You're a hero to them. Worth every minute."
+			},
+			{
+				"text": "Make an appearance, keep it brief",
+				"effects": {
+					"popularity": 1
+				},
+				"flavor": "You show face. Good for the brand but not deeply invested."
+			}
+		]
+	},
+	{
+		"id": "nfl_college_reunion",
+		"title": "Old College Teammate in the League",
+		"description": "You run into a college teammate at the facility. He made it too. Different division but same journey.",
+		"phase": "nfl",
+		"tags": [
+			"social",
+			"memories"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Reconnect, grab dinner, share the journey",
+				"effects": {
+					"popularity": 1,
+					"confidence": 1,
+					"leadership": 1
+				},
+				"flavor": "You bond over the grind. Real ones recognize real ones."
+			},
+			{
+				"text": "Exchange numbers but stay competitive",
+				"effects": {
+					"confidence": 1,
+					"athleticism": 1
+				},
+				"flavor": "You're both trying to make a name. Respect the competition."
+			}
+		]
+	},
+	{
+		"id": "nfl_trade_deadline_circus",
+		"title": "Trade Deadline Media Circus",
+		"description": "Your name is being floated in trade rumors. Media is everywhere. Is it real or just noise?",
+		"phase": "nfl",
+		"tags": [
+			"media",
+			"business"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Stay focused, let agent handle it",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1
+				},
+				"flavor": "You block out the noise. Deadline passes. You're staying. Huge relief."
+			},
+			{
+				"text": "Let the rumors mess with your head",
+				"effects": {
+					"confidence": -1,
+					"discipline": -1,
+					"athleticism": -1
+				},
+				"flavor": "You're distracted. Performance suffers. Not your best week."
+			}
+		]
+	},
+	{
+		"id": "nfl_holdout_rumors",
+		"title": "Your Name in Trade Rumors",
+		"description": "ESPN is reporting you're demanding a trade. You never said that. Your agent is getting calls. This is getting messy.",
+		"phase": "nfl",
+		"tags": [
+			"media",
+			"business",
+			"pressure"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 10
+		},
+		"choices": [
+			{
+				"text": "Stay silent and let your agent handle it",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1
+				},
+				"flavor": "You don't feed the narrative. Your play does the talking."
+			},
+			{
+				"text": "Tweet a cryptic response",
+				"effects": {
+					"confidence": 1,
+					"discipline": -2,
+					"popularity": 1
+				},
+				"flavor": "The internet goes wild. Maybe keep it simple next time."
+			},
+			{
+				"text": "Give a statement that you're committed",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1,
+					"popularity": 1
+				},
+				"flavor": "You squash the narrative immediately. Class move."
+			}
+		]
+	},
+	{
+		"id": "nfl_primetime_fumble",
+		"title": "Fumble on National TV",
+		"description": "Monday night. Prime time. You just coughed it up at a critical moment. 10 million people just saw it.",
+		"phase": "nfl",
+		"tags": [
+			"game",
+			"pressure",
+			"media"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 2,
+			"max_week": 15
+		},
+		"choices": [
+			{
+				"text": "Bounce back and dominate the rest of the game",
+				"effects": {
+					"confidence": 2,
+					"discipline": 2,
+					"athleticism": 1
+				},
+				"flavor": "You made a mistake and corrected it immediately. That's a pro."
+			},
+			{
+				"text": "Get in your head and play tentatively",
+				"effects": {
+					"confidence": -2,
+					"athleticism": -1
+				},
+				"flavor": "One mistake snowballs. You're not yourself the rest of the night."
+			},
+			{
+				"text": "Blame the lineman for the pressure",
+				"effects": {
+					"discipline": -2,
+					"leadership": -1
+				},
+				"flavor": "You deflect. Locker room notices. Not a good look."
+			}
+		]
+	},
+	{
+		"id": "nfl_clutch_fourth_quarter",
+		"title": "4th Quarter Heroics",
+		"description": "Two minutes left. Down 3. Crowd is deafening. You just got the ball. This is your moment.",
+		"phase": "nfl",
+		"tags": [
+			"game",
+			"pressure",
+			"big_decision"
+		],
+		"weight": 8,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 5,
+			"max_week": 16
+		},
+		"choices": [
+			{
+				"text": "Lead your team to victory",
+				"effects": {
+					"leadership": 4,
+					"confidence": 4,
+					"discipline": 2
+				},
+				"flavor": "You're a legend. That moment defines your career. Legacy points."
+			},
+			{
+				"text": "Come close but fall short",
+				"effects": {
+					"confidence": -1,
+					"discipline": 1
+				},
+				"flavor": "You gave everything. Sometimes it's not enough. You'll be back."
+			},
+			{
+				"text": "Make poor decisions under pressure",
+				"effects": {
+					"confidence": -3,
+					"footballIq": -1
+				},
+				"flavor": "You threw a pick. Or made a dumb decision. Haunts you."
+			}
+		]
+	},
+	{
+		"id": "nfl_mentor_rookie",
+		"title": "Rookie Looks Up to You",
+		"description": "The young guy in your position room is clearly watching everything you do. He wants to be you. This is a responsibility.",
+		"phase": "nfl",
+		"tags": [
+			"leadership",
+			"social"
+		],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_stats": {
+				"leadership": 60
+			},
+			"min_week": 1,
+			"max_week": 16
+		},
+		"choices": [
+			{
+				"text": "Take him under your wing",
+				"effects": {
+					"leadership": 3,
+					"confidence": 1,
+					"popularity": 2
+				},
+				"flavor": "You're teaching the next generation. This is legacy."
+			},
+			{
+				"text": "Keep your distance and compete",
+				"effects": {
+					"confidence": 1,
+					"athleticism": 1,
+					"leadership": -1
+				},
+				"flavor": "You're focused on your game. He'll figure it out."
+			},
+			{
+				"text": "Test him and make practice hard",
+				"effects": {
+					"leadership": 2,
+					"discipline": 2,
+					"popularity": -1
+				},
+				"flavor": "You give him the old school treatment. Sink or swim."
+			}
+		]
+	},
+	{
+		"id": "nfl_charity_event",
+		"title": "Charity Event in Your Name",
+		"description": "Your foundation is hosting a charity gala. Local kids are there. You raised six figures for the community.",
+		"phase": "nfl",
+		"tags": [
+			"social",
+			"leadership",
+			"popularity"
+		],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_stats": {
+				"popularity": 70
+			},
+			"min_week": 8,
+			"max_week": 14
+		},
+		"choices": [
+			{
+				"text": "Show genuine care for the cause",
+				"effects": {
+					"leadership": 2,
+					"popularity": 3,
+					"confidence": 1
+				},
+				"flavor": "You're making a real difference. This means more than football."
+			},
+			{
+				"text": "Show up and take photos for PR",
+				"effects": {
+					"popularity": 2,
+					"discipline": -1
+				},
+				"flavor": "Nice headline. Good for the brand."
+			},
+			{
+				"text": "Skip it for extra rest",
+				"effects": {
+					"athleticism": 1,
+					"leadership": -1,
+					"popularity": -2
+				},
+				"flavor": "You needed the recovery. But the kids are disappointed."
+			}
+		]
+	},
+	{
+		"id": "nfl_media_day_circus",
+		"title": "Media Day Chaos",
+		"description": "It's Super Bowl week. Media day is a zoo. Every reporter wants a piece of you. It's exhausting.",
+		"phase": "nfl",
+		"tags": [
+			"media",
+			"big_game",
+			"pressure"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 15,
+			"max_week": 17
+		},
+		"choices": [
+			{
+				"text": "Control the narrative with great sound bites",
+				"effects": {
+					"popularity": 3,
+					"confidence": 1
+				},
+				"flavor": "You're quotable. Headlines are yours to control."
+			},
+			{
+				"text": "Keep answers boring and safe",
+				"effects": {
+					"discipline": 1
+				},
+				"flavor": "No headlines. No controversy. Just football."
+			},
+			{
+				"text": "Say something controversial",
+				"effects": {
+					"confidence": 1,
+					"discipline": -2,
+					"popularity": 2
+				},
+				"flavor": "You stir the pot. The internet is talking about you."
+			}
+		]
+	},
+	{
+		"id": "nfl_endorsement_shoot",
+		"title": "National Commercial Shoot",
+		"description": "You're shooting a national commercial for a major brand. The paycheck is huge. Good for your family's future.",
+		"phase": "nfl",
+		"tags": [
+			"business",
+			"popularity"
+		],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_stats": {
+				"popularity": 65
+			},
+			"min_week": 5,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Nail it and look like a star",
+				"effects": {
+					"popularity": 3,
+					"confidence": 1
+				},
+				"flavor": "You're charismatic. Brand loves it. Commercial goes viral."
+			},
+			{
+				"text": "It's awkward but you get paid",
+				"effects": {
+					"confidence": -1,
+					"popularity": 1
+				},
+				"flavor": "Not your best work but the check cleared."
+			},
+			{
+				"text": "Use it as a focus break from football",
+				"effects": {
+					"confidence": 1,
+					"discipline": -1,
+					"athleticism": -1
+				},
+				"flavor": "Nice mental break. Your body might be grateful too."
+			}
+		]
+	},
+	{
+		"id": "nfl_community_service",
+		"title": "Court-Ordered Community Service",
+		"description": "Your off-field actions caught up with you. You're doing community service. Time to right the ship.",
+		"phase": "nfl",
+		"tags": [
+			"discipline",
+			"social"
+		],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_stats": {
+				"discipline": 40
+			},
+			"max_stats": {
+				"discipline": 50
+			},
+			"min_week": 1,
+			"max_week": 10
+		},
+		"choices": [
+			{
+				"text": "Use it as a wake-up call",
+				"effects": {
+					"discipline": 4,
+					"confidence": 1,
+					"popularity": 1
+				},
+				"flavor": "You take it seriously. Actually helping people changes your perspective."
+			},
+			{
+				"text": "Go through the motions",
+				"effects": {
+					"discipline": 1
+				},
+				"flavor": "You show up. You get your hours. Nothing more."
+			},
+			{
+				"text": "Get caught cutting hours",
+				"effects": {
+					"discipline": -3,
+					"popularity": -2
+				},
+				"flavor": "That was stupid. Now there are real consequences."
+			}
+		]
+	},
+	{
+		"id": "nfl_family_milestone",
+		"title": "Your Kid's First Football Game",
+		"description": "Your son/daughter just played their first youth football game. They asked you to come. Career-high week. What's the priority?",
+		"phase": "nfl",
+		"tags": [
+			"family",
+			"decision",
+			"big_decision"
+		],
+		"weight": 6,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 3,
+			"max_week": 14
+		},
+		"choices": [
+			{
+				"text": "Be there and soak up every moment",
+				"effects": {
+					"confidence": 1,
+					"discipline": 1,
+					"popularity": 1
+				},
+				"flavor": "You watched them shine. They'll remember this forever. So will you."
+			},
+			{
+				"text": "Catch the second half",
+				"effects": {
+					"confidence": -1,
+					"discipline": -1
+				},
+				"flavor": "You tried. Missing the first half hurts though."
+			},
+			{
+				"text": "Send a video message instead",
+				"effects": {
+					"confidence": -2,
+					"popularity": -1
+				},
+				"flavor": "They understood. Didn't mean it was OK."
+			}
+		]
+	},
+	{
+		"id": "nfl_referee_controversy",
+		"title": "Blown Call Costs You the Game",
+		"description": "The ref made a terrible call in the 4th quarter. Everyone knows it. Game's lost. You want justice. Twitter is on fire.",
+		"phase": "nfl",
+		"tags": [
+			"game",
+			"discipline",
+			"media"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 4,
+			"max_week": 15
+		},
+		"choices": [
+			{
+				"text": "Call it out in the presser",
+				"effects": {
+					"discipline": -1,
+					"confidence": 2,
+					"popularity": 2
+				},
+				"flavor": "You say what everyone's thinking. League fines you. Worth it."
+			},
+			{
+				"text": "Keep it professional",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You bite your tongue. Next time it goes your way."
+			},
+			{
+				"text": "Blame yourself instead",
+				"effects": {
+					"discipline": 3,
+					"leadership": 1,
+					"confidence": -1
+				},
+				"flavor": "You're taking responsibility. Shows character even if the call was bad."
+			}
+		]
+	},
+	{
+		"id": "nfl_retirement_whispers",
+		"title": "Retirement Whispers in the Media",
+		"description": "You're in your 30s. Some beat writers are saying you might hang it up. Are they right? Do you have more left?",
+		"phase": "nfl",
+		"tags": [
+			"career",
+			"big_decision",
+			"pressure"
+		],
+		"weight": 6,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 10,
+			"max_week": 17
+		},
+		"choices": [
+			{
+				"text": "Play like you have something to prove",
+				"effects": {
+					"athleticism": 2,
+					"confidence": 2,
+					"discipline": 2
+				},
+				"flavor": "You're motivated. Best performance of the year coming up."
+			},
+			{
+				"text": "Actually consider walking away",
+				"effects": {
+					"confidence": -2,
+					"discipline": 1
+				},
+				"flavor": "The writing's on the wall. Maybe it's time."
+			},
+			{
+				"text": "Ignore it and play your game",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "One day at a time. No retirement talk."
+			}
+		]
+	},
+	{
+		"id": "nfl_hall_of_fame_whispers",
+		"title": "Hall of Fame Conversation Starts",
+		"description": "A reporter just asked if you think you'll make the Hall of Fame. It's real. Your career is legendary.",
+		"phase": "nfl",
+		"tags": [
+			"career",
+			"legacy",
+			"confidence"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_stats": {
+				"athleticism": 85,
+				"leadership": 75
+			},
+			"min_week": 12,
+			"max_week": 17
+		},
+		"choices": [
+			{
+				"text": "Dream about legacy and immortality",
+				"effects": {
+					"confidence": 3,
+					"popularity": 2
+				},
+				"flavor": "You're thinking about Canton. This is the ultimate validation."
+			},
+			{
+				"text": "Stay humble and focus on now",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "It's premature. One season at a time."
+			},
+			{
+				"text": "Play harder to guarantee it",
+				"effects": {
+					"athleticism": 2,
+					"confidence": 1,
+					"health": -1
+				},
+				"flavor": "Your legacy is on the line. You're giving it everything."
+			}
+		]
+	}
+]

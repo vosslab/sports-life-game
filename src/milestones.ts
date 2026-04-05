@@ -26,14 +26,14 @@ const MILESTONES: Milestone[] = [
 	{
 		id: 'hs_first_win',
 		phase: 'high_school',
-		check: (player, wins) => wins === 1,
+		check: (player, wins) => wins >= 1,
 		headline: 'First Win',
 		text: 'Nothing beats your first win. The locker room is electric.',
 	},
 	{
 		id: 'hs_first_loss',
 		phase: 'high_school',
-		check: (player, wins, losses) => losses === 1,
+		check: (player, wins, losses) => losses >= 1,
 		headline: 'First Loss',
 		text: 'Silence in the locker room. This is what losing feels like.',
 	},
@@ -114,7 +114,7 @@ const MILESTONES: Milestone[] = [
 	{
 		id: 'nfl_100th_game',
 		phase: 'nfl',
-		check: (player) => player.seasonStats.gamesPlayed >= 100,
+		check: (player) => player.careerGamesPlayed >= 100,
 		headline: '100 Games',
 		text: '100 games. Not many make it this far.',
 	},

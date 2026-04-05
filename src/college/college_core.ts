@@ -77,6 +77,17 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 			ctx.addHeadline('Offseason Training');
 			ctx.showChoices([
 				{
+					text: 'Declare for NFL Draft',
+					primary: true,
+					action: () => {
+						ctx.addHeadline('Declaring for NFL Draft');
+						ctx.addText(`${player.firstName} announces they are declaring for the NFL Draft.`);
+						ctx.addText('Time to prepare for the combine and pro day.');
+						player.phase = 'nfl';
+						advanceToNextYear(player, ctx);
+					},
+				},
+				{
 					text: 'Train with a speed coach',
 					primary: false,
 					action: () => {
@@ -100,7 +111,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 				},
 				{
 					text: 'Get bigger in the weight room',
-					primary: true,
+					primary: false,
 					action: () => {
 						modifyStat(player, 'technique', 2);
 						modifyStat(player, 'athleticism', 1);

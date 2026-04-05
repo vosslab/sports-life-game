@@ -1,0 +1,59 @@
+/* Activity cards, effects, budget display */
+
+.activities-budget {
+	padding: 8px 10px;
+	font-size: 0.85em;
+	color: var(--text-secondary);
+	text-align: center;
+	border-bottom: 1px solid var(--bar-bg);
+}
+
+.activities-readonly {
+	padding: 12px 10px;
+	font-size: 0.85em;
+	color: var(--text-secondary);
+	text-align: center;
+	font-style: italic;
+}
+
+.activity-card {
+	background: var(--bg-card);
+	border-radius: 10px;
+	padding: 12px;
+	margin: 6px 4px;
+}
+
+.activity-card.activity-locked {
+	opacity: 0.5;
+}
+
+.activity-name {
+	font-weight: 700;
+	font-size: 1em;
+	margin-bottom: 4px;
+}
+
+.activity-desc {
+	font-size: 0.85em;
+	color: var(--text-secondary);
+	margin-bottom: 6px;
+}
+
+.activity-effects {
+	font-size: 0.8em;
+	font-family: monospace;
+	color: var(--accent-blue);
+	margin-bottom: 8px;
+}
+
+.activity-hint {
+	font-size: 0.8em;
+	color: var(--accent-yellow);
+	font-style: italic;
+}
+
+.activity-button {
+	padding: 10px 16px;
+	min-height: 40px;
+	font-size: 0.9em;
+}

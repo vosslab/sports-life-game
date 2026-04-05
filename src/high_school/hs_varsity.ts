@@ -108,11 +108,35 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 			attempts += 1;
 		}
 
+		// Fallback: fill remaining slots with random schools if fewer than 3 offers
+		if (offers.length < 3 && allSchools.length > 0) {
+			for (let i = offers.length; i < 3; i++) {
+				const fallbackSchool = allSchools[randomInRange(0, allSchools.length - 1)];
+				if (!usedNames.has(fallbackSchool.commonName)) {
+					offers.push(fallbackSchool);
+					usedNames.add(fallbackSchool.commonName);
+				}
+			}
+		}
+
 		if (offers.length === 0) {
-			// Fallback: pick any school
-			ctx.addText('Only one school offered. Take it or leave it.');
-			const fallback = allSchools[randomInRange(0, allSchools.length - 1)];
-			offers.push(fallback);
+			// Guard: if allSchools is empty, create a hardcoded default
+			if (allSchools.length === 0) {
+				const defaultSchool: NCAASchool = {
+					fullName: 'State University',
+					commonName: 'State',
+					nickname: 'Wildcats',
+					city: 'Springfield',
+					state: 'Generic',
+					subdivision: 'FBS',
+					conference: 'Independent',
+				};
+				offers.push(defaultSchool);
+			} else {
+				// Final fallback: pick any school if nothing worked
+				const fallback = allSchools[randomInRange(0, allSchools.length - 1)];
+				offers.push(fallback);
+			}
 		}
 
 		// Build choice buttons for each offer

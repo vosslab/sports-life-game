@@ -140,7 +140,13 @@ function buildNFLSchedule(
 	// Track existing matchups to avoid duplicates (except division rivals)
 	const matchupSet = new Set<string>();
 
-	// Helper to add a game if both teams have room
+	// Track teams scheduled per week to avoid collisions
+	const teamsPerWeek = new Map<number, Set<TeamId>>();
+	for (let w = 1; w <= 17; w++) {
+		teamsPerWeek.set(w, new Set<TeamId>());
+	}
+
+	// Helper to add a game if both teams have room and week availability
 	function addGame(
 		home: TeamId, away: TeamId, week: number, isConf: boolean,
 		allowDouble: boolean = false,
@@ -156,11 +162,34 @@ function buildNFLSchedule(
 			return false;
 		}
 
+		// Check if both teams are already scheduled in this week
+		const weekTeams = teamsPerWeek.get(week);
+		if (weekTeams && (weekTeams.has(home) || weekTeams.has(away))) {
+			return false;
+		}
+
 		allGames.push(new SeasonGame(nextGameId(), week, home, away, isConf));
 		teamGameCount.set(home, homeCount + 1);
 		teamGameCount.set(away, awayCount + 1);
 		matchupSet.add(matchupKey);
+
+		// Mark both teams as scheduled in this week
+		if (weekTeams) {
+			weekTeams.add(home);
+			weekTeams.add(away);
+		}
 		return true;
+	}
+
+	// Helper to find next available week for a team
+	function findNextAvailableWeek(teamId: TeamId, startWeek: number): number {
+		for (let w = startWeek; w <= 17; w++) {
+			const weekTeams = teamsPerWeek.get(w);
+			if (weekTeams && !weekTeams.has(teamId)) {
+				return w;
+			}
+		}
+		return startWeek;
 	}
 
 	// Phase 1: Division games (6 per team, play each rival twice)
@@ -198,16 +227,21 @@ function buildNFLSchedule(
 		shuffleArray(crossDivOpponents);
 
 		let added = 0;
+		let currentWeek = weekCounter;
 		for (const oppId of crossDivOpponents) {
 			if (added >= 4) {
 				break;
 			}
-			const week = (weekCounter % 17) + 1;
+			// Find next available week if collision detected
+			const week = findNextAvailableWeek(teamId, currentWeek);
 			if (addGame(teamId, oppId, week, true)) {
 				added += 1;
-				weekCounter += 1;
+				currentWeek = week + 1;
+			} else {
+				currentWeek = week + 1;
 			}
 		}
+		weekCounter = currentWeek;
 	}
 
 	// Phase 3: Cross-conference games (4 per team target)
@@ -225,16 +259,21 @@ function buildNFLSchedule(
 		shuffleArray(crossConfOpponents);
 
 		let added = 0;
+		let currentWeek = weekCounter;
 		for (const oppId of crossConfOpponents) {
 			if (added >= 4) {
 				break;
 			}
-			const week = (weekCounter % 17) + 1;
+			// Find next available week if collision detected
+			const week = findNextAvailableWeek(teamId, currentWeek);
 			if (addGame(teamId, oppId, week, false)) {
 				added += 1;
-				weekCounter += 1;
+				currentWeek = week + 1;
+			} else {
+				currentWeek = week + 1;
 			}
 		}
+		weekCounter = currentWeek;
 	}
 
 	// Phase 4: Fill remaining games to reach 17 per team
@@ -251,17 +290,22 @@ function buildNFLSchedule(
 		});
 		shuffleArray(remaining);
 
+		let currentWeek = weekCounter;
 		for (const oppId of remaining) {
 			if ((teamGameCount.get(teamId) || 0) >= 17) {
 				break;
 			}
 			const opp = teams.get(oppId)!;
 			const isConf = opp.conferenceId === team.conferenceId;
-			const week = (weekCounter % 17) + 1;
+			// Find next available week if collision detected
+			const week = findNextAvailableWeek(teamId, currentWeek);
 			if (addGame(teamId, oppId, week, isConf)) {
-				weekCounter += 1;
+				currentWeek = week + 1;
+			} else {
+				currentWeek = week + 1;
 			}
 		}
+		weekCounter = currentWeek;
 	}
 
 	return allGames;

@@ -79,7 +79,7 @@ export function startCollege(player: Player): string {
 
 	player.phase = 'college';
 	player.currentSeason = 1;
-	player.age = 18;
+	// Age should already be set correctly; do not override it here
 
 	return storyText;
 }
@@ -492,6 +492,7 @@ console.assert(
 		career: { popularity: 60, money: 0 },
 		hidden: { size: 4, leadership: 70, durability: 75 },
 		seasonStats: createEmptySeasonStats(),
+		careerGamesPlayed: 20,
 		currentSeason: 1,
 		currentWeek: 0,
 		seasonYear: 2025,

@@ -1,4 +1,8 @@
-/* Football career life simulator - mobile-first CSS */
+/* DEPRECATED: This file is not loaded by index.html. All CSS is now
+   organized in src/styles/*.css. This file is kept for reference only
+   and can be deleted. */
+
+/* Football career life simulator - mobile-first CSS (legacy - see src/styles/) */
 
 * {
 	margin: 0;

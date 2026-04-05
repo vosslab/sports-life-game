@@ -753,6 +753,7 @@ const testPlayer: Player = {
 	career: { popularity: 70, money: 25000000 },
 	hidden: { size: 3, leadership: 75, durability: 70 },
 	seasonStats: createEmptySeasonStats(),
+	careerGamesPlayed: 50,
 	currentSeason: 5,
 	currentWeek: 0,
 	seasonYear: 2025,

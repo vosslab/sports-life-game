@@ -32,7 +32,7 @@ import {
 	simulateNonPlayerGames, recordPlayerGameResult,
 	getPlayerOpponentStrength, getPlayerOpponentName,
 } from '../season/season_simulator.js';
-import { PlayoffBracket, createHSPlayoffBracket, createCollegePlayoffBracket } from '../season/playoff_bracket.js';
+import { PlayoffBracket, createHSPlayoffBracket, createCollegePlayoffBracket, createNFLPlayoffBracket } from '../season/playoff_bracket.js';
 import { PlayoffSeed } from '../season/season_types.js';
 
 //============================================
@@ -347,7 +347,7 @@ function proceedToGame(player: Player, ctx: CareerContext): void {
 	simulateNonPlayerGames(activeEngine.season);
 
 	// Accumulate stats
-	accumulateGameStats(player.seasonStats, gameResult.playerStatLine);
+	accumulateGameStats(player, gameResult.playerStatLine);
 
 	// Game outcome affects player stats
 	if (gameResult.result === 'win') {
@@ -442,20 +442,34 @@ function endSeason(player: Player, ctx: CareerContext): void {
 		// Find player's rank in standings
 		const playerRank = standings.findIndex(row => row.teamId === playerTeamId);
 
-		// Top 4 make playoffs (HS/college bracket size)
-		if (playerRank >= 0 && playerRank < 4) {
-			// Build playoff seeds from top 4 standings
-			const seeds: PlayoffSeed[] = standings.slice(0, 4).map((row, i) => ({
+		// Determine playoff bracket type and size based on phase
+		let playoffSize = 4;
+		let bracket: PlayoffBracket | undefined;
+
+		if (playerRank >= 0 && playerRank < playoffSize) {
+			// Build playoff seeds based on phase
+			const seeds: PlayoffSeed[] = standings.slice(0, playoffSize).map((row, i) => ({
 				teamId: row.teamId,
 				seed: i + 1,
 				wins: row.wins,
 				losses: row.losses,
 			}));
 
-			const bracket = createHSPlayoffBracket(seeds, playerTeamId);
-			ctx.addText('Your team made the playoffs!');
-			startPlayoffs(player, ctx, bracket);
-			return;
+			// Create appropriate bracket for the player's phase
+			if (player.phase === 'high_school') {
+				bracket = createHSPlayoffBracket(seeds, playerTeamId);
+			} else if (player.phase === 'college') {
+				bracket = createCollegePlayoffBracket(seeds, playerTeamId);
+			} else if (player.phase === 'nfl') {
+				// NFL uses 7 seeds per conference, but simplified to top 4 for this system
+				bracket = createNFLPlayoffBracket(seeds, playerTeamId);
+			}
+
+			if (bracket) {
+				ctx.addText('Your team made the playoffs!');
+				startPlayoffs(player, ctx, bracket);
+				return;
+			}
 		}
 
 		// Didn't make playoffs
@@ -480,15 +494,15 @@ function startPlayoffs(
 		// Playoffs complete
 		const champion = bracket.getChampion();
 		const playerTeamId = activeEngine.season.playerTeamId;
+		let isChampion = false;
 		if (champion === playerTeamId) {
 			ctx.addHeadline('CHAMPIONS!');
 			ctx.addText(`${player.teamName} wins the championship!`);
-			player.careerHistory.length > 0 &&
-				player.careerHistory[player.careerHistory.length - 1]?.awards?.push('Champion');
+			isChampion = true;
 		} else {
 			ctx.addText('Your playoff run is over.');
 		}
-		finalizeSeason(player, ctx);
+		finalizeSeason(player, ctx, isChampion);
 		return;
 	}
 
@@ -537,7 +551,7 @@ function startPlayoffs(
 			}
 
 			// Accumulate stats
-			accumulateGameStats(player.seasonStats, gameResult.playerStatLine);
+			accumulateGameStats(player, gameResult.playerStatLine);
 
 			// Show result
 			ctx.addHeadline(
@@ -581,19 +595,29 @@ function simulateNonPlayerPlayoffGames(bracket: PlayoffBracket): void {
 		if (game.involvesTeam(bracket.playerTeamId)) {
 			continue;
 		}
-		// Use default strengths for non-player teams
-		bracket.simulatePlayoffGame(game, 60, 55);
+		// Look up actual team strengths from the season
+		const homeTeam = activeEngine?.season.getTeam(game.homeTeamId);
+		const awayTeam = activeEngine?.season.getTeam(game.awayTeamId);
+		const homeStrength = homeTeam ? homeTeam.strength : 50;
+		const awayStrength = awayTeam ? awayTeam.strength : 50;
+		bracket.simulatePlayoffGame(game, homeStrength, awayStrength);
 	}
 }
 
 //============================================
 // Finalize the season: save to career history and call handler callback
-function finalizeSeason(player: Player, ctx: CareerContext): void {
+function finalizeSeason(player: Player, ctx: CareerContext, isChampion: boolean = false): void {
 	if (!activeEngine) {
 		return;
 	}
 
 	const record = activeEngine.season.getPlayerRecord();
+
+	// Build awards array
+	const awards: string[] = [];
+	if (isChampion) {
+		awards.push('Champion');
+	}
 
 	// Save season to career history
 	player.careerHistory.push({
@@ -607,7 +631,7 @@ function finalizeSeason(player: Player, ctx: CareerContext): void {
 		ties: record.ties,
 		depthChart: player.depthChart,
 		highlights: [],
-		awards: [],
+		awards,
 		statTotals: { ...player.seasonStats },
 	});
 

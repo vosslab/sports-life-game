@@ -1,0 +1,84 @@
+/* Bottom tab bar navigation, tab panels */
+
+#tab-bar {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	padding: 4px 2px;
+	padding-bottom: max(4px, env(safe-area-inset-bottom));
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	border-top: 1px solid var(--bar-bg);
+	flex-shrink: 0;
+	gap: 2px;
+}
+
+#tab-bar.hidden {
+	display: none;
+}
+
+.tab-button {
+	flex: 1;
+	padding: 8px 4px;
+	min-height: 48px;
+	font-size: 0.75em;
+	font-weight: 600;
+	color: var(--text-secondary);
+	background: transparent;
+	border: none;
+	border-top: 3px solid transparent;
+	border-radius: 0;
+	cursor: pointer;
+	text-align: center;
+	-webkit-appearance: none;
+	-webkit-user-select: none;
+	user-select: none;
+	touch-action: manipulation;
+	transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab-button.tab-active {
+	color: var(--accent-gold);
+	border-top-color: var(--accent-gold);
+}
+
+.tab-button:active {
+	color: var(--text-primary);
+}
+
+.tab-button:focus-visible {
+	outline: 2px solid var(--accent-gold);
+	outline-offset: -2px;
+}
+
+/* Tab panel visibility */
+.tab-panel {
+	display: none;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	gap: 6px;
+}
+
+.tab-panel.active {
+	display: flex;
+}
+
+/* Placeholder text for empty tabs */
+.tab-placeholder {
+	color: var(--text-secondary);
+	font-size: 0.9em;
+	text-align: center;
+	padding: 40px 20px;
+}
+
+/* Scrollable tab content panels */
+#career-content,
+#team-content,
+#activities-content {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	padding: 8px;
+}

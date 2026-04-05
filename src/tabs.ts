@@ -97,6 +97,10 @@ export function switchTab(tabId: TabId): void {
 			if (id === tabId) {
 				panel.classList.remove('hidden');
 				panel.classList.add('active');
+				// Set role and aria-labelledby if not already set
+				if (!panel.getAttribute('role')) {
+					panel.setAttribute('role', 'tabpanel');
+				}
 			} else {
 				panel.classList.add('hidden');
 				panel.classList.remove('active');
@@ -104,7 +108,7 @@ export function switchTab(tabId: TabId): void {
 		}
 	}
 
-	// Update tab bar button styling
+	// Update tab bar button styling and ARIA attributes
 	const tabBar = document.getElementById('tab-bar');
 	if (tabBar) {
 		const buttons = Array.from(tabBar.querySelectorAll('.tab-button'));
@@ -112,8 +116,10 @@ export function switchTab(tabId: TabId): void {
 			const btnTab = (btn as HTMLElement).dataset.tab;
 			if (btnTab === tabId) {
 				btn.classList.add('tab-active');
+				btn.setAttribute('aria-selected', 'true');
 			} else {
 				btn.classList.remove('tab-active');
+				btn.setAttribute('aria-selected', 'false');
 			}
 		}
 	}
@@ -135,6 +141,9 @@ export function updateTabBar(phase: CareerPhase): void {
 	// Clear existing buttons
 	tabBar.innerHTML = '';
 
+	// Set ARIA roles on the tab bar container
+	tabBar.setAttribute('role', 'tablist');
+
 	// Get tabs for this phase
 	const tabs = getTabsForPhase(phase);
 
@@ -146,9 +155,16 @@ export function updateTabBar(phase: CareerPhase): void {
 		button.dataset.tab = tab.id;
 		button.textContent = tab.label;
 
+		// Set ARIA attributes for accessibility
+		button.setAttribute('role', 'tab');
+		button.setAttribute('aria-controls', `tab-${tab.id}`);
+
 		// Mark current tab as active
 		if (tab.id === currentTab) {
 			button.classList.add('tab-active');
+			button.setAttribute('aria-selected', 'true');
+		} else {
+			button.setAttribute('aria-selected', 'false');
 		}
 
 		// Click handler switches to this tab

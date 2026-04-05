@@ -1,0 +1,143 @@
+/* Stat bars, stat strips, stats panel, stats summary */
+
+/*============================================*/
+/* Phone-only compact stat strip              */
+/*============================================*/
+
+#life-stats-strip {
+	display: flex;
+	gap: 8px;
+	padding: 6px 10px;
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	flex-shrink: 0;
+	cursor: pointer;
+}
+
+#life-stats-strip.hidden {
+	display: none;
+}
+
+.mini-stat {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.mini-stat-label {
+	font-size: 0.7em;
+	font-weight: 600;
+	color: var(--text-secondary);
+	width: 24px;
+	flex-shrink: 0;
+}
+
+.mini-stat-bar {
+	flex: 1;
+	height: 8px;
+	background: var(--bar-bg);
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.mini-stat-fill {
+	height: 100%;
+	border-radius: 4px;
+	transition: width 0.4s ease, background-color 0.4s ease;
+	width: 0%;
+}
+
+/* Stats panel */
+#stats-panel {
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	padding: 10px 12px;
+	flex-shrink: 0;
+}
+
+.stat-row {
+	display: flex;
+	align-items: center;
+	margin: 6px 0;
+	gap: 8px;
+}
+
+.stat-label {
+	width: 90px;
+	font-size: 0.8em;
+	color: var(--text-secondary);
+	flex-shrink: 0;
+}
+
+.stat-bar {
+	flex: 1;
+	height: 14px;
+	background: var(--bar-bg);
+	border-radius: 7px;
+	overflow: hidden;
+}
+
+.stat-fill {
+	height: 100%;
+	border-radius: 7px;
+	transition: width 0.4s ease, background-color 0.4s ease;
+	width: 0%;
+	background-image: linear-gradient(90deg, currentColor 0%, currentColor 100%);
+}
+
+.stat-value {
+	width: 28px;
+	text-align: right;
+	font-size: 0.8em;
+	font-weight: 600;
+	flex-shrink: 0;
+}
+
+/* Sidebar stat bars (compact version) */
+#sidebar-stats .stat-row {
+	margin: 4px 0;
+}
+
+#sidebar-stats .stat-label {
+	width: 70px;
+	font-size: 0.75em;
+}
+
+#sidebar-stats .stat-bar {
+	height: 10px;
+	border-radius: 5px;
+}
+
+#sidebar-stats .stat-fill {
+	border-radius: 5px;
+}
+
+#sidebar-stats .stat-value {
+	width: 24px;
+	font-size: 0.75em;
+}
+
+/* Stats summary section in Stats tab */
+#stats-summary {
+	padding: 8px 10px;
+	font-size: 0.9em;
+	color: var(--text-secondary);
+}
+
+/* Summary rows used in Stats tab and Career tab */
+.stats-summary-row {
+	display: flex;
+	justify-content: space-between;
+	padding: 4px 0;
+	border-bottom: 1px solid var(--bar-bg);
+}
+
+.stats-summary-label {
+	color: var(--text-secondary);
+}
+
+.stats-summary-value {
+	color: var(--text-primary);
+	font-weight: 600;
+}

@@ -40,9 +40,11 @@ export const nflLateHandler: YearHandler = {
 		if (player.core.health < 20 || totalAbility < 60) {
 			ctx.addHeadline('Forced Retirement');
 			ctx.addText('The body can no longer keep up. It is time to hang up the cleats.');
-			player.phase = 'legacy';
 			ctx.addText(`Career earnings: $${(player.career.money / 1000000).toFixed(1)}M`);
 			ctx.addText(`NFL seasons: ${player.nflYear}`);
+			// Show career summary and end
+			ctx.addHeadline('Career Complete');
+			ctx.addText(`${player.firstName} ${player.lastName} has completed their NFL career.`);
 			return;
 		}
 
@@ -72,7 +74,8 @@ export const nflLateHandler: YearHandler = {
 					ctx.addHeadline('Retirement');
 					ctx.addText(`${player.firstName} announces retirement after ${player.nflYear} NFL seasons.`);
 					ctx.addText(`Career earnings: $${(player.career.money / 1000000).toFixed(1)}M`);
-					player.phase = 'legacy';
+					ctx.addHeadline('Career Complete');
+					ctx.addText(`${player.firstName} ${player.lastName} has completed their NFL career.`);
 				},
 			},
 		]);
@@ -94,7 +97,8 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 		ctx.addHeadline('Retirement');
 		ctx.addText(`${player.firstName} retires at age 39 after ${player.nflYear} NFL seasons.`);
 		ctx.addText(`Career earnings: $${(player.career.money / 1000000).toFixed(1)}M`);
-		player.phase = 'legacy';
+		ctx.addHeadline('Career Complete');
+		ctx.addText(`${player.firstName} ${player.lastName} has completed their NFL career.`);
 		return;
 	}
 

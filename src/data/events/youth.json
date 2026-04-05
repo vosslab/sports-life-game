@@ -1,0 +1,431 @@
+[
+	{
+		"id": "youth_first_practice",
+		"title": "First Real Practice",
+		"description": "Pads on. Helmet strapped. This is your first real organized football practice.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"milestone"
+		],
+		"weight": 10,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Go full speed on every drill",
+				"effects": {
+					"athleticism": 2,
+					"technique": 1,
+					"health": -1
+				},
+				"flavor": "You're exhausted by the end but coaches noticed your hustle."
+			},
+			{
+				"text": "Listen carefully and learn the plays",
+				"effects": {
+					"footballIq": 2,
+					"discipline": 1
+				},
+				"flavor": "While other kids goof off, you're absorbing everything coach says."
+			},
+			{
+				"text": "Try to impress with big hits",
+				"effects": {
+					"confidence": 2,
+					"athleticism": 1,
+					"discipline": -1
+				},
+				"flavor": "BOOM. You lay a kid out. Coach blows the whistle. 'Save it for Saturday, kid.'"
+			}
+		]
+	},
+	{
+		"id": "youth_coach_yelling",
+		"title": "Coach is Intense",
+		"description": "Coach is screaming at the team after a sloppy practice. He singles you out for a mistake.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"discipline"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Take it and work harder",
+				"effects": {
+					"discipline": 3,
+					"technique": 1
+				},
+				"flavor": "You grit your teeth and run the drill again. Perfectly this time. Coach nods."
+			},
+			{
+				"text": "Get frustrated and sulk",
+				"effects": {
+					"confidence": -2,
+					"discipline": -1
+				},
+				"flavor": "You're upset all practice. It shows. Coach benches you for the last drill."
+			},
+			{
+				"text": "Ask coach to explain what you did wrong",
+				"effects": {
+					"footballIq": 2,
+					"confidence": 1
+				},
+				"flavor": "Coach is surprised by the maturity. He walks you through it one-on-one."
+			}
+		]
+	},
+	{
+		"id": "youth_big_hit",
+		"title": "First Big Hit",
+		"description": "A kid on the other team just ran full speed into you during a game. You're on the ground.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"health"
+		],
+		"weight": 9,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Pop right back up",
+				"effects": {
+					"confidence": 3,
+					"health": -1
+				},
+				"flavor": "You bounce up like nothing happened. The sideline erupts. Tough kid."
+			},
+			{
+				"text": "Stay down for a second, then get up slowly",
+				"effects": {
+					"health": 1,
+					"discipline": 1
+				},
+				"flavor": "You take a moment. Smart. No need to pretend that didn't hurt."
+			}
+		]
+	},
+	{
+		"id": "youth_teammate_rivalry",
+		"title": "Same Position Rival",
+		"description": "Another kid on your team plays the same position. Coach says only one of you starts.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"competition"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Outwork them in every practice",
+				"effects": {
+					"technique": 2,
+					"discipline": 2
+				},
+				"flavor": "Extra reps, extra film, extra effort. By next game, the spot is yours."
+			},
+			{
+				"text": "Be a good teammate and support them",
+				"effects": {
+					"confidence": 1,
+					"discipline": 1,
+					"leadership": 2
+				},
+				"flavor": "You cheer them on. Coach sees leadership. Both of you end up playing more."
+			},
+			{
+				"text": "Complain to coach about playing time",
+				"effects": {
+					"confidence": 2,
+					"discipline": -2
+				},
+				"flavor": "Coach doesn't appreciate the attitude. You ride the bench next game."
+			}
+		]
+	},
+	{
+		"id": "youth_big_game",
+		"title": "Championship Game Nerves",
+		"description": "Tomorrow is the championship. You can't sleep. Your stomach is in knots.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"confidence"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Visualize making big plays",
+				"effects": {
+					"confidence": 3,
+					"footballIq": 1
+				},
+				"flavor": "You picture yourself scoring the winning touchdown. By morning, the nerves are gone."
+			},
+			{
+				"text": "Call a teammate to talk it out",
+				"effects": {
+					"confidence": 1,
+					"leadership": 1,
+					"discipline": 1
+				},
+				"flavor": "Turns out he's nervous too. You talk each other through it. Team bond."
+			},
+			{
+				"text": "Just try to sleep",
+				"effects": {
+					"health": 2
+				},
+				"flavor": "You toss and turn but eventually drift off. Rest is rest."
+			}
+		]
+	},
+	{
+		"id": "youth_summer_camp_football",
+		"title": "Football Camp",
+		"description": "You got invited to a week-long football camp with older kids. It's going to be intense.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"development"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Focus on fundamentals and technique",
+				"effects": {
+					"technique": 3,
+					"footballIq": 1
+				},
+				"flavor": "The coaches drill footwork, hand placement, and reads. You come back polished."
+			},
+			{
+				"text": "Try to compete with the older kids",
+				"effects": {
+					"athleticism": 2,
+					"confidence": 2,
+					"health": -1
+				},
+				"flavor": "You get pushed around but hold your own. The older kids start to respect you."
+			},
+			{
+				"text": "Learn from watching the best players",
+				"effects": {
+					"footballIq": 3,
+					"technique": 1
+				},
+				"flavor": "You sit and study the top players in every drill. Your football IQ jumps."
+			}
+		]
+	},
+	{
+		"id": "youth_losing_streak",
+		"title": "Three Losses in a Row",
+		"description": "The team has lost three straight. Morale is low. Some kids want to quit.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"adversity"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Rally the team in the huddle",
+				"effects": {
+					"leadership": 3,
+					"confidence": 1
+				},
+				"flavor": "You speak up. 'We're not quitting.' The team rallies around your voice."
+			},
+			{
+				"text": "Put your head down and grind harder",
+				"effects": {
+					"discipline": 2,
+					"technique": 1
+				},
+				"flavor": "Words are cheap. You let your effort do the talking."
+			},
+			{
+				"text": "Blame the coaches",
+				"effects": {
+					"confidence": 1,
+					"discipline": -2,
+					"leadership": -1
+				},
+				"flavor": "You grumble on the sideline. It doesn't help anything."
+			}
+		]
+	},
+	{
+		"id": "youth_highlight_play",
+		"title": "The Play Everyone Talks About",
+		"description": "Late in a close game, you make a ridiculous play. Parents are screaming. Teammates mob you.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"confidence"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Celebrate big and soak it in",
+				"effects": {
+					"confidence": 3,
+					"popularity": 2
+				},
+				"flavor": "You do a dance. The crowd loves it. Your name buzzes around town all week."
+			},
+			{
+				"text": "Stay humble, credit the team",
+				"effects": {
+					"leadership": 2,
+					"discipline": 1,
+					"confidence": 1
+				},
+				"flavor": "'We all did it.' Coach loves the maturity. Your teammates respect you even more."
+			}
+		]
+	},
+	{
+		"id": "youth_position_switch",
+		"title": "Coach Wants to Move You",
+		"description": "Coach thinks you might be better at a different position. He wants you to try it.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"position"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Embrace the change",
+				"effects": {
+					"technique": 1,
+					"footballIq": 2,
+					"confidence": 1
+				},
+				"flavor": "New position, new perspective. You see the game differently now."
+			},
+			{
+				"text": "Ask to stay at your current spot",
+				"effects": {
+					"technique": 2,
+					"confidence": 1
+				},
+				"flavor": "Coach respects your commitment. You double down on mastering what you know."
+			}
+		]
+	},
+	{
+		"id": "youth_injury_scare",
+		"title": "Twisted Ankle",
+		"description": "You twist your ankle during practice. It hurts but you can walk on it.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"health"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Tough it out and keep practicing",
+				"effects": {
+					"confidence": 2,
+					"health": -2
+				},
+				"flavor": "You limp through the rest of practice. Gutsy but maybe not smart."
+			},
+			{
+				"text": "Sit out and ice it",
+				"effects": {
+					"health": 2,
+					"discipline": 1
+				},
+				"flavor": "Rest now, play Saturday. The smart move. Your ankle thanks you."
+			}
+		]
+	},
+	{
+		"id": "youth_weight_room",
+		"title": "Weight Room for the First Time",
+		"description": "The older kids let you use the weight room after school. Everything is heavy.",
+		"phase": "youth",
+		"tags": [
+			"football",
+			"strength"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Start light and learn proper form",
+				"effects": {
+					"technique": 2,
+					"discipline": 1,
+					"health": 1
+				},
+				"flavor": "The trainer shows you how to squat right. Foundation matters."
+			},
+			{
+				"text": "Try to lift as much as the older kids",
+				"effects": {
+					"athleticism": 2,
+					"confidence": 1,
+					"health": -1
+				},
+				"flavor": "You strain hard. Almost drop the bar. But you feel stronger already."
+			}
+		]
+	},
+	{
+		"id": "youth_school_grades",
+		"title": "Grades Slipping",
+		"description": "Your teacher calls home. Football is fun, but school is suffering.",
+		"phase": "youth",
+		"tags": [
+			"school",
+			"discipline"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Buckle down and study more",
+				"effects": {
+					"discipline": 3,
+					"footballIq": 1
+				},
+				"flavor": "You start doing homework before practice. Grades recover. Mom is relieved."
+			},
+			{
+				"text": "Football is more important right now",
+				"effects": {
+					"confidence": 1,
+					"discipline": -3
+				},
+				"flavor": "Bad call. Mom grounds you from the next game. Lesson learned the hard way."
+			}
+		]
+	}
+]

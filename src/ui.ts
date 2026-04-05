@@ -4,7 +4,7 @@ import { Player, CareerPhase } from './player.js';
 import { ScheduleEntry } from './team.js';
 import { Activity, WeekState } from './activities.js';
 import type { StatLine } from './week_sim.js';
-import { generatePortraitSVG, randomAvatarConfig } from './avatar.js';
+import { generatePortraitSVG } from './avatar.js';
 import type { Archetype } from './avatar.js';
 import { getTeamEmoji, formatTeamWithEmoji } from './team_emoji.js';
 import { isSidebarVisible } from './tabs.js';
@@ -38,8 +38,12 @@ function findElement(id: string): HTMLElement | null {
 
 // Update a single stat bar width, color, and numeric value
 export function updateStatBar(statName: string, value: number): void {
-	const barEl = getElement(`bar-${statName}`);
-	const valEl = getElement(`val-${statName}`);
+	// Safe element lookup - elements only exist when stats tab is visible
+	const barEl = findElement(`bar-${statName}`);
+	const valEl = findElement(`val-${statName}`);
+	if (!barEl || !valEl) {
+		return;
+	}
 
 	// Clamp value to 0-100
 	const clamped = Math.max(0, Math.min(100, value));
@@ -84,15 +88,10 @@ export function updateHeader(player: Player): void {
 	const ageEl = getElement('player-age');
 	const weekEl = getElement('player-week');
 
-	// Render player portrait (age-appropriate)
+	// Render player portrait using stored avatar config (not random)
 	const portraitEl = document.getElementById('player-portrait');
 	if (portraitEl && player.avatarConfig) {
-		// Regenerate with current age for age-appropriate appearance
-		const config = randomAvatarConfig(
-			`${player.firstName} ${player.lastName}`,
-			{ archetype: 'player', age: player.age },
-		);
-		portraitEl.innerHTML = generatePortraitSVG(config);
+		portraitEl.innerHTML = generatePortraitSVG(player.avatarConfig);
 	}
 
 	// Full name
@@ -221,6 +220,55 @@ export function clearChoices(): void {
 }
 
 //============================================
+// CHOICE POPUP (BitLife-style modal for decisions)
+//============================================
+
+// Show a decision as a centered popup modal instead of inline buttons.
+// Reuses the #event-modal DOM. Title provides context (e.g. "Weekly Focus").
+// Description is optional explanatory text below the title.
+export function showChoicePopup(
+	title: string,
+	options: ChoiceOption[],
+	description?: string,
+): void {
+	const modal = getElement('event-modal');
+	const titleEl = getElement('event-title');
+	const descEl = getElement('event-description');
+	const choicesEl = getElement('event-choices');
+
+	// Set content
+	titleEl.textContent = title;
+	descEl.textContent = description ?? '';
+
+	// Hide description paragraph if empty
+	if (description) {
+		descEl.style.display = '';
+	} else {
+		descEl.style.display = 'none';
+	}
+
+	// Clear and populate choices
+	choicesEl.innerHTML = '';
+	for (const option of options) {
+		const button = document.createElement('button');
+		button.className = 'choice-button';
+		if (option.primary) {
+			button.classList.add('primary');
+		}
+		button.textContent = option.text;
+		button.addEventListener('click', () => {
+			// Hide modal before running the action
+			hideEventModal();
+			option.action();
+		});
+		choicesEl.appendChild(button);
+	}
+
+	// Show modal
+	modal.classList.remove('hidden');
+}
+
+//============================================
 // EVENT MODAL MANAGEMENT
 //============================================
 
@@ -257,6 +305,122 @@ export function showEventModal(
 export function hideEventModal(): void {
 	const modal = getElement('event-modal');
 	modal.classList.add('hidden');
+}
+
+//============================================
+// MAIN ACTION BAR MANAGEMENT
+//============================================
+
+// Callbacks set by phase modules via configureMainButtons
+let onNextWeekCallback: (() => void) | null = null;
+let onAgeUpCallback: (() => void) | null = null;
+
+// Configure the persistent main buttons for the current phase.
+// Labels and visibility adapt to phase context.
+export function configureMainButtons(config: {
+	nextLabel: string;
+	nextAction: () => void;
+	ageUpVisible: boolean;
+	ageUpAction?: () => void;
+}): void {
+	const nextBtn = getElement('btn-next-week') as HTMLButtonElement;
+	const ageBtn = getElement('btn-age-up') as HTMLButtonElement;
+
+	// Set label and callback for the primary advance button
+	nextBtn.textContent = config.nextLabel;
+	onNextWeekCallback = config.nextAction;
+
+	// Age Up button visibility
+	if (config.ageUpVisible && config.ageUpAction) {
+		ageBtn.style.display = '';
+		onAgeUpCallback = config.ageUpAction;
+	} else {
+		ageBtn.style.display = 'none';
+		onAgeUpCallback = null;
+	}
+
+	// Enable buttons
+	nextBtn.disabled = false;
+	ageBtn.disabled = false;
+}
+
+// Disable main buttons (e.g. while a popup is open)
+export function disableMainButtons(): void {
+	const nextBtn = findElement('btn-next-week') as HTMLButtonElement | null;
+	const ageBtn = findElement('btn-age-up') as HTMLButtonElement | null;
+	if (nextBtn) {
+		nextBtn.disabled = true;
+	}
+	if (ageBtn) {
+		ageBtn.disabled = true;
+	}
+}
+
+// Enable main buttons (e.g. after popup closes)
+export function enableMainButtons(): void {
+	const nextBtn = findElement('btn-next-week') as HTMLButtonElement | null;
+	const ageBtn = findElement('btn-age-up') as HTMLButtonElement | null;
+	if (nextBtn) {
+		nextBtn.disabled = false;
+	}
+	if (ageBtn) {
+		ageBtn.disabled = false;
+	}
+}
+
+// Hide the main action bar entirely (e.g. during character creation)
+export function hideMainActionBar(): void {
+	const bar = findElement('main-action-bar');
+	if (bar) {
+		bar.style.display = 'none';
+	}
+}
+
+// Show the main action bar
+export function showMainActionBar(): void {
+	const bar = findElement('main-action-bar');
+	if (bar) {
+		bar.style.display = '';
+	}
+}
+
+// Initialize click handlers for the main action bar buttons.
+// Called once at app startup.
+export function initMainActionBar(): void {
+	const nextBtn = getElement('btn-next-week') as HTMLButtonElement;
+	const ageBtn = getElement('btn-age-up') as HTMLButtonElement;
+
+	nextBtn.addEventListener('click', () => {
+		if (onNextWeekCallback && !nextBtn.disabled) {
+			onNextWeekCallback();
+		}
+	});
+
+	ageBtn.addEventListener('click', () => {
+		if (onAgeUpCallback && !ageBtn.disabled) {
+			// Show confirmation popup before age-up
+			showChoicePopup('Simulate Year', [
+				{
+					text: 'Simulate Year',
+					primary: true,
+					action: () => {
+						if (onAgeUpCallback) {
+							onAgeUpCallback();
+						}
+					},
+				},
+				{
+					text: 'Cancel',
+					action: () => {
+						// Popup auto-closes via hideEventModal in showChoicePopup handler
+					},
+				},
+			], 'Simulate the rest of the year? All weekly decisions will be auto-resolved.');
+		}
+	});
+
+	// Hide by default until a phase configures it
+	hideMainActionBar();
 }
 
 //============================================
@@ -326,133 +490,10 @@ export function showGameResult(
 	addResult(teamResult);
 }
 
-//============================================
-// STANDINGS DISPLAY
-//============================================
-
-// Show standings panel with formatted standings
-export function showStandings(formattedStandings: string): void {
-	const panel = findElement('standings-panel');
-	const content = findElement('standings-content');
-	if (!panel || !content) {
-		return;
-	}
-
-	// Process formatted text to highlight player's team (lines starting with >>>)
-	const lines = formattedStandings.split('\n');
-	content.innerHTML = '';
-
-	for (const line of lines) {
-		if (line.indexOf('>>>') === 0) {
-			const span = document.createElement('span');
-			span.className = 'player-team-row';
-			span.textContent = line;
-			content.appendChild(span);
-			const br = document.createElement('br');
-			content.appendChild(br);
-		} else if (line.trim().length > 0) {
-			content.appendChild(document.createTextNode(line));
-			const br = document.createElement('br');
-			content.appendChild(br);
-		}
-	}
-
-	// Show panel
-	panel.classList.remove('hidden');
-}
-
-// Hide standings panel
-export function hideStandings(): void {
-	const panel = findElement('standings-panel');
-	if (!panel) {
-		return;
-	}
-	panel.classList.add('hidden');
-}
-
-// Toggle standings panel visibility
-export function toggleStandings(formattedStandings: string): void {
-	const panel = findElement('standings-panel');
-	if (!panel) {
-		return;
-	}
-
-	if (panel.classList.contains('hidden')) {
-		showStandings(formattedStandings);
-	} else {
-		hideStandings();
-	}
-}
-
-//============================================
-// SCHEDULE DISPLAY
-//============================================
-
-// Show schedule panel with formatted schedule
-export function showSchedule(
-	schedule: ScheduleEntry[],
-	currentWeek: number,
-	teamName: string
-): void {
-	const panel = findElement('schedule-panel');
-	const content = findElement('schedule-content');
-	if (!panel || !content) {
-		return;
-	}
-
-	// Build schedule output
-	let output = `Season Schedule - ${teamName}:\n`;
-
-	for (const entry of schedule) {
-		const weekStr = entry.week.toString().padStart(2, ' ');
-		const prefix = entry.week === currentWeek ? '>>> ' : '  ';
-
-		let resultStr: string;
-		if (entry.played) {
-			// Determine W or L
-			const result = entry.teamScore > entry.opponentScore ? 'W' : 'L';
-			resultStr = `${result} ${entry.teamScore}-${entry.opponentScore}`;
-		} else {
-			resultStr = '--';
-		}
-
-		const opponentStr = entry.opponentName.padEnd(25);
-		output += `${prefix}Wk ${weekStr}  vs ${opponentStr} ${resultStr}\n`;
-	}
-
-	// Render to <pre> element
-	content.textContent = output;
-
-	// Show panel
-	panel.classList.remove('hidden');
-}
-
-// Hide schedule panel
-export function hideSchedule(): void {
-	const panel = findElement('schedule-panel');
-	if (!panel) {
-		return;
-	}
-	panel.classList.add('hidden');
-}
-
-// Toggle schedule panel visibility
-export function toggleSchedule(
-	schedule: ScheduleEntry[],
-	currentWeek: number,
-	teamName: string
-): void {
-	const panel = findElement('schedule-panel');
-	if (!panel) {
-		return;
-	}
-
-	if (panel.classList.contains('hidden')) {
-		showSchedule(schedule, currentWeek, teamName);
-	} else {
-		hideSchedule();
-	}
-}
+// NOTE: showStandings, hideStandings, toggleStandings, showSchedule,
+// hideSchedule, toggleSchedule are deprecated. The team tab now renders
+// standings and schedule inline in updateTeamTab instead of using
+// standalone panels. These functions are removed to reduce dead code.
 
 //============================================
 // STATS TAB CONTENT
@@ -541,7 +582,12 @@ export function updateTeamTab(
 	const header = document.createElement('div');
 	header.className = 'team-tab-header';
 	const teamEmoji = getTeamEmoji(teamName);
-	header.innerHTML = `<strong>${teamEmoji} ${teamName}</strong> (${record})`;
+	const strong = document.createElement('strong');
+	strong.textContent = `${teamEmoji} ${teamName}`;
+	header.appendChild(strong);
+	const recordSpan = document.createElement('span');
+	recordSpan.textContent = ` (${record})`;
+	header.appendChild(recordSpan);
 	content.appendChild(header);
 
 	// Coach info
@@ -1239,13 +1285,9 @@ function updateSidebarPlayerIdentity(player: Player): void {
 		detailEl.textContent = parts.join(' | ');
 	}
 
-	// Portrait
+	// Portrait using stored avatar config (not random)
 	if (portraitEl && player.avatarConfig) {
-		const config = randomAvatarConfig(
-			`${player.firstName} ${player.lastName}`,
-			{ archetype: 'player', age: player.age },
-		);
-		portraitEl.innerHTML = generatePortraitSVG(config);
+		portraitEl.innerHTML = generatePortraitSVG(player.avatarConfig);
 	}
 }
 

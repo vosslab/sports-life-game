@@ -1,0 +1,97 @@
+/* Base reset, CSS variables, typography, body */
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+:root {
+	--bg-primary: #1a1a2e;
+	--bg-secondary: #16213e;
+	--bg-card: #0f3460;
+	--text-primary: #e8e8e8;
+	--text-secondary: #b8b8c8;
+	--accent-green: #4caf50;
+	--accent-yellow: #ffc107;
+	--accent-red: #f44336;
+	--accent-blue: #2196f3;
+	--accent-gold: #ffd700;
+	--bar-bg: #2a2a4a;
+	--button-bg: #1a5276;
+	--button-hover: #2471a3;
+	--button-big: #27ae60;
+	--button-big-hover: #2ecc71;
+	--modal-bg: rgba(0, 0, 0, 0.85);
+	/* Phase accent colors */
+	--phase-childhood: #64b5f6;
+	--phase-youth: #4fc3f7;
+	--phase-high-school: #66bb6a;
+	--phase-college: #ffa726;
+	--phase-nfl: #ffd700;
+	--phase-legacy: #ab47bc;
+}
+
+html, body {
+	height: 100%;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+	background:
+		radial-gradient(circle at top, color-mix(in srgb, var(--accent-blue) 18%, transparent), transparent 42%),
+		linear-gradient(160deg, var(--bg-primary) 0%, var(--bg-secondary) 55%, var(--bg-card) 100%);
+	background-color: var(--bg-primary);
+	background-attachment: fixed;
+	color: var(--text-primary);
+	font-size: 16px;
+	-webkit-tap-highlight-color: transparent;
+	-webkit-text-size-adjust: 100%;
+	-webkit-font-smoothing: antialiased;
+	overflow: hidden;
+}
+
+/* Stat bar color utilities */
+.stat-high { background: var(--accent-green); }
+.stat-mid { background: var(--accent-yellow); }
+.stat-low { background: var(--accent-red); }
+
+/* Scrollbar styling for story panel and sidebar */
+#story-panel::-webkit-scrollbar,
+#sidebar::-webkit-scrollbar {
+	width: 4px;
+}
+
+#story-panel::-webkit-scrollbar-track,
+#sidebar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+#story-panel::-webkit-scrollbar-thumb,
+#sidebar::-webkit-scrollbar-thumb {
+	background: var(--bar-bg);
+	border-radius: 2px;
+}
+
+/* Name input fields for character creation */
+.name-input {
+	display: block;
+	width: 100%;
+	padding: 12px 16px;
+	font-size: 1.05em;
+	color: var(--text-primary);
+	background: var(--bg-secondary);
+	border: 2px solid var(--bar-bg);
+	border-radius: 10px;
+	outline: none;
+	-webkit-appearance: none;
+	-webkit-user-select: text;
+	user-select: text;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.name-input:focus {
+	border-color: var(--accent-blue);
+	box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
+}
+
+.name-input::placeholder {
+	color: var(--text-secondary);
+}

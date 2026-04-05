@@ -15,7 +15,9 @@ import {
 import {
 	GameContext, resetWeekState, getWeekState,
 	showWeeklyFocusUI, handleWeeklyFocus, proceedToEventCheck,
+	simulateWeekSilently, showYearRecap,
 } from './game_loop.js';
+import type { YearSimRecap } from './game_loop.js';
 import {
 	NCAASchool, generateCollegeSchedule, formatSchoolName,
 	assignPlayerCollege,
@@ -68,8 +70,10 @@ export function beginCollege(
 		return;
 	}
 
-	// Reset college-related state
-	player.collegeYear = 0;
+	// Reset college-related state (only if not set by handler system)
+	if (!player.collegeYear) {
+		player.collegeYear = 0;
+	}
 	// Set initial draft stock based on current attributes
 	player.draftStock = calculateDraftStock(player);
 	collegeTeam = null;
@@ -108,7 +112,7 @@ export function beginCollege(
 	ctx.save();
 	ui.updateHeader(player);
 
-	ui.showChoices([
+	ui.showChoicePopup('College', [
 		{ text: 'Start Freshman Season', primary: true, action: startCollegeSeason },
 	]);
 }
@@ -215,9 +219,95 @@ function startCollegeSeason(): void {
 	ui.updateHeader(player);
 	ui.updateAllStats(player);
 
-	ui.showChoices([
+	// Configure main action bar for college season
+	ui.configureMainButtons({
+		nextLabel: 'Next Week',
+		nextAction: startCollegeWeek,
+		ageUpVisible: true,
+		ageUpAction: simulateCollegeSeason,
+	});
+	ui.showMainActionBar();
+
+	ui.showChoicePopup('Begin Season', [
 		{ text: 'Begin Week 1', primary: true, action: startCollegeWeek },
 	]);
+}
+
+//============================================
+// Simulate remaining college season weeks silently (Age Up)
+function simulateCollegeSeason(): void {
+	if (!ctx || !collegeTeam) {
+		return;
+	}
+	const player = ctx.getPlayer();
+
+	const recap: YearSimRecap = {
+		weeksSimulated: 0,
+		wins: 0,
+		losses: 0,
+		events: [],
+	};
+
+	const startWins = collegeTeam.wins;
+	const startLosses = collegeTeam.losses;
+
+	// Simulate remaining weeks
+	while (player.currentWeek < COLLEGE_SEASON_WEEKS) {
+		player.currentWeek += 1;
+		recap.weeksSimulated += 1;
+
+		// Silent focus + event resolution
+		const weekResult = simulateWeekSilently();
+		if (weekResult.eventTitle) {
+			recap.events.push(weekResult.eventTitle);
+		}
+
+		// Simulate game
+		const schedIdx = player.currentWeek - 1;
+		if (schedIdx < collegeTeam.schedule.length) {
+			const opponent = collegeTeam.schedule[schedIdx];
+			const collegeOpponentStrength = Math.min(
+				100, opponent.opponentStrength + randomInRange(10, 20)
+			);
+
+			const result = simulateGame(
+				player, collegeTeam, collegeOpponentStrength
+			);
+
+			opponent.played = true;
+			opponent.teamScore = result.teamScore;
+			opponent.opponentScore = result.opponentScore;
+
+			if (result.result === 'win') {
+				collegeTeam.wins += 1;
+				player.core.confidence = clampStat(
+					player.core.confidence + randomInRange(1, 3)
+				);
+			} else {
+				collegeTeam.losses += 1;
+				player.core.confidence = clampStat(
+					player.core.confidence + randomInRange(-3, 0)
+				);
+			}
+
+			// Accumulate stats
+			accumulateGameStats(player, result.playerStatLine);
+
+			// Draft stock for juniors/seniors
+			if (player.collegeYear >= 3) {
+				player.draftStock = calculateDraftStock(player);
+			}
+		}
+	}
+
+	recap.wins = collegeTeam.wins - startWins;
+	recap.losses = collegeTeam.losses - startLosses;
+
+	ctx.save();
+	ui.updateAllStats(player);
+
+	// Show recap, then proceed to season end
+	showYearRecap(recap, endCollegeSeason);
 }
 
 //============================================
@@ -360,7 +450,7 @@ function proceedToCollegeGame(): void {
 	ctx.addResult(`Grade: ${result.playerGrade}`);
 
 	// Accumulate stats on player object
-	accumulateGameStats(player.seasonStats, result.playerStatLine);
+	accumulateGameStats(player, result.playerStatLine);
 
 	// Stat line with human-readable labels
 	const formattedStats = ui.formatStatLine(result.playerStatLine);
@@ -386,11 +476,11 @@ function proceedToCollegeGame(): void {
 
 	// Check if season is over
 	if (player.currentWeek >= COLLEGE_SEASON_WEEKS) {
-		ui.showChoices([
+		ui.showChoicePopup('Game Complete', [
 			{ text: 'Season Summary', primary: true, action: endCollegeSeason },
 		]);
 	} else {
-		ui.showChoices([
+		ui.showChoicePopup('Game Complete', [
 			{ text: 'Next Week', primary: true, action: startCollegeWeek },
 		]);
 	}
@@ -402,6 +492,8 @@ function endCollegeSeason(): void {
 	if (!ctx) {
 		return;
 	}
+	// Hide main action bar during offseason
+	ui.hideMainActionBar();
 	const player = ctx.getPlayer();
 
 	if (!player || !collegeTeam) {
@@ -504,7 +596,7 @@ function endCollegeSeason(): void {
 		});
 	}
 
-	ui.showChoices(buttons);
+	ui.showChoicePopup('Season Over', buttons);
 }
 
 //============================================
@@ -574,7 +666,7 @@ function transferCollegeTeam(): void {
 	ui.updateHeader(player);
 	ui.updateAllStats(player);
 
-	ui.showChoices([
+	ui.showChoicePopup('Transfer Portal', [
 		{ text: 'Start Next Season', primary: true, action: startCollegeSeason },
 	]);
 }

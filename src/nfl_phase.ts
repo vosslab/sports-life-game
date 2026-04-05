@@ -23,7 +23,8 @@ import {
 	showWeeklyFocusUI, handleWeeklyFocus, proceedToEventCheck,
 	initGameLoop,
 } from './game_loop.js';
-import type { GameContext } from './game_loop.js';
+import type { GameContext, YearSimRecap } from './game_loop.js';
+import { simulateWeekSilently, showYearRecap } from './game_loop.js';
 import { updateTabBar, switchTab } from './tabs.js';
 import * as ui from './ui.js';
 
@@ -34,6 +35,9 @@ let nflConference: Conference | null = null;
 
 const NFL_SEASON_WEEKS = 17;
 const MAX_NFL_SEASONS = 15;
+
+// Stored callback for retirement transition (needed by main button wiring)
+let currentOnRetire: (() => void) | null = null;
 
 // Track weekly and season stats for awards
 interface SeasonStats {
@@ -186,7 +190,7 @@ export function startNFLCareer(gameContext: GameContext, onRetire: () => void): 
 	ctx.save();
 	ui.updateHeader(player);
 
-	ui.showChoices([
+	ui.showChoicePopup('Draft Day', [
 		{
 			text: 'Begin NFL Career',
 			primary: true,
@@ -283,7 +287,19 @@ function startNFLSeason(onRetire: () => void): void {
 		ctx.addText('Rookie season. Time to prove you belong.');
 	}
 
-	ui.showChoices([
+	// Store onRetire for main button wiring
+	currentOnRetire = onRetire;
+
+	// Configure main action bar for NFL season
+	ui.configureMainButtons({
+		nextLabel: 'Next Week',
+		nextAction: () => startNFLWeek(onRetire),
+		ageUpVisible: true,
+		ageUpAction: () => simulateNFLSeason(onRetire),
+	});
+	ui.showMainActionBar();
+
+	ui.showChoicePopup('Begin Season', [
 		{ text: 'Begin Week 1', primary: true, action: () => startNFLWeek(onRetire) },
 	]);
 }
@@ -335,6 +351,90 @@ function generateNFLSeasonTeam(player: Player): Team {
 		schedule: schedule,
 	};
 	return team;
+}
+
+//============================================
+// Simulate remaining NFL season weeks silently (Age Up)
+function simulateNFLSeason(onRetire: () => void): void {
+	if (!ctx || !nflTeam) {
+		return;
+	}
+	const player = ctx.getPlayer();
+
+	const recap: YearSimRecap = {
+		weeksSimulated: 0,
+		wins: 0,
+		losses: 0,
+		events: [],
+	};
+
+	const startWins = nflTeam.wins;
+	const startLosses = nflTeam.losses;
+
+	// Simulate remaining weeks
+	while (player.currentWeek < NFL_SEASON_WEEKS) {
+		player.currentWeek += 1;
+		recap.weeksSimulated += 1;
+
+		// Silent focus + event resolution
+		const weekResult = simulateWeekSilently();
+		if (weekResult.eventTitle) {
+			recap.events.push(weekResult.eventTitle);
+		}
+
+		// Simulate game
+		const schedIdx = player.currentWeek - 1;
+		if (schedIdx < nflTeam.schedule.length) {
+			const entry = nflTeam.schedule[schedIdx];
+			const result = simulateGame(player, nflTeam, entry.opponentStrength);
+
+			entry.played = true;
+			entry.teamScore = result.teamScore;
+			entry.opponentScore = result.opponentScore;
+
+			const playerWon = result.result === 'win';
+			if (playerWon) {
+				nflTeam.wins += 1;
+				player.core.confidence = clampStat(
+					player.core.confidence + 1
+				);
+			} else {
+				nflTeam.losses += 1;
+				player.core.confidence = clampStat(
+					player.core.confidence - 1
+				);
+			}
+
+			// Update conference standings
+			if (nflConference) {
+				simulateConferenceWeek(
+					nflConference, player.teamName, playerWon
+				);
+			}
+
+			// Accumulate stats
+			accumulateGameStats(player, result.playerStatLine);
+			currentSeasonStats.gamesPlayed += 1;
+		}
+	}
+
+	// Update career history with final record
+	const history = player.careerHistory;
+	if (history.length > 0) {
+		const current = history[history.length - 1];
+		current.wins = nflTeam.wins;
+		current.losses = nflTeam.losses;
+	}
+
+	recap.wins = nflTeam.wins - startWins;
+	recap.losses = nflTeam.losses - startLosses;
+
+	ctx.save();
+	ui.updateAllStats(player);
+	ui.updateHeader(player);
+
+	// Show recap, then proceed to season end
+	showYearRecap(recap, () => endNFLSeason(onRetire));
 }
 
 //============================================
@@ -441,7 +541,7 @@ function proceedToNFLGame(onRetire: () => void): void {
 	}
 
 	// Track season stats on player object and local counters
-	accumulateGameStats(player.seasonStats, result.playerStatLine);
+	accumulateGameStats(player, result.playerStatLine);
 	currentSeasonStats.gamesPlayed += 1;
 	const stats = result.playerStatLine;
 	const passYds = Number(stats['passYards'] || 0);
@@ -490,11 +590,11 @@ function proceedToNFLGame(onRetire: () => void): void {
 
 	// Check if season is over
 	if (player.currentWeek >= NFL_SEASON_WEEKS) {
-		ui.showChoices([
+		ui.showChoicePopup('Game Complete', [
 			{ text: 'Season Summary', primary: true, action: () => endNFLSeason(onRetire) },
 		]);
 	} else {
-		ui.showChoices([
+		ui.showChoicePopup('Game Complete', [
 			{ text: 'Next Week', primary: true, action: () => startNFLWeek(onRetire) },
 		]);
 	}
@@ -505,6 +605,8 @@ function endNFLSeason(onRetire: () => void): void {
 	if (!ctx || !nflTeam) {
 		return;
 	}
+	// Hide main action bar during offseason
+	ui.hideMainActionBar();
 	const player = ctx.getPlayer();
 
 	ctx.clearStory();
@@ -597,5 +699,5 @@ function endNFLSeason(onRetire: () => void): void {
 		});
 	}
 
-	ui.showChoices(buttons);
+	ui.showChoicePopup('Season Over', buttons);
 }

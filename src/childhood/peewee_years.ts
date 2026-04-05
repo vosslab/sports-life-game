@@ -21,8 +21,8 @@ export const peeweeHandler: YearHandler = {
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
 
-		// Generate town identity at age 8
-		if (player.age === 8 && player.townName === '') {
+		// Generate town identity at age 8 (check for both empty string and undefined)
+		if (player.age === 8 && !player.townName) {
 			generateTownIdentity(player);
 			coachAssignPosition(player);
 			player.depthChart = 'starter'; // everyone plays in peewee

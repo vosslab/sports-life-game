@@ -58,7 +58,7 @@ export class PlayoffBracket {
 		}
 
 		// Populate only the first round with initial matchups
-		const sortedTeamIds = this.seeds
+		const sortedTeamIds = [...this.seeds]
 			.sort((a, b) => a.seed - b.seed)
 			.map(s => s.teamId);
 
@@ -139,16 +139,17 @@ export class PlayoffBracket {
 			}
 		}
 
-		// Find bye teams: seeds that have never appeared in ANY round's games
-		// (only the current round's bye holder should be re-inserted once)
+		// Find bye teams: seeds that have never appeared in games up to current round
+		// only scan rounds up to and including the current round
 		const teamsEverScheduled = new Set<TeamId>();
-		for (const r of this.rounds) {
+		for (let i = 0; i <= this.currentRoundIndex; i++) {
+			const r = this.rounds[i];
 			for (const game of r.games) {
 				teamsEverScheduled.add(game.homeTeamId);
 				teamsEverScheduled.add(game.awayTeamId);
 			}
 		}
-		// A true bye team has no scheduled game in any round yet and is not eliminated
+		// A true bye team has no scheduled game up to current round and is not eliminated
 		for (const seed of this.seeds) {
 			if (!teamsEverScheduled.has(seed.teamId) && !this.isEliminated(seed.teamId)) {
 				// This team had a bye -- add them at the front (top seed advantage)
@@ -266,7 +267,7 @@ export function createHSPlayoffBracket(
 		{ roundNumber: 2, roundName: 'Championship', games: [] },
 	];
 	// Populate first round: 1v4, 2v3
-	const sorted = bracket.seeds.sort((a, b) => a.seed - b.seed);
+	const sorted = [...bracket.seeds].sort((a, b) => a.seed - b.seed);
 	if (sorted.length >= 4) {
 		bracket.rounds[0].games.push(new SeasonGame(
 			nextPlayoffGameId(), 0, sorted[0].teamId, sorted[3].teamId, true,
@@ -289,7 +290,7 @@ export function createCollegePlayoffBracket(
 		{ roundNumber: 1, roundName: 'CFP Semifinal', games: [] },
 		{ roundNumber: 2, roundName: 'National Championship', games: [] },
 	];
-	const sorted = bracket.seeds.sort((a, b) => a.seed - b.seed);
+	const sorted = [...bracket.seeds].sort((a, b) => a.seed - b.seed);
 	if (sorted.length >= 4) {
 		bracket.rounds[0].games.push(new SeasonGame(
 			nextPlayoffGameId(), 0, sorted[0].teamId, sorted[3].teamId, false,
@@ -313,10 +314,11 @@ export function createNFLPlayoffBracket(
 		{ roundNumber: 1, roundName: 'Wild Card', games: [] },
 		{ roundNumber: 2, roundName: 'Divisional', games: [] },
 		{ roundNumber: 3, roundName: 'Conference Championship', games: [] },
+		{ roundNumber: 4, roundName: 'Super Bowl', games: [] },
 	];
 
 	// Wild card: 2v7, 3v6, 4v5 (1-seed has bye)
-	const sorted = bracket.seeds.sort((a, b) => a.seed - b.seed);
+	const sorted = [...bracket.seeds].sort((a, b) => a.seed - b.seed);
 	if (sorted.length >= 7) {
 		bracket.rounds[0].games.push(new SeasonGame(
 			nextPlayoffGameId(), 0, sorted[1].teamId, sorted[6].teamId, true,

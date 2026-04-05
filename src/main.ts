@@ -68,10 +68,10 @@ import {
 } from './tabs.js';
 import type { TabId } from './tabs.js';
 import {
-	initGameLoop, GameContext, refreshActivitiesTabForCurrentPhase,
+	initGameLoop, GameContext, refreshActivitiesTabForCurrentPhase, getWeekState,
 } from './game_loop.js';
 import {
-	Activity, WeekState, createWeekState,
+	Activity,
 	getActivitiesForPhase, isActivityUnlocked, applyActivity, getEffectPreview,
 } from './activities.js';
 import { initHighSchoolPhase, startHighSchoolSeason as startHSSeason, resumeHighSchoolSeason, getHSTeam, getHSConference } from './hs_phase.js';
@@ -237,15 +237,12 @@ function refreshDashboard(): void {
 	// Update all dashboard components
 	ui.updateWeekCard(currentPlayer, opponentName, pressure);
 	ui.updateMiniStatStrip(currentPlayer);
-	ui.updateSidebar(currentPlayer, currentWeekState, opponentName, lastFocusLabel);
+	ui.updateSidebar(currentPlayer, getWeekState(), opponentName, lastFocusLabel);
 	ui.showRecentChange(lastRecentChange);
 }
 
 // BUG FIX 3: Track if state championship won this season
 let wonStateThisSeason = false;
-
-// Weekly flow state machine (transient loop state, not on Player)
-let currentWeekState: WeekState = createWeekState();
 
 // Total weeks in a high school regular season
 const HS_SEASON_WEEKS = 10;
@@ -399,6 +396,9 @@ async function initGame(): Promise<void> {
 
 	// Initialize sidebar resize listener
 	initSidebarListener();
+
+	// Initialize persistent main action bar (Next Week / Age Up buttons)
+	ui.initMainActionBar();
 
 	// Initialize the shared game loop engine with context from main.ts
 	const gameContext: GameContext = {
@@ -727,81 +727,10 @@ function advanceChildhood(): void {
 		return;
 	}
 
-	// Advance age
-	currentPlayer.age += 1;
-
-	// Apply natural childhood growth
-	applyChildhoodGrowth(currentPlayer);
-
-	// Save after each advance
-	saveGame(currentPlayer);
-
-	// Update UI
-	ui.updateAllStats(currentPlayer);
-	ui.updateHeader(currentPlayer);
-	clearStory();
-
-	// If the player skipped youth football, still move on to high school at the normal age
-	if (currentPlayer.age >= 14 && currentPlayer.storyFlags.skip_youth_football) {
-		addStoryHeadline(`Age ${currentPlayer.age}: High School`);
-		addStoryText(
-			'You never joined the youth league, but high school football is here now. '
-			+ 'This is your chance to prove you belong.'
-		);
-		ui.showChoices([
-			{ text: 'Try out for high school football', primary: true, action: () => {
-				startHighSchool();
-			}},
-		]);
-		return;
-	}
-
-	// Check if ready for youth football
-	if (currentPlayer.age >= 10 && !currentPlayer.storyFlags.skip_youth_football) {
-		addStoryHeadline(`Age ${currentPlayer.age}: Time to Play`);
-		addStoryText('Your friends are signing up for youth football. '
-			+ 'You have been watching games on TV for years. '
-			+ 'This could be the start of something big.');
-		ui.showChoices([
-			{ text: 'Sign up for football!', primary: true, action: startYouthFootball },
-			{ text: 'Not yet...', primary: false, action: declineYouthFootball },
-		]);
-		return;
-	}
-
-	// Generate childhood event
-	const event = getChildhoodEvent(currentPlayer);
-	addStoryHeadline(`Age ${currentPlayer.age}`);
-	addStoryText(event.text);
-
-	if (event.choices) {
-		ui.showChoices(event.choices.map(choice => ({
-			text: choice.text,
-			primary: choice.primary || false,
-			action: () => {
-				// Apply stat changes
-				for (const [stat, delta] of Object.entries(choice.effects)) {
-					const key = stat as keyof CoreStats;
-					if (key in currentPlayer!.core) {
-						currentPlayer!.core[key] = clampStat(currentPlayer!.core[key] + delta);
-					}
-				}
-				// Show flavor text
-				if (choice.flavor) {
-					addStoryText(choice.flavor);
-				}
-				ui.updateAllStats(currentPlayer!);
-				saveGame(currentPlayer!);
-				// Show continue button
-				ui.showChoices([
-					{ text: 'Continue...', primary: true, action: advanceChildhood },
-				]);
-			},
-		})));
-	} else {
-		ui.showChoices([
-			{ text: 'Continue...', primary: true, action: advanceChildhood },
-		]);
+	// Route childhood progression through the year-handler system
+	// which handles age incrementing and phase transitions
+	if (careerCtx) {
+		advanceToNextYear(currentPlayer, careerCtx);
 	}
 }
 
@@ -1077,21 +1006,12 @@ function startYouthFootball(): void {
 		return;
 	}
 
-	currentPlayer.phase = 'youth';
-	saveGame(currentPlayer);
-
-	// Update tab bar for youth phase (same as childhood)
-	updateTabBar(currentPlayer.phase);
-	switchTab('life');
-
-	clearStory();
-	addStoryHeadline('Youth Football');
-	addStoryText('You signed up for the youth league. Time to find out what you are made of.');
-	addStoryText('The coaches will figure out where you belong on the field.');
-
-	ui.showChoices([
-		{ text: 'Hit the field!', primary: true, action: advanceYouthSeason },
-	]);
+	// Mark that player chose to play youth football
+	currentPlayer.storyFlags.started_youth_football = true;
+	// Route to peewee handler (age 8) via year-handler system
+	if (careerCtx) {
+		advanceToNextYear(currentPlayer, careerCtx);
+	}
 }
 
 //============================================
@@ -1100,64 +1020,10 @@ function advanceYouthSeason(): void {
 		return;
 	}
 
-	currentPlayer.age += 1;
-	currentPlayer.currentSeason += 1;
-
-	// Apply youth growth (faster than childhood)
-	currentPlayer.core.athleticism = clampStat(currentPlayer.core.athleticism + randomInRange(2, 5));
-	currentPlayer.core.technique = clampStat(currentPlayer.core.technique + randomInRange(2, 4));
-	currentPlayer.core.footballIq = clampStat(currentPlayer.core.footballIq + randomInRange(1, 3));
-	currentPlayer.core.discipline = clampStat(currentPlayer.core.discipline + randomInRange(1, 3));
-	currentPlayer.core.health = clampStat(currentPlayer.core.health + randomInRange(0, 2));
-	currentPlayer.core.confidence = clampStat(currentPlayer.core.confidence + randomInRange(1, 4));
-
-	saveGame(currentPlayer);
-	ui.updateAllStats(currentPlayer);
-	ui.updateHeader(currentPlayer);
-	clearStory();
-
-	// Check if ready for high school
-	if (currentPlayer.age >= 14) {
-		addStoryHeadline(`Age ${currentPlayer.age}: High School`);
-		addStoryText('You made it through youth football. Now the real competition begins.');
-		addStoryText('High school tryouts are next week. This is where careers start.');
-
-		ui.showChoices([
-			{ text: 'Time for high school football!', primary: true, action: startHighSchool },
-		]);
-		return;
-	}
-
-	// Youth season summary
-	const youthEvent = getYouthEvent(currentPlayer);
-	addStoryHeadline(`Age ${currentPlayer.age}: Youth Season ${currentPlayer.currentSeason}`);
-	addStoryText(youthEvent.text);
-
-	if (youthEvent.choices) {
-		ui.showChoices(youthEvent.choices.map(choice => ({
-			text: choice.text,
-			primary: choice.primary || false,
-			action: () => {
-				for (const [stat, delta] of Object.entries(choice.effects)) {
-					const key = stat as keyof CoreStats;
-					if (key in currentPlayer!.core) {
-						currentPlayer!.core[key] = clampStat(currentPlayer!.core[key] + delta);
-					}
-				}
-				if (choice.flavor) {
-					addStoryText(choice.flavor);
-				}
-				ui.updateAllStats(currentPlayer!);
-				saveGame(currentPlayer!);
-				ui.showChoices([
-					{ text: 'Next Season...', primary: true, action: advanceYouthSeason },
-				]);
-			},
-		})));
-	} else {
-		ui.showChoices([
-			{ text: 'Next Season...', primary: true, action: advanceYouthSeason },
-		]);
+	// Route youth season progression through the year-handler system
+	// which handles age incrementing and phase transitions
+	if (careerCtx) {
+		advanceToNextYear(currentPlayer, careerCtx);
 	}
 }
 

@@ -58,6 +58,8 @@ export function selectPairs(
 	// Greedily select pairs, tracking how many times each team appears
 	const selected: [TeamId, TeamId][] = [];
 	const teamCounts = new Map<TeamId, number>();
+	// Get unique teams that will participate based on what we've selected so far
+	const uniqueTeamsInSelected = new Set<TeamId>();
 
 	for (const pair of shuffled) {
 		if (selected.length >= count) {
@@ -67,12 +69,18 @@ export function selectPairs(
 		const countA = teamCounts.get(a) || 0;
 		const countB = teamCounts.get(b) || 0;
 
+		// Calculate unique teams that would be in selected if we add this pair
+		const tentativeTeams = new Set(uniqueTeamsInSelected);
+		tentativeTeams.add(a);
+		tentativeTeams.add(b);
 		// Allow each team in at most ceil(count / teamCount * 2) games
-		const maxPerTeam = Math.ceil(count * 2 / new Set([...pairs.flat()]).size);
+		const maxPerTeam = Math.ceil(count * 2 / tentativeTeams.size);
 		if (countA < maxPerTeam && countB < maxPerTeam) {
 			selected.push(pair);
 			teamCounts.set(a, countA + 1);
 			teamCounts.set(b, countB + 1);
+			uniqueTeamsInSelected.add(a);
+			uniqueTeamsInSelected.add(b);
 		}
 	}
 
@@ -83,6 +91,7 @@ export function selectPairs(
 // Assign game pairs to specific weeks, creating SeasonGame objects.
 // Distributes games evenly across the week range.
 // All created games are conference games by default.
+// Ensures no team plays twice in the same week.
 export function assignWeeksToGames(
 	pairs: [TeamId, TeamId][],
 	startWeek: number,
@@ -96,11 +105,32 @@ export function assignWeeksToGames(
 	const shuffled = [...pairs];
 	shuffleArray(shuffled);
 
+	// Track which teams play in each week to prevent double-bookings
+	const weekTeamMap = new Map<number, Set<TeamId>>();
+
 	for (let i = 0; i < shuffled.length; i++) {
 		const [home, away] = shuffled[i];
-		// Distribute evenly across weeks
-		const week = startWeek + (i % totalWeeks);
-		games.push(new SeasonGame(nextGameId(), week, home, away, isConference));
+		// Find the next available week (starting from modulo assignment)
+		let assignedWeek = startWeek + (i % totalWeeks);
+		let attempts = 0;
+		while (attempts < totalWeeks) {
+			const weekTeams = weekTeamMap.get(assignedWeek) || new Set();
+			// Check if either team already plays this week
+			if (!weekTeams.has(home) && !weekTeams.has(away)) {
+				// Assign to this week
+				weekTeams.add(home);
+				weekTeams.add(away);
+				weekTeamMap.set(assignedWeek, weekTeams);
+				games.push(new SeasonGame(nextGameId(), assignedWeek, home, away, isConference));
+				break;
+			}
+			// Try next week
+			assignedWeek += 1;
+			if (assignedWeek > endWeek) {
+				assignedWeek = startWeek;
+			}
+			attempts += 1;
+		}
 	}
 
 	return games;
@@ -109,6 +139,7 @@ export function assignWeeksToGames(
 //============================================
 // Generate non-conference games for a specific team.
 // Picks random opponents from the pool and assigns to specified weeks.
+// Deduplicates to ensure no team pair is scheduled twice.
 export function generateNonConferenceGames(
 	teamId: TeamId,
 	opponentPool: TeamId[],
@@ -119,15 +150,27 @@ export function generateNonConferenceGames(
 	const available = [...opponentPool];
 	shuffleArray(available);
 
-	for (let i = 0; i < count && i < available.length && i < weeks.length; i++) {
+	// Track which team pairs have been scheduled to avoid duplicates
+	const scheduledPairs = new Set<string>();
+
+	for (let i = 0; i < available.length && games.length < count && games.length < weeks.length; i++) {
 		const opponentId = available[i];
-		const week = weeks[i];
+
+		// Create a canonical pair representation for deduplication
+		const pair = [teamId, opponentId].sort().join('-');
+		if (scheduledPairs.has(pair)) {
+			// Skip if already scheduled
+			continue;
+		}
+
+		const week = weeks[games.length];
 		// Randomly assign home/away
 		if (Math.random() < 0.5) {
 			games.push(new SeasonGame(nextGameId(), week, teamId, opponentId, false));
 		} else {
 			games.push(new SeasonGame(nextGameId(), week, opponentId, teamId, false));
 		}
+		scheduledPairs.add(pair);
 	}
 
 	return games;

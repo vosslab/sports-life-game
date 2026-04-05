@@ -34,7 +34,9 @@ import type { GameContext } from './game_loop.js';
 import {
 	showWeeklyFocusUI, handleWeeklyFocus, proceedToEventCheck,
 	resetWeekState, getWeekState, initGameLoop,
+	simulateWeekSilently, showYearRecap,
 } from './game_loop.js';
+import type { YearSimRecap } from './game_loop.js';
 
 //============================================
 // Season stats tracking for awards and highlights
@@ -224,7 +226,7 @@ export function startHighSchoolSeason(): void {
 				: ''
 		);
 
-		ui.showChoices([
+		ui.showChoicePopup('Season Start', [
 			{ text: 'Begin Preseason', primary: true, action: startPreseason },
 		]);
 	} finally {
@@ -420,6 +422,15 @@ function preseasonFirstScrimmage(): void {
 	ctx.save();
 	ui.updateAllStats(player);
 
+	// Configure main action bar for the HS season
+	ui.configureMainButtons({
+		nextLabel: 'Next Week',
+		nextAction: startWeek,
+		ageUpVisible: true,
+		ageUpAction: simulateHSSeason,
+	});
+	ui.showMainActionBar();
+
 	ui.showChoices([
 		{
 			text: 'Begin Regular Season',
@@ -427,6 +438,96 @@ function preseasonFirstScrimmage(): void {
 			action: startWeek,
 		},
 	]);
+}
+
+//============================================
+// Simulate remaining HS season weeks silently (Age Up)
+function simulateHSSeason(): void {
+	if (!ctx || !persistentHSTeam) {
+		return;
+	}
+	const player = ctx.getPlayer();
+
+	const recap: YearSimRecap = {
+		weeksSimulated: 0,
+		wins: 0,
+		losses: 0,
+		events: [],
+	};
+
+	// Track wins/losses at start to compute delta
+	const startWins = persistentHSTeam.wins;
+	const startLosses = persistentHSTeam.losses;
+
+	// Simulate remaining weeks
+	while (player.currentWeek < HS_SEASON_WEEKS) {
+		// Advance week counter
+		if (player.currentWeek === 0) {
+			player.currentWeek = 1;
+		} else {
+			player.currentWeek += 1;
+		}
+		recap.weeksSimulated += 1;
+
+		// Silent focus + event resolution
+		const weekResult = simulateWeekSilently();
+		if (weekResult.eventTitle) {
+			recap.events.push(weekResult.eventTitle);
+		}
+
+		// Simulate game day
+		const scheduleIdx = player.currentWeek - 1;
+		if (scheduleIdx < persistentHSTeam.schedule.length) {
+			const opponent = persistentHSTeam.schedule[scheduleIdx];
+			const result = simulateGame(
+				player,
+				persistentHSTeam,
+				opponent.opponentStrength,
+			);
+
+			// Record result
+			opponent.played = true;
+			opponent.teamScore = result.teamScore;
+			opponent.opponentScore = result.opponentScore;
+
+			if (result.result === 'win') {
+				persistentHSTeam.wins += 1;
+			} else if (result.result === 'loss') {
+				persistentHSTeam.losses += 1;
+			}
+
+			// Confidence adjustment
+			if (result.result === 'win') {
+				player.core.confidence = clampStat(
+					player.core.confidence + randomInRange(1, 3)
+				);
+			} else {
+				player.core.confidence = clampStat(
+					player.core.confidence + randomInRange(-3, 0)
+				);
+			}
+
+			// Accumulate stats
+			accumulateGameStats(player, result.playerStatLine);
+			currentSeasonStats.gamesPlayed += 1;
+		}
+	}
+
+	// Compute recap totals
+	recap.wins = persistentHSTeam.wins - startWins;
+	recap.losses = persistentHSTeam.losses - startLosses;
+
+	ctx.save();
+	ui.updateAllStats(player);
+	ui.updateStatusBar(
+		`Record: ${persistentHSTeam.wins}-${persistentHSTeam.losses}`,
+		player.recruitingStars > 0
+			? `Recruiting: ${player.recruitingStars} stars`
+			: ''
+	);
+
+	// Show recap popup, then proceed to season end
+	showYearRecap(recap, endSeason);
 }
 
 //============================================
@@ -547,7 +648,7 @@ function proceedToGameDay(): void {
 	}
 
 	// Track season stats for awards and player accumulation
-	accumulateGameStats(player.seasonStats, result.playerStatLine);
+	accumulateGameStats(player, result.playerStatLine);
 	currentSeasonStats.gamesPlayed += 1;
 	const stats = result.playerStatLine;
 
@@ -648,6 +749,9 @@ function endSeason(): void {
 	if (!ctx || !persistentHSTeam) {
 		return;
 	}
+
+	// Hide main action bar during offseason/transition
+	ui.hideMainActionBar();
 
 	// Check for playoffs
 	if (persistentHSTeam.wins >= 6) {
@@ -796,7 +900,7 @@ function preparePlayoffGame(
 	const result = simulateGame(player, persistentHSTeam, opponentStrength);
 
 	// Track playoff stats on player and local season counters
-	accumulateGameStats(player.seasonStats, result.playerStatLine);
+	accumulateGameStats(player, result.playerStatLine);
 	currentSeasonStats.gamesPlayed += 1;
 	const pStats = result.playerStatLine;
 	const pPassYards = typeof pStats['passYards'] === 'number' ? pStats['passYards'] : 0;

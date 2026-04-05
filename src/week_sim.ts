@@ -22,7 +22,7 @@ export interface GameResult {
 	playerStatLine: StatLine;
 	teamScore: number;
 	opponentScore: number;
-	result: 'win' | 'loss' | 'tie';
+	result: 'win' | 'loss';
 	storyText: string;
 }
 
@@ -471,17 +471,18 @@ export function simulateGame(
 	const upsetBonus = opponentStrength < team.strength
 		? randomInRange(0, 4)
 		: 0;
-	let opponentScore = opponentBaseScore + opponentStarBoost + upsetBonus + randomInRange(-5, 5);
+	let opponentScore = Math.max(0, opponentBaseScore + opponentStarBoost + upsetBonus + randomInRange(-5, 5));
 
 	// Determine winner using logistic curve (for overtime tiebreaker)
 	const teamDifferential = (team.strength + playerContribution) - effectiveOpponentStrength;
 	const winProbability = 1 / (1 + Math.exp(-0.07 * teamDifferential));
 
-	let result: 'win' | 'loss' | 'tie';
+	let result: 'win' | 'loss';
 	const regulationTieScore = teamScore;
 	if (teamScore === opponentScore) {
-		// Tie: simulate overtime with weighted coin flip
-		const otWinProbability = winProbability * 0.6 + 0.4;  // Shift towards original prob
+		// Tie: simulate overtime with less-biased win probability
+		// Formula: 0.7 * original prob + 0.15 gives range 0.15-0.85, centered at 0.5
+		const otWinProbability = winProbability * 0.7 + 0.15;
 		result = Math.random() < otWinProbability ? 'win' : 'loss';
 		const overtimePoints = randomInRange(3, 8);
 		if (result === 'win') {

@@ -39,10 +39,15 @@ export interface GameEvent {
 }
 
 //============================================
-// Load events from JSON file
+// Load events from per-phase JSON files and combine into one array
 export async function loadEvents(): Promise<GameEvent[]> {
-	const response = await fetch('src/data/events.json');
-	const events: GameEvent[] = await response.json();
+	const phases = ['childhood', 'youth', 'high_school', 'college', 'nfl'];
+	// Fetch all phase files in parallel
+	const fetches = phases.map((phase) =>
+		fetch(`src/data/events/${phase}.json`).then((r) => r.json())
+	);
+	const arrays: GameEvent[][] = await Promise.all(fetches);
+	const events: GameEvent[] = arrays.flat();
 	return events;
 }
 
@@ -85,7 +90,11 @@ export function filterEvents(
 		// Check minimum stats
 		if (conditions.min_stats !== undefined) {
 			for (const [stat, minVal] of Object.entries(conditions.min_stats)) {
-				if ((stats[stat] || 0) < minVal) {
+				// Skip stat check if stat key doesn't exist in stats record
+				if (!(stat in stats)) {
+					continue;
+				}
+				if (stats[stat] < minVal) {
 					return false;
 				}
 			}
@@ -94,7 +103,11 @@ export function filterEvents(
 		// Check maximum stats
 		if (conditions.max_stats !== undefined) {
 			for (const [stat, maxVal] of Object.entries(conditions.max_stats)) {
-				if ((stats[stat] || 0) > maxVal) {
+				// Skip stat check if stat key doesn't exist in stats record
+				if (!(stat in stats)) {
+					continue;
+				}
+				if (stats[stat] > maxVal) {
 					return false;
 				}
 			}

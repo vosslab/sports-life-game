@@ -1,0 +1,83 @@
+/* Story panel, headlines, results, milestone cards, dividers */
+
+#story-panel {
+	flex: 1;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	padding: 12px;
+	min-height: 0;
+}
+
+#story-log {
+	font-size: 0.95em;
+	line-height: 1.6;
+}
+
+#story-log p {
+	margin-bottom: 8px;
+}
+
+#story-log .story-headline {
+	font-weight: 800;
+	color: var(--accent-gold);
+	font-size: 1.15em;
+	margin-bottom: 6px;
+}
+
+#story-log .story-result {
+	color: var(--text-secondary);
+	font-size: 0.9em;
+	border-left: 3px solid var(--accent-blue);
+	padding-left: 8px;
+	margin-left: 4px;
+}
+
+#story-log .story-stat-change {
+	color: var(--text-secondary);
+	font-size: 0.85em;
+	font-style: italic;
+}
+
+/* Milestone event cards in story timeline */
+.milestone-card {
+	background: var(--bg-card);
+	border: 2px solid var(--accent-gold);
+	border-radius: 12px;
+	padding: 14px 16px;
+	margin: 12px 0;
+}
+
+.milestone-card .milestone-title {
+	font-weight: 800;
+	font-size: 1.1em;
+	color: var(--accent-gold);
+	margin-bottom: 6px;
+}
+
+.milestone-card .milestone-desc {
+	font-size: 0.92em;
+	line-height: 1.5;
+	margin-bottom: 6px;
+}
+
+.milestone-card .milestone-impact {
+	font-size: 0.82em;
+	color: var(--text-secondary);
+	font-style: italic;
+}
+
+/* Story timeline dividers (BitLife-style persistent log) */
+.story-divider {
+	border: none;
+	border-top: 1px solid var(--bar-bg);
+	margin: 16px 0 12px 0;
+	opacity: 0.4;
+	padding: 0;
+}
+
+/* Fade older content slightly for visual hierarchy */
+#story-log > p {
+	transition: opacity 0.3s ease;
+}

@@ -9,7 +9,15 @@
 	<!-- Apple touch icon placeholder for future branding -->
 	<!-- <link rel="apple-touch-icon" href="icon-180.png"> -->
 	<title>Gridiron Life</title>
-	<link rel="stylesheet" href="styles.css">
+	<link rel="stylesheet" href="src/styles/base.css">
+	<link rel="stylesheet" href="src/styles/layout.css">
+	<link rel="stylesheet" href="src/styles/stats.css">
+	<link rel="stylesheet" href="src/styles/story.css">
+	<link rel="stylesheet" href="src/styles/buttons.css">
+	<link rel="stylesheet" href="src/styles/modals.css">
+	<link rel="stylesheet" href="src/styles/tabs.css">
+	<link rel="stylesheet" href="src/styles/activities.css">
+	<link rel="stylesheet" href="src/styles/phases.css">
 </head>
 <body>
 	<div id="app">
@@ -67,14 +75,16 @@
 					<section id="life-status">
 						<div id="life-record">No team record yet.</div>
 						<div id="life-next-opponent">No upcoming opponent.</div>
-						<div id="team-record"></div>
-						<div id="recruiting-status"></div>
 					</section>
 					<section id="story-panel">
 						<div id="story-log"></div>
 					</section>
 					<section id="choices-panel">
 						<!-- Dynamically populated with big choice buttons -->
+					</section>
+					<section id="main-action-bar">
+						<button id="btn-next-week" class="choice-button primary">Next Week</button>
+						<button id="btn-age-up" class="choice-button age-up">Age Up</button>
 					</section>
 				</div>
 

@@ -1,0 +1,1334 @@
+[
+	{
+		"id": "college_exam_week_stress",
+		"title": "Exam Week Grind",
+		"description": "Finals loom while your team enters bowl preparation. Balancing finals and football is brutal.",
+		"phase": "college",
+		"tags": [
+			"school",
+			"stress"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Study all night, then hit practice hungover",
+				"effects": {
+					"discipline": 1,
+					"health": -2,
+					"confidence": -1
+				},
+				"flavor": "You barely pass, but you're a zombie on the field. Not your best week."
+			},
+			{
+				"text": "Ask professor for extension and focus on team",
+				"effects": {
+					"athleticism": 1,
+					"confidence": 2
+				},
+				"flavor": "Professor gives you extra time. You ball out in practice. Win-win."
+			}
+		]
+	},
+	{
+		"id": "college_professor_recognition",
+		"title": "Professor Knows Your Name",
+		"description": "Your psych professor stops you after class. Turns out she's a huge football fan.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"school"
+		],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Get extra help with coursework",
+				"effects": {
+					"discipline": 1,
+					"confidence": 1
+				},
+				"flavor": "She tutors you. Your GPA actually goes up. Best outcome."
+			},
+			{
+				"text": "Just chat about football and move on",
+				"effects": {
+					"popularity": 1,
+					"confidence": 1
+				},
+				"flavor": "Cool conversation. You feel like a minor celebrity on campus now."
+			}
+		]
+	},
+	{
+		"id": "college_dorm_party",
+		"title": "Party on Game Weekend",
+		"description": "Your roommate throws a rager the night before a huge conference game.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"discipline"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Stay in the room and rest",
+				"effects": {
+					"health": 2,
+					"confidence": 1,
+					"discipline": 2
+				},
+				"flavor": "You're locked in Saturday. 2 sacks, 12 tackles. Worth it."
+			},
+			{
+				"text": "Join the party for a few hours",
+				"effects": {
+					"popularity": 2,
+					"health": -1,
+					"confidence": 1
+				},
+				"flavor": "You have fun but sleep isn't great. You still play okay though."
+			}
+		]
+	},
+	{
+		"id": "college_nil_deal",
+		"title": "NIL Deal Offer",
+		"description": "A local apparel company offers you decent money to wear their gear.",
+		"phase": "college",
+		"tags": [
+			"money",
+			"business"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Sign the NIL deal, easy money",
+				"effects": {
+					"money": 3,
+					"confidence": 1,
+					"discipline": -1
+				},
+				"flavor": "Nice. Your bank account is happier. Swag too."
+			},
+			{
+				"text": "Decline and focus purely on football",
+				"effects": {
+					"footballIq": 1,
+					"discipline": 2,
+					"draftStock": 1
+				},
+				"flavor": "Scouts love the focus. Keep your head in the game, they say."
+			}
+		]
+	},
+	{
+		"id": "college_campus_fame",
+		"title": "Campus Celebrity Status",
+		"description": "You throw a game-winning TD pass. Now everyone knows your face.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"popularity"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Embrace the celebrity, do interviews and appearances",
+				"effects": {
+					"popularity": 3,
+					"confidence": 2,
+					"discipline": -1
+				},
+				"flavor": "You're the man on campus. But your study time evaporates."
+			},
+			{
+				"text": "Stay humble and let your game do the talking",
+				"effects": {
+					"confidence": 2,
+					"discipline": 2,
+					"draftStock": 1
+				},
+				"flavor": "Scouts notice the maturity. You stay grounded. They like that."
+			}
+		]
+	},
+	{
+		"id": "college_study_group",
+		"title": "Study Group Bonding",
+		"description": "Three other athletes invite you to their study group. It's more hanging out than studying.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"school"
+		],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Join and enjoy the camaraderie",
+				"effects": {
+					"popularity": 2,
+					"discipline": 1,
+					"footballIq": 1
+				},
+				"flavor": "Turns out studying with friends is actually fun. And effective."
+			},
+			{
+				"text": "Study solo, stay disciplined",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1
+				},
+				"flavor": "You nail the test. Self-reliance builds strength."
+			}
+		]
+	},
+	{
+		"id": "college_caught_partying",
+		"title": "Caught Partying Night Before Game",
+		"description": "Coach's assistant sees you at a party Saturday night. He doesn't look happy.",
+		"phase": "college",
+		"tags": [
+			"discipline",
+			"football"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Own it at practice, run extra conditioning",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1,
+					"health": -1
+				},
+				"flavor": "You run the gassers. Legs screaming. Coach respects the accountability."
+			},
+			{
+				"text": "Make an excuse, deny everything",
+				"effects": {
+					"confidence": -2,
+					"discipline": -2
+				},
+				"flavor": "Coach doesn't believe you. Trust is broken. Bad move."
+			}
+		]
+	},
+	{
+		"id": "college_rivalry_week",
+		"title": "Rivalry Week on Campus",
+		"description": "Your school's biggest rival comes to town. The entire campus is electric.",
+		"phase": "college",
+		"tags": [
+			"football",
+			"social"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Feed off the energy, let it fuel you",
+				"effects": {
+					"confidence": 3,
+					"athleticism": 1
+				},
+				"flavor": "The crowd is insane. You're locked in. Monster game."
+			},
+			{
+				"text": "Try to stay calm and methodical",
+				"effects": {
+					"footballIq": 2,
+					"technique": 1
+				},
+				"flavor": "Clean execution. No errors. Controlled dominance."
+			}
+		]
+	},
+	{
+		"id": "college_film_room_breakthrough",
+		"title": "Film Room Breakthrough",
+		"description": "During film study, you see something nobody else sees. A key defensive tendency.",
+		"phase": "college",
+		"tags": [
+			"football",
+			"technique"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Share the discovery with the whole team",
+				"effects": {
+					"footballIq": 2,
+					"leadership": 1,
+					"confidence": 1
+				},
+				"flavor": "Your observation sparks the game plan. You're a leader now."
+			},
+			{
+				"text": "Keep it to yourself and exploit it",
+				"effects": {
+					"footballIq": 1,
+					"athleticism": 1
+				},
+				"flavor": "You feast on Sunday. Only you know why. Individual brilliance."
+			}
+		]
+	},
+	{
+		"id": "college_position_coach_feedback",
+		"title": "One-on-One Coach Feedback",
+		"description": "Position coach pulls you aside after practice. Time for the real talk.",
+		"phase": "college",
+		"tags": [
+			"football",
+			"technique"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Take the critique seriously, work on it obsessively",
+				"effects": {
+					"technique": 3,
+					"discipline": 1
+				},
+				"flavor": "You transform. Next week you're unrecognizable. Coach nods in approval."
+			},
+			{
+				"text": "Nod along but do your own thing",
+				"effects": {
+					"confidence": 1,
+					"technique": -1
+				},
+				"flavor": "You ignore his advice. You plateau. Coach notices."
+			}
+		]
+	},
+	{
+		"id": "college_conference_rivalry",
+		"title": "Conference Championship Intensity",
+		"description": "Conference rival comes to your stadium for the championship game. Everything is on the line.",
+		"phase": "college",
+		"tags": [
+			"football",
+			"confidence"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Rise to the moment, dominate the biggest stage",
+				"effects": {
+					"confidence": 3,
+					"athleticism": 2,
+					"draftStock": 2
+				},
+				"flavor": "Scouts are watching. You put on a show. National stage performance."
+			},
+			{
+				"text": "Play it safe and conservative",
+				"effects": {
+					"footballIq": 1,
+					"discipline": 1
+				},
+				"flavor": "No mistakes. Efficient. You win but don't blow anyone away."
+			}
+		]
+	},
+	{
+		"id": "college_bowl_game",
+		"title": "Bowl Game Invitation",
+		"description": "Your team is going bowling. It's a major bowl. TV deal, big stage, better opponent.",
+		"phase": "college",
+		"tags": [
+			"football",
+			"confidence"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Go all-in, prepare like it's the Super Bowl",
+				"effects": {
+					"discipline": 2,
+					"athleticism": 1,
+					"draftStock": 2
+				},
+				"flavor": "You're ready. Game time comes and you perform at your peak."
+			},
+			{
+				"text": "Have fun with it, enjoy the bowl experience",
+				"effects": {
+					"confidence": 2,
+					"popularity": 1
+				},
+				"flavor": "You loosen up. Good vibes. You play well, not great."
+			}
+		]
+	},
+	{
+		"id": "college_spring_game",
+		"title": "Spring Game Performance",
+		"description": "Spring game is your chance to shine in front of pro scouts. You're hungry.",
+		"phase": "college",
+		"tags": [
+			"football",
+			"confidence"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Go off, put up huge numbers",
+				"effects": {
+					"confidence": 2,
+					"athleticism": 2,
+					"draftStock": 2
+				},
+				"flavor": "Scouts have you on film doing your thing. Impressive showing."
+			},
+			{
+				"text": "Play it smart, minimize risk",
+				"effects": {
+					"footballIq": 2,
+					"discipline": 1
+				},
+				"flavor": "No turnovers, efficient play. Scouts see a smart decision-maker."
+			}
+		]
+	},
+	{
+		"id": "college_two_a_days",
+		"title": "Two-A-Day Camp Grind",
+		"description": "August two-a-days are coming. Eight hours of football in 100-degree heat.",
+		"phase": "college",
+		"tags": [
+			"football",
+			"health"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Attack it full speed, no mercy",
+				"effects": {
+					"athleticism": 2,
+					"confidence": 1,
+					"health": -1
+				},
+				"flavor": "You're gassed but you're flying. Physical dominance."
+			},
+			{
+				"text": "Manage energy, pace yourself",
+				"effects": {
+					"health": 1,
+					"discipline": 2,
+					"technique": 1
+				},
+				"flavor": "Smart training. You avoid injuries and stay sharp all camp."
+			}
+		]
+	},
+	{
+		"id": "college_playbook_mastery",
+		"title": "Playbook Mastery Moment",
+		"description": "You finally get it. The entire playbook just makes sense now.",
+		"phase": "college",
+		"tags": [
+			"football",
+			"technique"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Help younger players understand it too",
+				"effects": {
+					"leadership": 2,
+					"footballIq": 1,
+					"confidence": 1
+				},
+				"flavor": "You're becoming a leader. Offense running smoother because of you."
+			},
+			{
+				"text": "Keep the advantage to yourself",
+				"effects": {
+					"footballIq": 2,
+					"confidence": 1
+				},
+				"flavor": "You're the smartest guy in the room. Nobody out-thinks you."
+			}
+		]
+	},
+	{
+		"id": "college_nfl_scout_practice",
+		"title": "NFL Scout at Practice",
+		"description": "You spot a scout in the stands during your morning practice. He's got a radar gun and a clipboard.",
+		"phase": "college",
+		"tags": [
+			"football",
+			"draft"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Go extra hard, show out",
+				"effects": {
+					"confidence": 2,
+					"athleticism": 2,
+					"draftStock": 2
+				},
+				"flavor": "You're flying. Hits are crisp. He writes a lot of notes. Good signs."
+			},
+			{
+				"text": "Stay focused on team reps, ignore the scout",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1
+				},
+				"flavor": "Scouts respect the focus. You don't chase individual stats."
+			}
+		]
+	},
+	{
+		"id": "college_agent_contact",
+		"title": "Agent Contacts You Early",
+		"description": "An agent slides into your DMs after your breakout performance. Says he represents three NFL guys.",
+		"phase": "college",
+		"tags": [
+			"business",
+			"draft"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Meet with him, start planning for the draft",
+				"effects": {
+					"confidence": 2,
+					"draftStock": 1
+				},
+				"flavor": "He gives you intel on draft positioning. You feel more prepared."
+			},
+			{
+				"text": "Wait and stay focused on school",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1
+				},
+				"flavor": "You're not ready yet. Smart to stay grounded. Focus on film."
+			}
+		]
+	},
+	{
+		"id": "college_transfer_portal",
+		"title": "Transfer Portal Temptation",
+		"description": "A bigger program offers you the chance to transfer. More money, more fame, more scouts.",
+		"phase": "college",
+		"tags": [
+			"draft",
+			"decision"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Stay loyal and finish here",
+				"effects": {
+					"discipline": 2,
+					"leadership": 1,
+					"draftStock": 1
+				},
+				"flavor": "Scouts like loyalty and commitment. You finish strong at your school."
+			},
+			{
+				"text": "Jump to the bigger program",
+				"effects": {
+					"confidence": 2,
+					"draftStock": 2,
+					"discipline": -1
+				},
+				"flavor": "More exposure. But new teammates don't know you. Mixed blessing."
+			}
+		]
+	},
+	{
+		"id": "college_draft_stock_talk",
+		"title": "Draft Stock Rising",
+		"description": "You overhear coaches talking about your draft projections. Early second round, maybe late first.",
+		"phase": "college",
+		"tags": [
+			"draft",
+			"confidence"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Let it fuel your motivation",
+				"effects": {
+					"confidence": 3,
+					"athleticism": 1
+				},
+				"flavor": "You're hungry now. Every rep matters. You accelerate your development."
+			},
+			{
+				"text": "Stay level-headed, focus on improvement",
+				"effects": {
+					"discipline": 2,
+					"footballIq": 1
+				},
+				"flavor": "You don't get ahead of yourself. Steady development. No distractions."
+			}
+		]
+	},
+	{
+		"id": "college_sports_reporter_interview",
+		"title": "Sports Reporter Requests Interview",
+		"description": "Local sports reporter wants to do a profile on you. TV segment, newspaper feature.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"media"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Do the interview, tell your story",
+				"effects": {
+					"popularity": 2,
+					"confidence": 1
+				},
+				"flavor": "The segment airs. You're on local TV. People recognize you now."
+			},
+			{
+				"text": "Decline, stay out of the spotlight",
+				"effects": {
+					"discipline": 1,
+					"footballIq": 1
+				},
+				"flavor": "No distractions. You keep your eyes on the prize."
+			}
+		]
+	},
+	{
+		"id": "college_senior_day",
+		"title": "Senior Day Emotions",
+		"description": "Senior Day arrives. It's your last home game at the college level. The weight hits you.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"emotions"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Channel the emotions into an epic performance",
+				"effects": {
+					"confidence": 3,
+					"athleticism": 2
+				},
+				"flavor": "You leave everything on the field. One last time as a college player."
+			},
+			{
+				"text": "Get too emotional, play tentatively",
+				"effects": {
+					"confidence": -1,
+					"athleticism": 1
+				},
+				"flavor": "The moment overwhelms you. You play tight. Still decent but not your best."
+			}
+		]
+	},
+	{
+		"id": "college_legacy_discussion",
+		"title": "College Legacy Discussion",
+		"description": "Coach sits you down to talk about your legacy at the school.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"leadership"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {},
+		"choices": [
+			{
+				"text": "Commit to making a real impact in your remaining time",
+				"effects": {
+					"leadership": 2,
+					"confidence": 1,
+					"discipline": 1
+				},
+				"flavor": "You finish strong. Your name means something here forever."
+			},
+			{
+				"text": "Think about your own NFL future instead",
+				"effects": {
+					"confidence": 1,
+					"draftStock": 1
+				},
+				"flavor": "You focus on draft prep. Legacy takes a backseat."
+			}
+		]
+	},
+	{
+		"id": "college_finals_week",
+		"title": "Finals Week Hits Different",
+		"description": "Three exams in four days. The library is your new home. Football feels secondary for the first time all semester.",
+		"phase": "college",
+		"tags": [
+			"academic",
+			"discipline"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 1,
+			"max_week": 4
+		},
+		"choices": [
+			{
+				"text": "Ace the finals and still lift",
+				"effects": {
+					"discipline": 3,
+					"footballIq": 1,
+					"health": -1
+				},
+				"flavor": "You manage both. It's exhausting but you're leaving nothing on the table."
+			},
+			{
+				"text": "Study hard and skip workouts",
+				"effects": {
+					"discipline": 2,
+					"athleticism": -1
+				},
+				"flavor": "Grades come first this week. Your body will forgive you."
+			},
+			{
+				"text": "Panic and do half-measures",
+				"effects": {
+					"discipline": -2,
+					"confidence": -1
+				},
+				"flavor": "You're scattered. School suffers. Football suffers. Not great."
+			}
+		]
+	},
+	{
+		"id": "college_study_group",
+		"title": "Study Group Becomes Football Film Room",
+		"description": "Your study group evolved into your team watching film. Teammates became your academic accountability partners too.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"academic",
+			"teamwork"
+		],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 5,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Lean on each other, get better together",
+				"effects": {
+					"discipline": 2,
+					"popularity": 2,
+					"footballIq": 1
+				},
+				"flavor": "Study buddies who also happen to be your teammates. Perfect."
+			},
+			{
+				"text": "Film room turns into hangout",
+				"effects": {
+					"footballIq": 1,
+					"discipline": -1,
+					"popularity": 1
+				},
+				"flavor": "Great bonding but not much studying happening."
+			}
+		]
+	},
+	{
+		"id": "college_major_declaration",
+		"title": "Time to Declare Your Major",
+		"description": "Registration closed today. You need to pick your major. This shapes your post-football life. What's it going to be?",
+		"phase": "college",
+		"tags": [
+			"academic",
+			"big_decision"
+		],
+		"weight": 6,
+		"is_big_decision": true,
+		"conditions": {
+			"min_week": 8,
+			"max_week": 10
+		},
+		"choices": [
+			{
+				"text": "Choose something you love",
+				"effects": {
+					"confidence": 2,
+					"discipline": 2,
+					"footballIq": -1
+				},
+				"flavor": "You're passionate about your major. School comes alive."
+			},
+			{
+				"text": "Choose the easiest path",
+				"effects": {
+					"discipline": -2,
+					"confidence": 1,
+					"athleticism": 1
+				},
+				"flavor": "You have time to focus on ball. But is college just a stepping stone?"
+			},
+			{
+				"text": "Choose based on NFL prospects",
+				"effects": {
+					"discipline": 1,
+					"confidence": 1
+				},
+				"flavor": "Practical. You're thinking long-term and beyond football."
+			}
+		]
+	},
+	{
+		"id": "college_viral_highlight",
+		"title": "Your Highlight Goes Viral",
+		"description": "That catch/sack/run from Saturday? It's all over social media. You have 50,000 new followers. Welcome to the spotlight.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"media",
+			"popularity"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {
+			"min_stats": {
+				"athleticism": 75
+			},
+			"min_week": 3,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Use it to build your brand",
+				"effects": {
+					"popularity": 4,
+					"confidence": 2,
+					"discipline": -1
+				},
+				"flavor": "You engage with fans. Your brand is growing. This is the NFL showcase."
+			},
+			{
+				"text": "Ignore it and stay focused",
+				"effects": {
+					"discipline": 3,
+					"footballIq": 1
+				},
+				"flavor": "One play doesn't define you. Next play matters more."
+			},
+			{
+				"text": "Let it distract you with parties",
+				"effects": {
+					"popularity": 2,
+					"discipline": -3,
+					"health": -1
+				},
+				"flavor": "You're the life of the party now. Your performance suffers."
+			}
+		]
+	},
+	{
+		"id": "college_brand_deal_fail",
+		"title": "Brand Deal Falls Through",
+		"description": "The endorsement you were counting on for cash? Company pulled out due to some social media post drama. Lesson learned.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"media",
+			"discipline"
+		],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_stats": {
+				"popularity": 60
+			},
+			"min_week": 4,
+			"max_week": 11
+		},
+		"choices": [
+			{
+				"text": "Learn what NOT to post",
+				"effects": {
+					"discipline": 2,
+					"confidence": -1
+				},
+				"flavor": "You're smarter about your brand now. Good lesson."
+			},
+			{
+				"text": "Double down on controversial content",
+				"effects": {
+					"discipline": -2,
+					"popularity": 1
+				},
+				"flavor": "You don't care. Keep saying what you want. Probably not the move though."
+			},
+			{
+				"text": "Lay low for a while",
+				"effects": {
+					"discipline": 1,
+					"popularity": -1
+				},
+				"flavor": "You're quiet on social. Let the dust settle."
+			}
+		]
+	},
+	{
+		"id": "college_fan_interaction",
+		"title": "Fan Approach in Public",
+		"description": "A kid just recognized you at the coffee shop and asked for a picture. His face is pure joy. This is the NFL dream.",
+		"phase": "college",
+		"tags": [
+			"social",
+			"popularity"
+		],
+		"weight": 5,
+		"is_big_decision": false,
+		"conditions": {
+			"min_stats": {
+				"popularity": 50
+			},
+			"min_week": 5,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Make his day with genuine connection",
+				"effects": {
+					"popularity": 2,
+					"confidence": 1,
+					"leadership": 1
+				},
+				"flavor": "That kid will remember you forever. This is why you play."
+			},
+			{
+				"text": "Quick photo and move on",
+				"effects": {
+					"popularity": 1
+				},
+				"flavor": "Professional. Nice interaction."
+			},
+			{
+				"text": "Act annoyed and brush him off",
+				"effects": {
+					"popularity": -3,
+					"discipline": -1
+				},
+				"flavor": "One day you might regret how you treated people. Probably today."
+			}
+		]
+	},
+	{
+		"id": "college_position_battle",
+		"title": "Transfer Recruit Threatens Your Spot",
+		"description": "New transfer from a Power-5 school just enrolled. He's gunning for your position. The battle is on.",
+		"phase": "college",
+		"tags": [
+			"competition",
+			"athleticism",
+			"discipline"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 1,
+			"max_week": 6
+		},
+		"choices": [
+			{
+				"text": "Compete harder than you've ever competed",
+				"effects": {
+					"athleticism": 3,
+					"discipline": 2,
+					"confidence": 2
+				},
+				"flavor": "You bring everything. He brings everything. You come out on top."
+			},
+			{
+				"text": "Play tight and defensive",
+				"effects": {
+					"discipline": 1,
+					"confidence": -1,
+					"athleticism": -1
+				},
+				"flavor": "You're nervous. It shows. Maybe you're not ready for this challenge."
+			},
+			{
+				"text": "Mentor him and win the room",
+				"effects": {
+					"leadership": 2,
+					"popularity": 2,
+					"confidence": 1
+				},
+				"flavor": "You help him acclimate. Locker room respects your security. You keep your spot."
+			}
+		]
+	},
+	{
+		"id": "college_locker_room_speech",
+		"title": "Your Moment to Lead",
+		"description": "Team is flat after a loss. Coach looks at you. The room goes quiet. They want to hear from you.",
+		"phase": "college",
+		"tags": [
+			"leadership",
+			"big_decision",
+			"social"
+		],
+		"weight": 7,
+		"is_big_decision": true,
+		"conditions": {
+			"min_stats": {
+				"confidence": 70
+			},
+			"min_week": 5,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Give them a speech they'll remember",
+				"effects": {
+					"leadership": 4,
+					"confidence": 3,
+					"popularity": 3
+				},
+				"flavor": "Your words resonate. This team is going to war with you."
+			},
+			{
+				"text": "Keep it short and real",
+				"effects": {
+					"leadership": 2,
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "You say what needs to be said. Respectable."
+			},
+			{
+				"text": "Stay silent and let the moment pass",
+				"effects": {
+					"confidence": -2,
+					"leadership": -1
+				},
+				"flavor": "You weren't ready. The moment's gone. Someone else speaks up."
+			}
+		]
+	},
+	{
+		"id": "college_night_game_big",
+		"title": "Friday Night Lights at the College Level",
+		"description": "Ranked opponent. Night game. Packed stadium. The energy is electric. This is what you dreamed about.",
+		"phase": "college",
+		"tags": [
+			"big_game",
+			"confidence",
+			"athleticism"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 4,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Feed off the energy and dominate",
+				"effects": {
+					"athleticism": 3,
+					"confidence": 3,
+					"technique": 1
+				},
+				"flavor": "This is your stage. You own the night."
+			},
+			{
+				"text": "Play well but feel the pressure",
+				"effects": {
+					"athleticism": 1,
+					"confidence": 1
+				},
+				"flavor": "It's different with 70,000 screaming. You adjust."
+			},
+			{
+				"text": "Get overwhelmed by the moment",
+				"effects": {
+					"confidence": -2,
+					"athleticism": -1
+				},
+				"flavor": "The stage is too bright. You play timidly."
+			}
+		]
+	},
+	{
+		"id": "college_rivalry_week",
+		"title": "Rivalry Week - Pure Hatred",
+		"description": "This is THE game. The one that matters most. Everything else is noise. You hate these guys.",
+		"phase": "college",
+		"tags": [
+			"rivalry",
+			"confidence",
+			"big_decision"
+		],
+		"weight": 8,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 10,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Channel hate into perfect execution",
+				"effects": {
+					"athleticism": 4,
+					"confidence": 3,
+					"discipline": 1
+				},
+				"flavor": "The rage is your fuel. You play flawlessly."
+			},
+			{
+				"text": "Get too emotional and take penalties",
+				"effects": {
+					"confidence": 1,
+					"discipline": -3
+				},
+				"flavor": "You want it too bad. Flags flying."
+			},
+			{
+				"text": "Stay cool and methodical",
+				"effects": {
+					"discipline": 3,
+					"footballIq": 2,
+					"confidence": 1
+				},
+				"flavor": "You let your play do the talking. Quieter but more devastating."
+			}
+		]
+	},
+	{
+		"id": "college_bowl_announcement",
+		"title": "Bowl Game Selection Show",
+		"description": "You just found out where you're going to play a bowl game. Cross-country trip. New city. Legacy moment.",
+		"phase": "college",
+		"tags": [
+			"big_game",
+			"confidence",
+			"popularity"
+		],
+		"weight": 6,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 12,
+			"max_week": 13
+		},
+		"choices": [
+			{
+				"text": "Use it as motivation to be great",
+				"effects": {
+					"confidence": 2,
+					"discipline": 2
+				},
+				"flavor": "You're locked in. This bowl game is your Super Bowl."
+			},
+			{
+				"text": "Get distracted by the trip",
+				"effects": {
+					"discipline": -1,
+					"athleticism": -1,
+					"popularity": 1
+				},
+				"flavor": "New city is fun but training is secondary."
+			},
+			{
+				"text": "Feel honored to represent your school",
+				"effects": {
+					"confidence": 1,
+					"leadership": 1,
+					"popularity": 1
+				},
+				"flavor": "You're proud. This is bigger than you."
+			}
+		]
+	},
+	{
+		"id": "college_scout_visit",
+		"title": "NFL Scout Watches You in Practice",
+		"description": "Coach tipped you off. There's an NFL scout on the sideline watching. This is a direct path to draft day.",
+		"phase": "college",
+		"tags": [
+			"draft",
+			"confidence",
+			"pressure"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {
+			"min_stats": {
+				"athleticism": 70
+			},
+			"min_week": 6,
+			"max_week": 12
+		},
+		"choices": [
+			{
+				"text": "Show out and impress him",
+				"effects": {
+					"confidence": 3,
+					"athleticism": 2,
+					"technique": 1
+				},
+				"flavor": "You play like you were born for this. He's writing notes the whole time."
+			},
+			{
+				"text": "Play nervous and tight",
+				"effects": {
+					"confidence": -1,
+					"athleticism": -1
+				},
+				"flavor": "You know he's there. It affects your game."
+			},
+			{
+				"text": "Ignore him and play your game",
+				"effects": {
+					"discipline": 2,
+					"athleticism": 1,
+					"confidence": 1
+				},
+				"flavor": "One scout doesn't change anything. You do you."
+			}
+		]
+	},
+	{
+		"id": "college_combine_prep",
+		"title": "Combine Prep Training Begins",
+		"description": "Season's over. Now it's time to train for the combine. Every fraction counts. 40-time, bench press, everything.",
+		"phase": "college",
+		"tags": [
+			"draft",
+			"athleticism",
+			"discipline"
+		],
+		"weight": 7,
+		"is_big_decision": false,
+		"conditions": {
+			"min_week": 14,
+			"max_week": 17
+		},
+		"choices": [
+			{
+				"text": "Train like your draft stock depends on it",
+				"effects": {
+					"athleticism": 3,
+					"discipline": 3
+				},
+				"flavor": "You're a machine. By combine time, you're unstoppable."
+			},
+			{
+				"text": "Coast and enjoy the off-season",
+				"effects": {
+					"athleticism": -1,
+					"discipline": -2,
+					"confidence": -1
+				},
+				"flavor": "You're burnt out. Maybe you should've stayed focused."
+			},
+			{
+				"text": "Train smart and stay healthy",
+				"effects": {
+					"athleticism": 2,
+					"discipline": 2,
+					"health": 1
+				},
+				"flavor": "You're intelligent about your prep. Strong and injury-free come combine time."
+			}
+		]
+	},
+	{
+		"id": "college_agent_approaches",
+		"title": "Agent Wants to Represent You",
+		"description": "An agent just cornered you after practice. He wants to represent you. Commission, guidance, connections. What's the move?",
+		"phase": "college",
+		"tags": [
+			"draft",
+			"decision",
+			"big_decision"
+		],
+		"weight": 6,
+		"is_big_decision": true,
+		"conditions": {
+			"min_stats": {
+				"athleticism": 65
+			},
+			"min_week": 10,
+			"max_week": 17
+		},
+		"choices": [
+			{
+				"text": "Sign with him and get professional support",
+				"effects": {
+					"confidence": 2,
+					"footballIq": 1
+				},
+				"flavor": "You have someone in your corner now. Draft preparation just got serious."
+			},
+			{
+				"text": "Take your time and talk to family first",
+				"effects": {
+					"discipline": 2,
+					"confidence": 1
+				},
+				"flavor": "Smart move. You're making decisions with people you trust."
+			},
+			{
+				"text": "Commit too quickly without vetting",
+				"effects": {
+					"confidence": 1,
+					"discipline": -1
+				},
+				"flavor": "You agreed to representation. Hope he's legit."
+			}
+		]
+	}
+]

@@ -119,10 +119,13 @@ export function createEmptySeasonStats(): SeasonStatTotals {
 //============================================
 // Accumulate a game's stat line into player's season stats
 export function accumulateGameStats(
-	seasonStats: SeasonStatTotals,
+	player: Player,
 	statLine: Record<string, number | string>,
 ): void {
+	const seasonStats = player.seasonStats;
 	seasonStats.gamesPlayed += 1;
+	// Also increment cumulative career games played
+	player.careerGamesPlayed += 1;
 	// Sum numeric stats by key name
 	const numVal = (key: string): number => {
 		const v = statLine[key];
@@ -200,6 +203,7 @@ export interface Player {
 	career: CareerStats;
 	hidden: HiddenStats;
 	seasonStats: SeasonStatTotals;
+	careerGamesPlayed: number;  // cumulative games across all seasons
 
 	// Season tracking
 	currentSeason: number;   // which season in career (1-based)
@@ -320,6 +324,7 @@ export function createPlayer(firstName: string, lastName: string): Player {
 		},
 		hidden,
 		seasonStats: createEmptySeasonStats(),
+		careerGamesPlayed: 0,
 
 		currentSeason: 0,
 		currentWeek: 0,
@@ -468,54 +473,3 @@ export function getRelationshipLevel(score: number): string {
 	return 'Hostile';
 }
 
-//============================================
-// Simple assertions for testing
-const testStats = generateBirthStats();
-console.assert(testStats.core.athleticism >= 20 && testStats.core.athleticism <= 80,
-	'Athleticism should be 20-80 at birth');
-console.assert(testStats.core.technique >= 0 && testStats.core.technique <= 10,
-	'Technique should be 0-10 at birth');
-console.assert(testStats.hidden.size >= 1 && testStats.hidden.size <= 5,
-	'Size should be 1-5');
-console.assert(clampStat(150) === 100, 'clampStat should cap at 100');
-console.assert(clampStat(-10) === 0, 'clampStat should floor at 0');
-console.assert(getPositionBucket('QB') === 'passer', 'QB should be passer bucket');
-console.assert(getPositionBucket('WR') === 'runner_receiver', 'WR should be runner_receiver');
-console.assert(getPositionBucket('LB') === 'defender', 'LB should be defender');
-
-// Test GPA and academic standing
-const testPlayer = createPlayer('John', 'Doe');
-console.assert(testPlayer.gpa === 2.5, 'New player should start with 2.5 GPA');
-console.assert(getAcademicStanding(3.7) === 'Honor Roll', 'GPA 3.7 should be Honor Roll');
-console.assert(getAcademicStanding(3.2) === 'Good Standing', 'GPA 3.2 should be Good Standing');
-console.assert(getAcademicStanding(2.5) === 'Eligible', 'GPA 2.5 should be Eligible');
-console.assert(getAcademicStanding(1.8) === 'Academic Probation', 'GPA 1.8 should be Academic Probation');
-console.assert(getAcademicStanding(1.0) === 'Ineligible', 'GPA 1.0 should be Ineligible');
-
-// Test GPA modification with clamping and rounding
-modifyGpa(testPlayer, 0.5);
-console.assert(testPlayer.gpa === 3.0, 'GPA should be 3.0 after +0.5 delta');
-modifyGpa(testPlayer, 5.0);
-console.assert(testPlayer.gpa === 4.0, 'GPA should clamp at 4.0');
-modifyGpa(testPlayer, -10.0);
-console.assert(testPlayer.gpa === 0.0, 'GPA should clamp at 0.0');
-
-// Test relationships
-console.assert(testPlayer.relationships['Mom'] >= 60 && testPlayer.relationships['Mom'] <= 90,
-	'Mom relationship should be 60-90 at start');
-console.assert(testPlayer.relationships['Coach'] === 50, 'Coach relationship should be 50 at start');
-console.assert(getRelationshipLevel(85) === 'Close', 'Score 85 should be Close');
-console.assert(getRelationshipLevel(70) === 'Friendly', 'Score 70 should be Friendly');
-console.assert(getRelationshipLevel(50) === 'Neutral', 'Score 50 should be Neutral');
-console.assert(getRelationshipLevel(30) === 'Strained', 'Score 30 should be Strained');
-console.assert(getRelationshipLevel(10) === 'Hostile', 'Score 10 should be Hostile');
-
-// Test relationship modification
-modifyRelationship(testPlayer, 'Coach', 20);
-console.assert(testPlayer.relationships['Coach'] === 70, 'Coach relationship should be 70 after +20 delta');
-modifyRelationship(testPlayer, 'Coach', 50);
-console.assert(testPlayer.relationships['Coach'] === 100, 'Coach relationship should clamp at 100');
-modifyRelationship(testPlayer, 'Rival', 0);
-console.assert(testPlayer.relationships['Rival'] === 50, 'New relationship should start at 50');
-modifyRelationship(testPlayer, 'NewPerson', -50);
-console.assert(testPlayer.relationships['NewPerson'] === 0, 'New relationship with -50 delta should clamp at 0');

@@ -1,5 +1,137 @@
 # Changelog
 
+## 2026-04-04 (Events Data Split)
+
+### Additions and New Features
+
+- **Split events.json by phase** (`src/data/events/`): Replaced monolithic
+  `src/data/events.json` (6,967 lines, 177 events) with 5 per-phase files under
+  `src/data/events/`: `childhood.json` (20), `youth.json` (12), `high_school.json` (67),
+  `college.json` (36), `nfl.json` (42). Updated `loadEvents()` in `src/events.ts` to
+  fetch all phase files in parallel and concatenate.
+
+## 2026-04-04 (BitLife-Style UI Overhaul)
+
+### Additions and New Features
+
+- **CSS reorganization** (`src/styles/`): Split monolithic `styles.css` (1022 lines) into 9
+  logical modules under `src/styles/`: base, layout, stats, story, buttons, modals, tabs,
+  activities, phases. Updated `index.html` to import all modules.
+- **Choice popup system** (`src/ui.ts`): Added `showChoicePopup()` that renders decisions as
+  centered modal popups instead of inline buttons. Supports title, options, and description.
+- **Persistent main buttons** (`index.html`, `src/styles/buttons.css`, `src/ui.ts`): Added
+  `#main-action-bar` with "Next Week" (green) and "Age Up" (gold outline) buttons.
+  `configureMainButtons()` API lets phase modules set labels and callbacks.
+- **Year simulation engine** (`src/game_loop.ts`): `simulateWeekSilently()` auto-resolves
+  weekly focus and events without UI. `showYearRecap()` popup shows season summary.
+- **Phase-specific year sim** (`src/hs_phase.ts`, `src/college_phase.ts`, `src/nfl_phase.ts`):
+  Each phase has a `simulate*Season()` for the Age Up feature. Main action bar hides at
+  season end during offseason transitions.
+
+### Behavior or Interface Changes
+
+- Weekly focus and activity prompt now appear as popup modals (BitLife-style).
+- "Age Up" button shows confirmation before simulating remaining season weeks.
+
+## 2026-04-04 (UI Layer Bug Fixes)
+
+### Fixes and Maintenance
+
+- **U-1: Avatar regenerated randomly every update** (`src/ui.ts`): Fixed `updateHeader` and `updateSidebarPlayerIdentity` to use stored `player.avatarConfig` instead of calling `randomAvatarConfig()` every render, preventing avatar from changing on each UI update.
+- **U-3: showStandings/showSchedule reference non-existent DOM panels** (`src/ui.ts`): Removed dead functions (`showStandings`, `hideStandings`, `toggleStandings`, `showSchedule`, `hideSchedule`, `toggleSchedule`) that referenced non-existent `standings-panel` and `schedule-panel` DOM elements. Team tab now renders standings and schedule inline in `updateTeamTab`.
+- **U-4: Dead orphan elements team-record and recruiting-status** (`index.html`): Removed unused `#team-record` and `#recruiting-status` divs from HTML life-status section.
+- **U-6: updateAllStats throws if stats tab not rendered** (`src/ui.ts`): Fixed `updateStatBar()` to use safe element lookup (`findElement`) instead of throwing when stat bar elements don't exist (elements only exist when stats tab is visible).
+- **U-7: innerHTML injection of unsanitized team name** (`src/ui.ts`): Fixed `updateTeamTab` header rendering to use `textContent` and DOM element creation instead of `innerHTML` to prevent HTML injection from team names.
+- **U-12: Root-level styles.css is dead** (`styles.css`): Added deprecation comment noting the file is not loaded by `index.html` (all CSS is in `src/styles/`) and can be deleted.
+- **U-15: Sidebar player info never populated** (verified working): Confirmed `updateSidebarPlayerIdentity` already correctly populates sidebar elements and is called from `updateSidebar`.
+- **U-16: Tab widget missing ARIA roles** (`src/tabs.ts`): Added ARIA accessibility attributes: `role="tablist"` on tab bar, `role="tab"` and `aria-controls` on tab buttons, `aria-selected` on buttons (toggled on tab switch), and `role="tabpanel"` on tab panels.
+
+### Developer Tests and Notes
+
+- U-13 (mini stat strip bars) verified already implemented and working: `updateMiniStatStrip()` and `updateMiniBar()` exist and are called correctly.
+- All changes compile without new TypeScript errors in `src/ui.ts` and `src/tabs.ts`.
+
+## 2026-04-04 (Life Phase Bug Fixes)
+
+### Fixes and Maintenance
+
+- **P-2: Legacy phase dead-end** (`src/nfl_handlers/nfl_late.ts`): Removed assignments
+  to non-existent `'legacy'` phase. Forced retirement, manual retirement, and age-39
+  retirement now display "Career Complete" and end gracefully.
+- **P-3: Redshirt 5th-year eligibility unreachable** (`src/college/college_senior.ts`):
+  Added check for redshirt players with remaining eligibility, offering a choice to
+  return for a 5th year before forcing draft declaration.
+- **P-4: Early draft declaration text but no action** (`src/college/college_core.ts`):
+  Added "Declare for NFL Draft" choice when `collegeYear >= 3`, transitioning to NFL.
+- **P-7: Offer loop produces fewer than 3 offers** (`src/high_school/hs_varsity.ts`):
+  Changed fallback to fire when `offers.length < 3`, filling remaining slots.
+- **P-8: allSchools crash if CSV empty** (`src/high_school/hs_varsity.ts`): Added
+  guard for empty school list with hardcoded default school fallback.
+- **P-10: NFL schedule week collisions** (`src/nfl_handlers/nfl_season_builder.ts`):
+  Added per-week team tracking to detect and resolve scheduling collisions.
+- **P-12: startCollege() hard-sets age to 18** (`src/college.ts`): Removed hard-set
+  `player.age = 18` that could corrupt age on redshirt or late-entry players.
+- **P-16: townName check fails if undefined** (`src/childhood/peewee_years.ts`):
+  Changed `player.townName === ''` to `!player.townName` to handle both empty and
+  undefined.
+- **P-17: Dual collegeYear initialization** (`src/college_phase.ts`): Guarded
+  `player.collegeYear = 0` with `if (!player.collegeYear)` to prevent overwriting
+  handler system value set in `college_entry.ts`.
+
+## 2026-04-04 (Core Engine Bug Fixes)
+
+### Fixes and Maintenance
+
+- **C-1/C-2/C-3: Dual age-management systems** (`src/main.ts`, `src/game_loop.ts`):
+  Removed old `advanceChildhood` age increment. All childhood age progression now
+  routes through the year-handler system. `startYear` on resume now sets phase via
+  `getPhaseForHandler`.
+- **C-4: nfl_100th_game milestone impossible** (`src/milestones.ts`, `src/player.ts`):
+  Added `careerGamesPlayed` field to Player type, incremented each game. Milestone
+  now checks cumulative career games instead of per-season stats.
+- **C-5: currentSeason off-by-one** (`src/main.ts`): Moved age-14 check before
+  `currentSeason` increment in youth-to-HS transition.
+- **C-6: Event filtering uses || 0 for missing stats** (`src/events.ts`): Changed
+  to skip stat check when key is absent from stats record.
+- **C-7: Wrong-phase event fallback** (`src/game_loop.ts`): Replaced HS event
+  fallback with a generic "quiet week" default event for NFL/college phases.
+- **C-8: Handler-id-to-phase silent fallback** (`src/core/year_runner.ts`): Changed
+  `getPhaseForHandler` to throw on unrecognized handler IDs instead of silently
+  returning `'childhood'`.
+- **C-9: Exact-equality milestone conditions** (`src/milestones.ts`): Changed
+  `wins === 1` to `>= 1` with triggered-set tracking to prevent re-firing.
+- **C-10: currentWeekState not serialized** (`src/game_loop.ts`): Added week state
+  to save data; restored on load to prevent stat double-application.
+- **C-11: Module-scope test code** (`src/player.ts`): Removed production-side
+  `console.assert` calls and test `createPlayer` from module scope.
+- **C-12: Two separate currentWeekState variables** (`src/main.ts`, `src/game_loop.ts`):
+  Removed duplicate in `main.ts`, now imports `getWeekState()` from `game_loop.ts`.
+
+## 2026-04-04 (Playoff and Season Simulation Bug Fixes)
+
+### Fixes and Maintenance
+
+- **S-1: Removed dead 'tie' type** (`src/week_sim.ts`): Removed unused `'tie'` from `GameResult.result` type since ties are never returned (all ties go to overtime).
+- **S-2: Negative opponent scores** (`src/week_sim.ts`): Added `Math.max(0, ...)` clamp to opponent score calculation to prevent impossible negative scores.
+- **S-4: NFL bracket missing Super Bowl** (`src/season/playoff_bracket.ts`): Added round 4 (Super Bowl) to `createNFLPlayoffBracket` which previously only created 3 rounds.
+- **S-5: Bye detection fragile** (`src/season/playoff_bracket.ts`): Fixed `advanceRound()` bye-detection logic to only scan rounds up to and including the current round instead of scanning all future empty rounds.
+- **S-7: selectPairs maxPerTeam wrong base** (`src/season/season_builder.ts`): Fixed `maxPerTeam` calculation to use unique teams in the `selected` subset rather than all teams in the `pairs` pool.
+- **S-8: Duplicate non-conference matchups** (`src/season/season_builder.ts`): Added deduplication logic to `generateNonConferenceGames` to track and prevent duplicate team pairings.
+- **S-9: assignWeeksToGames double-bookings** (`src/season/season_builder.ts`): Added conflict detection and resolution to ensure no team plays twice in the same week.
+- **S-11: endSeason always uses HS bracket** (`src/weekly/weekly_engine.ts`): Fixed `endSeason` to check `player.phase` and call `createCollegePlayoffBracket` or `createNFLPlayoffBracket` instead of always using `createHSPlayoffBracket`.
+- **S-12: simulateNonPlayerPlayoffGames hardcoded strength** (`src/weekly/weekly_engine.ts`): Changed `simulateNonPlayerPlayoffGames` to look up actual team strengths from `activeEngine.season` instead of using hardcoded 60/55.
+- **S-13: Champion award pushed to wrong season entry** (`src/weekly/weekly_engine.ts`): Fixed champion award to be added during `finalizeSeason` instead of before it, ensuring the award is attached to the correct career history entry.
+- **S-14: .sort() mutates seeds** (`src/season/playoff_bracket.ts`): Changed all calls to `this.seeds.sort(...)` and `bracket.seeds.sort(...)` to use `[...this.seeds].sort(...)` and `[...bracket.seeds].sort(...)` to avoid mutating the original array (3 locations: `buildBracket`, `createHSPlayoffBracket`, `createCollegePlayoffBracket`, `createNFLPlayoffBracket`).
+- **S-15: OT win probability biased** (`src/week_sim.ts`): Changed OT win probability formula from `winProbability * 0.6 + 0.4` to `winProbability * 0.7 + 0.15` for less biased range (0.15-0.85 instead of 0.4-1.0).
+
+## 2026-04-04 (BitLife-Style UI Overhaul)
+
+### Additions and New Features
+
+- **CSS reorganization** (`src/styles/`): Split monolithic `styles.css` (1022 lines) into 9
+  logical modules under `src/styles/`: base, layout, stats, story, buttons, modals, tabs,
+  activities, phases. Updated `index.html` to import all modules. Visual appearance unchanged.
+
 ## 2026-04-04 (UI/UX Dashboard Redesign)
 
 ### Additions and New Features

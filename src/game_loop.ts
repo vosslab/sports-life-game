@@ -82,11 +82,11 @@ export function showWeeklyFocusUI(
 		{ text: 'Teamwork (+2-3 leadership)', key: 'teamwork' },
 	];
 
-	ui.showChoices(focusOptions.map(opt => ({
+	ui.showChoicePopup('Weekly Focus', focusOptions.map(opt => ({
 		text: opt.text,
 		primary: false,
 		action: () => onFocusSelected(opt.key),
-	})));
+	})), 'What do you want to focus on this week?');
 }
 
 //============================================
@@ -136,9 +136,8 @@ function showActivitiesPrompt(
 	}
 
 	currentOnGameDay = onGameDay;
-	ctx.addText('You have some free time this week.');
 
-	ui.showChoices([
+	ui.showChoicePopup('Free Time', [
 		{
 			text: 'Activities',
 			primary: false,
@@ -157,7 +156,7 @@ function showActivitiesPrompt(
 				proceedToEventCheck(phase, onGameDay);
 			},
 		},
-	]);
+	], 'You have some free time this week.');
 }
 
 //============================================
@@ -250,20 +249,12 @@ export function proceedToEventCheck(
 			confidence: player.core.confidence,
 		};
 
-		// Try phase-specific events, fall back to HS events
+		// Try phase-specific events only (do not fall back to other phases)
 		let eligible = filterEvents(
 			allEvents, phase,
 			player.currentWeek, player.position,
 			player.storyFlags, statsRecord,
 		);
-
-		if (eligible.length === 0 && (phase === 'nfl' || phase === 'college')) {
-			eligible = filterEvents(
-				allEvents, 'high_school',
-				player.currentWeek, player.position,
-				player.storyFlags, statsRecord,
-			);
-		}
 
 		const event = selectEvent(eligible);
 		if (event) {
@@ -308,7 +299,7 @@ function showEventCard(
 			ui.updateAllStats(player);
 			ctx!.save();
 
-			// Continue to game day
+			// Continue to game day - this is a simple navigation, keep inline
 			ui.showChoices([
 				{ text: 'Game Day', primary: true, action: onGameDay },
 			]);
@@ -316,6 +307,111 @@ function showEventCard(
 	}));
 
 	ui.showEventModal(event.title, event.description, choiceActions);
+}
+
+//============================================
+// SILENT WEEK SIMULATION (for year-sim / Age Up)
+//============================================
+
+// Result from a single silently simulated week
+export interface SilentWeekResult {
+	focusChosen: WeeklyFocus;
+	eventTitle: string | null;
+	eventChoiceText: string | null;
+}
+
+// Simulate the focus + event portion of a week without any UI.
+// Returns what happened so the caller can build a recap.
+// The caller is responsible for game-day simulation (phase-specific).
+export function simulateWeekSilently(): SilentWeekResult {
+	if (!ctx) {
+		return { focusChosen: 'train', eventTitle: null, eventChoiceText: null };
+	}
+	const player = ctx.getPlayer();
+
+	// Reset weekly state
+	resetWeekState();
+
+	// Pick a random focus
+	const focuses: WeeklyFocus[] = ['train', 'film_study', 'recovery', 'social', 'teamwork'];
+	const focus = focuses[Math.floor(Math.random() * focuses.length)];
+	applyWeeklyFocus(player, focus);
+
+	// Event check (same logic as proceedToEventCheck but silent)
+	let eventTitle: string | null = null;
+	let eventChoiceText: string | null = null;
+
+	const allEvents = ctx.getAllEvents();
+	const eventChance = player.phase === 'college' ? 30 : 35;
+	const eventRoll = randomInRange(1, 100);
+
+	if (eventRoll <= eventChance && allEvents.length > 0) {
+		const statsRecord: Record<string, number> = {
+			athleticism: player.core.athleticism,
+			technique: player.core.technique,
+			footballIq: player.core.footballIq,
+			discipline: player.core.discipline,
+			health: player.core.health,
+			confidence: player.core.confidence,
+		};
+
+		let eligible = filterEvents(
+			allEvents, player.phase,
+			player.currentWeek, player.position,
+			player.storyFlags, statsRecord,
+		);
+
+		if (eligible.length === 0 && (player.phase === 'nfl' || player.phase === 'college')) {
+			eligible = filterEvents(
+				allEvents, 'high_school',
+				player.currentWeek, player.position,
+				player.storyFlags, statsRecord,
+			);
+		}
+
+		const event = selectEvent(eligible);
+		if (event && event.choices.length > 0) {
+			// Auto-pick first choice (safest option)
+			eventTitle = event.title;
+			eventChoiceText = event.choices[0].text;
+			applyEventChoice(player, event.choices[0]);
+		}
+	}
+
+	ctx.save();
+	return { focusChosen: focus, eventTitle, eventChoiceText };
+}
+
+//============================================
+// YEAR SIMULATION RECAP
+//============================================
+
+export interface YearSimRecap {
+	weeksSimulated: number;
+	wins: number;
+	losses: number;
+	events: string[];
+}
+
+// Show the year-end recap as a popup modal
+export function showYearRecap(recap: YearSimRecap, onContinue: () => void): void {
+	// Build recap text
+	let desc = `Simulated ${recap.weeksSimulated} weeks.\n`;
+	desc += `Season record: ${recap.wins}-${recap.losses}\n`;
+	if (recap.events.length > 0) {
+		desc += '\nNotable events:\n';
+		for (const ev of recap.events) {
+			desc += `- ${ev}\n`;
+		}
+	}
+
+	ui.showChoicePopup('Year Summary', [
+		{
+			text: 'Continue',
+			primary: true,
+			action: onContinue,
+		},
+	], desc);
 }
 
 //============================================

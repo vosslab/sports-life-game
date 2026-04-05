@@ -1,0 +1,108 @@
+/* Choice buttons, primary/secondary styles, choices panel */
+
+/* Choices panel: pinned at bottom, never scrolls away */
+#choices-panel {
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 4px 0;
+	max-height: 35vh;
+	overflow-y: auto;
+}
+
+.choice-button {
+	display: block;
+	width: 100%;
+	padding: 14px 16px;
+	min-height: 48px;
+	font-size: 1.05em;
+	font-weight: 600;
+	color: var(--text-primary);
+	background: var(--button-bg);
+	border: none;
+	border-radius: 10px;
+	cursor: pointer;
+	text-align: center;
+	-webkit-appearance: none;
+	-webkit-user-select: none;
+	user-select: none;
+	touch-action: manipulation;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+	transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.choice-button:hover {
+	background: var(--button-hover);
+}
+
+.choice-button:active {
+	background: var(--button-hover);
+	transform: scale(0.98);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.choice-button:focus-visible {
+	outline: 2px solid var(--accent-gold);
+	outline-offset: 2px;
+}
+
+.choice-button.primary {
+	background: var(--button-big);
+}
+
+.choice-button.primary:hover {
+	background: var(--button-big-hover);
+}
+
+.choice-button.primary:active {
+	background: var(--button-big-hover);
+	transform: scale(0.98);
+}
+
+/*============================================*/
+/* Main action bar: persistent Next Week + Age Up buttons */
+/*============================================*/
+
+#main-action-bar {
+	flex-shrink: 0;
+	display: flex;
+	gap: 8px;
+	padding: 6px 0;
+}
+
+#main-action-bar .choice-button {
+	flex: 1;
+}
+
+/* Age Up button: gold outline style, less prominent than Next Week */
+.choice-button.age-up {
+	background: transparent;
+	border: 2px solid var(--accent-gold);
+	color: var(--accent-gold);
+	box-shadow: none;
+}
+
+.choice-button.age-up:hover {
+	background: rgba(255, 215, 0, 0.15);
+}
+
+.choice-button.age-up:active {
+	background: rgba(255, 215, 0, 0.25);
+	transform: scale(0.98);
+}
+
+/* Disabled state for buttons during popups */
+.choice-button:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+	transform: none;
+}
+
+.choice-button:disabled:hover {
+	background: var(--button-bg);
+}
+
+.choice-button:disabled:active {
+	transform: none;
+}

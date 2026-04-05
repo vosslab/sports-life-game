@@ -51,6 +51,8 @@ export function startYear(player: Player, ctx: CareerContext): void {
 	}
 
 	const handler = getHandler(player.age);
+	// Update phase based on handler id (matches advanceToNextYear behavior)
+	player.phase = getPhaseForHandler(handler.id);
 	handler.startYear(player, ctx);
 }
 
@@ -72,5 +74,6 @@ function getPhaseForHandler(handlerId: string): Player['phase'] {
 	if (handlerId.startsWith('nfl')) {
 		return 'nfl';
 	}
-	return 'childhood';
+	// Unknown handler ID - throw error instead of silently returning childhood
+	throw new Error(`Unknown handler ID: ${handlerId}`);
 }
