@@ -56,7 +56,7 @@ export const nflLateHandler: YearHandler = {
 		}
 
 		// nflYear incremented only when player commits to playing the season
-		ctx.showChoicePopup('Twilight Decision', [
+		ctx.waitForInteraction('Twilight Decision', [
 			{
 				text: 'Play One More Season',
 				primary: true,
@@ -103,7 +103,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	}
 
 	ctx.addHeadline('Twilight Years');
-	ctx.showChoicePopup('Farewell Tour', [
+	ctx.waitForInteraction('Farewell Tour', [
 		{
 			text: 'Embrace the farewell tour',
 			primary: true,

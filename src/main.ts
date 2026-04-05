@@ -189,7 +189,7 @@ function buildCareerContext(): void {
 		addText: (text: string) => addStoryText(text),
 		addResult: (text: string) => ui.addResult(text),
 		showChoices: (options) => ui.showChoices(options),
-		showChoicePopup: (title, options, description) => ui.showChoicePopup(title, options, description),
+		waitForInteraction: (title, options, description) => ui.waitForInteraction(title, options, description),
 		showEventModal: (title, desc, choices) => ui.showEventModal(title, desc, choices),
 		hideEventModal: () => ui.hideEventModal(),
 		save: () => { if (currentPlayer) saveGame(currentPlayer); },
@@ -452,7 +452,7 @@ async function initGame(): Promise<void> {
 				+ `Age ${currentPlayer.age}`);
 			ui.updateAllStats(currentPlayer);
 			ui.updateHeader(currentPlayer);
-			ui.showChoicePopup('Welcome Back', [
+			ui.waitForInteraction('Welcome Back', [
 				{ text: 'Continue Game', primary: true, action: resumeGame },
 				{ text: 'Start New Game', primary: false, action: confirmNewGame },
 			]);
@@ -464,7 +464,7 @@ async function initGame(): Promise<void> {
 	addStoryHeadline('Welcome to Gridiron Life');
 	addStoryText('Your football career begins now. From backyard games to the big '
 		+ 'leagues, every choice shapes your story.');
-	ui.showChoicePopup('Gridiron Life', [
+	ui.waitForInteraction('Gridiron Life', [
 		{ text: 'Start New Game', primary: true, action: startCharacterCreation },
 	]);
 }
@@ -562,7 +562,7 @@ function showCollegeChoiceScreen(gameContext: GameContext): void {
 	addStoryText('You have options now. Bigger schools bring more prestige, but they may not hand you a starting role.');
 	addStoryText('Smaller programs can get you on the field faster. Pick the path you want.');
 
-	ui.showChoicePopup('College Decision', options.map((option) => ({
+	ui.waitForInteraction('College Decision', options.map((option) => ({
 		text: option.label,
 		primary: option.depthChart === 'starter',
 		action: () => {
@@ -588,7 +588,7 @@ function confirmNewGame(): void {
 	clearStory();
 	addStoryHeadline('Start Over?');
 	addStoryText('This will erase your current career. Are you sure?');
-	ui.showChoicePopup('Start Over', [
+	ui.waitForInteraction('Start Over', [
 		{ text: 'Yes, Start Fresh', primary: true, action: () => {
 			deleteSave();
 			currentPlayer = null;
@@ -633,6 +633,10 @@ function startCharacterCreation(): void {
 	lastInput.autocomplete = 'off';
 	panel.appendChild(lastInput);
 
+	// Pre-fill with a random name
+	firstInput.value = firstNameList[randomInRange(0, firstNameList.length - 1)];
+	lastInput.value = lastNameList[randomInRange(0, lastNameList.length - 1)];
+
 	// Random name button
 	const randomBtn = document.createElement('button');
 	randomBtn.className = 'choice-button';
@@ -659,6 +663,12 @@ function startCharacterCreation(): void {
 
 //============================================
 function startNewGame(firstName: string, lastName: string): void {
+	// Clear the character creation panel so inputs/buttons don't persist
+	const panel = document.getElementById('choices-panel');
+	if (panel) {
+		panel.innerHTML = '';
+	}
+
 	// Create the player
 	currentPlayer = createPlayer(firstName, lastName);
 
@@ -702,7 +712,7 @@ function startNewGame(firstName: string, lastName: string): void {
 	const sizeDesc = getSizeDescription(currentPlayer.hidden.size);
 	addStoryText(sizeDesc);
 
-	ui.showChoicePopup('Your Birth', [
+	ui.waitForInteraction('Your Birth', [
 		{ text: 'Continue...', primary: true, action: () => {
 			if (currentPlayer && careerCtx) {
 				// Enter the year-handler system starting at age 1
@@ -763,7 +773,7 @@ function declineYouthFootball(): void {
 	addStoryText('You decide you are not ready for organized football yet. '
 		+ 'For now, you would rather grow up at your own pace.');
 
-	ui.showChoicePopup('Growing Up', [
+	ui.waitForInteraction('Growing Up', [
 		{ text: 'Continue...', primary: true, action: advanceChildhood },
 	]);
 }
@@ -1136,7 +1146,7 @@ function startHighSchool(): void {
 	const suggested = suggestPosition(currentPlayer);
 	addStoryText(`Based on your build and skills, Coach thinks you would be a good fit at ${suggested}.`);
 
-	ui.showChoicePopup('Choose Position', [
+	ui.waitForInteraction('Choose Position', [
 		{
 			text: `Play ${suggested}`,
 			primary: true,
@@ -1214,7 +1224,7 @@ function showPositionChoices(): void {
 		{ pos: 'K', label: 'Kicker' },
 	];
 
-	ui.showChoicePopup('Select Position', positions.map(p => ({
+	ui.waitForInteraction('Select Position', positions.map(p => ({
 		text: p.label,
 		primary: false,
 		action: () => setPositionAndContinue(p.pos),
@@ -1244,7 +1254,7 @@ function setPositionAndContinue(position: Position): void {
 		+ 'The seniors barely look at you. You are at the bottom of the depth chart.');
 	addStoryText('But everyone starts somewhere.');
 
-	ui.showChoicePopup('High School', [
+	ui.waitForInteraction('High School', [
 		{ text: 'Start the season', primary: true, action: () => {
 			if (currentPlayer && careerCtx) {
 				// Use new year-handler system for HS
@@ -1273,7 +1283,7 @@ function resumeGame(): void {
 	if (currentPlayer.phase === 'legacy') {
 		clearStory();
 		addStoryHeadline('Career Complete');
-		ui.showChoicePopup('Career Complete', [
+		ui.waitForInteraction('Career Complete', [
 			{ text: 'View Legacy', primary: true, action: retirePlayer },
 		]);
 	} else if (currentPlayer.phase === 'childhood' && currentPlayer.age < 1) {
@@ -1285,7 +1295,7 @@ function resumeGame(): void {
 		addStoryHeadline('Welcome Back');
 		addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
 			+ `Age ${currentPlayer.age}`);
-		ui.showChoicePopup('Welcome Back', [
+		ui.waitForInteraction('Welcome Back', [
 			{ text: 'Continue', primary: true, action: () => {
 				if (currentPlayer && careerCtx) {
 					startYear(currentPlayer, careerCtx);
@@ -1305,8 +1315,18 @@ function resumeGame(): void {
 // Old entries stay visible and scrollable
 function clearStory(): void {
 	const storyLog = document.getElementById('story-log');
-	if (storyLog) {
-		storyLog.innerHTML = '';
+	if (storyLog && storyLog.children.length > 0) {
+		// Add a visual divider between sections
+		const divider = document.createElement('hr');
+		divider.className = 'story-divider';
+		storyLog.appendChild(divider);
+		// Auto-scroll to the newest content
+		const panel = document.getElementById('story-panel');
+		if (panel) {
+			requestAnimationFrame(() => {
+				panel.scrollTop = panel.scrollHeight;
+			});
+		}
 	}
 }
 
@@ -1320,20 +1340,61 @@ function hardClearStory(): void {
 }
 
 //============================================
+// Track the current collapsible section so addStoryText appends into it
+let currentStorySection: HTMLElement | null = null;
+
 function addStoryHeadline(text: string): void {
 	const storyLog = document.getElementById('story-log');
-	if (storyLog) {
+	if (!storyLog) {
+		return;
+	}
+
+	// Only Age headlines get the collapsible carrot
+	const isAgeHeadline = /^Age \d+/.test(text);
+
+	if (isAgeHeadline) {
+		// Create a clickable headline with collapse carrot
+		const header = document.createElement('div');
+		header.className = 'story-headline-toggle';
+		const carrot = document.createElement('span');
+		carrot.className = 'story-carrot';
+		carrot.textContent = 'v ';
+		header.appendChild(carrot);
+		const label = document.createElement('span');
+		label.className = 'story-headline';
+		label.textContent = text;
+		header.appendChild(label);
+		storyLog.appendChild(header);
+
+		// Create collapsible content container
+		const section = document.createElement('div');
+		section.className = 'story-section';
+		storyLog.appendChild(section);
+		currentStorySection = section;
+
+		// Toggle collapse on click
+		header.addEventListener('click', () => {
+			section.classList.toggle('collapsed');
+			header.classList.toggle('collapsed');
+		});
+	} else {
+		// Non-collapsible headline (sub-events, milestones, etc.)
 		const p = document.createElement('p');
 		p.className = 'story-headline';
 		p.textContent = text;
-		storyLog.appendChild(p);
-		// BUG FIX 2: Scroll story-panel container
-		const panel = document.getElementById('story-panel');
-		if (panel) {
-			requestAnimationFrame(() => {
-				panel.scrollTop = panel.scrollHeight;
-			});
+		if (currentStorySection) {
+			currentStorySection.appendChild(p);
+		} else {
+			storyLog.appendChild(p);
 		}
+	}
+
+	// Scroll to newest content
+	const panel = document.getElementById('story-panel');
+	if (panel) {
+		requestAnimationFrame(() => {
+			panel.scrollTop = panel.scrollHeight;
+		});
 	}
 }
 
@@ -1343,8 +1404,13 @@ function addStoryText(text: string): void {
 	if (storyLog) {
 		const p = document.createElement('p');
 		p.textContent = text;
-		storyLog.appendChild(p);
-		// BUG FIX 2: Scroll story-panel container
+		// Append into current collapsible section if one exists
+		if (currentStorySection) {
+			currentStorySection.appendChild(p);
+		} else {
+			storyLog.appendChild(p);
+		}
+		// Scroll story-panel container
 		const panel = document.getElementById('story-panel');
 		if (panel) {
 			requestAnimationFrame(() => {
@@ -1437,7 +1503,7 @@ function retirePlayer(): void {
 		'Thank you for playing Gridiron Life.'
 	);
 
-	ui.showChoicePopup('Career Over', [
+	ui.waitForInteraction('Career Over', [
 		{
 			text: 'Start a New Career',
 			primary: true,

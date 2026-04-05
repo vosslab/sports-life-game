@@ -55,7 +55,7 @@ export const hsFroshSophHandler: YearHandler = {
 		ctx.addText(`Playing ${player.position || 'TBD'} as a ${player.depthChart}.`);
 
 		// Start the season via the weekly engine
-		ctx.showChoicePopup('High School Season', [{
+		ctx.waitForInteraction('High School Season', [{
 			text: 'Start Season',
 			primary: true,
 			action: () => {
@@ -79,7 +79,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	ctx.addText(`${yearLabel} season is over.`);
 
 	// Position change option at offseason
-	ctx.showChoicePopup('Offseason', [{
+	ctx.waitForInteraction('Offseason', [{
 		text: 'Continue to Next Year',
 		primary: true,
 		action: () => advanceToNextYear(player, ctx),

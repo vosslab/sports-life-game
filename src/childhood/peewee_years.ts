@@ -98,13 +98,13 @@ function presentEventThenContinue(
 		},
 	}));
 
-	ctx.showChoicePopup(event.title, choiceButtons);
+	ctx.waitForInteraction(event.title, choiceButtons);
 }
 
 //============================================
 // Show the continue button
 function showContinue(player: Player, ctx: CareerContext): void {
-	ctx.showChoicePopup('Peewee Football', [{
+	ctx.waitForInteraction('Peewee Football', [{
 		text: 'Continue to Next Year',
 		primary: true,
 		action: () => advanceToNextYear(player, ctx),

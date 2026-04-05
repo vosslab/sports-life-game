@@ -125,7 +125,7 @@ function showFocusChoices(player: Player, ctx: CareerContext): void {
 		{ text: 'Teamwork (LEAD/DISC up)', key: 'teamwork' },
 	];
 
-	ctx.showChoicePopup('Weekly Focus', focusOptions.map(opt => ({
+	ctx.waitForInteraction('Weekly Focus', focusOptions.map(opt => ({
 		text: opt.text,
 		primary: false,
 		action: () => handleFocusSelected(player, ctx, opt.key),
@@ -148,7 +148,7 @@ function handleFocusSelected(
 	}
 
 	// Clear buttons during the stat review pause
-	ctx.showChoicePopup('Stat Review', []);
+	ctx.waitForInteraction('Stat Review', []);
 
 	// Brief pause to show stat changes, then present activity choices
 	setTimeout(() => {
@@ -184,7 +184,7 @@ function handleFocusSelected(
 			},
 		});
 
-		ctx.showChoicePopup('Weekly Activities', activityChoices);
+		ctx.waitForInteraction('Weekly Activities', activityChoices);
 	}, 1000);
 }
 
@@ -523,7 +523,7 @@ function startPlayoffs(
 	const opponentName = opponent ? opponent.getDisplayName() : 'Unknown';
 	ctx.addText(`Playoff matchup: ${player.teamName} vs ${opponentName}`);
 
-	ctx.showChoicePopup('Playoff Game', [{
+	ctx.waitForInteraction('Playoff Game', [{
 		text: 'Play Game',
 		primary: true,
 		action: () => {
@@ -572,7 +572,7 @@ function startPlayoffs(
 			// Advance to next round
 			bracket.advanceRound();
 
-			ctx.showChoicePopup('Next Round', [{
+			ctx.waitForInteraction('Next Round', [{
 				text: 'Next Round',
 				primary: true,
 				action: () => startPlayoffs(player, ctx, bracket),

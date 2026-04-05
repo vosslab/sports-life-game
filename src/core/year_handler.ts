@@ -59,7 +59,7 @@ export interface CareerContext {
 	// Choice presentation (renders buttons on Life tab)
 	showChoices(options: ChoiceOption[]): void;
 	// Choice popup modal with title and description
-	showChoicePopup(title: string, options: ChoiceOption[], description?: string): void;
+	waitForInteraction(title: string, options: ChoiceOption[], description?: string): void;
 	// Event modal (overlay with title, description, choices)
 	showEventModal(title: string, desc: string, choices: EventChoiceAction[]): void;
 	hideEventModal(): void;

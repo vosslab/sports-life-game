@@ -43,7 +43,7 @@ export const nflPeakHandler: YearHandler = {
 		ctx.addHeadline(`Age ${player.age} - NFL Season ${player.nflYear}`);
 		ctx.addText(`${player.firstName} is in prime form with the ${player.teamName}.`);
 
-		ctx.showChoicePopup('Prime Years', [{
+		ctx.waitForInteraction('Prime Years', [{
 			text: 'Start Season',
 			primary: true,
 			action: () => {
@@ -66,7 +66,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	ctx.addText(`Earned $${(salary / 1000000).toFixed(1)}M this season.`);
 
 	ctx.addHeadline('Peak Years - Major Decision');
-	ctx.showChoicePopup('Major Crossroads', [
+	ctx.waitForInteraction('Major Crossroads', [
 		{
 			text: 'Chase a ring - recruit free agents to your team',
 			primary: false,

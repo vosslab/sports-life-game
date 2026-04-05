@@ -43,7 +43,7 @@ export const nflEarlyHandler: YearHandler = {
 		ctx.addHeadline(`Age ${player.age} - NFL Season ${player.nflYear}`);
 		ctx.addText(`${player.firstName} is establishing a career with the ${player.teamName}.`);
 
-		ctx.showChoicePopup('Early NFL Career', [{
+		ctx.waitForInteraction('Early NFL Career', [{
 			text: 'Start Season',
 			primary: true,
 			action: () => {
@@ -66,7 +66,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	ctx.addText(`Earned $${(salary / 1000000).toFixed(1)}M this season.`);
 
 	ctx.addHeadline('Offseason Priorities');
-	ctx.showChoicePopup('Next Chapter', [
+	ctx.waitForInteraction('Next Chapter', [
 		{
 			text: 'Push for a contract extension',
 			primary: false,

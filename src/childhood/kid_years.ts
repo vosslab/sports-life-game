@@ -114,13 +114,13 @@ function presentEvent(
 		},
 	}));
 
-	ctx.showChoicePopup(event.title, choiceButtons);
+	ctx.waitForInteraction(event.title, choiceButtons);
 }
 
 //============================================
 // Show the "Continue to Next Year" button
 function showContinue(player: Player, ctx: CareerContext): void {
-	ctx.showChoicePopup('Next Year', [{
+	ctx.waitForInteraction('Next Year', [{
 		text: 'Continue',
 		primary: true,
 		action: () => advanceToNextYear(player, ctx),

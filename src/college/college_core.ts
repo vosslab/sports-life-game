@@ -48,7 +48,7 @@ export const collegeCoreHandler: YearHandler = {
 			player.teamStrength = playerTeam.strength;
 		}
 
-		ctx.showChoicePopup('College Season', [{
+		ctx.waitForInteraction('College Season', [{
 			text: 'Start Season',
 			primary: true,
 			action: () => {
@@ -75,7 +75,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 		if (canDeclare) {
 			ctx.addText('NFL scouts are talking. You could declare for the draft early.');
 			ctx.addHeadline('Offseason Training');
-			ctx.showChoicePopup('Draft Decision', [
+			ctx.waitForInteraction('Draft Decision', [
 				{
 					text: 'Declare for NFL Draft',
 					primary: true,
@@ -128,7 +128,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 
 	// Sophomore or Junior (no early declaration option)
 	ctx.addHeadline('Offseason Training');
-	ctx.showChoicePopup('Development Path', [
+	ctx.waitForInteraction('Development Path', [
 		{
 			text: 'Train with a speed coach',
 			primary: false,

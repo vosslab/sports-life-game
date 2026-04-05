@@ -1,5 +1,42 @@
 # Changelog
 
+## 2026-04-04 (UX Playthrough Review and Fixes)
+
+### Fixes and Maintenance
+
+- **Childhood events never loaded** (`src/main.ts`): Moved `loadEvents()` call before
+  `buildCareerContext()` during game init so the event pool is populated from birth.
+  Previously `allEvents` was empty until HS phase, causing all childhood years to show
+  "Another year goes by" instead of fun events like "First Steps" and "Daycare Drama".
+- **Grammar fix** (`src/childhood/kid_years.ts`): "1 year old" not "1 years old".
+- **Team record widget stale** (`src/hs_phase.ts`): Added `ui.updateLifeStatus()` call
+  after HS game results so the life-status panel shows current W-L record.
+- **Sidebar checklist used wrong state** (`src/main.ts`, `src/weekly/weekly_engine.ts`):
+  Added `getActiveWeekState()` export from weekly engine. `refreshDashboard` now uses
+  the active engine's week state instead of `game_loop.ts`'s separate stale copy.
+- **Completed `showChoicePopup` to `waitForInteraction` rename** (multiple files):
+  Updated `CareerContext` interface, `main.ts` adapter and all callers, and childhood
+  handlers to match the popup refactor rename.
+
+### Additions and New Features
+
+- **Collapsible story log sections** (`src/main.ts`, `src/styles/story.css`): Age
+  headlines (Age 1, Age 2, etc.) now have a clickable carrot toggle. Click to
+  collapse/expand that age's content. Full log is preserved for scrollback.
+- **Player choices logged in story** (`src/childhood/kid_years.ts`,
+  `src/childhood/peewee_years.ts`, `src/childhood/travel_years.ts`): When the player
+  picks a choice, the selected option text appears in the story log prefixed with `>`.
+- **Weekly focus flavor text variety** (`src/week_sim.ts`): Each focus type (Train,
+  Film Study, Recovery, Social, Teamwork) now has a pool of 8 different flavor texts
+  instead of one hardcoded string. Randomly selected each week.
+
+### Behavior or Interface Changes
+
+- `clearStory()` adds `<hr>` dividers and auto-scrolls instead of clearing content,
+  preserving the full story log for scrollback.
+- `addResult()` and `addStatChange()` in `ui.ts` now append into the current
+  collapsible section when one exists.
+
 ## 2026-04-04 (Choice Popup Conversion)
 
 ### Behavior or Interface Changes

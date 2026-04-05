@@ -596,7 +596,7 @@ function endCollegeSeason(): void {
 		});
 	}
 
-	ui.showChoicePopup('Season Over', buttons);
+	ui.waitForInteraction('Season Over', buttons);
 }
 
 //============================================

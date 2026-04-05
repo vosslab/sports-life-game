@@ -171,7 +171,14 @@ export function addResult(text: string): void {
 	const p = document.createElement('p');
 	p.className = 'story-result';
 	p.textContent = text;
-	storyLog.appendChild(p);
+	// Append into current collapsible section if one exists
+	const sections = storyLog.querySelectorAll('.story-section');
+	const lastSection = sections.length > 0 ? sections[sections.length - 1] : null;
+	if (lastSection && !lastSection.classList.contains('collapsed')) {
+		lastSection.appendChild(p);
+	} else {
+		storyLog.appendChild(p);
+	}
 	autoScroll();
 }
 
@@ -181,7 +188,14 @@ export function addStatChange(text: string): void {
 	const p = document.createElement('p');
 	p.className = 'story-stat-change';
 	p.textContent = text;
-	storyLog.appendChild(p);
+	// Append into current collapsible section if one exists
+	const sections = storyLog.querySelectorAll('.story-section');
+	const lastSection = sections.length > 0 ? sections[sections.length - 1] : null;
+	if (lastSection && !lastSection.classList.contains('collapsed')) {
+		lastSection.appendChild(p);
+	} else {
+		storyLog.appendChild(p);
+	}
 	autoScroll();
 }
 

@@ -45,7 +45,7 @@ export const collegeEntryHandler: YearHandler = {
 			modifyStat(player, 'footballIq', 3);
 			ctx.updateStats(player);
 
-			ctx.showChoicePopup('Redshirt Year', [{
+			ctx.waitForInteraction('Redshirt Year', [{
 				text: 'Continue to Sophomore Year',
 				primary: true,
 				action: () => {
@@ -66,7 +66,7 @@ export const collegeEntryHandler: YearHandler = {
 				player.teamStrength = playerTeam.strength;
 			}
 
-			ctx.showChoicePopup('Freshman Year', [{
+			ctx.waitForInteraction('Freshman Year', [{
 				text: 'Start Season',
 				primary: true,
 				action: () => {
@@ -87,7 +87,7 @@ export const collegeEntryHandler: YearHandler = {
 function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	ctx.addText('Freshman season is over.');
 	ctx.addHeadline('Offseason Decision');
-	ctx.showChoicePopup('Next Steps', [
+	ctx.waitForInteraction('Next Steps', [
 		{
 			text: 'Hit the transfer portal',
 			primary: false,

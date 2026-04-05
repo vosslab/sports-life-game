@@ -81,3 +81,40 @@
 #story-log > p {
 	transition: opacity 0.3s ease;
 }
+
+/* Collapsible age/week sections */
+.story-headline-toggle {
+	cursor: pointer;
+	user-select: none;
+	display: flex;
+	align-items: baseline;
+	gap: 2px;
+	padding: 2px 0;
+}
+
+.story-headline-toggle:hover {
+	opacity: 0.8;
+}
+
+.story-carrot {
+	color: var(--accent-gold);
+	font-size: 0.8em;
+	transition: transform 0.2s ease;
+	display: inline-block;
+	width: 1em;
+}
+
+.story-headline-toggle.collapsed .story-carrot {
+	transform: rotate(-90deg);
+}
+
+.story-section {
+	overflow: hidden;
+	max-height: 2000px;
+	transition: max-height 0.3s ease, opacity 0.2s ease;
+}
+
+.story-section.collapsed {
+	max-height: 0;
+	opacity: 0;
+}
