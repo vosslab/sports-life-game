@@ -1,5 +1,301 @@
 # Changelog
 
+## 2026-04-04 (Playoff Bracket Bug Fixes)
+
+### Fixes and Maintenance
+
+- Fixed three bugs in [src/season/playoff_bracket.ts](src/season/playoff_bracket.ts):
+  - Bug 1 (`buildBracket()` collapse): rewrote to pre-create all round shells with
+    empty games arrays, then populate only round 0 with initial matchups. Later rounds
+    are filled by `advanceRound()`, which already had this logic. Previously
+    `remainingTeamIds = nextRoundTeams` collapsed to bye-only teams after round 1.
+  - Bug 2 (bye re-insertion loop): changed `advanceRound()` bye detection to scan
+    `teamsEverScheduled` across all rounds instead of only the current round's
+    `teamsInRound`. This prevents a 1-seed that already played from being re-inserted
+    as a bye team in later rounds.
+  - Bug 3 (game ID counter reset): removed `playoffGameCounter = 0` from constructor.
+    Counter is now module-level and shared across AFC and NFC bracket instances,
+    preventing colliding game IDs between two simultaneously constructed brackets.
+
+## 2026-04-04 (Documentation Refresh)
+
+### Fixes and Maintenance
+
+- Refreshed [docs/CODE_ARCHITECTURE.md](docs/CODE_ARCHITECTURE.md): updated overview
+  to describe BitLife-style football career sim with TypeScript ES2020 compilation.
+  Added milestone system documentation. Updated data flow diagram to show
+  `LeagueSeason` as single source of truth. Clarified weekly engine loop with
+  season model and milestone checks.
+- Refreshed [docs/FILE_STRUCTURE.md](docs/FILE_STRUCTURE.md): updated source directory
+  tree with all 13 handlers (3 childhood, 2 high school, 3 college, 5 NFL), season
+  layer (8 files), shared utilities, and data files. Added descriptions for each
+  subdirectory showing season lengths and handler responsibilities. Clarified that
+  childhood is narrative-only (no football).
+
+## 2026-04-04 (Game Balance, Recruiting Fix, Health Tuning, Milestone System)
+
+### Additions and New Features
+
+- **Milestone system**: Career events now fire at specific moments to break up the
+  repetitive weekly loop and make each playthrough feel unique. Milestones are
+  one-time story moments tracked on the player and displayed after game results.
+  High School milestones: first starter, first win, first loss, rivalry game week,
+  undefeated late season, recruiting interest. College milestones: first starter,
+  ESPN GameDay appearance, academic trouble, NIL deal, draft buzz. NFL milestones:
+  first starter, first win, 100 games played, Pro Bowl invite, contract year,
+  veteran leader status, body breaking down. Implementation in `src/milestones.ts`
+  with integration into weekly engine that checks and fires milestones after game
+  results.
+
+### Behavior or Interface Changes
+
+- Weekly focus selection (Train, Film Study, etc.) now pauses for 4 seconds
+  after applying stat changes before showing the activity prompt, so the player
+  can see their updated stats
+- Activities now show as inline buttons in the choices panel (e.g.,
+  "Extra Practice (+2 TEC, -1 HP)") instead of requiring a tab switch.
+  "Skip to Game Day" button appears at the bottom.
+- College season shortened from 12 to 11 weeks (4 non-conf + 7 conf rounds)
+  to match actual schedule content
+- Games are harder to win: player contribution halved (0.3 -> 0.15), opponents
+  now get a star player boost (1-6 pts) and upset bonus for underdogs (0-4 pts),
+  player team strength no longer biased above opponents. Further difficulty
+  tuning: player contribution multiplier reduced 0.15 -> 0.10, opponent variance
+  increased -3/+3 -> -5/+5, opponents gain coaching boost 0-3 pts, logistic curve
+  steepened 0.06 -> 0.07 (favors strength differential)
+- Health drains slower: base weekly wear 0-2 (was 1-3), training cost 0-1
+  (was 1-2), game-day starter cost 0-2 (was 1-3), injury thresholds and
+  damage reduced
+
+### Fixes and Maintenance
+
+- **Transfer portal did not change player's team**: The "Hit the transfer portal"
+  choice in `college_entry.ts` only added flavor text and advanced to next year,
+  never actually transferring the player to a new school. Now properly picks a
+  new NCAA school using `assignPlayerCollege()` (filtered to exclude current
+  school), updates `player.teamName`, sets depth chart (backup by default, 25%
+  chance starter if technique >= 70 and footballIq >= 65), records the transfer
+  in `player.bigDecisions`, and updates the header before advancing to sophomore
+  year.
+- **College starter promotions too easy**: Year 2+ start-of-season promotion was
+  triggered at technique >= 50 with confidence >= 45, causing nearly everyone to
+  become starters by year 2. Now requires technique >= 65, confidence >= 55,
+  footballIq >= 50, plus only 65% chance. End-of-season promotion now requires
+  technique >= 60, footballIq >= 55, with 60% chance (was just technique >= 50).
+- **NFL team name never set**: all 5 NFL handlers called `buildNFLSeason()` but
+  never synced `player.teamName` with the actual assigned team. Player would show
+  "NFL Team" or their college name instead of the real NFL team. Now all handlers
+  set `player.teamName = playerTeam.getDisplayName()` after building the season.
+- **Playoff bracket lost bye teams**: `advanceRound()` only collected winners from
+  played games, so the 1-seed (bye in wild card) was dropped from the bracket.
+  Now detects bye teams and adds them to the next round.
+- **Recruiting stars stuck at 0**: `updateRecruitingStars()` computed the star
+  rating but never wrote it back to `player.recruitingStars`. Now sets the value
+  directly on the player object.
+- **College offers now reliably appear**: senior year offer generation retries
+  up to 10 times to produce 3 distinct school offers (was limited to exactly 3
+  attempts with no retry on duplicates)
+- Conference standings: all teams now play every conference week using a proper
+  round-robin scheduler (`generateRoundRobinRounds` in `season_builder.ts`)
+  - HS: 8 teams, 7 rounds of 4 games each, all teams play every round
+  - College: same 8-team round-robin in weeks 5-11, no team left out
+  - Previous approach scheduled player games separately from other teams,
+    leaving some conference teams with few or no games
+- **Non-conference games now scheduled for ALL conference teams**, not just the
+  player. `buildHSSchedule()` and `buildCollegeSchedule()` now generate
+  non-conference opponents for every conference team in non-conference weeks
+  (HS weeks 4, 7, 10; college weeks 1-4), ensuring equal play opportunities
+  and more realistic standings. Prevents some teams from playing ~2 fewer games
+  than the player during those weeks.
+- Added `generateRoundRobinRounds()` to `src/season/season_builder.ts` using
+  the circle method: fixes one team, rotates the rest, guaranteeing every team
+  plays exactly once per round with no conflicts
+
+## 2026-04-04 (Portrait System Integration)
+
+### Additions and New Features
+
+- Portrait system integrated into gameplay
+  - `avatarConfig` field added to Player interface in `src/player.ts`
+  - Portrait generated during `createPlayer()` using player name as seed
+  - Age-appropriate portrait rendered in header on every `updateHeader()` call
+  - Save/load migration in `src/save.ts` generates portrait for old saves
+  - `#player-portrait` container added to `index.html` header
+  - Circular portrait CSS with 56px display in `styles.css`
+
+### Behavior or Interface Changes
+
+- Player header now shows a circular SVG portrait above the player name
+- Portrait updates each year to reflect age-appropriate appearance
+  (teen vs adult vs veteran facial features, hair, etc.)
+- Uses the two-seed identity system: same seed produces same base identity
+  across all ages (skin tone, face shape persist; hair style, expression vary)
+
+## 2026-04-04 (Offseason Decisions in Career Handlers)
+
+### Additions and New Features
+
+- Added offseason choice mechanics to all 8 career phase handlers
+- College freshman (college_entry.ts): 3 offseason choices affecting discipline, confidence, footballIq
+  - "Hit the transfer portal" (confidence +3, discipline -2)
+  - "Stay and compete for your spot" (discipline +3, technique +2)
+  - "Focus on academics this summer" (footballIq +3, discipline +2)
+- College soph/junior (college_core.ts): 3 training choices, with early declaration option preserved for juniors
+  - "Train with a speed coach" (athleticism +3, health -1)
+  - "Work on football film all summer" (footballIq +3, technique +1)
+  - "Get bigger in the weight room" (technique +2, athleticism +1, health +1)
+- College senior (college_senior.ts): 3 NFL Combine prep choices with draftStock modification
+  - "Crush the combine with elite athleticism" (athleticism +2, draftStock +5)
+  - "Impress scouts with football IQ at Pro Day" (footballIq +3, draftStock +3)
+  - "Let your game tape speak for itself" (confidence +3, draftStock +2)
+- NFL rookie (nfl_rookie.ts): 3 offseason plan choices including trainer investment
+  - "Hire a personal trainer for the offseason" (athleticism +3, technique +1, money -100k)
+  - "Study the playbook obsessively" (footballIq +4, technique +2)
+  - "Enjoy the money and relax" (confidence +3, health +2, discipline -2)
+- NFL early years (nfl_early.ts): 3 career development choices including contract negotiation
+  - "Push for a contract extension" (money +2M, confidence +2)
+  - "Focus on becoming a team leader" (leadership +4, discipline +2)
+  - "Train at a position-specific camp" (technique +3, athleticism +1)
+- NFL peak years (nfl_peak.ts): 3 peak-era decision choices
+  - "Chase a ring - recruit free agents to your team" (leadership +3, confidence +2)
+  - "Sign a massive endorsement deal" (money +5M, popularity +5, discipline -2)
+  - "Give back - start a foundation" (leadership +4, popularity +3, confidence +2)
+- NFL veteran years (nfl_veteran.ts): 3 veteran wisdom choices
+  - "Mentor the young guys" (leadership +5, popularity +2, athleticism -1)
+  - "Switch to a contending team" (confidence +3, athleticism +1, popularity -2)
+  - "Restructure your contract to help the team" (leadership +3, money -1M, discipline +2)
+- NFL late career (nfl_late.ts): 2 farewell tour choices before age-39 forced retirement
+  - "Embrace the farewell tour" (popularity +5, confidence +3)
+  - "No fanfare, just compete" (discipline +3, technique +1, confidence +1)
+
+### Behavior or Interface Changes
+
+- All handleSeasonEnd functions now show narrative offseason decisions with headlines
+- Each choice affects different stat clusters depending on career phase and context
+- Money modifications use career.money directly (signed integers: +2000000, -100000, -1000000, +5000000)
+- Popularity and leadership modifications use clampStat() helper to enforce 0-100 bounds
+- draftStock modifications added to senior year to affect draft outcomes
+- Each choice includes ctx.addText() narrative feedback before advancing
+- All choices ultimately call advanceToNextYear(player, ctx) as before
+
+### Fixes and Maintenance
+
+- Imported clampStat from player.js where needed in all handler files
+- Ensured all stat modifications use proper functions (modifyStat for core stats, direct assignment for career stats, clampStat for hidden stats)
+
+## 2026-04-04 (College and NFL Events)
+
+### Additions and New Features
+
+- Added 22 college events (phase: "college") to `src/data/events.json`
+  - Academic/Social events: exam stress, professor recognition, dorm parties, NIL deals, campus fame, study groups, party consequences, rivalry atmosphere
+  - Football events: film room breakthroughs, position coach feedback, conference rivalry, bowl games, spring performance, two-a-days, playbook mastery
+  - Career events: NFL scouts at practice, agent contact, transfer portal, draft stock discussion, reporter interviews, senior day, college legacy
+- Added 30 NFL events (phase: "nfl") to `src/data/events.json`
+  - Locker room events: veteran advice, rookie mentoring, arguments, team meetings, pregame bonding
+  - Media events: press conferences, viral moments, national TV games, podcast interviews, radio debates
+  - Business events: endorsement deals, financial advisor meetings, charity events, contract restructures, trade demands
+  - Football events: new coordinators, film study advantages, joint practices, primetime games, bye week recovery, preseason reps, playbook stress
+  - Life events: family at games, big purchases, injury scares, teammate cuts, Pro Bowl voting, community service, college teammate reunions, trade deadline circus
+
+### Behavior or Interface Changes
+
+- Total events now 135 (up from ~83)
+- College phase has 22 events for realistic college football experience
+- NFL phase has 30 events spanning locker room, media, business, and lifestyle domains
+- All new events use consistent format with 1 tab indentation, 2-3 stat-affecting choices
+- Writing style matches existing events: punchy, vivid, BitLife-inspired tone
+
+## 2026-04-04 (Interactive Childhood Events)
+
+### Additions and New Features
+
+- Added ~20 childhood events (phase: "childhood") to `events.json`
+  - Toddler events (ages 1-3): first steps, daycare scuffle, playground climb
+  - School events (ages 4-7): recess races, homework, bullies, talent show, report cards
+  - Life events: backyard football, birthday parties, summer camp, new puppy, video games
+- Added ~13 youth events (phase: "youth") to `events.json`
+  - Football events: first practice, coach intensity, big hits, teammate rivalry
+  - Development events: football camp, weight room, position switch, highlight play
+  - Adversity events: losing streak, injury scare, grades slipping
+
+### Behavior or Interface Changes
+
+- Kid years (ages 1-7) now present 1-2 random events per year with choices
+  - Ages 1-3 get 1 event, ages 4-7 get 2 events
+  - Events affect core stats (athleticism, discipline, confidence, footballIq, health)
+  - Age-appropriate headlines ("Baby steps", "Kindergarten", "First grade")
+- Peewee years (ages 8-10) now present 1 youth event per year before "Continue"
+- Travel years (ages 11-13) now present 1 youth event per year before "Continue"
+- Events are filtered by phase and never repeat within the same year
+
+## 2026-04-04 (Season Simulation Layer)
+
+### Additions and New Features
+
+- New `src/season/` layer with 8 files: authoritative season backend
+  - `season_types.ts`: shared types (TeamId, GameId, GameStatus, StandingsRow)
+  - `team_model.ts`: SeasonTeam class (identity + ratings, no wins/losses)
+  - `game_model.ts`: SeasonGame class (atomic truth for game results)
+  - `standings_model.ts`: pure function to derive standings from finalized games
+  - `season_model.ts`: LeagueSeason class (single source of truth for all season state)
+  - `season_builder.ts`: shared schedule helpers (round-robin, validation)
+  - `season_simulator.ts`: advance weeks, simulate non-player games
+  - `playoff_bracket.ts`: generic bracket (HS 4-team, college CFP, NFL 7-seed)
+- Phase-specific season builders:
+  - `src/high_school/hs_season_builder.ts`: 8-team conference, 10-game schedule
+  - `src/college/college_season_builder.ts`: real NCAA data, 12-game schedule
+  - `src/nfl_handlers/nfl_season_builder.ts`: 32 real NFL teams, 17-game schedule
+- Playoff bracket system supporting HS (2-round), college (CFP), and NFL (4-round)
+
+### Behavior or Interface Changes
+
+- Weekly engine (`weekly_engine.ts`) now uses `LeagueSeason` as source of truth
+  instead of scattered state. All game results recorded through season object.
+- `startSeason()` signature changed: accepts LeagueSeason instead of ScheduleEntry[]
+- `advanceWeek()` is strict: refuses if any current-week game is unfinished
+- Conference teams now play each other (not phantom opponents with random strength)
+- Standings derived from finalized games (never stored separately)
+- Team tab standings and schedule now read from LeagueSeason queries
+- New `getActiveSeason()` export from weekly engine for UI consumption
+
+### Fixes and Maintenance
+
+- Fixed bench-stuck bug: `evaluateDepthChartUpdate()` now has bench -> backup
+  promotion path. Previously, bench players had no way to move up during game
+  weeks because `runPracticeSession()` was defined but never called.
+- All 10 football handler files updated to use proper season builders
+- NFL season builder includes per-season strength variance for all 32 teams
+
+### Decisions and Failures
+
+- Design choice: games are the atomic truth, standings always derived. This
+  eliminates the class of sync bugs where record != games played.
+- Design choice: hard cutover per phase. Old conference/standings mutation code
+  coexists only until UI is fully rewired, then deleted.
+- Save/load limitation: mid-season save recreates season on resume (handler
+  rebuilds). Full season persistence deferred to future work.
+- Kept `player.currentWeek` as mirrored save/UI field (season is authority).
+
+## 2026-04-04 (Handler Season Builder Integration)
+
+### Additions and New Features
+
+- Patch 1: Updated all college handlers to use proper `buildCollegeSeason()` builder
+  - `src/college/college_entry.ts`: now uses buildCollegeSeason() instead of legacy shim
+  - `src/college/college_core.ts`: now uses buildCollegeSeason() instead of legacy shim
+  - `src/college/college_senior.ts`: now uses buildCollegeSeason() instead of legacy shim
+  - All handlers look up player school from NCAA data and pass full school + allSchools to builder
+  - Removed imports of `generateHighSchoolTeam()` and `buildSeasonFromLegacySchedule()`
+- Patch 2: Updated all NFL handlers to use proper `buildNFLSeason()` builder
+  - `src/nfl_handlers/nfl_rookie.ts`: now uses buildNFLSeason() instead of legacy shim
+  - `src/nfl_handlers/nfl_early.ts`: now uses buildNFLSeason() instead of legacy shim
+  - `src/nfl_handlers/nfl_peak.ts`: now uses buildNFLSeason() instead of legacy shim
+  - `src/nfl_handlers/nfl_veteran.ts`: now uses buildNFLSeason() instead of legacy shim
+  - `src/nfl_handlers/nfl_late.ts`: now uses buildNFLSeason() instead of legacy shim
+  - All handlers call buildNFLSeason(playerTeamName) and extract playerTeam strength
+  - Removed imports of `generateHighSchoolTeam()` and `buildSeasonFromLegacySchedule()`
+
 ## 2026-04-04 (Year-Handler Registry Architecture)
 
 ### Additions and New Features

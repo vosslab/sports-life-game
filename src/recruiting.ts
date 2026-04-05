@@ -86,6 +86,7 @@ const D2_D3_COLLEGES = [
 // Uses: athleticism (0.25) + technique (0.25) + footballIq (0.2)
 //       + confidence (0.15) + discipline (0.15)
 // 5 stars: >= 75, 4 stars: >= 60, 3 stars: >= 45, 2 stars: >= 30, else 1
+// Writes the result directly to player.recruitingStars.
 export function updateRecruitingStars(player: Player): number {
 	const weighted =
 		player.core.athleticism * 0.25 +
@@ -107,6 +108,9 @@ export function updateRecruitingStars(player: Player): number {
 	} else {
 		stars = 1;
 	}
+
+	// Write to player so the value persists
+	player.recruitingStars = stars;
 
 	return stars;
 }

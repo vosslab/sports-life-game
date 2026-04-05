@@ -195,8 +195,10 @@ function startCollegeSeason(): void {
 
 	// Promotion check at start of season
 	if (player.collegeYear >= 2 && player.depthChart === 'backup') {
-		if (player.core.technique >= 50
-			&& player.core.confidence >= 45) {
+		if (player.core.technique >= 65
+			&& player.core.confidence >= 55
+			&& player.core.footballIq >= 50
+			&& randomInRange(1, 100) <= 65) {
 			player.depthChart = 'starter';
 			ctx.addText(
 				'Coach called your name at the team meeting. '
@@ -435,7 +437,9 @@ function endCollegeSeason(): void {
 
 	// Starter promotion
 	if (player.depthChart === 'backup'
-		&& player.core.technique >= 50) {
+		&& player.core.technique >= 60
+		&& player.core.footballIq >= 55
+		&& randomInRange(1, 100) <= 60) {
 		player.depthChart = 'starter';
 		ctx.addText('You earned the starting job for next season.');
 	}

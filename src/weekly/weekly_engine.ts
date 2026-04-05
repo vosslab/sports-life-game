@@ -6,11 +6,14 @@
 //
 // No third state. No conditional path that silently returns without advancing.
 // Handlers call startSeason() then the engine drives the weekly loop.
+//
+// SOURCE OF TRUTH: LeagueSeason owns all season state (schedule, records,
+// standings, week counter). This engine reads from it and writes results to it.
 
-import { Player, CareerPhase, randomInRange, createEmptySeasonStats } from '../player.js';
+import { Player, CareerPhase, randomInRange, createEmptySeasonStats, modifyStat } from '../player.js';
 import { CareerContext, SeasonConfig, WeekAdvanceResult } from '../core/year_handler.js';
 import { WeeklyFocus, applyWeeklyFocus, simulateGame, evaluateDepthChartUpdate } from '../week_sim.js';
-import { Team, ScheduleEntry } from '../team.js';
+import { Team } from '../team.js';
 import {
 	Activity, WeekState, createWeekState, getActivitiesForPhase,
 	isActivityUnlocked, applyActivity, getEffectPreview, formatActivityResult,
@@ -21,40 +24,47 @@ import {
 import { accumulateGameStats } from '../player.js';
 import { switchTab, hideTabBar, showTabBar } from '../tabs.js';
 import * as ui from '../ui.js';
+import { checkMilestones } from '../milestones.js';
+
+// Season layer imports
+import { LeagueSeason } from '../season/season_model.js';
+import {
+	simulateNonPlayerGames, recordPlayerGameResult,
+	getPlayerOpponentStrength, getPlayerOpponentName,
+} from '../season/season_simulator.js';
+import { PlayoffBracket, createHSPlayoffBracket, createCollegePlayoffBracket } from '../season/playoff_bracket.js';
+import { PlayoffSeed } from '../season/season_types.js';
 
 //============================================
-// Season state: managed by the engine, not on Player
-interface SeasonState {
+// Engine state: minimal, just tracks weekly phase and callbacks
+interface EngineState {
+	season: LeagueSeason;
 	config: SeasonConfig;
-	schedule: ScheduleEntry[];
-	wins: number;
-	losses: number;
 	weekState: WeekState;
 	onSeasonEnd: () => void;
 }
 
-// Current active season (null when no season running)
-let activeSeason: SeasonState | null = null;
+// Current active engine state (null when no season running)
+let activeEngine: EngineState | null = null;
 
 //============================================
 // Start a new season. Engine takes over the weekly loop.
+// Accepts a LeagueSeason as the single source of truth.
 export function startSeason(
 	player: Player,
 	ctx: CareerContext,
 	config: SeasonConfig,
-	schedule: ScheduleEntry[],
+	season: LeagueSeason,
 	onSeasonEnd: () => void,
 ): void {
-	// Reset season tracking
+	// Reset player season tracking
 	player.currentWeek = 0;
 	player.seasonStats = createEmptySeasonStats();
 	player.currentSeason += 1;
 
-	activeSeason = {
+	activeEngine = {
+		season,
 		config,
-		schedule,
-		wins: 0,
-		losses: 0,
 		weekState: createWeekState(),
 		onSeasonEnd,
 	};
@@ -67,33 +77,35 @@ export function startSeason(
 // Core advancement function. This is the only way weeks advance.
 // GUARANTEE: this function always either starts a new week or ends the season.
 function advanceToNextWeek(player: Player, ctx: CareerContext): void {
-	if (!activeSeason) {
+	if (!activeEngine) {
 		return;
 	}
 
-	player.currentWeek += 1;
-	const weekNum = player.currentWeek;
-	const seasonLen = activeSeason.config.seasonLength;
+	// Advance the season week (strict: refuses if games are unfinished)
+	const hasMoreWeeks = activeEngine.season.advanceWeek();
+
+	// Mirror week to player for save compatibility
+	player.currentWeek = activeEngine.season.getCurrentWeek();
 
 	// Check if season is over
-	if (weekNum > seasonLen) {
+	if (!hasMoreWeeks) {
 		endSeason(player, ctx);
 		return;
 	}
 
 	// Reset weekly state
-	activeSeason.weekState = createWeekState();
-	activeSeason.weekState.phase = 'focus';
+	activeEngine.weekState = createWeekState();
+	activeEngine.weekState.phase = 'focus';
 
 	// Update header and show week intro
 	ctx.updateHeader(player);
 	ctx.clearStory();
-	ctx.addHeadline(`Week ${weekNum}`);
+	ctx.addHeadline(`Week ${player.currentWeek}`);
 
-	// Show the opponent for this week
-	const entry = activeSeason.schedule[weekNum - 1];
-	if (entry) {
-		ctx.addText(`This week: vs ${entry.opponentName}`);
+	// Show the opponent for this week from the season schedule
+	const opponentName = getPlayerOpponentName(activeEngine.season);
+	if (opponentName !== 'TBD') {
+		ctx.addText(`This week: vs ${opponentName}`);
 	}
 
 	// Show weekly focus choices
@@ -106,11 +118,11 @@ function showFocusChoices(player: Player, ctx: CareerContext): void {
 	const socialLabel = player.phase === 'college' ? 'Social / NIL' : 'Social';
 
 	const focusOptions: { text: string; key: WeeklyFocus }[] = [
-		{ text: 'Train (+2-4 TEC)', key: 'train' },
-		{ text: 'Film Study (+2-3 IQ)', key: 'film_study' },
-		{ text: 'Recovery (+3-5 HP)', key: 'recovery' },
-		{ text: `${socialLabel} (+2-4 POP)`, key: 'social' },
-		{ text: 'Teamwork (+2-3 leadership)', key: 'teamwork' },
+		{ text: 'Train (TEC up, HP down)', key: 'train' },
+		{ text: 'Film Study (IQ up)', key: 'film_study' },
+		{ text: 'Recovery (HP up)', key: 'recovery' },
+		{ text: `${socialLabel} (POP/CONF up, DISC down)`, key: 'social' },
+		{ text: 'Teamwork (LEAD/DISC up)', key: 'teamwork' },
 	];
 
 	ctx.showChoices(focusOptions.map(opt => ({
@@ -121,7 +133,7 @@ function showFocusChoices(player: Player, ctx: CareerContext): void {
 }
 
 //============================================
-// Phase 2: Apply focus, show activities prompt
+// Phase 2: Apply focus, show stat changes briefly, then activity prompt
 function handleFocusSelected(
 	player: Player, ctx: CareerContext, focus: WeeklyFocus,
 ): void {
@@ -131,33 +143,49 @@ function handleFocusSelected(
 	ctx.updateStats(player);
 	ctx.save();
 
-	if (!activeSeason) {
+	if (!activeEngine) {
 		return;
 	}
-	activeSeason.weekState.phase = 'activity_prompt';
 
-	// Show activities prompt
-	ctx.addText('You have some free time this week.');
-	ctx.showChoices([
-		{
-			text: 'Activities',
-			primary: false,
-			action: () => {
-				showActivities(player, ctx);
-				switchTab('activities');
-			},
-		},
-		{
+	// Clear buttons during the stat review pause
+	ctx.showChoices([]);
+
+	// Brief pause to show stat changes, then present activity choices
+	setTimeout(() => {
+		if (!activeEngine) {
+			return;
+		}
+		activeEngine.weekState.phase = 'activity_prompt';
+
+		ctx.addText('Pick an activity or skip to game day.');
+
+		// Build activity buttons inline
+		const activities = getActivitiesForPhase(player.phase, player);
+		const activityChoices = activities
+			.filter(a => isActivityUnlocked(a, player))
+			.map(a => {
+				const preview = getEffectPreview(a);
+				return {
+					text: `${a.name} (${preview})`,
+					primary: false,
+					action: () => handleActivitySelected(player, ctx, a),
+				};
+			});
+
+		// Add skip button at the end
+		activityChoices.push({
 			text: 'Skip to Game Day',
 			primary: true,
 			action: () => {
-				if (activeSeason) {
-					activeSeason.weekState.phase = 'activity_done';
+				if (activeEngine) {
+					activeEngine.weekState.phase = 'activity_done';
 				}
 				proceedToEventCheck(player, ctx);
 			},
-		},
-	]);
+		});
+
+		ctx.showChoices(activityChoices);
+	}, 1000);
 }
 
 //============================================
@@ -167,7 +195,7 @@ function showActivities(player: Player, ctx: CareerContext): void {
 
 	ui.renderActivitiesTab(
 		activities,
-		activeSeason ? activeSeason.weekState : createWeekState(),
+		activeEngine ? activeEngine.weekState : createWeekState(),
 		(activity: Activity) => isActivityUnlocked(activity, player),
 		(activity: Activity) => getEffectPreview(activity),
 		(activity: Activity) => handleActivitySelected(player, ctx, activity),
@@ -181,9 +209,9 @@ function handleActivitySelected(
 ): void {
 	const result = applyActivity(activity, player);
 
-	if (activeSeason) {
-		activeSeason.weekState.actionsUsed += 1;
-		activeSeason.weekState.phase = 'activity_done';
+	if (activeEngine) {
+		activeEngine.weekState.actionsUsed += 1;
+		activeEngine.weekState.phase = 'activity_done';
 	}
 
 	ctx.updateStats(player);
@@ -202,12 +230,12 @@ function handleActivitySelected(
 //============================================
 // Phase 3: Random event check
 function proceedToEventCheck(player: Player, ctx: CareerContext): void {
-	if (!activeSeason) {
+	if (!activeEngine) {
 		return;
 	}
-	activeSeason.weekState.phase = 'event';
+	activeEngine.weekState.phase = 'event';
 
-	const eventChance = activeSeason.config.eventChance;
+	const eventChance = activeEngine.config.eventChance;
 	const eventRoll = randomInRange(1, 100);
 
 	if (eventRoll <= eventChance && ctx.events.length > 0) {
@@ -281,48 +309,63 @@ function showEventCard(
 //============================================
 // Phase 4: Game simulation
 function proceedToGame(player: Player, ctx: CareerContext): void {
-	if (!activeSeason) {
+	if (!activeEngine) {
 		return;
 	}
-	activeSeason.weekState.phase = 'game';
+	activeEngine.weekState.phase = 'game';
 
-	const weekIdx = player.currentWeek - 1;
-	const entry = activeSeason.schedule[weekIdx];
-	if (!entry) {
-		// No game scheduled, advance to next week
+	// Get the player's game from the season schedule
+	const playerGame = activeEngine.season.getPlayerGame();
+	if (!playerGame) {
+		// No game scheduled this week, advance directly
 		advanceToNextWeek(player, ctx);
 		return;
 	}
 
-	// Build a minimal Team object for simulation
+	// Get opponent strength from the season
+	const opponentStrength = getPlayerOpponentStrength(activeEngine.season);
+	const opponentName = getPlayerOpponentName(activeEngine.season);
+
+	// Build a minimal Team object for the simulation function
+	const playerRecord = activeEngine.season.getPlayerRecord();
 	const team: Team = {
 		teamName: player.teamName,
 		strength: player.teamStrength,
-		wins: activeSeason.wins,
-		losses: activeSeason.losses,
-		schedule: activeSeason.schedule,
+		wins: playerRecord.wins,
+		losses: playerRecord.losses,
+		schedule: [],
 		coachPersonality: 'supportive',
 	};
 
 	// Simulate the game
-	const gameResult = simulateGame(
-		player, team, entry.opponentStrength,
-	);
+	const gameResult = simulateGame(player, team, opponentStrength);
 
-	// Update schedule entry
-	entry.played = true;
-	entry.teamScore = gameResult.teamScore;
-	entry.opponentScore = gameResult.opponentScore;
+	// Record the result into the season (atomic: updates both teams)
+	recordPlayerGameResult(activeEngine.season, gameResult);
 
-	// Update season record
-	if (gameResult.result === 'win') {
-		activeSeason.wins += 1;
-	} else {
-		activeSeason.losses += 1;
-	}
+	// Simulate all other games for this week
+	simulateNonPlayerGames(activeEngine.season);
 
 	// Accumulate stats
 	accumulateGameStats(player.seasonStats, gameResult.playerStatLine);
+
+	// Game outcome affects player stats
+	if (gameResult.result === 'win') {
+		modifyStat(player, 'confidence', randomInRange(1, 3));
+	} else {
+		// Losses hurt confidence, especially blowouts
+		const margin = gameResult.opponentScore - gameResult.teamScore;
+		if (margin >= 14) {
+			modifyStat(player, 'confidence', -randomInRange(3, 6));
+		} else {
+			modifyStat(player, 'confidence', -randomInRange(1, 3));
+		}
+	}
+
+	// Game-day wear: small health cost for starters only
+	if (player.depthChart === 'starter') {
+		modifyStat(player, 'health', -randomInRange(0, 2));
+	}
 
 	// Evaluate depth chart
 	const depthUpdate = evaluateDepthChartUpdate(player, gameResult.playerGrade);
@@ -333,7 +376,7 @@ function proceedToGame(player: Player, ctx: CareerContext): void {
 	// Show game story
 	ctx.addHeadline(
 		`${player.teamName} ${gameResult.teamScore} - `
-		+ `${entry.opponentName} ${gameResult.opponentScore}`
+		+ `${opponentName} ${gameResult.opponentScore}`
 	);
 	ctx.addText(gameResult.storyText);
 	if (depthUpdate.changed) {
@@ -350,10 +393,28 @@ function proceedToGame(player: Player, ctx: CareerContext): void {
 	ctx.updateHeader(player);
 	ctx.save();
 
+	// Check for milestones after game results
+	const recordForMilestones = activeEngine.season.getPlayerRecord();
+	const milestones = checkMilestones(player, recordForMilestones.wins, recordForMilestones.losses);
+	for (const milestone of milestones) {
+		ctx.addHeadline(milestone.headline);
+		ctx.addText(milestone.text);
+	}
+
+	// Dev-mode invariant: verify sync after game recording
+	const record = activeEngine.season.getPlayerRecord();
+	const gamesPlayed = record.wins + record.losses + record.ties;
+	const weekNum = activeEngine.season.getCurrentWeek();
+	console.assert(
+		gamesPlayed <= weekNum,
+		`Sync check: games played (${gamesPlayed}) should not exceed week (${weekNum})`
+	);
+
 	// Show "Next Week" button - this is the ONLY path forward
+	const isLastWeek = activeEngine.season.getCurrentWeek()
+		>= activeEngine.config.seasonLength;
 	ctx.showChoices([{
-		text: player.currentWeek >= activeSeason.config.seasonLength
-			? 'End of Season' : 'Next Week',
+		text: isLastWeek ? 'End of Season' : 'Next Week',
 		primary: true,
 		action: () => advanceToNextWeek(player, ctx),
 	}]);
@@ -362,15 +423,177 @@ function proceedToGame(player: Player, ctx: CareerContext): void {
 //============================================
 // End the season
 function endSeason(player: Player, ctx: CareerContext): void {
-	if (!activeSeason) {
+	if (!activeEngine) {
 		return;
 	}
 
+	// Read final record from the season (single source of truth)
+	const record = activeEngine.season.getPlayerRecord();
+
 	ctx.clearStory();
-	ctx.addHeadline('Season Complete');
-	ctx.addText(
-		`Final record: ${activeSeason.wins}-${activeSeason.losses}`
-	);
+	ctx.addHeadline('Regular Season Complete');
+	ctx.addText(`Final record: ${record.wins}-${record.losses}`);
+
+	// Check if playoffs should happen
+	if (activeEngine.config.hasPlayoffs) {
+		const standings = activeEngine.season.getStandings();
+		const playerTeamId = activeEngine.season.playerTeamId;
+
+		// Find player's rank in standings
+		const playerRank = standings.findIndex(row => row.teamId === playerTeamId);
+
+		// Top 4 make playoffs (HS/college bracket size)
+		if (playerRank >= 0 && playerRank < 4) {
+			// Build playoff seeds from top 4 standings
+			const seeds: PlayoffSeed[] = standings.slice(0, 4).map((row, i) => ({
+				teamId: row.teamId,
+				seed: i + 1,
+				wins: row.wins,
+				losses: row.losses,
+			}));
+
+			const bracket = createHSPlayoffBracket(seeds, playerTeamId);
+			ctx.addText('Your team made the playoffs!');
+			startPlayoffs(player, ctx, bracket);
+			return;
+		}
+
+		// Didn't make playoffs
+		ctx.addText('Your team did not qualify for the playoffs.');
+	}
+
+	// No playoffs or didn't qualify: finalize season
+	finalizeSeason(player, ctx);
+}
+
+//============================================
+// Run playoff bracket: show matchup, simulate game, advance
+function startPlayoffs(
+	player: Player, ctx: CareerContext, bracket: PlayoffBracket,
+): void {
+	if (!activeEngine) {
+		return;
+	}
+
+	const round = bracket.getCurrentRound();
+	if (!round) {
+		// Playoffs complete
+		const champion = bracket.getChampion();
+		const playerTeamId = activeEngine.season.playerTeamId;
+		if (champion === playerTeamId) {
+			ctx.addHeadline('CHAMPIONS!');
+			ctx.addText(`${player.teamName} wins the championship!`);
+			player.careerHistory.length > 0 &&
+				player.careerHistory[player.careerHistory.length - 1]?.awards?.push('Champion');
+		} else {
+			ctx.addText('Your playoff run is over.');
+		}
+		finalizeSeason(player, ctx);
+		return;
+	}
+
+	ctx.addHeadline(round.roundName);
+
+	const playerGame = bracket.getPlayerMatchup();
+	if (!playerGame) {
+		// Player was eliminated or has a bye -- simulate other games and advance
+		simulateNonPlayerPlayoffGames(bracket);
+		bracket.advanceRound();
+		startPlayoffs(player, ctx, bracket);
+		return;
+	}
+
+	// Show the matchup
+	const opponentId = playerGame.getOpponentId(bracket.playerTeamId);
+	const opponent = opponentId ? activeEngine.season.getTeam(opponentId) : undefined;
+	const opponentName = opponent ? opponent.getDisplayName() : 'Unknown';
+	ctx.addText(`Playoff matchup: ${player.teamName} vs ${opponentName}`);
+
+	ctx.showChoices([{
+		text: 'Play Game',
+		primary: true,
+		action: () => {
+			if (!activeEngine) {
+				return;
+			}
+			// Simulate the player's playoff game
+			const opponentStrength = opponent ? opponent.strength : 50;
+			const team = {
+				teamName: player.teamName,
+				strength: player.teamStrength,
+				wins: 0,
+				losses: 0,
+				schedule: [],
+				coachPersonality: 'supportive' as const,
+			};
+
+			const gameResult = simulateGame(player, team, opponentStrength, true);
+
+			// Record result
+			if (playerGame.homeTeamId === bracket.playerTeamId) {
+				bracket.recordResult(playerGame.id, gameResult.teamScore, gameResult.opponentScore);
+			} else {
+				bracket.recordResult(playerGame.id, gameResult.opponentScore, gameResult.teamScore);
+			}
+
+			// Accumulate stats
+			accumulateGameStats(player.seasonStats, gameResult.playerStatLine);
+
+			// Show result
+			ctx.addHeadline(
+				`${player.teamName} ${gameResult.teamScore} - ${opponentName} ${gameResult.opponentScore}`
+			);
+			ctx.addText(gameResult.storyText);
+
+			// Simulate other playoff games this round
+			simulateNonPlayerPlayoffGames(bracket);
+
+			// Check if eliminated
+			if (bracket.isEliminated(bracket.playerTeamId)) {
+				ctx.addText('Season over. Eliminated from the playoffs.');
+				finalizeSeason(player, ctx);
+				return;
+			}
+
+			// Advance to next round
+			bracket.advanceRound();
+
+			ctx.showChoices([{
+				text: 'Next Round',
+				primary: true,
+				action: () => startPlayoffs(player, ctx, bracket),
+			}]);
+		},
+	}]);
+}
+
+//============================================
+// Simulate non-player playoff games in the current round
+function simulateNonPlayerPlayoffGames(bracket: PlayoffBracket): void {
+	const round = bracket.getCurrentRound();
+	if (!round) {
+		return;
+	}
+	for (const game of round.games) {
+		if (game.status === 'final') {
+			continue;
+		}
+		if (game.involvesTeam(bracket.playerTeamId)) {
+			continue;
+		}
+		// Use default strengths for non-player teams
+		bracket.simulatePlayoffGame(game, 60, 55);
+	}
+}
+
+//============================================
+// Finalize the season: save to career history and call handler callback
+function finalizeSeason(player: Player, ctx: CareerContext): void {
+	if (!activeEngine) {
+		return;
+	}
+
+	const record = activeEngine.season.getPlayerRecord();
 
 	// Save season to career history
 	player.careerHistory.push({
@@ -379,8 +602,8 @@ function endSeason(player: Player, ctx: CareerContext): void {
 		age: player.age,
 		team: player.teamName,
 		position: player.position,
-		wins: activeSeason.wins,
-		losses: activeSeason.losses,
+		wins: record.wins,
+		losses: record.losses,
 		depthChart: player.depthChart,
 		highlights: [],
 		awards: [],
@@ -390,21 +613,21 @@ function endSeason(player: Player, ctx: CareerContext): void {
 	ctx.save();
 
 	// Call the handler's season-end callback
-	const callback = activeSeason.onSeasonEnd;
-	activeSeason = null;
+	const callback = activeEngine.onSeasonEnd;
+	activeEngine = null;
 	callback();
 }
 
 //============================================
 // Refresh activities tab (called by tab switch handler)
 export function refreshActivitiesForCurrentSeason(player: Player): void {
-	if (!activeSeason) {
+	if (!activeEngine) {
 		return;
 	}
 	const activities = getActivitiesForPhase(player.phase, player);
 	ui.renderActivitiesTab(
 		activities,
-		activeSeason.weekState,
+		activeEngine.weekState,
 		(activity: Activity) => isActivityUnlocked(activity, player),
 		(activity: Activity) => getEffectPreview(activity),
 		// Activity selection during tab browse is a no-op if no active season
@@ -415,14 +638,24 @@ export function refreshActivitiesForCurrentSeason(player: Player): void {
 //============================================
 // Check if a season is currently active
 export function isSeasonActive(): boolean {
-	return activeSeason !== null;
+	return activeEngine !== null;
 }
 
 //============================================
-// Get current season state (for UI display)
+// Get current season record (for UI display)
 export function getSeasonRecord(): { wins: number; losses: number } | null {
-	if (!activeSeason) {
+	if (!activeEngine) {
 		return null;
 	}
-	return { wins: activeSeason.wins, losses: activeSeason.losses };
+	const record = activeEngine.season.getPlayerRecord();
+	return { wins: record.wins, losses: record.losses };
+}
+
+//============================================
+// Get the active LeagueSeason (for tab switch standings display)
+export function getActiveSeason(): LeagueSeason | null {
+	if (!activeEngine) {
+		return null;
+	}
+	return activeEngine.season;
 }

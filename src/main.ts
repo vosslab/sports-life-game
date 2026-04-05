@@ -81,7 +81,7 @@ import { startNFLCareer as startNFLCareerPhase, getNFLTeam, getNFLConference, re
 import { registerAllHandlers } from './core/register_handlers.js';
 import { advanceToNextYear, startYear } from './core/year_runner.js';
 import type { CareerContext } from './core/year_handler.js';
-import { getSeasonRecord } from './weekly/weekly_engine.js';
+import { getSeasonRecord, getActiveSeason } from './weekly/weekly_engine.js';
 
 //============================================
 // GLOBALS AND STATE
@@ -239,33 +239,22 @@ function handleTabSwitch(tabId: TabId): void {
 	// Update stat bars whenever any tab is opened (keeps bars current)
 	ui.updateAllStats(currentPlayer);
 
-	// Try new weekly engine season record first
+	// Get season data from the new season layer (single source of truth)
+	const activeSeason = getActiveSeason();
 	const newSeasonRecord = getSeasonRecord();
-	const activeTeam = currentPlayer.phase === 'nfl'
-		? getNFLTeam()
-		: currentPlayer.phase === 'college'
-			? getCollegeTeam()
-			: currentPlayer.phase === 'high_school'
-				? getHSTeam()
-				: currentTeam;
 	let lifeRecord = 'No team record yet.';
 	let lifeNextOpponent = 'No upcoming opponent.';
-	if (newSeasonRecord) {
-		// Use new weekly engine data
+	if (activeSeason && newSeasonRecord) {
 		lifeRecord = `Record: ${newSeasonRecord.wins}-${newSeasonRecord.losses}`;
-		lifeNextOpponent = `Week ${currentPlayer.currentWeek}`;
-	} else if (
-		activeTeam &&
-		(currentPlayer.phase === 'high_school'
-			|| currentPlayer.phase === 'college'
-			|| currentPlayer.phase === 'nfl')
-	) {
-		lifeRecord = `Record: ${activeTeam.wins}-${activeTeam.losses}`;
-		const nextGame = activeTeam.schedule.find((entry) => !entry.played);
-		if (nextGame) {
-			lifeNextOpponent = `Next: Week ${nextGame.week} vs ${nextGame.opponentName}`;
+		// Show current week opponent
+		const playerGame = activeSeason.getPlayerGame();
+		if (playerGame) {
+			const oppId = playerGame.getOpponentId(activeSeason.playerTeamId);
+			const opp = oppId ? activeSeason.getTeam(oppId) : undefined;
+			const oppName = opp ? opp.getDisplayName() : 'TBD';
+			lifeNextOpponent = `Week ${activeSeason.getCurrentWeek()} vs ${oppName}`;
 		} else {
-			lifeNextOpponent = 'Next: Season complete';
+			lifeNextOpponent = `Week ${activeSeason.getCurrentWeek()}`;
 		}
 	}
 	ui.updateLifeStatus(lifeRecord, lifeNextOpponent);
@@ -273,34 +262,68 @@ function handleTabSwitch(tabId: TabId): void {
 	if (tabId === 'stats') {
 		ui.updateStatsTab(currentPlayer);
 	} else if (tabId === 'team') {
-		// Build team tab content from current game state
+		// Build team tab content from season layer (single source of truth)
 		const teamName = currentPlayer.teamName || 'No Team';
-		const history = currentPlayer.careerHistory;
+
+		// Get record from season or career history
 		let record = '0-0';
-		if (history.length > 0) {
-			const latest = history[history.length - 1];
+		if (activeSeason) {
+			const seasonRecord = activeSeason.getPlayerRecord();
+			record = `${seasonRecord.wins}-${seasonRecord.losses}`;
+		} else if (currentPlayer.careerHistory.length > 0) {
+			const latest = currentPlayer.careerHistory[currentPlayer.careerHistory.length - 1];
 			record = `${latest.wins}-${latest.losses}`;
 		}
 
-		// Get standings text from the active conference
+		// Get standings from the season layer
+		// For NFL, show only the player's conference (AFC or NFC)
 		let standingsText = '';
-		const nflConf = getNFLConference();
-		const hsConf = getHSConference();
-		const collegeConf = getCollegeConference();
-		if (nflConf && currentPlayer.phase === 'nfl') {
-			standingsText = formatStandings(nflConf, currentPlayer.teamName);
-		} else if (hsConf && currentPlayer.phase === 'high_school') {
-			standingsText = formatStandings(hsConf, currentPlayer.teamName);
-		} else if (collegeConf && currentPlayer.phase === 'college') {
-			standingsText = formatStandings(collegeConf, currentPlayer.teamName);
+		if (activeSeason) {
+			const playerTeam = activeSeason.getPlayerTeam();
+			const confId = playerTeam ? playerTeam.conferenceId : undefined;
+			// Filter by conference in NFL (shows 16 teams instead of 32)
+			const useConference = currentPlayer.phase === 'nfl' && confId;
+			const standings = useConference
+				? activeSeason.getStandings(confId)
+				: activeSeason.getStandings();
+			// Header shows conference name if filtered
+			const confLabel = useConference ? `${confId} Standings` : 'Standings';
+			standingsText += `${confLabel}:\n`;
+			for (let i = 0; i < standings.length; i++) {
+				const row = standings[i];
+				const rank = (i + 1).toString().padStart(2, ' ');
+				const recordStr = `${row.wins}-${row.losses}`;
+				const isPlayer = row.teamId === activeSeason.playerTeamId;
+				const prefix = isPlayer ? '>>> ' : '  ';
+				standingsText += `${prefix}${rank}. ${row.name.padEnd(25)} ${recordStr}\n`;
+			}
 		}
 
-		// Get schedule from the appropriate team for current phase
-		const schedule = activeTeam ? activeTeam.schedule : [];
-		const week = currentPlayer.currentWeek;
+		// Get schedule from the season layer
+		let schedule: import('./team.js').ScheduleEntry[] = [];
+		let week = currentPlayer.currentWeek;
+		if (activeSeason) {
+			// Convert season schedule to legacy ScheduleEntry format for UI compatibility
+			const seasonSchedule = activeSeason.getScheduleDisplay(activeSeason.playerTeamId);
+			schedule = seasonSchedule.map(row => ({
+				opponentName: row.opponentName,
+				opponentStrength: 0,
+				week: row.week,
+				played: row.played,
+				teamScore: row.teamScore || 0,
+				opponentScore: row.opponentScore || 0,
+			}));
+			week = activeSeason.getCurrentWeek();
+		}
 
-		// Coach personality from team
-		const coachInfo = activeTeam ? `Coach (${activeTeam.coachPersonality})` : '';
+		// Coach info from season team
+		let coachInfo = '';
+		if (activeSeason) {
+			const playerTeam = activeSeason.getPlayerTeam();
+			if (playerTeam) {
+				coachInfo = `Coach (${playerTeam.coachPersonality})`;
+			}
+		}
 
 		ui.updateTeamTab(teamName, record, standingsText, schedule, week, coachInfo);
 	} else if (tabId === 'activities') {
@@ -1517,4 +1540,13 @@ function retirePlayer(): void {
 //============================================
 
 // Start the game when DOM is ready
-document.addEventListener('DOMContentLoaded', initGame);
+document.addEventListener('DOMContentLoaded', () => {
+	initGame().catch((error) => {
+		console.error('Game initialization failed:', error);
+		// Show a fallback button so the user is not stuck on a blank screen
+		const panel = document.getElementById('choices-panel');
+		if (panel) {
+			panel.innerHTML = '<p style="color:red;">Error loading game. Check console.</p>';
+		}
+	});
+});

@@ -4,11 +4,13 @@
 // Coach assigns position based on size + athleticism.
 // Short season: 6 games. Simplified weekly loop.
 // No depth chart yet (everyone plays).
+// 1 life event per year alongside football setup.
 
 import { Player } from '../player.js';
 import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift, coachAssignPosition } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
+import { filterEvents, selectEvent, applyEventChoice, GameEvent } from '../events.js';
 
 //============================================
 export const peeweeHandler: YearHandler = {
@@ -28,18 +30,35 @@ export const peeweeHandler: YearHandler = {
 		}
 
 		ctx.updateHeader(player);
-		ctx.addHeadline(`Age ${player.age} - Peewee Football`);
+
+		const gradeLabel = player.age === 8 ? '3rd grade' : player.age === 9 ? '4th grade' : '5th grade';
+		ctx.addHeadline(`Age ${player.age} - Peewee Football (${gradeLabel})`);
 		ctx.addText(`${player.firstName} plays for the ${player.teamName}.`);
 		if (player.position) {
 			ctx.addText(`Coach has you playing ${player.position}.`);
 		}
 
-		// TODO: implement 6-game simplified season
-		ctx.showChoices([{
-			text: 'Continue',
-			primary: true,
-			action: () => advanceToNextYear(player, ctx),
-		}]);
+		// Show a youth event before the season button
+		const statsRecord: Record<string, number> = {
+			athleticism: player.core.athleticism,
+			technique: player.core.technique,
+			footballIq: player.core.footballIq,
+			discipline: player.core.discipline,
+			health: player.core.health,
+			confidence: player.core.confidence,
+		};
+
+		const eligible = filterEvents(
+			ctx.events, 'youth', 0, player.position,
+			player.storyFlags, statsRecord,
+		);
+
+		const event = selectEvent(eligible);
+		if (event) {
+			presentEventThenContinue(player, ctx, event);
+		} else {
+			showContinue(player, ctx);
+		}
 	},
 
 	getSeasonConfig(): SeasonConfig {
@@ -54,6 +73,39 @@ export const peeweeHandler: YearHandler = {
 		};
 	},
 };
+
+//============================================
+// Present one event, then show Continue
+function presentEventThenContinue(
+	player: Player, ctx: CareerContext, event: GameEvent,
+): void {
+	ctx.addHeadline(event.title);
+	ctx.addText(event.description);
+
+	const choiceButtons = event.choices.map(choice => ({
+		text: choice.text,
+		primary: false,
+		action: () => {
+			const flavor = applyEventChoice(player, choice);
+			ctx.addResult(flavor);
+			ctx.updateStats(player);
+			ctx.save();
+			showContinue(player, ctx);
+		},
+	}));
+
+	ctx.showChoices(choiceButtons);
+}
+
+//============================================
+// Show the continue button
+function showContinue(player: Player, ctx: CareerContext): void {
+	ctx.showChoices([{
+		text: 'Continue to Next Year',
+		primary: true,
+		action: () => advanceToNextYear(player, ctx),
+	}]);
+}
 
 //============================================
 // Generate a town name and mascot from curated lists

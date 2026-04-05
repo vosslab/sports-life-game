@@ -4,13 +4,14 @@
 // Depth chart resets (likely backup on varsity).
 // Recruiting stars actively tracked. College offers at end of senior year.
 
-import { Player } from '../player.js';
+import { Player, randomInRange } from '../player.js';
 import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
-import { generateHighSchoolTeam } from '../team.js';
+import { buildHighSchoolSeason } from './hs_season_builder.js';
 import { updateRecruitingStars } from '../recruiting.js';
+import { assignPlayerCollege, formatSchoolName, NCAASchool } from '../ncaa.js';
 
 //============================================
 // Season config for varsity
@@ -43,9 +44,10 @@ export const hsVarsityHandler: YearHandler = {
 		// Same team identity as frosh/soph
 		player.teamName = `${player.hsName} ${player.hsMascot}`;
 
-		// Generate new season schedule
-		const team = generateHighSchoolTeam(player.teamName);
-		player.teamStrength = team.strength;
+		// Build new season using the season layer
+		// Player team drawn from the same pool as opponents (35-90)
+		const playerStrength = randomInRange(35, 90);
+		player.teamStrength = playerStrength;
 
 		// Update recruiting stars
 		updateRecruitingStars(player);
@@ -58,13 +60,16 @@ export const hsVarsityHandler: YearHandler = {
 		ctx.addText(`Playing ${player.position || 'TBD'} as a ${player.depthChart}.`);
 		ctx.addText(`Recruiting: ${player.recruitingStars} stars`);
 
+		// Build the season
+		const season = buildHighSchoolSeason(player.hsName, player.hsMascot, playerStrength);
+
 		// Start the season via the weekly engine
 		ctx.showChoices([{
 			text: 'Start Season',
 			primary: true,
 			action: () => {
 				startSeason(
-					player, ctx, SEASON_CONFIG, team.schedule,
+					player, ctx, SEASON_CONFIG, season,
 					() => handleSeasonEnd(player, ctx),
 				);
 			},
@@ -83,17 +88,52 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	updateRecruitingStars(player);
 
 	if (player.age === 17) {
-		// Senior year: show college offers
+		// Senior year: generate and show real college offers
 		ctx.addHeadline('Senior Season Complete');
 		ctx.addText(`Recruiting: ${player.recruitingStars} stars`);
-		ctx.addText('College scouts have been watching. Offers are coming in...');
+		ctx.addText('College scouts have been watching. The offers are in.');
 
-		// TODO: wire into college offer system (college_offers.ts)
-		ctx.showChoices([{
-			text: 'View College Offers',
-			primary: true,
-			action: () => advanceToNextYear(player, ctx),
-		}]);
+		// Generate 3 college offers based on recruiting stars
+		const allSchools = [...ctx.ncaaSchools.fbs, ...ctx.ncaaSchools.fcs];
+		const offers: NCAASchool[] = [];
+		const usedNames = new Set<string>();
+		// Retry up to 10 times to get 3 distinct schools
+		let attempts = 0;
+		while (offers.length < 3 && allSchools.length > 0 && attempts < 10) {
+			const school = assignPlayerCollege(player.recruitingStars, allSchools);
+			if (!usedNames.has(school.commonName)) {
+				offers.push(school);
+				usedNames.add(school.commonName);
+			}
+			attempts += 1;
+		}
+
+		if (offers.length === 0) {
+			// Fallback: pick any school
+			ctx.addText('Only one school offered. Take it or leave it.');
+			const fallback = allSchools[randomInRange(0, allSchools.length - 1)];
+			offers.push(fallback);
+		}
+
+		// Build choice buttons for each offer
+		const offerChoices = offers.map(school => {
+			const displayName = formatSchoolName(school);
+			const tierLabel = school.subdivision === 'FBS' ? 'FBS' : 'FCS';
+			return {
+				text: `${displayName} (${tierLabel})`,
+				primary: false,
+				action: () => {
+					player.teamName = displayName;
+					player.phase = 'college';
+					ctx.addResult(`${player.firstName} commits to ${displayName}!`);
+					ctx.updateStats(player);
+					ctx.save();
+					advanceToNextYear(player, ctx);
+				},
+			};
+		});
+
+		ctx.showChoices(offerChoices);
 	} else {
 		// Junior year: continue
 		ctx.addText('Junior season is over.');

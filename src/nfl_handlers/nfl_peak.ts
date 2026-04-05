@@ -3,12 +3,12 @@
 // Highest stat potential. Big contract money.
 // Pro Bowl / All-Pro most likely here. Subtle decline near 31.
 
-import { Player } from '../player.js';
+import { Player, modifyStat, clampStat } from '../player.js';
 import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
-import { generateHighSchoolTeam } from '../team.js';
+import { buildNFLSeason } from './nfl_season_builder.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -30,19 +30,24 @@ export const nflPeakHandler: YearHandler = {
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
 		player.nflYear += 1;
-		ctx.updateHeader(player);
 
+		// Build season first so team name is synced before displaying intro text
+		const season = buildNFLSeason(player.teamName);
+		const playerTeam = season.getPlayerTeam();
+		if (playerTeam) {
+			player.teamName = playerTeam.getDisplayName();
+			player.teamStrength = playerTeam.strength;
+		}
+
+		ctx.updateHeader(player);
 		ctx.addHeadline(`Age ${player.age} - NFL Season ${player.nflYear}`);
 		ctx.addText(`${player.firstName} is in prime form with the ${player.teamName}.`);
-
-		const team = generateHighSchoolTeam(player.teamName);
-		player.teamStrength = team.strength;
 
 		ctx.showChoices([{
 			text: 'Start Season',
 			primary: true,
 			action: () => {
-				startSeason(player, ctx, SEASON_CONFIG, team.schedule,
+				startSeason(player, ctx, SEASON_CONFIG, season,
 					() => handleSeasonEnd(player, ctx),
 				);
 			},
@@ -56,14 +61,46 @@ export const nflPeakHandler: YearHandler = {
 
 //============================================
 function handleSeasonEnd(player: Player, ctx: CareerContext): void {
-	// Peak salary
 	const salary = player.depthChart === 'starter' ? 12000000 : 3000000;
 	player.career.money += salary;
 	ctx.addText(`Earned $${(salary / 1000000).toFixed(1)}M this season.`);
 
-	ctx.showChoices([{
-		text: 'Continue to Next Year',
-		primary: true,
-		action: () => advanceToNextYear(player, ctx),
-	}]);
+	ctx.addHeadline('Peak Years - Major Decision');
+	ctx.showChoices([
+		{
+			text: 'Chase a ring - recruit free agents to your team',
+			primary: false,
+			action: () => {
+				player.hidden.leadership = clampStat(player.hidden.leadership + 3);
+				modifyStat(player, 'confidence', 2);
+				ctx.addText(`${player.firstName} uses star power to recruit elite teammates.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+		{
+			text: 'Sign a massive endorsement deal',
+			primary: true,
+			action: () => {
+				player.career.money += 5000000;
+				player.career.popularity = clampStat(player.career.popularity + 5);
+				modifyStat(player, 'discipline', -2);
+				ctx.addText(`${player.firstName} signs a $5M endorsement deal and becomes a household name.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+		{
+			text: 'Give back - start a foundation',
+			primary: false,
+			action: () => {
+				player.hidden.leadership = clampStat(player.hidden.leadership + 4);
+				player.career.popularity = clampStat(player.career.popularity + 3);
+				modifyStat(player, 'confidence', 2);
+				ctx.addText(`${player.firstName} establishes a charitable foundation in the community.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+	]);
 }

@@ -3,12 +3,12 @@
 // Stats still improving. Contract negotiation events.
 // Pro Bowl / All-Pro tracking. Trade request option.
 
-import { Player } from '../player.js';
+import { Player, modifyStat, clampStat } from '../player.js';
 import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
-import { generateHighSchoolTeam } from '../team.js';
+import { buildNFLSeason } from './nfl_season_builder.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -30,19 +30,24 @@ export const nflEarlyHandler: YearHandler = {
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
 		player.nflYear += 1;
-		ctx.updateHeader(player);
 
+		// Build season first so team name is synced before displaying intro text
+		const season = buildNFLSeason(player.teamName);
+		const playerTeam = season.getPlayerTeam();
+		if (playerTeam) {
+			player.teamName = playerTeam.getDisplayName();
+			player.teamStrength = playerTeam.strength;
+		}
+
+		ctx.updateHeader(player);
 		ctx.addHeadline(`Age ${player.age} - NFL Season ${player.nflYear}`);
 		ctx.addText(`${player.firstName} is establishing a career with the ${player.teamName}.`);
-
-		const team = generateHighSchoolTeam(player.teamName);
-		player.teamStrength = team.strength;
 
 		ctx.showChoices([{
 			text: 'Start Season',
 			primary: true,
 			action: () => {
-				startSeason(player, ctx, SEASON_CONFIG, team.schedule,
+				startSeason(player, ctx, SEASON_CONFIG, season,
 					() => handleSeasonEnd(player, ctx),
 				);
 			},
@@ -56,14 +61,44 @@ export const nflEarlyHandler: YearHandler = {
 
 //============================================
 function handleSeasonEnd(player: Player, ctx: CareerContext): void {
-	// Salary based on depth chart
 	const salary = player.depthChart === 'starter' ? 5000000 : 1500000;
 	player.career.money += salary;
 	ctx.addText(`Earned $${(salary / 1000000).toFixed(1)}M this season.`);
 
-	ctx.showChoices([{
-		text: 'Continue to Next Year',
-		primary: true,
-		action: () => advanceToNextYear(player, ctx),
-	}]);
+	ctx.addHeadline('Offseason Priorities');
+	ctx.showChoices([
+		{
+			text: 'Push for a contract extension',
+			primary: false,
+			action: () => {
+				player.career.money += 2000000;
+				modifyStat(player, 'confidence', 2);
+				ctx.addText(`${player.firstName} negotiates a $2M offseason bonus extension.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+		{
+			text: 'Focus on becoming a team leader',
+			primary: true,
+			action: () => {
+				player.hidden.leadership = clampStat(player.hidden.leadership + 4);
+				modifyStat(player, 'discipline', 2);
+				ctx.addText(`${player.firstName} takes on a leadership role for the team.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+		{
+			text: 'Train at a position-specific camp',
+			primary: false,
+			action: () => {
+				modifyStat(player, 'technique', 3);
+				modifyStat(player, 'athleticism', 1);
+				ctx.addText(`${player.firstName} refines position-specific skills at elite camps.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+	]);
 }

@@ -696,6 +696,8 @@ const testPlayer: Player = {
 	nflDivision: '',
 	isRedshirt: false,
 	eligibilityYears: 4,
+	avatarConfig: null,
+	milestones: {},
 };
 
 const draftResult = getNFLDraftResult(testPlayer);

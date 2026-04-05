@@ -1,6 +1,7 @@
 // player.ts - player state: stats, age, position, injuries, career history
 
 import { TeamPalette } from './theme.js';
+import { AvatarConfig, randomAvatarConfig } from './avatar.js';
 
 //============================================
 // Core visible stats (0-100 scale)
@@ -247,6 +248,12 @@ export interface Player {
 
 	// Theme
 	teamPalette: TeamPalette | null;
+
+	// Portrait
+	avatarConfig: AvatarConfig | null;
+
+	// Milestones: tracks which milestone events have fired
+	milestones: Record<string, boolean>;
 }
 
 //============================================
@@ -357,6 +364,15 @@ export function createPlayer(firstName: string, lastName: string): Player {
 		useRealTeamNames: true,
 
 		teamPalette: null,
+
+		// Generate a deterministic portrait from the player name
+		avatarConfig: randomAvatarConfig(
+			`${firstName} ${lastName}`,
+			{ archetype: 'player', age: 0 },
+		),
+
+		// Initialize milestone tracking
+		milestones: {},
 	};
 
 	return player;

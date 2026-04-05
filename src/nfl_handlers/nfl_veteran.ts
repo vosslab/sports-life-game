@@ -3,12 +3,12 @@
 // Athleticism declining (-2 to -4/year). Health concern events.
 // Retirement check each offseason. Mentoring events.
 
-import { Player } from '../player.js';
+import { Player, modifyStat, clampStat } from '../player.js';
 import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
-import { generateHighSchoolTeam } from '../team.js';
+import { buildNFLSeason } from './nfl_season_builder.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -29,17 +29,22 @@ export const nflVeteranHandler: YearHandler = {
 
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
-		player.nflYear += 1;
-		ctx.updateHeader(player);
 
-		ctx.addHeadline(`Age ${player.age} - NFL Season ${player.nflYear}`);
+		// Build season first so team name is synced before displaying intro text
+		const season = buildNFLSeason(player.teamName);
+		const playerTeam = season.getPlayerTeam();
+		if (playerTeam) {
+			player.teamName = playerTeam.getDisplayName();
+			player.teamStrength = playerTeam.strength;
+		}
+
+		// Increment nflYear after retirement choice so retiring reports correct count
+		ctx.updateHeader(player);
+		ctx.addHeadline(`Age ${player.age} - NFL Season ${player.nflYear + 1}`);
 		ctx.addText(`${player.firstName} is a veteran presence with the ${player.teamName}.`);
 		if (player.core.athleticism < 40) {
 			ctx.addText('The body is starting to slow down.');
 		}
-
-		const team = generateHighSchoolTeam(player.teamName);
-		player.teamStrength = team.strength;
 
 		// Retirement option for veterans
 		ctx.showChoices([
@@ -47,7 +52,8 @@ export const nflVeteranHandler: YearHandler = {
 				text: 'Start Season',
 				primary: true,
 				action: () => {
-					startSeason(player, ctx, SEASON_CONFIG, team.schedule,
+					player.nflYear += 1;
+					startSeason(player, ctx, SEASON_CONFIG, season,
 						() => handleSeasonEnd(player, ctx),
 					);
 				},
@@ -76,9 +82,43 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	player.career.money += salary;
 	ctx.addText(`Earned $${(salary / 1000000).toFixed(1)}M this season.`);
 
-	ctx.showChoices([{
-		text: 'Continue to Next Year',
-		primary: true,
-		action: () => advanceToNextYear(player, ctx),
-	}]);
+	ctx.addHeadline('Veteran Wisdom');
+	ctx.showChoices([
+		{
+			text: 'Mentor the young guys',
+			primary: true,
+			action: () => {
+				player.hidden.leadership = clampStat(player.hidden.leadership + 5);
+				player.career.popularity = clampStat(player.career.popularity + 2);
+				modifyStat(player, 'athleticism', -1);
+				ctx.addText(`${player.firstName} becomes a mentor and leader in the locker room.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+		{
+			text: 'Switch to a contending team',
+			primary: false,
+			action: () => {
+				modifyStat(player, 'confidence', 3);
+				modifyStat(player, 'athleticism', 1);
+				player.career.popularity = clampStat(player.career.popularity - 2);
+				ctx.addText(`${player.firstName} makes one final move to chase a championship.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+		{
+			text: 'Restructure your contract to help the team',
+			primary: false,
+			action: () => {
+				player.hidden.leadership = clampStat(player.hidden.leadership + 3);
+				player.career.money -= 1000000;
+				modifyStat(player, 'discipline', 2);
+				ctx.addText(`${player.firstName} restructures to help the team, taking a $1M pay cut.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+	]);
 }

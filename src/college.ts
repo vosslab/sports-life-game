@@ -519,6 +519,8 @@ console.assert(
 		nflDivision: '',
 		isRedshirt: false,
 		eligibilityYears: 4,
+		avatarConfig: null,
+		milestones: {},
 	}) >= 50,
 	'Draft stock should be respectable for good player'
 );

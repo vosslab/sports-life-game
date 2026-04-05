@@ -39,49 +39,87 @@ export interface PracticeResult {
 }
 
 //============================================
-// Apply weekly focus to player stats
+// Apply weekly focus to player stats.
+// Each focus has a real trade-off: gaining one thing costs another.
+// Health decays every week from the grind of football (wear and tear).
 export function applyWeeklyFocus(player: Player, focus: WeeklyFocus): string {
 	let storyText = '';
 
-	switch (focus) {
-		case 'train':
-			// Train: +2-4 technique
-			const trainGain = randomInRange(2, 4);
-			modifyStat(player, 'technique', trainGain);
-			storyText = 'Your extra reps are paying off. Coaches are starting to trust you '
-				+ 'more.';
-			break;
+	// Weekly wear and tear: minor health cost from the grind
+	const wearAndTear = randomInRange(0, 2);
+	modifyStat(player, 'health', -wearAndTear);
 
-		case 'film_study':
-			// Film study: +2-3 footballIq
-			const filmGain = randomInRange(2, 3);
+	switch (focus) {
+		case 'train': {
+			// Train hard: technique gain, slight health cost
+			const trainGain = randomInRange(3, 6);
+			modifyStat(player, 'technique', trainGain);
+			modifyStat(player, 'health', -randomInRange(0, 1));
+			modifyStat(player, 'confidence', randomInRange(0, 1));
+			storyText = 'Your extra reps are paying off. Coaches are starting to trust you '
+				+ 'more. Your body is tired but your skills are sharper.';
+			break;
+		}
+
+		case 'film_study': {
+			// Study film: good IQ gain, slight technique from understanding
+			const filmGain = randomInRange(3, 5);
 			modifyStat(player, 'footballIq', filmGain);
+			modifyStat(player, 'technique', randomInRange(0, 1));
+			modifyStat(player, 'discipline', randomInRange(0, 1));
 			storyText = 'Studying film all week, you noticed patterns in the opponent offense. '
 				+ 'You feel smarter on the field.';
 			break;
+		}
 
-		case 'recovery':
-			// Recovery: +3-5 health
-			const recoveryGain = randomInRange(3, 5);
+		case 'recovery': {
+			// Recovery: big health recovery, undoes the wear and tear and then some
+			const recoveryGain = randomInRange(5, 8);
 			modifyStat(player, 'health', recoveryGain);
+			modifyStat(player, 'confidence', randomInRange(0, 1));
 			storyText = 'A full week of rest and ice baths. Your body feels like new. '
 				+ 'You are ready to dominate.';
 			break;
+		}
 
-		case 'social':
-			// Social: +2-4 popularity (career stat)
-			const socialGain = randomInRange(2, 4);
+		case 'social': {
+			// Social: popularity and confidence, but discipline drops
+			const socialGain = randomInRange(3, 5);
 			player.career.popularity = clampStat(player.career.popularity + socialGain);
-			storyText = 'You hung out with the team all week. Your teammates respect you now.';
+			modifyStat(player, 'confidence', randomInRange(2, 4));
+			modifyStat(player, 'discipline', -randomInRange(1, 3));
+			storyText = 'You hung out with the team all week. Your confidence is up '
+				+ 'but you skipped a few study sessions.';
 			break;
+		}
 
-		case 'teamwork':
-			// Teamwork: +2-3 leadership (hidden stat)
-			const leadershipGain = randomInRange(2, 3);
+		case 'teamwork': {
+			// Teamwork: leadership and discipline, slight confidence
+			const leadershipGain = randomInRange(3, 5);
 			player.hidden.leadership = clampStat(player.hidden.leadership + leadershipGain);
+			modifyStat(player, 'discipline', randomInRange(1, 2));
+			modifyStat(player, 'confidence', randomInRange(1, 2));
 			storyText = 'By focusing on team chemistry, your voice carries more weight in '
-				+ 'the locker room.';
+				+ 'the locker room. Teammates follow your lead.';
 			break;
+		}
+	}
+
+	// Random injury chance (4% per week, higher when health is low)
+	if (player.core.health < 30 && randomInRange(1, 100) <= 10) {
+		const injuryDamage = randomInRange(6, 12);
+		modifyStat(player, 'health', -injuryDamage);
+		modifyStat(player, 'confidence', -randomInRange(1, 3));
+		storyText += ' You tweaked something in practice. The trainers are keeping an eye on it.';
+	} else if (randomInRange(1, 100) <= 4) {
+		const injuryDamage = randomInRange(3, 7);
+		modifyStat(player, 'health', -injuryDamage);
+		storyText += ' Minor injury scare this week. You are playing through some pain.';
+	}
+
+	// Confidence drops when on the bench and health is low
+	if (player.depthChart === 'bench' && randomInRange(1, 100) <= 30) {
+		modifyStat(player, 'confidence', -randomInRange(1, 3));
 	}
 
 	return storyText;
@@ -423,14 +461,21 @@ export function simulateGame(
 	// Opponent score from opponent strength
 	// Playoff intensity gives opponents a boost
 	const effectiveOpponentStrength = playoffIntensity
-		? opponentStrength + randomInRange(10, 15)
+		? opponentStrength + randomInRange(5, 12)
 		: opponentStrength;
-	const opponentBaseScore = Math.floor((effectiveOpponentStrength / 100) * 28) + randomInRange(3, 17);
-	let opponentScore = opponentBaseScore + randomInRange(-5, 5);
+	const opponentBaseScore = Math.floor((effectiveOpponentStrength / 100) * 28) + randomInRange(3, 17) + randomInRange(0, 3);
 
-	// Determine winner using logistic curve
+	// Opponent star player contribution (mirrors the player's advantage)
+	const opponentStarBoost = randomInRange(1, 6);
+	// "Any given Sunday" upset factor: weaker teams sometimes punch above their weight
+	const upsetBonus = opponentStrength < team.strength
+		? randomInRange(0, 4)
+		: 0;
+	let opponentScore = opponentBaseScore + opponentStarBoost + upsetBonus + randomInRange(-5, 5);
+
+	// Determine winner using logistic curve (for overtime tiebreaker)
 	const teamDifferential = (team.strength + playerContribution) - effectiveOpponentStrength;
-	const winProbability = 1 / (1 + Math.exp(-0.08 * teamDifferential));
+	const winProbability = 1 / (1 + Math.exp(-0.07 * teamDifferential));
 
 	let result: 'win' | 'loss' | 'tie';
 	const regulationTieScore = teamScore;
@@ -564,12 +609,13 @@ function generateStatLineForPosition(
 }
 
 //============================================
-// Calculate player contribution to team score
+// Calculate player contribution to team score.
+// Kept modest: one player among 22 on the field.
 function calculatePlayerContribution(
 	depthChartStatus: string, performanceScore: number, bucket: PositionBucket | null,
 ): number {
-	// Base contribution from performance
-	let contribution = Math.floor((performanceScore - 50) * 0.3);
+	// Base contribution from performance (scaled down -- one player out of 22)
+	let contribution = Math.floor((performanceScore - 50) * 0.10);
 
 	// Depth chart multiplier
 	switch (depthChartStatus) {
@@ -813,16 +859,18 @@ export function evaluateDepthChartUpdate(
 	if (player.depthChart === 'backup') {
 		let promotionChance = 0;
 		if (playerGrade === 'A') {
-			promotionChance = 35;
+			promotionChance = 50;
 		} else if (playerGrade === 'B') {
-			promotionChance = 14;
+			promotionChance = 30;
+		} else if (playerGrade === 'C') {
+			promotionChance = 10;
 		}
 
 		if (player.core.technique >= 50) {
-			promotionChance += 8;
+			promotionChance += 10;
 		}
 		if (player.core.footballIq >= 50) {
-			promotionChance += 5;
+			promotionChance += 8;
 		}
 		if (player.core.confidence >= 50) {
 			promotionChance += 5;
@@ -834,6 +882,40 @@ export function evaluateDepthChartUpdate(
 				changed: true,
 				newStatus: 'starter',
 				message: 'Coach saw enough. You are moving up to the starting lineup next week.',
+			};
+		}
+	}
+
+	// Bench -> backup promotion path
+	if (player.depthChart === 'bench') {
+		let promotionChance = 0;
+		if (playerGrade === 'A') {
+			promotionChance = 45;
+		} else if (playerGrade === 'B') {
+			promotionChance = 30;
+		} else if (playerGrade === 'C') {
+			promotionChance = 15;
+		} else if (playerGrade === 'D') {
+			promotionChance = 5;
+		}
+
+		// Stat bonuses help bench players earn a look
+		if (player.core.technique >= 45) {
+			promotionChance += 10;
+		}
+		if (player.core.footballIq >= 45) {
+			promotionChance += 8;
+		}
+		if (player.core.discipline >= 40) {
+			promotionChance += 5;
+		}
+
+		if (promotionChance > 0 && randomInRange(1, 100) <= promotionChance) {
+			player.depthChart = 'backup';
+			return {
+				changed: true,
+				newStatus: 'backup',
+				message: 'Coaches saw your effort in practice. You earned the backup role.',
 			};
 		}
 	}

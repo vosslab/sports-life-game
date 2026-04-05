@@ -1,6 +1,7 @@
 // save.ts - localStorage save/load for game state
 
 import { Player, createEmptySeasonStats } from './player.js';
+import { randomAvatarConfig } from './avatar.js';
 
 const SAVE_KEY = 'gridiron_life_save';
 
@@ -65,6 +66,13 @@ export function loadGame(): Player | null {
 	}
 	if (player.eligibilityYears === undefined) {
 		player.eligibilityYears = 4;
+	}
+	// Migration: portrait config
+	if (player.avatarConfig === undefined) {
+		player.avatarConfig = randomAvatarConfig(
+			`${player.firstName} ${player.lastName}`,
+			{ archetype: 'player', age: player.age },
+		);
 	}
 	if (player.seasonStats === undefined) {
 		player.seasonStats = createEmptySeasonStats();

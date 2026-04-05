@@ -4,6 +4,8 @@ import { Player, CareerPhase } from './player.js';
 import { ScheduleEntry } from './team.js';
 import { Activity, WeekState } from './activities.js';
 import type { StatLine } from './week_sim.js';
+import { generatePortraitSVG, randomAvatarConfig } from './avatar.js';
+import type { Archetype } from './avatar.js';
 
 //============================================
 // Type definitions for choice options
@@ -74,6 +76,17 @@ export function updateHeader(player: Player): void {
 	const teamEl = getElement('player-team');
 	const ageEl = getElement('player-age');
 	const weekEl = getElement('player-week');
+
+	// Render player portrait (age-appropriate)
+	const portraitEl = document.getElementById('player-portrait');
+	if (portraitEl && player.avatarConfig) {
+		// Regenerate with current age for age-appropriate appearance
+		const config = randomAvatarConfig(
+			`${player.firstName} ${player.lastName}`,
+			{ archetype: 'player', age: player.age },
+		);
+		portraitEl.innerHTML = generatePortraitSVG(config);
+	}
 
 	// Full name
 	nameEl.textContent = `${player.firstName} ${player.lastName}`;

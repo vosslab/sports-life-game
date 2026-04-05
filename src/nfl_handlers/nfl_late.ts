@@ -4,12 +4,12 @@
 // Farewell events. Forced retirement if stats too low.
 // Hall of Fame discussion.
 
-import { Player } from '../player.js';
+import { Player, modifyStat, clampStat } from '../player.js';
 import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
-import { generateHighSchoolTeam } from '../team.js';
+import { buildNFLSeason } from './nfl_season_builder.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -30,13 +30,12 @@ export const nflLateHandler: YearHandler = {
 
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
-		player.nflYear += 1;
 		ctx.updateHeader(player);
 
-		ctx.addHeadline(`Age ${player.age} - NFL Season ${player.nflYear}`);
+		ctx.addHeadline(`Age ${player.age} - NFL Season ${player.nflYear + 1}`);
 		ctx.addText(`${player.firstName} is in the twilight of a long career.`);
 
-		// Forced retirement check
+		// Forced retirement check - nflYear not yet incremented so count is accurate
 		const totalAbility = player.core.athleticism + player.core.technique;
 		if (player.core.health < 20 || totalAbility < 60) {
 			ctx.addHeadline('Forced Retirement');
@@ -47,15 +46,21 @@ export const nflLateHandler: YearHandler = {
 			return;
 		}
 
-		const team = generateHighSchoolTeam(player.teamName);
-		player.teamStrength = team.strength;
+		const season = buildNFLSeason(player.teamName);
+		const playerTeam = season.getPlayerTeam();
+		if (playerTeam) {
+			player.teamName = playerTeam.getDisplayName();
+			player.teamStrength = playerTeam.strength;
+		}
 
+		// nflYear incremented only when player commits to playing the season
 		ctx.showChoices([
 			{
 				text: 'Play One More Season',
 				primary: true,
 				action: () => {
-					startSeason(player, ctx, SEASON_CONFIG, team.schedule,
+					player.nflYear += 1;
+					startSeason(player, ctx, SEASON_CONFIG, season,
 						() => handleSeasonEnd(player, ctx),
 					);
 				},
@@ -93,9 +98,30 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 		return;
 	}
 
-	ctx.showChoices([{
-		text: 'Continue to Next Year',
-		primary: true,
-		action: () => advanceToNextYear(player, ctx),
-	}]);
+	ctx.addHeadline('Twilight Years');
+	ctx.showChoices([
+		{
+			text: 'Embrace the farewell tour',
+			primary: true,
+			action: () => {
+				player.career.popularity = clampStat(player.career.popularity + 5);
+				modifyStat(player, 'confidence', 3);
+				ctx.addText(`${player.firstName} embraces the farewell tour with fans.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+		{
+			text: 'No fanfare, just compete',
+			primary: false,
+			action: () => {
+				modifyStat(player, 'discipline', 3);
+				modifyStat(player, 'technique', 1);
+				modifyStat(player, 'confidence', 1);
+				ctx.addText(`${player.firstName} keeps grinding without drawing attention.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+	]);
 }

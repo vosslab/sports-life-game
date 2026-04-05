@@ -63,6 +63,20 @@ html, body {
 	flex-shrink: 0;
 }
 
+#player-portrait {
+	width: 28px;
+	height: 28px;
+	margin: 0 auto 2px auto;
+	border-radius: 50%;
+	overflow: hidden;
+	background: var(--bg-primary);
+}
+
+#player-portrait svg {
+	width: 100%;
+	height: 100%;
+}
+
 #player-name {
 	font-size: 1.3em;
 	font-weight: 700;

@@ -5,6 +5,7 @@ dist/
 _te*.ts
 _te*.js
 _te*.py
+_te*.sh
 OTHER_REPOS_FOR_STUDY/
 package-lock.json
 tools/avataaars_source/

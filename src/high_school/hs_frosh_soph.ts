@@ -2,14 +2,14 @@
 //
 // Made-up high school name and mascot (generated at age 14, persists through varsity).
 // Full weekly loop via weekly engine: focus -> activities -> events -> game.
-// 10-game season + playoffs. Depth chart matters.
+// 10-game season. Depth chart matters.
 
-import { Player } from '../player.js';
+import { Player, randomInRange } from '../player.js';
 import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
-import { generateHighSchoolTeam } from '../team.js';
+import { buildHighSchoolSeason } from './hs_season_builder.js';
 
 //============================================
 // Season config for frosh/soph
@@ -41,9 +41,11 @@ export const hsFroshSophHandler: YearHandler = {
 		// Set team name from persistent identity
 		player.teamName = `${player.hsName} ${player.hsMascot}`;
 
-		// Generate the season schedule
-		const team = generateHighSchoolTeam(player.teamName);
-		player.teamStrength = team.strength;
+		// Build the season using the new season layer
+		// Player team drawn from the same pool as opponents (35-90)
+		const playerStrength = randomInRange(35, 90);
+		player.teamStrength = playerStrength;
+		const season = buildHighSchoolSeason(player.hsName, player.hsMascot, playerStrength);
 
 		ctx.updateHeader(player);
 
@@ -58,8 +60,7 @@ export const hsFroshSophHandler: YearHandler = {
 			primary: true,
 			action: () => {
 				startSeason(
-					player, ctx, SEASON_CONFIG, team.schedule,
-					// onSeasonEnd callback
+					player, ctx, SEASON_CONFIG, season,
 					() => handleSeasonEnd(player, ctx),
 				);
 			},

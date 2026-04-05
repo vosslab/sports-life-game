@@ -18,7 +18,7 @@ import { Team, Conference, generateConference, simulateConferenceWeek } from './
 import { WeeklyFocus } from './week_sim.js';
 import { simulateGame, evaluateDepthChartUpdate, runPracticeSession } from './week_sim.js';
 import { generateNFLPalette, applyPalette } from './theme.js';
-import { checkRetirement } from './nfl.js';
+import { checkRetirement, getNFLDraftResult } from './nfl.js';
 import {
 	showWeeklyFocusUI, handleWeeklyFocus, proceedToEventCheck,
 	initGameLoop,
@@ -59,6 +59,70 @@ let ctx: GameContext | null = null;
 let onRetireCallback: () => void = () => {};
 
 //============================================
+// Ordinal suffix helper (1st, 2nd, 3rd, 4th, etc.)
+function getOrdinalSuffix(n: number): string {
+	const mod10 = n % 10;
+	const mod100 = n % 100;
+	if (mod10 === 1 && mod100 !== 11) {
+		return 'st';
+	}
+	if (mod10 === 2 && mod100 !== 12) {
+		return 'nd';
+	}
+	if (mod10 === 3 && mod100 !== 13) {
+		return 'rd';
+	}
+	return 'th';
+}
+
+//============================================
+// Generate combine narrative based on player stats
+function generateCombineNarrative(player: Player): string {
+	const ath = player.core.athleticism;
+	const tech = player.core.technique;
+	const iq = player.core.footballIq;
+	const disc = player.core.discipline;
+
+	// Athletic testing (40-yard dash, vertical, bench press)
+	let athResult = '';
+	if (ath >= 80) {
+		athResult = 'You lit up the athletic testing. Scouts were writing furiously '
+			+ 'after your 40-yard dash. Your vertical leap turned heads.';
+	} else if (ath >= 60) {
+		athResult = 'Solid athletic numbers. Nothing record-breaking, but you showed '
+			+ 'you belong at this level.';
+	} else {
+		athResult = 'The athletic testing was rough. Your 40 time was slower than hoped '
+			+ 'and the bench press numbers were underwhelming.';
+	}
+
+	// Position drills
+	let techResult = '';
+	if (tech >= 75) {
+		techResult = ' Your position drills were crisp and precise. Coaches nodded approvingly.';
+	} else if (tech >= 55) {
+		techResult = ' Position drills were average. Nothing to move you up or down the board.';
+	} else {
+		techResult = ' You struggled with the position-specific drills. Some coaches looked concerned.';
+	}
+
+	// Interviews and whiteboard sessions
+	let iqResult = '';
+	if (iq >= 70 && disc >= 60) {
+		iqResult = ' In the interview room, you impressed coaches with your football knowledge '
+			+ 'and film preparation. Teams loved your maturity.';
+	} else if (iq >= 50) {
+		iqResult = ' Interviews went fine. You answered questions well enough, nothing memorable.';
+	} else {
+		iqResult = ' The interview sessions exposed some gaps in your football understanding. '
+			+ 'A few teams flagged concerns about your readiness.';
+	}
+
+	const narrative = athResult + techResult + iqResult;
+	return narrative;
+}
+
+//============================================
 // Getters for nflTeam and nflConference (used by tab refresh in main.ts)
 export function getNFLTeam(): Team | null {
 	return nflTeam;
@@ -80,52 +144,19 @@ export function startNFLCareer(gameContext: GameContext, onRetire: () => void): 
 	switchTab('life');
 
 	ctx.clearStory();
+
+	// NFL Combine results based on player stats
+	ctx.addHeadline('NFL Scouting Combine');
+	const combineNarrative = generateCombineNarrative(player);
+	ctx.addText(combineNarrative);
+
 	ctx.addHeadline('NFL Draft Day');
 
-	// Simple draft simulation based on draft stock
-	const stock = player.draftStock;
-	let round: number;
-	let draftStory: string;
-
-	if (stock >= 85) {
-		round = 1;
-		draftStory = 'Your name is called in the first round. '
-			+ 'You walk across the stage, shake hands, and put on the hat. '
-			+ 'This is the moment you have worked for your entire life.';
-	} else if (stock >= 65) {
-		round = randomInRange(2, 3);
-		draftStory = `Round ${round}. Your phone rings. `
-			+ 'You are going to the league. '
-			+ 'Not the first name called, but you made it.';
-	} else if (stock >= 40) {
-		round = randomInRange(4, 6);
-		draftStory = `Day three. Round ${round}. `
-			+ 'Most people counted you out, but one team saw something. '
-			+ 'You are an NFL player.';
-	} else {
-		round = 7;
-		draftStory = 'The draft ends without your name being called. '
-			+ 'But within minutes, your phone rings. '
-			+ 'An undrafted free agent deal. You have a shot.';
-	}
-
-	// Pick a random NFL team
-	const nflTeamNames = [
-		'Arizona Cardinals', 'Atlanta Falcons', 'Baltimore Ravens',
-		'Buffalo Bills', 'Carolina Panthers', 'Chicago Bears',
-		'Cincinnati Bengals', 'Cleveland Browns', 'Dallas Cowboys',
-		'Denver Broncos', 'Detroit Lions', 'Green Bay Packers',
-		'Houston Texans', 'Indianapolis Colts', 'Jacksonville Jaguars',
-		'Kansas City Chiefs', 'Las Vegas Raiders', 'Los Angeles Chargers',
-		'Los Angeles Rams', 'Miami Dolphins', 'Minnesota Vikings',
-		'New England Patriots', 'New Orleans Saints', 'New York Giants',
-		'New York Jets', 'Philadelphia Eagles', 'Pittsburgh Steelers',
-		'San Francisco 49ers', 'Seattle Seahawks',
-		'Tampa Bay Buccaneers', 'Tennessee Titans',
-		'Washington Commanders',
-	];
-	const teamIdx = randomInRange(0, nflTeamNames.length - 1);
-	const team = nflTeamNames[teamIdx];
+	// Use the proper draft result generator
+	const draftResult = getNFLDraftResult(player);
+	const team = draftResult.team;
+	const round = draftResult.round;
+	const pick = draftResult.pick;
 
 	player.teamName = team;
 	// Higher draft picks go to weaker teams, lower picks to stronger
@@ -134,13 +165,23 @@ export function startNFLCareer(gameContext: GameContext, onRetire: () => void): 
 	const nflPalette = generateNFLPalette(team);
 	applyPalette(nflPalette);
 	player.teamPalette = nflPalette;
-	player.bigDecisions.push(
-		`Drafted by ${team} in round ${round}`
-	);
 
-	ctx.addText(draftStory);
+	// Record draft details
+	const draftLabel = round === 0
+		? `Signed by ${team} as undrafted free agent`
+		: `Drafted by ${team} - Round ${round}, Pick ${pick}`;
+	player.bigDecisions.push(draftLabel);
+
+	ctx.addText(draftResult.storyText);
 	ctx.addResult(`Selected by the ${team}`);
-	ctx.addResult(`Round ${round}`);
+	if (round > 0) {
+		// Calculate overall pick number for display
+		const picksPerRound = 32;
+		const overallPick = (round - 1) * picksPerRound + (pick % picksPerRound || picksPerRound);
+		ctx.addResult(`Round ${round}, Pick ${pick} (${overallPick}${getOrdinalSuffix(overallPick)} overall)`);
+	} else {
+		ctx.addResult('Undrafted Free Agent');
+	}
 
 	ctx.save();
 	ui.updateHeader(player);

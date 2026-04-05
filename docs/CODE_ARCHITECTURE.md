@@ -2,11 +2,12 @@
 
 ## Overview
 
-Gridiron Life is a single-page browser game built in TypeScript. The player lives
-through a complete American football career: childhood, high school, college, and NFL.
-The codebase uses a year-handler registry pattern where each age band (13 total) has
-its own handler module. Football phases share a weekly engine that guarantees week
-advancement, and all rendering flows through a single DOM-based UI layer.
+Gridiron Life is a BitLife-style single-page browser game built in TypeScript and
+compiled to ES2020. The player lives through a complete American football career:
+childhood, high school, college, and NFL. The codebase uses a year-handler registry
+pattern where each age band (13 total) has its own handler module. Football phases
+share a weekly engine that guarantees week advancement, and all rendering flows
+through a single DOM-based UI layer.
 
 The architecture is layered: core interfaces and registry at the bottom, age-band
 handlers in the middle, simulation and event logic alongside them, and UI rendering
@@ -97,6 +98,38 @@ NFL:
 - [src/save.ts](src/save.ts): browser localStorage persistence with JSON serialization
   and save migration for new fields.
 
+### Season simulation layer
+
+The season layer is the single source of truth for all season state. Games are the
+atomic truth; standings and records are always derived from finalized games.
+
+- [src/season/season_types.ts](src/season/season_types.ts): shared types (TeamId,
+  GameId, GameStatus, StandingsRow, PlayoffSeed).
+- [src/season/team_model.ts](src/season/team_model.ts): SeasonTeam class with identity
+  and ratings. Does not store wins/losses.
+- [src/season/game_model.ts](src/season/game_model.ts): SeasonGame class with
+  scheduled/final status, scores, and winner/loser queries.
+- [src/season/standings_model.ts](src/season/standings_model.ts): pure functions to
+  derive standings from finalized games. Sorts by wins, losses, points-for.
+- [src/season/season_model.ts](src/season/season_model.ts): LeagueSeason class. Owns
+  all teams, games, current week. Query methods for record, standings, schedule,
+  opponent. `advanceWeek()` refuses if games are unfinished.
+- [src/season/season_builder.ts](src/season/season_builder.ts): shared schedule
+  generation (round-robin, week assignment, non-conference, validation).
+- [src/season/season_simulator.ts](src/season/season_simulator.ts): simulates
+  non-player games each week, records player results from weekly engine.
+- [src/season/playoff_bracket.ts](src/season/playoff_bracket.ts): generic bracket
+  for HS (4-team), college (CFP), and NFL (7-seed) playoffs.
+
+Phase-specific builders create LeagueSeason objects:
+
+- [src/high_school/hs_season_builder.ts](src/high_school/hs_season_builder.ts): 8-team
+  conference, 10-game schedule.
+- [src/college/college_season_builder.ts](src/college/college_season_builder.ts): real
+  NCAA school data from CSV, 12-game schedule.
+- [src/nfl_handlers/nfl_season_builder.ts](src/nfl_handlers/nfl_season_builder.ts):
+  32 real NFL teams in 8 divisions, 17-game schedule.
+
 ### Simulation engine
 
 - [src/week_sim.ts](src/week_sim.ts): core simulation logic. Applies weekly focus
@@ -107,18 +140,22 @@ NFL:
 - [src/events.ts](src/events.ts): narrative event system. Filters events by phase,
   week, position, and player stats. Applies choice consequences to stats and story
   flags.
+- [src/milestones.ts](src/milestones.ts): one-time career story moments. Tracks
+  triggered milestones on the player and fires them during weekly engine after game
+  results (18 milestones across HS, college, and NFL).
 
 ### UI layer
 
-- [src/ui.ts](src/ui.ts): DOM rendering for story log, stat bars, modals, event
-  cards, game results, standings, and career stats. Formats position-specific stat
-  labels.
+- [src/ui.ts](src/ui.ts): centralized DOM rendering for story log, stat bars, modals,
+  event cards, game results, standings, and career stats. Formats position-specific
+  stat labels. Manages header, portrait, and tab content updates.
 - [src/tabs.ts](src/tabs.ts): tab navigation system with phase-specific tab sets
   (life, stats, activities, team, career).
 - [src/theme.ts](src/theme.ts): team color palette generation, contrast checking,
   and NFL team color mapping. Applies CSS custom properties for dynamic theming.
-- [src/avatar.ts](src/avatar.ts): SVG portrait generator using Avataaars-inspired
-  parts with age-based variation and archetype pools.
+- [src/avatar.ts](src/avatar.ts) + [src/data/avatar_parts.ts](src/data/avatar_parts.ts):
+  SVG portrait generator using Avataaars-inspired parts with age-based variation and
+  archetype pools. Seeded by player name for consistency across ages.
 
 ### Business logic
 
@@ -145,26 +182,35 @@ These monolithic phase runners predate the handler registry and are being replac
 
 ## Data flow
 
-Age advancement dispatches through the handler registry:
+Player state flows through the year-handler registry and weekly engine:
 
 ```text
 year_runner.ts: advanceToNextYear(player, ctx)
   -> increment player.age
-  -> year_registry.ts: getHandler(age) returns the matching handler
+  -> year_registry.ts: getHandler(age) returns matching handler
   -> handler.startYear(player, ctx) sets up the year
-  -> if football year: handler calls weekly_engine.startSeason()
-     -> weekly loop: focus -> activity -> event -> game -> results -> next_week
+  -> if football year: handler calls weekly_engine.startSeason(season)
+     -> LeagueSeason is single source of truth for schedule/standings/games
+     -> weekly loop: focus -> activity -> event -> game -> results
+     -> check milestones.ts after each game
      -> after final week: season_ended -> handler.endYear()
-  -> if non-football year: handler shows events, calls ctx.showChoices()
-  -> year_runner.ts: advanceToNextYear() for the next age
+  -> if non-football year: handler shows events via ctx.addText() and ctx.showChoices()
+  -> year_runner.ts: advanceToNextYear() for next age
+  -> ui.ts: updateHeader() renders portrait and stats
 ```
 
 Phase transitions flow through [src/main.ts](src/main.ts):
 
 ```text
-childhood (1-7) -> peewee (8-10) -> travel (11-13) -> high school (14-17)
-  -> college (18-21) -> NFL (22-39) -> legacy
+childhood (1-13, no football)
+  -> high school (14-17, 10-week seasons)
+  -> college (18-21, 12-week seasons)
+  -> NFL (22-39, 17-week seasons)
+  -> legacy
 ```
+
+UI rendering is centralized: player state -> weekly engine -> season model -> ui.ts
+-> DOM updates.
 
 ## Extension points
 

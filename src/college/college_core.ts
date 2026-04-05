@@ -4,16 +4,17 @@
 // Draft stock tracking (year 3+). Transfer portal option each offseason.
 // Junior year: early declaration option if eligible.
 
-import { Player } from '../player.js';
+import { Player, modifyStat, clampStat } from '../player.js';
 import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
-import { generateHighSchoolTeam } from '../team.js';
+import { buildCollegeSeason } from './college_season_builder.js';
+import { formatSchoolName } from '../ncaa.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
-	seasonLength: 12,
+	seasonLength: 11,
 	hasFootball: true,
 	hasDepthChart: true,
 	hasPlayoffs: true,
@@ -38,14 +39,20 @@ export const collegeCoreHandler: YearHandler = {
 		ctx.addText(`${player.firstName} is a ${yearLabel.toLowerCase()} at ${player.teamName}.`);
 
 		// Generate schedule and start season
-		const team = generateHighSchoolTeam(player.teamName);
-		player.teamStrength = team.strength;
+		const allSchools = [...ctx.ncaaSchools.fbs, ...ctx.ncaaSchools.fcs];
+		const playerSchool = allSchools.find(s => formatSchoolName(s) === player.teamName)
+			|| allSchools[0];
+		const season = buildCollegeSeason(playerSchool, allSchools);
+		const playerTeam = season.getPlayerTeam();
+		if (playerTeam) {
+			player.teamStrength = playerTeam.strength;
+		}
 
 		ctx.showChoices([{
 			text: 'Start Season',
 			primary: true,
 			action: () => {
-				startSeason(player, ctx, SEASON_CONFIG, team.schedule,
+				startSeason(player, ctx, SEASON_CONFIG, season,
 					() => handleSeasonEnd(player, ctx),
 				);
 			},
@@ -67,29 +74,83 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 		const canDeclare = player.core.athleticism >= 60 || player.core.technique >= 70;
 		if (canDeclare) {
 			ctx.addText('NFL scouts are talking. You could declare for the draft early.');
+			ctx.addHeadline('Offseason Training');
 			ctx.showChoices([
 				{
-					text: 'Declare for Draft',
+					text: 'Train with a speed coach',
 					primary: false,
 					action: () => {
-						player.phase = 'nfl';
+						modifyStat(player, 'athleticism', 3);
+						modifyStat(player, 'health', -1);
+						ctx.addText(`${player.firstName} works intensively with a speed coach.`);
+						ctx.updateStats(player);
 						advanceToNextYear(player, ctx);
 					},
 				},
 				{
-					text: 'Return for Senior Year',
+					text: 'Work on football film all summer',
+					primary: false,
+					action: () => {
+						modifyStat(player, 'footballIq', 3);
+						modifyStat(player, 'technique', 1);
+						ctx.addText(`${player.firstName} studies film and refines technique.`);
+						ctx.updateStats(player);
+						advanceToNextYear(player, ctx);
+					},
+				},
+				{
+					text: 'Get bigger in the weight room',
 					primary: true,
-					action: () => advanceToNextYear(player, ctx),
+					action: () => {
+						modifyStat(player, 'technique', 2);
+						modifyStat(player, 'athleticism', 1);
+						modifyStat(player, 'health', 1);
+						ctx.addText(`${player.firstName} gains strength in the offseason.`);
+						ctx.updateStats(player);
+						advanceToNextYear(player, ctx);
+					},
 				},
 			]);
 			return;
 		}
 	}
 
-	// TODO: transfer portal option
-	ctx.showChoices([{
-		text: 'Continue to Next Year',
-		primary: true,
-		action: () => advanceToNextYear(player, ctx),
-	}]);
+	// Sophomore or Junior (no early declaration option)
+	ctx.addHeadline('Offseason Training');
+	ctx.showChoices([
+		{
+			text: 'Train with a speed coach',
+			primary: false,
+			action: () => {
+				modifyStat(player, 'athleticism', 3);
+				modifyStat(player, 'health', -1);
+				ctx.addText(`${player.firstName} works intensively with a speed coach.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+		{
+			text: 'Work on football film all summer',
+			primary: false,
+			action: () => {
+				modifyStat(player, 'footballIq', 3);
+				modifyStat(player, 'technique', 1);
+				ctx.addText(`${player.firstName} studies film and refines technique.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+		{
+			text: 'Get bigger in the weight room',
+			primary: true,
+			action: () => {
+				modifyStat(player, 'technique', 2);
+				modifyStat(player, 'athleticism', 1);
+				modifyStat(player, 'health', 1);
+				ctx.addText(`${player.firstName} gains strength in the offseason.`);
+				ctx.updateStats(player);
+				advanceToNextYear(player, ctx);
+			},
+		},
+	]);
 }
