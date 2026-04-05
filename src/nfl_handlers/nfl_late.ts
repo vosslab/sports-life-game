@@ -10,6 +10,7 @@ import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildNFLSeason } from './nfl_season_builder.js';
+import { applyPalette } from '../theme.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -30,6 +31,10 @@ export const nflLateHandler: YearHandler = {
 
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
+		// Reapply team colors each season
+		if (player.teamPalette) {
+			applyPalette(player.teamPalette);
+		}
 		ctx.updateHeader(player);
 
 		ctx.addHeadline(`Age ${player.age} - NFL Season ${player.nflYear + 1}`);

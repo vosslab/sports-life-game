@@ -26,7 +26,66 @@ const slow = args.includes("--slow");
 // How long to wait for any single UI action (ms)
 const ACTION_TIMEOUT = 3000;
 // Max total game time before we give up (ms)
-const MAX_GAME_TIME = 5 * 60 * 1000;
+const MAX_GAME_TIME = 10 * 60 * 1000;
+
+//============================================
+// Per-age tracking counters
+//============================================
+
+// Tracks clicks and choices for each age year
+const ageStats = new Map();
+
+function getAgeEntry(age) {
+	if (!ageStats.has(age)) {
+		ageStats.set(age, {
+			totalClicks: 0,
+			modalChoices: 0,
+			choicePanelClicks: 0,
+			nextWeekClicks: 0,
+			ageUpClicks: 0,
+			staleModalDismissals: 0,
+		});
+	}
+	return ageStats.get(age);
+}
+
+// Print the per-age summary table at the end
+function printAgeSummary() {
+	// Sort ages numerically
+	const ages = [...ageStats.keys()].sort((a, b) => a - b);
+
+	console.log("");
+	console.log("Per-age click summary:");
+	console.log(
+		"  Age  | Total | Choices | Activities | Next/Continue | Age Up | Stale"
+	);
+	console.log(
+		"  -----|-------|---------|------------|---------------|--------|------"
+	);
+
+	let grandTotal = 0;
+	let grandChoices = 0;
+	for (const age of ages) {
+		const s = ageStats.get(age);
+		grandTotal += s.totalClicks;
+		grandChoices += s.modalChoices;
+		const ageStr = String(age).padStart(4);
+		const totalStr = String(s.totalClicks).padStart(5);
+		const modalStr = String(s.modalChoices).padStart(7);
+		const choiceStr = String(s.choicePanelClicks).padStart(10);
+		const nextStr = String(s.nextWeekClicks).padStart(13);
+		const ageUpStr = String(s.ageUpClicks).padStart(6);
+		const staleStr = String(s.staleModalDismissals).padStart(5);
+		console.log(
+			`  ${ageStr} | ${totalStr} | ${modalStr} | ${choiceStr} | ${nextStr} | ${ageUpStr} | ${staleStr}`
+		);
+	}
+
+	console.log(
+		"  -----|-------|---------|------------|---------------|--------|------"
+	);
+	console.log(`  Total clicks: ${grandTotal}, Total modal choices: ${grandChoices}`);
+}
 
 //============================================
 // Helper: take a screenshot with a descriptive name
@@ -178,8 +237,19 @@ async function getPlayerPhase(page) {
 //============================================
 // Helper: small delay for UI to settle
 async function settle(page) {
-	const ms = slow ? 500 : 100;
+	const ms = slow ? 500 : 150;
 	await page.waitForTimeout(ms);
+}
+
+//============================================
+// Helper: get a fingerprint of current page state for stuck detection
+async function getPageFingerprint(page) {
+	const age = await page.locator("#player-age").textContent();
+	const week = await page.locator("#player-week").textContent();
+	const storyLen = await page.locator("#story-log").evaluate(
+		(el) => el.textContent.length
+	);
+	return `${age}|${week}|${storyLen}`;
 }
 
 //============================================
@@ -205,6 +275,21 @@ async function main() {
 	await page.waitForLoadState("networkidle");
 	console.log("Game loaded.");
 
+	// Capture console errors
+	let consoleErrorCount = 0;
+	page.on("console", (msg) => {
+		if (msg.type() === "error") {
+			consoleErrorCount++;
+			// Only log first occurrence of each unique error
+			if (consoleErrorCount <= 5) {
+				console.log(`  [CONSOLE ERROR] ${msg.text()}`);
+			}
+		}
+	});
+	page.on("pageerror", (err) => {
+		console.log(`  [PAGE ERROR] ${err.message}`);
+	});
+
 	await screenshot(page, "00_start");
 
 	const startTime = Date.now();
@@ -212,6 +297,9 @@ async function main() {
 	let lastPhaseLog = "";
 	let stepCount = 0;
 	let stuckCount = 0;
+	let lastFingerprint = "";
+	let sameStateCount = 0;
+	let currentAge = -1;
 
 	// Main game loop
 	while (Date.now() - startTime < MAX_GAME_TIME) {
@@ -226,6 +314,7 @@ async function main() {
 
 		// Check for end conditions
 		const age = await getPlayerAge(page);
+		currentAge = age;
 		const storyText = await page.locator("#story-log").textContent();
 
 		// Log phase transitions
@@ -258,12 +347,15 @@ async function main() {
 		}
 
 		let acted = false;
+		const entry = getAgeEntry(currentAge);
 
 		// Priority 1: Modal is showing - click first button
 		if (await isModalVisible(page)) {
 			const clicked = await clickModalButton(page);
 			if (clicked) {
 				acted = true;
+				entry.totalClicks++;
+				entry.modalChoices++;
 				if (slow) {
 					console.log(`    modal: "${clicked.trim()}"`);
 				}
@@ -275,6 +367,8 @@ async function main() {
 			const clicked = await clickChoiceButton(page);
 			if (clicked) {
 				acted = true;
+				entry.totalClicks++;
+				entry.choicePanelClicks++;
 				if (slow) {
 					console.log(`    choice: "${clicked.trim()}"`);
 				}
@@ -286,6 +380,7 @@ async function main() {
 			const dismissed = await dismissStaleModal(page);
 			if (dismissed) {
 				acted = true;
+				entry.staleModalDismissals++;
 				if (slow) {
 					console.log("    (dismissed stale modal overlay)");
 				}
@@ -297,6 +392,8 @@ async function main() {
 			const result = await clickNextWeek(page);
 			if (result) {
 				acted = true;
+				entry.totalClicks++;
+				entry.nextWeekClicks++;
 				if (slow) {
 					console.log(`    next: "${result.trim()}"`);
 				}
@@ -313,6 +410,8 @@ async function main() {
 				const ageUp = await clickAgeUp(page);
 				if (ageUp) {
 					console.log("    (used Age Up to unstick)");
+					entry.totalClicks++;
+					entry.ageUpClicks++;
 					stuckCount = 0;
 					acted = true;
 				}
@@ -320,6 +419,27 @@ async function main() {
 		}
 
 		await settle(page);
+
+		// After acting, wait briefly for UI to update before next iteration
+		if (acted) {
+			// Extra wait after clicks to let game state transitions complete
+			await page.waitForTimeout(slow ? 300 : 50);
+		}
+
+		// Detect when clicks aren't changing game state
+		const fp = await getPageFingerprint(page);
+		if (fp === lastFingerprint) {
+			sameStateCount++;
+			if (sameStateCount > 10) {
+				// Wait longer for async game processing
+				await page.waitForTimeout(2000);
+				sameStateCount = 0;
+				console.log("    (waiting for state change...)");
+			}
+		} else {
+			sameStateCount = 0;
+			lastFingerprint = fp;
+		}
 	}
 
 	// Final screenshot and summary
@@ -329,6 +449,12 @@ async function main() {
 
 	console.log("");
 	console.log(`Done. ${stepCount} steps in ${elapsed}s. Final age: ${finalAge}.`);
+	if (consoleErrorCount > 0) {
+		console.log(`Console errors: ${consoleErrorCount}`);
+	}
+
+	// Print the per-age summary
+	printAgeSummary();
 
 	await browser.close();
 }

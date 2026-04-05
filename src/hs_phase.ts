@@ -219,11 +219,14 @@ export function startHighSchoolSeason(): void {
 				+ ' at ' + player.position + '.';
 		ctx.addText(status);
 
-		ui.updateStatusBar(
+		// Update life status bar with record and recruiting info
+		const recruitExtra = player.recruitingStars > 0
+			? `Recruiting: ${player.recruitingStars} stars`
+			: '';
+		ui.updateLifeStatus(
 			`Record: ${persistentHSTeam.wins}-${persistentHSTeam.losses}`,
-			player.recruitingStars > 0
-				? `Recruiting: ${player.recruitingStars} stars`
-				: ''
+			`Week 1 of ${HS_SEASON_WEEKS}`,
+			recruitExtra
 		);
 
 		ui.showChoices([
@@ -519,11 +522,14 @@ function simulateHSSeason(): void {
 
 	ctx.save();
 	ui.updateAllStats(player);
-	ui.updateStatusBar(
+	// Update life status bar with record and recruiting info
+	const recruitExtra = player.recruitingStars > 0
+		? `Recruiting: ${player.recruitingStars} stars`
+		: '';
+	ui.updateLifeStatus(
 		`Record: ${persistentHSTeam.wins}-${persistentHSTeam.losses}`,
-		player.recruitingStars > 0
-			? `Recruiting: ${player.recruitingStars} stars`
-			: ''
+		'End of Season',
+		recruitExtra
 	);
 
 	// Show recap popup, then proceed to season end
@@ -724,19 +730,15 @@ function proceedToGameDay(): void {
 		ctx.addResult('*** PLAYER OF THE WEEK ***');
 	}
 
-	// Update status bar
-	// Update both status bar and life status widget with team record
+	// Update life status bar with record, next week, and recruiting info
 	const recordStr = `Record: ${persistentHSTeam.wins}-${persistentHSTeam.losses}`;
-	ui.updateStatusBar(
-		recordStr,
-		player.recruitingStars > 0
-			? `Recruiting: ${player.recruitingStars} stars`
-			: ''
-	);
 	const nextWeek = player.currentWeek < HS_SEASON_WEEKS
 		? `Week ${player.currentWeek + 1}`
 		: 'End of Season';
-	ui.updateLifeStatus(recordStr, nextWeek);
+	const recruitInfo = player.recruitingStars > 0
+		? `Recruiting: ${player.recruitingStars} stars`
+		: '';
+	ui.updateLifeStatus(recordStr, nextWeek, recruitInfo);
 
 	// Check if season is over
 	if (player.currentWeek >= HS_SEASON_WEEKS) {

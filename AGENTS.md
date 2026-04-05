@@ -1,4 +1,7 @@
 ## Coding Style
+code is under active development and has no official releases, so there is no reason to maintain any legacy code
+
+See TypeScript coding style in docs/TYPESCRIPT_STYLE.md.
 See Python coding style in docs/PYTHON_STYLE.md.
 See Markdown style in docs/MARKDOWN_STYLE.md.
 See repo style in docs/REPO_STYLE.md.

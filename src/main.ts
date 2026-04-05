@@ -289,6 +289,7 @@ function handleTabSwitch(tabId: TabId): void {
 	const newSeasonRecord = getSeasonRecord();
 	let lifeRecord = 'No team record yet.';
 	let lifeNextOpponent = 'No upcoming opponent.';
+	let lifeExtra = '';
 	if (activeSeason && newSeasonRecord) {
 		lifeRecord = `Record: ${newSeasonRecord.wins}-${newSeasonRecord.losses}`;
 		// Show current week opponent
@@ -301,8 +302,31 @@ function handleTabSwitch(tabId: TabId): void {
 		} else {
 			lifeNextOpponent = `Week ${activeSeason.getCurrentWeek()}`;
 		}
+		// Get conference record from standings
+		const playerTeam = activeSeason.getPlayerTeam();
+		if (playerTeam && playerTeam.conferenceId) {
+			const standings = activeSeason.getStandings(playerTeam.conferenceId);
+			const playerRow = standings.find(
+				r => r.teamId === activeSeason.playerTeamId
+			);
+			if (playerRow && (playerRow.conferenceWins > 0 || playerRow.conferenceLosses > 0)) {
+				lifeExtra = `Conference: ${playerRow.conferenceWins}-${playerRow.conferenceLosses}`;
+			}
+		}
+		// Add draft stock for college juniors/seniors
+		if (currentPlayer.phase === 'college' && currentPlayer.collegeYear >= 3) {
+			lifeExtra += lifeExtra
+				? ` | Draft Stock: ${currentPlayer.draftStock}`
+				: `Draft Stock: ${currentPlayer.draftStock}`;
+		}
+		// Add recruiting stars for high school
+		if (currentPlayer.phase === 'high_school' && currentPlayer.recruitingStars > 0) {
+			lifeExtra += lifeExtra
+				? ` | Recruiting: ${currentPlayer.recruitingStars} stars`
+				: `Recruiting: ${currentPlayer.recruitingStars} stars`;
+		}
 	}
-	ui.updateLifeStatus(lifeRecord, lifeNextOpponent);
+	ui.updateLifeStatus(lifeRecord, lifeNextOpponent, lifeExtra);
 
 	if (tabId === 'stats') {
 		ui.updateStatsTab(currentPlayer);

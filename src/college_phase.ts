@@ -219,6 +219,12 @@ function startCollegeSeason(): void {
 	ui.updateHeader(player);
 	ui.updateAllStats(player);
 
+	// Update life status bar with initial record and first opponent
+	const firstOpp = collegeTeam.schedule.length > 0
+		? `Week 1 vs ${collegeTeam.schedule[0].opponentName}`
+		: 'Week 1';
+	ui.updateLifeStatus('Record: 0-0', firstOpp);
+
 	// Configure main action bar for college season
 	ui.configureMainButtons({
 		nextLabel: 'Next Week',
@@ -474,6 +480,25 @@ function proceedToCollegeGame(): void {
 		ctx.addText(`Draft stock: ${player.draftStock}/100`);
 	}
 
+	// Update life status bar with record, next opponent, and conference/draft info
+	const collegeRecordStr = `Record: ${collegeTeam.wins}-${collegeTeam.losses}`;
+	const nextCollegeWeek = player.currentWeek < COLLEGE_SEASON_WEEKS
+		? `Week ${player.currentWeek + 1} vs ${
+			collegeTeam.schedule[player.currentWeek]?.opponentName || 'TBD'
+		}`
+		: 'End of Season';
+	// Show conference record and draft stock when available
+	const confTeam = currentConference?.teams.find(t => t.name === player.teamName);
+	let collegeExtra = confTeam
+		? `Conference: ${confTeam.wins}-${confTeam.losses}`
+		: '';
+	if (player.collegeYear >= 3) {
+		collegeExtra += collegeExtra
+			? ` | Draft Stock: ${player.draftStock}`
+			: `Draft Stock: ${player.draftStock}`;
+	}
+	ui.updateLifeStatus(collegeRecordStr, nextCollegeWeek, collegeExtra);
+
 	// Check if season is over
 	if (player.currentWeek >= COLLEGE_SEASON_WEEKS) {
 		ui.showChoices([
@@ -557,6 +582,12 @@ function endCollegeSeason(): void {
 	player.currentWeek = 0;
 	ctx.save();
 	ui.updateHeader(player);
+
+	// Update status bar with final season record
+	ui.updateLifeStatus(
+		`Record: ${collegeTeam.wins}-${collegeTeam.losses}`,
+		'Season Over'
+	);
 
 	// Show end-of-year options
 	const buttons: { text: string; primary: boolean; action: () => void }[] = [];

@@ -159,6 +159,11 @@
 	margin-top: 2px;
 }
 
+#life-extra-status {
+	margin-top: 2px;
+	font-size: 0.92em;
+}
+
 /*============================================*/
 /* Sidebar (hidden on phone, visible on iPad) */
 /*============================================*/
@@ -290,5 +295,67 @@
 	.tab-button[data-tab="stats"],
 	.tab-button[data-tab="activities"] {
 		display: none;
+	}
+}
+
+/*============================================*/
+/* iPad landscape: wider layout, compact vert */
+/*============================================*/
+
+@media (min-width: 768px) and (orientation: landscape) {
+	/* Use the full landscape viewport width */
+	#app {
+		max-width: 1140px;
+		gap: 4px;
+	}
+
+	/* Compact header to save vertical space */
+	#player-header {
+		padding: 4px 8px;
+	}
+
+	#player-name {
+		font-size: 1.1em;
+	}
+
+	#player-info, #player-context {
+		font-size: 0.8em;
+	}
+
+	/* Tighter dashboard gap */
+	#dashboard {
+		gap: 6px;
+	}
+
+	/* Give sidebar more room in landscape */
+	#sidebar {
+		max-width: 400px;
+	}
+
+	/* Compact week card */
+	#current-week-card {
+		padding: 6px 10px;
+		gap: 6px;
+	}
+
+	/* Compact life status */
+	#life-status {
+		padding: 4px 10px;
+		font-size: 0.84em;
+	}
+
+	/* Tighter sidebar sections */
+	#sidebar-player-dev,
+	#sidebar-season-career,
+	#sidebar-this-week {
+		padding: 8px 10px;
+	}
+
+	.sidebar-section-label {
+		margin-bottom: 4px;
+	}
+
+	#sidebar-player-identity {
+		margin-bottom: 6px;
 	}
 }

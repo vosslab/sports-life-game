@@ -117,3 +117,31 @@
 	opacity: 0;
 	transition: max-height 0.3s ease, opacity 0.2s ease;
 }
+
+/*============================================*/
+/* iPad landscape: tighter story spacing      */
+/*============================================*/
+
+@media (min-width: 768px) and (orientation: landscape) {
+	#story-panel {
+		padding: 8px 10px;
+	}
+
+	#story-log {
+		font-size: 0.9em;
+		line-height: 1.5;
+	}
+
+	#story-log p {
+		margin-bottom: 5px;
+	}
+
+	.milestone-card {
+		padding: 10px 12px;
+		margin: 8px 0;
+	}
+
+	.story-divider {
+		margin: 10px 0 8px 0;
+	}
+}

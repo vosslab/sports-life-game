@@ -9,6 +9,7 @@ import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildNFLSeason } from './nfl_season_builder.js';
+import { generateNFLPalette, applyPalette } from '../theme.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -39,6 +40,10 @@ export const nflRookieHandler: YearHandler = {
 			player.teamName = playerTeam.getDisplayName();
 			player.teamStrength = playerTeam.strength;
 		}
+		// Apply real NFL team colors
+		const nflPalette = generateNFLPalette(player.teamName);
+		applyPalette(nflPalette);
+		player.teamPalette = nflPalette;
 
 		ctx.updateHeader(player);
 		ctx.addHeadline('Age 22 - NFL Rookie Season');

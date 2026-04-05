@@ -114,12 +114,16 @@ export function updateHeader(player: Player): void {
 }
 
 // Update the compact status shown on the Life tab
-export function updateLifeStatus(record: string, nextOpponent: string): void {
+export function updateLifeStatus(record: string, nextOpponent: string, extraStatus?: string): void {
 	const recordEl = getElement('life-record');
 	const nextEl = getElement('life-next-opponent');
+	const extraEl = findElement('life-extra-status');
 
 	recordEl.textContent = record;
 	nextEl.textContent = nextOpponent;
+	if (extraEl) {
+		extraEl.textContent = extraStatus || '';
+	}
 }
 
 // Helper: convert career phase to readable label
@@ -237,22 +241,6 @@ export function clearChoices(): void {
 	panel.innerHTML = '';
 }
 
-//============================================
-// STATUS BAR MANAGEMENT
-//============================================
-
-// Update footer status bar with team record and recruiting info
-export function updateStatusBar(record: string, recruiting: string): void {
-	const recordEl = findElement('team-record');
-	const recruitEl = findElement('recruiting-status');
-
-	if (recordEl) {
-		recordEl.textContent = record;
-	}
-	if (recruitEl) {
-		recruitEl.textContent = recruiting;
-	}
-}
 
 //============================================
 // WEEKLY FOCUS SCREEN

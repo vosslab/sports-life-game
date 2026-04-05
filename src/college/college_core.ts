@@ -11,6 +11,7 @@ import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildCollegeSeason } from './college_season_builder.js';
 import { formatSchoolName } from '../ncaa.js';
+import { applyPalette } from '../theme.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -32,6 +33,10 @@ export const collegeCoreHandler: YearHandler = {
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
 		player.collegeYear += 1;
+		// Reapply team colors each season
+		if (player.teamPalette) {
+			applyPalette(player.teamPalette);
+		}
 		ctx.updateHeader(player);
 
 		const yearLabel = player.collegeYear === 2 ? 'Sophomore' : 'Junior';

@@ -12,6 +12,7 @@ import { startSeason } from '../weekly/weekly_engine.js';
 import { buildHighSchoolSeason } from './hs_season_builder.js';
 import { updateRecruitingStars } from '../recruiting.js';
 import { assignPlayerCollege, formatSchoolName, NCAASchool } from '../ncaa.js';
+import { applyPalette } from '../theme.js';
 
 //============================================
 // Season config for varsity
@@ -43,6 +44,10 @@ export const hsVarsityHandler: YearHandler = {
 
 		// Same team identity as frosh/soph
 		player.teamName = `${player.hsName} ${player.hsMascot}`;
+		// Reapply team colors each season
+		if (player.teamPalette) {
+			applyPalette(player.teamPalette);
+		}
 
 		// Build new season using the season layer
 		// Player team drawn from the same pool as opponents (35-90)

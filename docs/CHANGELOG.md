@@ -1,6 +1,56 @@
 # Changelog
 
+## 2026-04-05
+
+### Additions and New Features
+
+- **iPad landscape layout** (`src/styles/layout.css`, `src/styles/buttons.css`,
+  `src/styles/tabs.css`, `src/styles/story.css`): Added
+  `@media (min-width: 768px) and (orientation: landscape)` query targeting iPad 10th
+  gen landscape (1180x820 CSS px). Widens app container from 920px to 1140px, compacts
+  header, story entries, choice buttons, and tab bar for the shorter viewport height.
+  Sidebar gets more width (400px max) since landscape has horizontal room.
+
+### Fixes and Maintenance
+
+- **Team color palette not applied** (`src/high_school/hs_frosh_soph.ts`,
+  `src/high_school/hs_varsity.ts`, `src/college/college_entry.ts`,
+  `src/college/college_core.ts`, `src/college/college_senior.ts`,
+  `src/nfl_handlers/nfl_rookie.ts`, `src/nfl_handlers/nfl_early.ts`,
+  `src/nfl_handlers/nfl_peak.ts`, `src/nfl_handlers/nfl_veteran.ts`,
+  `src/nfl_handlers/nfl_late.ts`): The new year-handler system bypassed the palette
+  code that existed in the old phase files (`hs_phase.ts`, `college_phase.ts`,
+  `nfl_phase.ts`). Added `applyPalette()` calls to all year handlers: generates a
+  random team palette at HS age 14 and college entry, uses real NFL team colors at
+  draft, and reapplies the saved palette at each subsequent season start.
+
+- **Status bar shows all phase-specific info** (`index.html`, `src/ui.ts`,
+  `src/hs_phase.ts`, `src/college_phase.ts`, `src/nfl_phase.ts`, `src/main.ts`):
+  Fixed broken `updateStatusBar()` that wrote to non-existent DOM elements, causing
+  recruiting stars to be silently lost during high school. Removed the broken function
+  and consolidated all updates through `updateLifeStatus()` with a new third line for
+  phase-specific extras. Status bar now shows: recruiting stars (HS), conference record
+  (college/NFL), and draft stock (college juniors/seniors). College and NFL phases now
+  update the status bar after each game, which they previously never did.
+
+### Additions and New Features
+
+- **Autoplay findings doc** (`docs/AUTOPLAY_FINDINGS.md`): Documented all UX/UI bugs
+  and issues found by the Playwright autoplay script and manual inspection. Covers
+  1 game-breaking NFL bug, 3 duplicate content bugs, 7 display/UX issues, 2 sidebar
+  issues, and 3 gameplay observations.
+
 ## 2026-04-04 (Deep Bug Review)
+
+### Additions and New Features
+
+- **Playwright autoplay test script** (`tests/autoplay.mjs`): Automated end-to-end
+  test that plays the game from character creation through the NFL using Playwright.
+  Clicks buttons automatically (first choice strategy), captures screenshots at phase
+  transitions, and detects stuck states. Run with `node tests/autoplay.mjs` (requires
+  `python3 -m http.server 8000` and `npx tsc` first). Supports `--headed` and `--slow`
+  flags. Script immediately found an NFL season bug where `advanceWeek()` throws
+  "Cannot advance: unfinished game(s)" because non-player games are not simulated.
 
 ### Fixes and Maintenance
 

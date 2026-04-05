@@ -109,3 +109,25 @@
 .choice-button:disabled:active {
 	transform: none;
 }
+
+/*============================================*/
+/* iPad landscape: compact buttons            */
+/*============================================*/
+
+@media (min-width: 768px) and (orientation: landscape) {
+	#choices-panel {
+		gap: 4px;
+		max-height: 28vh;
+	}
+
+	.choice-button {
+		padding: 10px 14px;
+		min-height: 44px;
+		font-size: 1em;
+	}
+
+	#main-action-bar {
+		padding: 4px 0;
+		gap: 6px;
+	}
+}

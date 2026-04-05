@@ -10,6 +10,7 @@ import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildHighSchoolSeason } from './hs_season_builder.js';
+import { generateTeamPalette, applyPalette } from '../theme.js';
 
 //============================================
 // Season config for frosh/soph
@@ -36,6 +37,13 @@ export const hsFroshSophHandler: YearHandler = {
 		if (player.age === 14 && player.hsName === '') {
 			generateHSIdentity(player);
 			player.depthChart = 'bench';
+			// Apply team colors for the new high school
+			const hsPalette = generateTeamPalette();
+			applyPalette(hsPalette);
+			player.teamPalette = hsPalette;
+		} else if (player.teamPalette) {
+			// Reapply saved palette for returning seasons
+			applyPalette(player.teamPalette);
 		}
 
 		// Set team name from persistent identity

@@ -273,6 +273,12 @@ function startNFLSeason(onRetire: () => void): void {
 	ui.updateAllStats(player);
 	ui.updateHeader(player);
 
+	// Update life status bar with initial record and first opponent
+	const firstNFLOpp = nflTeam.schedule.length > 0
+		? `Week 1 vs ${nflTeam.schedule[0].opponentName}`
+		: 'Week 1';
+	ui.updateLifeStatus('Record: 0-0', firstNFLOpp);
+
 	ctx.clearStory();
 	ctx.addHeadline(
 		`NFL Season ${player.nflYear} - ${player.teamName}`
@@ -588,6 +594,19 @@ function proceedToNFLGame(onRetire: () => void): void {
 	ui.updateAllStats(player);
 	ui.updateHeader(player);
 
+	// Update life status bar with record, next opponent, and conference record
+	const nflRecordStr = `Record: ${nflTeam.wins}-${nflTeam.losses}`;
+	const nextNFLWeek = player.currentWeek < NFL_SEASON_WEEKS
+		? `Week ${player.currentWeek + 1} vs ${
+			nflTeam.schedule[player.currentWeek]?.opponentName || 'TBD'
+		}`
+		: 'End of Season';
+	const nflConfTeam = nflConference?.teams.find(t => t.name === player.teamName);
+	const nflConfExtra = nflConfTeam
+		? `Conference: ${nflConfTeam.wins}-${nflConfTeam.losses}`
+		: '';
+	ui.updateLifeStatus(nflRecordStr, nextNFLWeek, nflConfExtra);
+
 	// Check if season is over
 	if (player.currentWeek >= NFL_SEASON_WEEKS) {
 		ui.showChoices([
@@ -653,6 +672,12 @@ function endNFLSeason(onRetire: () => void): void {
 
 	ctx.save();
 	ui.updateAllStats(player);
+
+	// Update status bar with final season record
+	ui.updateLifeStatus(
+		`Record: ${nflTeam.wins}-${nflTeam.losses}`,
+		'Season Over'
+	);
 
 	// Check for retirement
 	const retirementCheck = checkRetirement(player);

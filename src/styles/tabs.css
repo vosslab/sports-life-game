@@ -82,3 +82,20 @@
 	-webkit-overflow-scrolling: touch;
 	padding: 8px;
 }
+
+/*============================================*/
+/* iPad landscape: compact tab bar            */
+/*============================================*/
+
+@media (min-width: 768px) and (orientation: landscape) {
+	#tab-bar {
+		padding: 2px 2px;
+		padding-bottom: max(2px, env(safe-area-inset-bottom));
+	}
+
+	.tab-button {
+		padding: 4px 4px;
+		min-height: 36px;
+		font-size: 0.7em;
+	}
+}

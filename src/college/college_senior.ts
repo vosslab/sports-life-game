@@ -10,6 +10,7 @@ import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildCollegeSeason } from './college_season_builder.js';
 import { formatSchoolName } from '../ncaa.js';
+import { applyPalette } from '../theme.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -30,6 +31,10 @@ export const collegeSeniorHandler: YearHandler = {
 
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
+		// Reapply team colors each season
+		if (player.teamPalette) {
+			applyPalette(player.teamPalette);
+		}
 		ctx.updateHeader(player);
 
 		// Check if player has 5th year eligibility (redshirt + haven't used it yet)
