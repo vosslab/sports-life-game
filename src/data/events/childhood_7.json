@@ -148,7 +148,7 @@
 		"weight": 3,
 		"is_big_decision": true,
 		"event_category": "big_decision",
-		"conditions": {},
+		"conditions": { "min_age": 5, "max_age": 8 },
 		"choices": [
 			{
 				"text": "Be excited about the fresh start",

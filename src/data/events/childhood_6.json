@@ -94,5 +94,29 @@
 				"progress_flag": "showoff"
 			}
 		]
+	},
+	{
+		"id": "mid_report_card",
+		"title": "Report Card Day",
+		"description": "Report cards are out. Yours is a mixed bag. Good at gym. Less good at sitting still.",
+		"phase": "childhood",
+		"tags": ["school", "discipline"],
+		"weight": 8,
+		"is_big_decision": false,
+		"event_category": "social",
+		"conditions": { "min_age": 6, "max_age": 6 },
+		"choices": [
+			{
+				"text": "Promise to try harder in class",
+				"effects": { "discipline": 2, "confidence": 1 },
+				"flavor": "You meant it. For about two weeks. Then recess happened.",
+				"progress_flag": "bookish"
+			},
+			{
+				"text": "Shrug it off. You know what you are good at.",
+				"effects": { "confidence": 2 },
+				"flavor": "Mom is not thrilled. But your PE grade is outstanding."
+			}
+		]
 	}
 ]

@@ -67,5 +67,52 @@
 				"flavor": "You played Madden for four hours. You learned three new formations. Not a total loss."
 			}
 		]
+	},
+	{
+		"id": "late_copying_the_pros",
+		"title": "Copying the Pros",
+		"description": "You watched a highlight reel and now you are trying to recreate every move in the backyard.",
+		"phase": "childhood",
+		"tags": ["identity", "motor"],
+		"weight": 8,
+		"is_big_decision": false,
+		"event_category": "identity",
+		"conditions": { "min_age": 9, "max_age": 9 },
+		"choices": [
+			{
+				"text": "Practice the same juke move until you get it right",
+				"effects": { "athleticism": 1, "discipline": 2 },
+				"flavor": "Attempt 1: fell over. Attempt 15: almost. Attempt 40: clean. The grass is destroyed."
+			},
+			{
+				"text": "Try every move once and keep the ones that work",
+				"effects": { "athleticism": 2, "confidence": 1 },
+				"flavor": "Spin move: no. Stiff arm: yes. Hurdle: absolutely not. Portfolio curated."
+			}
+		]
+	},
+	{
+		"id": "late_playground_hierarchy",
+		"title": "Playground Hierarchy",
+		"description": "The fifth graders run recess. You are tired of waiting for a turn.",
+		"phase": "childhood",
+		"tags": ["social", "competition"],
+		"weight": 8,
+		"is_big_decision": false,
+		"event_category": "social",
+		"conditions": { "min_age": 9, "max_age": 9 },
+		"choices": [
+			{
+				"text": "Challenge the fifth graders to earn a spot",
+				"effects": { "confidence": 2, "athleticism": 1 },
+				"flavor": "You walked up and said 'I am playing.' Two kids laughed. Then you scored. Nobody laughed after that."
+			},
+			{
+				"text": "Organize your own game with kids your age",
+				"effects": { "leadership": 2, "confidence": 1 },
+				"flavor": "Your game had more players by the end of recess. The fifth graders noticed.",
+				"progress_flag": "naturalLeader"
+			}
+		]
 	}
 ]

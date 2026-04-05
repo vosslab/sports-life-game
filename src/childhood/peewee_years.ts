@@ -57,8 +57,27 @@ export const peeweeHandler: YearHandler = {
 			player.storyFlags, statsRecord, undefined, player.age,
 		);
 
-		const event = selectEvent(eligible);
+		// Filter out events that already fired or whose family already fired
+		const fresh = eligible.filter(e => {
+			if (player.seenEventIds[e.id]) {
+				return false;
+			}
+			if (e.family && player.seenEventFamilies[e.family]) {
+				return false;
+			}
+			return true;
+		});
+
+		const event = selectEvent(fresh);
 		if (event) {
+			// Record the event as fired
+			player.seenEventIds[event.id] = true;
+			if (event.family) {
+				player.seenEventFamilies[event.family] = true;
+			}
+			for (const tag of event.tags) {
+				player.eventTagCounts[tag] = (player.eventTagCounts[tag] || 0) + 1;
+			}
 			presentEventThenContinue(player, ctx, event);
 		} else {
 			showContinue(player, ctx);

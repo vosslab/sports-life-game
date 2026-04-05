@@ -4,6 +4,41 @@
 
 ### Additions and New Features
 
+- **Special teams model for simulator** (`src/simulator/models/special_teams_model.ts`):
+  TypeScript port of nflsim special teams module (`nflsim/engine/special_teams.py`).
+  Exported functions: `resolveKickoff(state, tuning)` handles touchbacks (tuning
+  parameter), returns, TDs (1%), fumbles (1%); `resolvePunt(state, tuning)` simulates
+  punt distance (normal ~45y, 8y stddev), blocked punts (1.5%), fair catches
+  (tuning parameter), muffed punts (2%, no turnover), return TDs (1%), net yards;
+  `resolveFieldGoal(state, rules, tuning)` interpolates success probability from
+  distance curve (97% at 20y down to 40% at 60y+), scaled by tuning.fieldGoalAccuracy
+  normalized to NFL 85% baseline, auto-miss beyond fieldGoalMaxRange; `resolveExtraPoint(state, rules)`
+  and `resolveTwoPoint(state, rules)` use rules-defined success rates. All play
+  outcomes include full PlayOutcome interface with descriptive strings. Helper
+  function `randomNormal(mean, stddev)` uses Box-Muller transform for normal
+  distribution generation via Math.random().
+
+- **Play calling model for simulator** (`src/simulator/models/play_call_model.ts`):
+  TypeScript port of nflsim's play-calling heuristics (`nflsim/engine/play_resolver.py`
+  lines 67-114, 338-369). Main function `choosePlay(state, tuning)` decides play type
+  (pass/run/punt/field_goal/kneel/spike) based on game context. Exported binning helpers
+  `distanceBucket()`, `fieldZone()`, `scoreBucket()` categorize game features for
+  consistency with data-driven models. Decision tree: kneel when winning late in Q4
+  with no defensive timeouts; spike when losing with <60s; 4th down logic using field
+  goal distance and go-for-it probability; 1st-3rd down pass/run probability adjusted
+  by down, distance, situation (TWO_MINUTE, GOAL_LINE, GARBAGE_TIME), score
+  differential, and quarter. Uses `Math.random()` for all stochastic decisions.
+
+- **Rules engine for simulator** (`src/simulator/engine/rules_engine.ts`): TypeScript port
+  of nflsim's rules engine (`nflsim/engine/rules.py`). Handles all state transitions:
+  scoring (touchdown, PAT, field goal, safety), turnovers (interception, fumble),
+  kickoff/punt outcomes, down/distance management, and possession changes. Main function
+  `applyPlayResult(state, outcome)` dispatches to helpers like `applyTouchdown()`,
+  `applyFieldGoal()`, `applyKickoffResult()`, `applyTurnover()`, and `applyNormalPlay()`.
+  Strict TypeScript with explicit yard line bounds (1-99), proper first down tracking,
+  and turnover-on-downs logic. Constants `KICKOFF_TOUCHBACK_YARD_LINE = 30` and
+  `PUNT_TOUCHBACK_YARD_LINE = 20`.
+
 - **Childhood event revamp for ages 1-9** (`src/data/events/childhood_1.json` through
   `childhood_9.json`, `src/events.ts`, `src/player.ts`, `src/childhood/kid_years.ts`,
   `src/childhood/peewee_years.ts`): Replaced flat 26-event childhood pool with 42
