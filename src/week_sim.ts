@@ -11,6 +11,69 @@ import { Team } from './team.js';
 export type WeeklyFocus = 'train' | 'film_study' | 'recovery' | 'social' | 'teamwork';
 
 //============================================
+// Flavor text pools for weekly focus (randomly selected each week)
+const TRAIN_FLAVOR: string[] = [
+	'Your extra reps are paying off. Coaches are starting to trust you more.',
+	'You stayed late running drills until the lights shut off.',
+	'Coach pulled you aside after practice and said he noticed your improvement.',
+	'The repetition is starting to click. Moves that felt awkward now feel automatic.',
+	'Your hands are blistered but your footwork has never been better.',
+	'You pushed through a brutal practice. Every rep felt like it mattered.',
+	'The scout team could not keep up with you today.',
+	'A tough session, but you walked off the field feeling sharper.',
+];
+
+const FILM_STUDY_FLAVOR: string[] = [
+	'Studying film all week, you noticed patterns in the opponent offense.',
+	'You found a tendency in the film that nobody else caught.',
+	'Hours of film review are paying off. You see the game in slow motion now.',
+	'Coach quizzed you on formations and you nailed every one.',
+	'The playbook is starting to feel like a second language.',
+	'You spotted a blitz package on film that could give the team an edge.',
+	'Late nights in the film room. Your eyes are tired but your mind is sharp.',
+	'You drew up adjustments from film that impressed the coaching staff.',
+];
+
+const RECOVERY_FLAVOR: string[] = [
+	'A full week of rest and ice baths. Your body feels like new.',
+	'You took it easy and let your body recover. Smart move.',
+	'Sleep, stretching, and cold tubs. You feel recharged.',
+	'The trainers worked on your sore spots. You feel fresh.',
+	'A light week gave your body the reset it needed.',
+	'You focused on nutrition and sleep. Energy levels are way up.',
+	'Ice, compression, and proper rest. You are ready to dominate.',
+	'Sometimes the best training is no training. You feel great.',
+];
+
+const SOCIAL_FLAVOR: string[] = [
+	'You hung out with teammates all week. Your bond is stronger.',
+	'Team dinner, group chat, and weekend plans. You are one of the crew now.',
+	'You made some new friends outside of football. Life feels balanced.',
+	'A fun week off the field. Your confidence got a nice boost.',
+	'You went to a party and everyone knew your name. Feels good.',
+	'Teammates invited you to everything this week. You belong here.',
+	'You skipped a few study sessions, but the vibes were worth it.',
+	'Social media blew up after your highlight got shared around school.',
+];
+
+const TEAMWORK_FLAVOR: string[] = [
+	'By focusing on team chemistry, your voice carries more weight in the locker room.',
+	'You helped a younger player with their technique after practice.',
+	'The team ran extra drills together. Everyone is on the same page.',
+	'You organized a team workout. Coaches noticed the leadership.',
+	'A teammate was struggling and you pulled them aside to talk. It helped.',
+	'You led stretches and kept the energy positive all week.',
+	'The locker room feels tighter. That is your influence.',
+	'Teammates are starting to look to you when things get tough.',
+];
+
+//============================================
+// Pick a random string from a flavor pool
+function pickFlavor(pool: string[]): string {
+	return pool[randomInRange(0, pool.length - 1)];
+}
+
+//============================================
 // Game stat line (record of stat name to value)
 export type StatLine = Record<string, number | string>;
 
@@ -56,8 +119,7 @@ export function applyWeeklyFocus(player: Player, focus: WeeklyFocus): string {
 			modifyStat(player, 'technique', trainGain);
 			modifyStat(player, 'health', -randomInRange(0, 1));
 			modifyStat(player, 'confidence', randomInRange(0, 1));
-			storyText = 'Your extra reps are paying off. Coaches are starting to trust you '
-				+ 'more. Your body is tired but your skills are sharper.';
+			storyText = pickFlavor(TRAIN_FLAVOR);
 			break;
 		}
 
@@ -67,8 +129,7 @@ export function applyWeeklyFocus(player: Player, focus: WeeklyFocus): string {
 			modifyStat(player, 'footballIq', filmGain);
 			modifyStat(player, 'technique', randomInRange(0, 1));
 			modifyStat(player, 'discipline', randomInRange(0, 1));
-			storyText = 'Studying film all week, you noticed patterns in the opponent offense. '
-				+ 'You feel smarter on the field.';
+			storyText = pickFlavor(FILM_STUDY_FLAVOR);
 			break;
 		}
 
@@ -77,8 +138,7 @@ export function applyWeeklyFocus(player: Player, focus: WeeklyFocus): string {
 			const recoveryGain = randomInRange(5, 8);
 			modifyStat(player, 'health', recoveryGain);
 			modifyStat(player, 'confidence', randomInRange(0, 1));
-			storyText = 'A full week of rest and ice baths. Your body feels like new. '
-				+ 'You are ready to dominate.';
+			storyText = pickFlavor(RECOVERY_FLAVOR);
 			break;
 		}
 
@@ -88,8 +148,7 @@ export function applyWeeklyFocus(player: Player, focus: WeeklyFocus): string {
 			player.career.popularity = clampStat(player.career.popularity + socialGain);
 			modifyStat(player, 'confidence', randomInRange(2, 4));
 			modifyStat(player, 'discipline', -randomInRange(1, 3));
-			storyText = 'You hung out with the team all week. Your confidence is up '
-				+ 'but you skipped a few study sessions.';
+			storyText = pickFlavor(SOCIAL_FLAVOR);
 			break;
 		}
 
@@ -99,8 +158,7 @@ export function applyWeeklyFocus(player: Player, focus: WeeklyFocus): string {
 			player.hidden.leadership = clampStat(player.hidden.leadership + leadershipGain);
 			modifyStat(player, 'discipline', randomInRange(1, 2));
 			modifyStat(player, 'confidence', randomInRange(1, 2));
-			storyText = 'By focusing on team chemistry, your voice carries more weight in '
-				+ 'the locker room. Teammates follow your lead.';
+			storyText = pickFlavor(TEAMWORK_FLAVOR);
 			break;
 		}
 	}

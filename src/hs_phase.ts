@@ -226,7 +226,7 @@ export function startHighSchoolSeason(): void {
 				: ''
 		);
 
-		ui.showChoicePopup('Season Start', [
+		ui.showChoices([
 			{ text: 'Begin Preseason', primary: true, action: startPreseason },
 		]);
 	} finally {
@@ -279,7 +279,7 @@ function startPreseason(): void {
 			'You are a backup looking to earn your shot as a starter. '
 			+ 'Everyone is watching. What is your strategy?'
 		);
-		ui.showChoices([
+		ui.waitForInteraction('Tryout Strategy', [
 			{
 				text: 'Outwork everyone at practice',
 				primary: false,
@@ -310,7 +310,7 @@ function startPreseason(): void {
 			'You are the starter. Now it is about staying sharp and '
 			+ 'staying healthy.'
 		);
-		ui.showChoices([
+		ui.waitForInteraction('Preseason Preparation', [
 			{
 				text: 'Move to Week 0',
 				primary: true,
@@ -725,12 +725,18 @@ function proceedToGameDay(): void {
 	}
 
 	// Update status bar
+	// Update both status bar and life status widget with team record
+	const recordStr = `Record: ${persistentHSTeam.wins}-${persistentHSTeam.losses}`;
 	ui.updateStatusBar(
-		`Record: ${persistentHSTeam.wins}-${persistentHSTeam.losses}`,
+		recordStr,
 		player.recruitingStars > 0
 			? `Recruiting: ${player.recruitingStars} stars`
 			: ''
 	);
+	const nextWeek = player.currentWeek < HS_SEASON_WEEKS
+		? `Week ${player.currentWeek + 1}`
+		: 'End of Season';
+	ui.updateLifeStatus(recordStr, nextWeek);
 
 	// Check if season is over
 	if (player.currentWeek >= HS_SEASON_WEEKS) {
@@ -860,7 +866,7 @@ function playPlayoffGame(playoffRound: number): void {
 
 	// Weekly focus before playoff game
 	ctx.addText('What do you focus on this week?');
-	ui.showChoices([
+	ui.waitForInteraction('Playoff Preparation', [
 		{
 			text: 'Train',
 			primary: false,

@@ -47,7 +47,7 @@ export const nflVeteranHandler: YearHandler = {
 		}
 
 		// Retirement option for veterans
-		ctx.showChoices([
+		ctx.showChoicePopup('Veteran Season', [
 			{
 				text: 'Start Season',
 				primary: true,
@@ -83,7 +83,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	ctx.addText(`Earned $${(salary / 1000000).toFixed(1)}M this season.`);
 
 	ctx.addHeadline('Veteran Wisdom');
-	ctx.showChoices([
+	ctx.showChoicePopup('Offseason Choices', [
 		{
 			text: 'Mentor the young guys',
 			primary: true,

@@ -192,12 +192,23 @@
 		</nav>
 	</div>
 
-	<!-- Event modal overlay -->
+	<!-- Event modal overlay (for random events with narrative) -->
 	<div id="event-modal" class="modal-overlay hidden">
 		<div class="modal-card">
 			<h2 id="event-title"></h2>
 			<p id="event-description"></p>
 			<div id="event-choices">
+				<!-- Dynamically populated -->
+			</div>
+		</div>
+	</div>
+
+	<!-- Choice popup overlay (for all player decisions - BitLife style) -->
+	<div id="choice-popup" class="modal-overlay hidden">
+		<div class="modal-card choice-popup-card">
+			<h2 id="choice-popup-title"></h2>
+			<p id="choice-popup-description"></p>
+			<div id="choice-popup-options">
 				<!-- Dynamically populated -->
 			</div>
 		</div>

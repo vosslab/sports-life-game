@@ -82,7 +82,7 @@ export function showWeeklyFocusUI(
 		{ text: 'Teamwork (+2-3 leadership)', key: 'teamwork' },
 	];
 
-	ui.showChoicePopup('Weekly Focus', focusOptions.map(opt => ({
+	ui.waitForInteraction('Weekly Focus', focusOptions.map(opt => ({
 		text: opt.text,
 		primary: false,
 		action: () => onFocusSelected(opt.key),
@@ -137,7 +137,7 @@ function showActivitiesPrompt(
 
 	currentOnGameDay = onGameDay;
 
-	ui.showChoicePopup('Free Time', [
+	ui.waitForInteraction('Free Time', [
 		{
 			text: 'Activities',
 			primary: false,
@@ -405,13 +405,13 @@ export function showYearRecap(recap: YearSimRecap, onContinue: () => void): void
 		}
 	}
 
-	ui.showChoicePopup('Year Summary', [
+	ui.showChoices([
 		{
 			text: 'Continue',
 			primary: true,
 			action: onContinue,
 		},
-	], desc);
+	]);
 }
 
 //============================================

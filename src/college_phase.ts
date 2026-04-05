@@ -112,7 +112,7 @@ export function beginCollege(
 	ctx.save();
 	ui.updateHeader(player);
 
-	ui.showChoicePopup('College', [
+	ui.showChoices([
 		{ text: 'Start Freshman Season', primary: true, action: startCollegeSeason },
 	]);
 }
@@ -228,7 +228,7 @@ function startCollegeSeason(): void {
 	});
 	ui.showMainActionBar();
 
-	ui.showChoicePopup('Begin Season', [
+	ui.showChoices([
 		{ text: 'Begin Week 1', primary: true, action: startCollegeWeek },
 	]);
 }
@@ -476,11 +476,11 @@ function proceedToCollegeGame(): void {
 
 	// Check if season is over
 	if (player.currentWeek >= COLLEGE_SEASON_WEEKS) {
-		ui.showChoicePopup('Game Complete', [
+		ui.showChoices([
 			{ text: 'Season Summary', primary: true, action: endCollegeSeason },
 		]);
 	} else {
-		ui.showChoicePopup('Game Complete', [
+		ui.showChoices([
 			{ text: 'Next Week', primary: true, action: startCollegeWeek },
 		]);
 	}
@@ -666,7 +666,7 @@ function transferCollegeTeam(): void {
 	ui.updateHeader(player);
 	ui.updateAllStats(player);
 
-	ui.showChoicePopup('Transfer Portal', [
+	ui.showChoices([
 		{ text: 'Start Next Season', primary: true, action: startCollegeSeason },
 	]);
 }

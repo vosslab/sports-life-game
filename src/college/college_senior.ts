@@ -42,7 +42,7 @@ export const collegeSeniorHandler: YearHandler = {
 			ctx.addText(`${player.firstName} is a senior at ${player.teamName}.`);
 			ctx.addText('You have one final year of eligibility remaining.');
 
-			ctx.showChoices([
+			ctx.showChoicePopup('Senior Decision', [
 				{
 					text: 'Return for 5th Year',
 					primary: false,
@@ -89,7 +89,7 @@ function startNormalSeniorYear(player: Player, ctx: CareerContext): void {
 		player.teamStrength = playerTeam.strength;
 	}
 
-	ctx.showChoices([{
+	ctx.showChoicePopup('Senior Year', [{
 		text: 'Start Season',
 		primary: true,
 		action: () => {
@@ -107,7 +107,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	ctx.addText('Time to prepare for the NFL Draft.');
 
 	ctx.addHeadline('NFL Combine Prep');
-	ctx.showChoices([
+	ctx.showChoicePopup('Combine Strategy', [
 		{
 			text: 'Crush the combine with elite athleticism',
 			primary: false,

@@ -31,6 +31,9 @@ export const peeweeHandler: YearHandler = {
 
 		ctx.updateHeader(player);
 
+		// Clear previous year's content so the log stays manageable
+		ctx.clearStory();
+
 		const gradeLabel = player.age === 8 ? '3rd grade' : player.age === 9 ? '4th grade' : '5th grade';
 		ctx.addHeadline(`Age ${player.age} - Peewee Football (${gradeLabel})`);
 		ctx.addText(`${player.firstName} plays for the ${player.teamName}.`);
@@ -86,6 +89,7 @@ function presentEventThenContinue(
 		text: choice.text,
 		primary: false,
 		action: () => {
+			ctx.addText(`> ${choice.text}`);
 			const flavor = applyEventChoice(player, choice);
 			ctx.addResult(flavor);
 			ctx.updateStats(player);
@@ -94,13 +98,13 @@ function presentEventThenContinue(
 		},
 	}));
 
-	ctx.showChoices(choiceButtons);
+	ctx.showChoicePopup(event.title, choiceButtons);
 }
 
 //============================================
 // Show the continue button
 function showContinue(player: Player, ctx: CareerContext): void {
-	ctx.showChoices([{
+	ctx.showChoicePopup('Peewee Football', [{
 		text: 'Continue to Next Year',
 		primary: true,
 		action: () => advanceToNextYear(player, ctx),

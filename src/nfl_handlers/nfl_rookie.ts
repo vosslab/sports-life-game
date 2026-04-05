@@ -44,7 +44,7 @@ export const nflRookieHandler: YearHandler = {
 		ctx.addHeadline('Age 22 - NFL Rookie Season');
 		ctx.addText(`${player.firstName} begins NFL career with the ${player.teamName}.`);
 
-		ctx.showChoices([{
+		ctx.showChoicePopup('NFL Rookie Year', [{
 			text: 'Start Season',
 			primary: true,
 			action: () => {
@@ -67,7 +67,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	ctx.addText(`Earned $750,000 in rookie contract.`);
 
 	ctx.addHeadline('Offseason Plan');
-	ctx.showChoices([
+	ctx.showChoicePopup('Rookie Offseason', [
 		{
 			text: 'Hire a personal trainer for the offseason',
 			primary: false,

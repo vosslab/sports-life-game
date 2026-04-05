@@ -190,7 +190,7 @@ export function startNFLCareer(gameContext: GameContext, onRetire: () => void): 
 	ctx.save();
 	ui.updateHeader(player);
 
-	ui.showChoicePopup('Draft Day', [
+	ui.showChoices([
 		{
 			text: 'Begin NFL Career',
 			primary: true,
@@ -299,7 +299,7 @@ function startNFLSeason(onRetire: () => void): void {
 	});
 	ui.showMainActionBar();
 
-	ui.showChoicePopup('Begin Season', [
+	ui.showChoices([
 		{ text: 'Begin Week 1', primary: true, action: () => startNFLWeek(onRetire) },
 	]);
 }
@@ -590,11 +590,11 @@ function proceedToNFLGame(onRetire: () => void): void {
 
 	// Check if season is over
 	if (player.currentWeek >= NFL_SEASON_WEEKS) {
-		ui.showChoicePopup('Game Complete', [
+		ui.showChoices([
 			{ text: 'Season Summary', primary: true, action: () => endNFLSeason(onRetire) },
 		]);
 	} else {
-		ui.showChoicePopup('Game Complete', [
+		ui.showChoices([
 			{ text: 'Next Week', primary: true, action: () => startNFLWeek(onRetire) },
 		]);
 	}

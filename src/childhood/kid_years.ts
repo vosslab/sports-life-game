@@ -33,9 +33,13 @@ export const kidYearsHandler: YearHandler = {
 		applyAgeDrift(player);
 		ctx.updateHeader(player);
 
+		// Clear previous year's content so the log stays manageable
+		ctx.clearStory();
+
 		const headline = AGE_HEADLINES[player.age] || `Age ${player.age}`;
 		ctx.addHeadline(`Age ${player.age} - ${headline}`);
-		ctx.addText(`${player.firstName} is ${player.age} years old.`);
+		const yearWord = player.age === 1 ? 'year' : 'years';
+		ctx.addText(`${player.firstName} is ${player.age} ${yearWord} old.`);
 
 		// How many events to show this year (older = more)
 		const eventCount = player.age <= 3 ? 1 : 2;
@@ -94,7 +98,8 @@ function presentEvent(
 		text: choice.text,
 		primary: false,
 		action: () => {
-			// Apply the choice effects
+			// Show what the player chose, then apply effects
+			ctx.addText(`> ${choice.text}`);
 			const flavor = applyEventChoice(player, choice);
 			ctx.addResult(flavor);
 			ctx.updateStats(player);
@@ -109,13 +114,13 @@ function presentEvent(
 		},
 	}));
 
-	ctx.showChoices(choiceButtons);
+	ctx.showChoicePopup(event.title, choiceButtons);
 }
 
 //============================================
 // Show the "Continue to Next Year" button
 function showContinue(player: Player, ctx: CareerContext): void {
-	ctx.showChoices([{
+	ctx.showChoicePopup('Next Year', [{
 		text: 'Continue',
 		primary: true,
 		action: () => advanceToNextYear(player, ctx),

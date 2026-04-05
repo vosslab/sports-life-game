@@ -125,7 +125,7 @@ function showFocusChoices(player: Player, ctx: CareerContext): void {
 		{ text: 'Teamwork (LEAD/DISC up)', key: 'teamwork' },
 	];
 
-	ctx.showChoices(focusOptions.map(opt => ({
+	ctx.showChoicePopup('Weekly Focus', focusOptions.map(opt => ({
 		text: opt.text,
 		primary: false,
 		action: () => handleFocusSelected(player, ctx, opt.key),
@@ -148,7 +148,7 @@ function handleFocusSelected(
 	}
 
 	// Clear buttons during the stat review pause
-	ctx.showChoices([]);
+	ctx.showChoicePopup('Stat Review', []);
 
 	// Brief pause to show stat changes, then present activity choices
 	setTimeout(() => {
@@ -184,7 +184,7 @@ function handleFocusSelected(
 			},
 		});
 
-		ctx.showChoices(activityChoices);
+		ctx.showChoicePopup('Weekly Activities', activityChoices);
 	}, 1000);
 }
 
@@ -523,7 +523,7 @@ function startPlayoffs(
 	const opponentName = opponent ? opponent.getDisplayName() : 'Unknown';
 	ctx.addText(`Playoff matchup: ${player.teamName} vs ${opponentName}`);
 
-	ctx.showChoices([{
+	ctx.showChoicePopup('Playoff Game', [{
 		text: 'Play Game',
 		primary: true,
 		action: () => {
@@ -572,7 +572,7 @@ function startPlayoffs(
 			// Advance to next round
 			bracket.advanceRound();
 
-			ctx.showChoices([{
+			ctx.showChoicePopup('Next Round', [{
 				text: 'Next Round',
 				primary: true,
 				action: () => startPlayoffs(player, ctx, bracket),
@@ -674,6 +674,15 @@ export function getSeasonRecord(): { wins: number; losses: number } | null {
 	}
 	const record = activeEngine.season.getPlayerRecord();
 	return { wins: record.wins, losses: record.losses };
+}
+
+//============================================
+// Get the active week state (for sidebar checklist updates)
+export function getActiveWeekState(): WeekState | null {
+	if (!activeEngine) {
+		return null;
+	}
+	return activeEngine.weekState;
 }
 
 //============================================

@@ -64,7 +64,7 @@ export const hsVarsityHandler: YearHandler = {
 		const season = buildHighSchoolSeason(player.hsName, player.hsMascot, playerStrength);
 
 		// Start the season via the weekly engine
-		ctx.showChoices([{
+		ctx.showChoicePopup('Varsity Season', [{
 			text: 'Start Season',
 			primary: true,
 			action: () => {
@@ -157,11 +157,11 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 			};
 		});
 
-		ctx.showChoices(offerChoices);
+		ctx.showChoicePopup('College Offers', offerChoices);
 	} else {
 		// Junior year: continue
 		ctx.addText('Junior season is over.');
-		ctx.showChoices([{
+		ctx.showChoicePopup('Offseason', [{
 			text: 'Continue to Next Year',
 			primary: true,
 			action: () => advanceToNextYear(player, ctx),

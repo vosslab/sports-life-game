@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-04-04 (Choice Popup Conversion)
+
+### Behavior or Interface Changes
+
+- **Converted all `ctx.showChoices()` to `ctx.showChoicePopup()`**: Replaced all 27 calls to `ctx.showChoices()` with `ctx.showChoicePopup()` throughout the codebase. Each popup now includes a descriptive title drawn from surrounding context.
+  - **Interface update** (`src/core/year_handler.ts`): Added `showChoicePopup(title: string, options: ChoiceOption[], description?: string): void` to `CareerContext` interface.
+  - **Implementation** (`src/main.ts`): Added implementation in `buildCareerContext()` that routes to `ui.showChoicePopup()`.
+  - **NFL handlers** (`src/nfl_handlers/`): Updated `nfl_rookie.ts`, `nfl_veteran.ts`, `nfl_early.ts`, `nfl_peak.ts`, and `nfl_late.ts` (11 calls total).
+  - **College handlers** (`src/college/`): Updated `college_entry.ts`, `college_core.ts`, and `college_senior.ts` (8 calls total).
+  - **Childhood handlers** (`src/childhood/`): Updated `kid_years.ts`, `travel_years.ts`, and `peewee_years.ts` (6 calls total).
+  - **High school handlers** (`src/high_school/`): Updated `hs_frosh_soph.ts` and `hs_varsity.ts` (4 calls total).
+  - **Weekly engine** (`src/weekly/weekly_engine.ts`): Updated 6 calls to use popups with context-appropriate titles.
+  - **UI module** (`src/ui.ts`): Updated `showWeeklyFocusChoices()` to use `showChoicePopup()` instead of `showChoices()`.
+- All popups now display as styled modal overlays with consistent header and button layout (BitLife-style).
+- TypeScript compilation verified with `npx tsc --noEmit` (no errors).
+
 ## 2026-04-04 (Events Data Split)
 
 ### Additions and New Features

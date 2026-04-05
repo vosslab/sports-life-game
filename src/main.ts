@@ -82,7 +82,7 @@ import { startNFLCareer as startNFLCareerPhase, getNFLTeam, getNFLConference, re
 import { registerAllHandlers } from './core/register_handlers.js';
 import { advanceToNextYear, startYear } from './core/year_runner.js';
 import type { CareerContext } from './core/year_handler.js';
-import { getSeasonRecord, getActiveSeason } from './weekly/weekly_engine.js';
+import { getSeasonRecord, getActiveSeason, getActiveWeekState } from './weekly/weekly_engine.js';
 
 //============================================
 // GLOBALS AND STATE
@@ -189,6 +189,7 @@ function buildCareerContext(): void {
 		addText: (text: string) => addStoryText(text),
 		addResult: (text: string) => ui.addResult(text),
 		showChoices: (options) => ui.showChoices(options),
+		showChoicePopup: (title, options, description) => ui.showChoicePopup(title, options, description),
 		showEventModal: (title, desc, choices) => ui.showEventModal(title, desc, choices),
 		hideEventModal: () => ui.hideEventModal(),
 		save: () => { if (currentPlayer) saveGame(currentPlayer); },
@@ -237,7 +238,10 @@ function refreshDashboard(): void {
 	// Update all dashboard components
 	ui.updateWeekCard(currentPlayer, opponentName, pressure);
 	ui.updateMiniStatStrip(currentPlayer);
-	ui.updateSidebar(currentPlayer, getWeekState(), opponentName, lastFocusLabel);
+	// Prefer the weekly engine's week state (tracks actual phase progression)
+	// over game_loop's separate week state
+	const weekState = getActiveWeekState() || getWeekState();
+	ui.updateSidebar(currentPlayer, weekState, opponentName, lastFocusLabel);
 	ui.showRecentChange(lastRecentChange);
 }
 
@@ -415,7 +419,11 @@ async function initGame(): Promise<void> {
 	// Register all year-band handlers for the new architecture
 	registerAllHandlers();
 
-	// Build CareerContext adapter for year handlers
+	// Load all event data so childhood and youth phases have access
+	allEvents = await loadEvents();
+
+	// Build CareerContext adapter for year handlers (must happen after loadEvents
+	// because ctx.events captures the allEvents array reference)
 	buildCareerContext();
 
 	// Initialize phase modules with context and transition callbacks
@@ -444,7 +452,7 @@ async function initGame(): Promise<void> {
 				+ `Age ${currentPlayer.age}`);
 			ui.updateAllStats(currentPlayer);
 			ui.updateHeader(currentPlayer);
-			ui.showChoices([
+			ui.showChoicePopup('Welcome Back', [
 				{ text: 'Continue Game', primary: true, action: resumeGame },
 				{ text: 'Start New Game', primary: false, action: confirmNewGame },
 			]);
@@ -456,7 +464,7 @@ async function initGame(): Promise<void> {
 	addStoryHeadline('Welcome to Gridiron Life');
 	addStoryText('Your football career begins now. From backyard games to the big '
 		+ 'leagues, every choice shapes your story.');
-	ui.showChoices([
+	ui.showChoicePopup('Gridiron Life', [
 		{ text: 'Start New Game', primary: true, action: startCharacterCreation },
 	]);
 }
@@ -554,7 +562,7 @@ function showCollegeChoiceScreen(gameContext: GameContext): void {
 	addStoryText('You have options now. Bigger schools bring more prestige, but they may not hand you a starting role.');
 	addStoryText('Smaller programs can get you on the field faster. Pick the path you want.');
 
-	ui.showChoices(options.map((option) => ({
+	ui.showChoicePopup('College Decision', options.map((option) => ({
 		text: option.label,
 		primary: option.depthChart === 'starter',
 		action: () => {
@@ -580,7 +588,7 @@ function confirmNewGame(): void {
 	clearStory();
 	addStoryHeadline('Start Over?');
 	addStoryText('This will erase your current career. Are you sure?');
-	ui.showChoices([
+	ui.showChoicePopup('Start Over', [
 		{ text: 'Yes, Start Fresh', primary: true, action: () => {
 			deleteSave();
 			currentPlayer = null;
@@ -694,7 +702,7 @@ function startNewGame(firstName: string, lastName: string): void {
 	const sizeDesc = getSizeDescription(currentPlayer.hidden.size);
 	addStoryText(sizeDesc);
 
-	ui.showChoices([
+	ui.showChoicePopup('Your Birth', [
 		{ text: 'Continue...', primary: true, action: () => {
 			if (currentPlayer && careerCtx) {
 				// Enter the year-handler system starting at age 1
@@ -755,7 +763,7 @@ function declineYouthFootball(): void {
 	addStoryText('You decide you are not ready for organized football yet. '
 		+ 'For now, you would rather grow up at your own pace.');
 
-	ui.showChoices([
+	ui.showChoicePopup('Growing Up', [
 		{ text: 'Continue...', primary: true, action: advanceChildhood },
 	]);
 }
@@ -1128,7 +1136,7 @@ function startHighSchool(): void {
 	const suggested = suggestPosition(currentPlayer);
 	addStoryText(`Based on your build and skills, Coach thinks you would be a good fit at ${suggested}.`);
 
-	ui.showChoices([
+	ui.showChoicePopup('Choose Position', [
 		{
 			text: `Play ${suggested}`,
 			primary: true,
@@ -1206,7 +1214,7 @@ function showPositionChoices(): void {
 		{ pos: 'K', label: 'Kicker' },
 	];
 
-	ui.showChoices(positions.map(p => ({
+	ui.showChoicePopup('Select Position', positions.map(p => ({
 		text: p.label,
 		primary: false,
 		action: () => setPositionAndContinue(p.pos),
@@ -1236,7 +1244,7 @@ function setPositionAndContinue(position: Position): void {
 		+ 'The seniors barely look at you. You are at the bottom of the depth chart.');
 	addStoryText('But everyone starts somewhere.');
 
-	ui.showChoices([
+	ui.showChoicePopup('High School', [
 		{ text: 'Start the season', primary: true, action: () => {
 			if (currentPlayer && careerCtx) {
 				// Use new year-handler system for HS
@@ -1265,7 +1273,7 @@ function resumeGame(): void {
 	if (currentPlayer.phase === 'legacy') {
 		clearStory();
 		addStoryHeadline('Career Complete');
-		ui.showChoices([
+		ui.showChoicePopup('Career Complete', [
 			{ text: 'View Legacy', primary: true, action: retirePlayer },
 		]);
 	} else if (currentPlayer.phase === 'childhood' && currentPlayer.age < 1) {
@@ -1277,7 +1285,7 @@ function resumeGame(): void {
 		addStoryHeadline('Welcome Back');
 		addStoryText(`${currentPlayer.firstName} ${currentPlayer.lastName}, `
 			+ `Age ${currentPlayer.age}`);
-		ui.showChoices([
+		ui.showChoicePopup('Welcome Back', [
 			{ text: 'Continue', primary: true, action: () => {
 				if (currentPlayer && careerCtx) {
 					startYear(currentPlayer, careerCtx);
@@ -1297,18 +1305,8 @@ function resumeGame(): void {
 // Old entries stay visible and scrollable
 function clearStory(): void {
 	const storyLog = document.getElementById('story-log');
-	if (storyLog && storyLog.children.length > 0) {
-		// Add a visual divider instead of clearing
-		const divider = document.createElement('hr');
-		divider.className = 'story-divider';
-		storyLog.appendChild(divider);
-		// BUG FIX 2: Auto-scroll to the newest content
-		const panel = document.getElementById('story-panel');
-		if (panel) {
-			requestAnimationFrame(() => {
-				panel.scrollTop = panel.scrollHeight;
-			});
-		}
+	if (storyLog) {
+		storyLog.innerHTML = '';
 	}
 }
 
@@ -1439,7 +1437,7 @@ function retirePlayer(): void {
 		'Thank you for playing Gridiron Life.'
 	);
 
-	ui.showChoices([
+	ui.showChoicePopup('Career Over', [
 		{
 			text: 'Start a New Career',
 			primary: true,

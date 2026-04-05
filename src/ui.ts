@@ -1,4 +1,7 @@
 // ui.ts - centralized UI rendering module for the game
+//
+// Popup and modal functions live in popup.ts and are re-exported
+// here for backward compatibility with files using `import * as ui`.
 
 import { Player, CareerPhase } from './player.js';
 import { ScheduleEntry } from './team.js';
@@ -8,6 +11,17 @@ import { generatePortraitSVG } from './avatar.js';
 import type { Archetype } from './avatar.js';
 import { getTeamEmoji, formatTeamWithEmoji } from './team_emoji.js';
 import { isSidebarVisible } from './tabs.js';
+import { getElement, findElement } from './dom_utils.js';
+import { waitForInteraction as _waitForInteraction } from './popup.js';
+
+//============================================
+// Re-export popup functions so `import * as ui` still works
+export {
+	waitForInteraction, hideInteractionPopup,
+	showEventModal, hideEventModal,
+	configureMainButtons, disableMainButtons, enableMainButtons,
+	hideMainActionBar, showMainActionBar, initMainActionBar,
+} from './popup.js';
 
 //============================================
 // Type definitions for choice options
@@ -15,21 +29,6 @@ export interface ChoiceOption {
 	text: string;
 	primary?: boolean;
 	action: () => void;
-}
-
-//============================================
-// Helper function: get DOM element or throw error
-function getElement(id: string): HTMLElement {
-	const el = document.getElementById(id);
-	if (!el) {
-		throw new Error(`DOM element not found: ${id}`);
-	}
-	return el;
-}
-
-// Optional element lookup - returns null if not found
-function findElement(id: string): HTMLElement | null {
-	return document.getElementById(id);
 }
 
 //============================================
@@ -220,210 +219,6 @@ export function clearChoices(): void {
 }
 
 //============================================
-// CHOICE POPUP (BitLife-style modal for decisions)
-//============================================
-
-// Show a decision as a centered popup modal instead of inline buttons.
-// Reuses the #event-modal DOM. Title provides context (e.g. "Weekly Focus").
-// Description is optional explanatory text below the title.
-export function showChoicePopup(
-	title: string,
-	options: ChoiceOption[],
-	description?: string,
-): void {
-	const modal = getElement('event-modal');
-	const titleEl = getElement('event-title');
-	const descEl = getElement('event-description');
-	const choicesEl = getElement('event-choices');
-
-	// Set content
-	titleEl.textContent = title;
-	descEl.textContent = description ?? '';
-
-	// Hide description paragraph if empty
-	if (description) {
-		descEl.style.display = '';
-	} else {
-		descEl.style.display = 'none';
-	}
-
-	// Clear and populate choices
-	choicesEl.innerHTML = '';
-	for (const option of options) {
-		const button = document.createElement('button');
-		button.className = 'choice-button';
-		if (option.primary) {
-			button.classList.add('primary');
-		}
-		button.textContent = option.text;
-		button.addEventListener('click', () => {
-			// Hide modal before running the action
-			hideEventModal();
-			option.action();
-		});
-		choicesEl.appendChild(button);
-	}
-
-	// Show modal
-	modal.classList.remove('hidden');
-}
-
-//============================================
-// EVENT MODAL MANAGEMENT
-//============================================
-
-// Show event modal with title, description, and choices
-export function showEventModal(
-	title: string,
-	description: string,
-	choices: { text: string; action: () => void }[]
-): void {
-	const modal = getElement('event-modal');
-	const titleEl = getElement('event-title');
-	const descEl = getElement('event-description');
-	const choicesEl = getElement('event-choices');
-
-	// Set content
-	titleEl.textContent = title;
-	descEl.textContent = description;
-
-	// Clear and populate choices
-	choicesEl.innerHTML = '';
-	for (const choice of choices) {
-		const button = document.createElement('button');
-		button.className = 'choice-button';
-		button.textContent = choice.text;
-		button.addEventListener('click', choice.action);
-		choicesEl.appendChild(button);
-	}
-
-	// Show modal
-	modal.classList.remove('hidden');
-}
-
-// Hide event modal
-export function hideEventModal(): void {
-	const modal = getElement('event-modal');
-	modal.classList.add('hidden');
-}
-
-//============================================
-// MAIN ACTION BAR MANAGEMENT
-//============================================
-
-// Callbacks set by phase modules via configureMainButtons
-let onNextWeekCallback: (() => void) | null = null;
-let onAgeUpCallback: (() => void) | null = null;
-
-// Configure the persistent main buttons for the current phase.
-// Labels and visibility adapt to phase context.
-export function configureMainButtons(config: {
-	nextLabel: string;
-	nextAction: () => void;
-	ageUpVisible: boolean;
-	ageUpAction?: () => void;
-}): void {
-	const nextBtn = getElement('btn-next-week') as HTMLButtonElement;
-	const ageBtn = getElement('btn-age-up') as HTMLButtonElement;
-
-	// Set label and callback for the primary advance button
-	nextBtn.textContent = config.nextLabel;
-	onNextWeekCallback = config.nextAction;
-
-	// Age Up button visibility
-	if (config.ageUpVisible && config.ageUpAction) {
-		ageBtn.style.display = '';
-		onAgeUpCallback = config.ageUpAction;
-	} else {
-		ageBtn.style.display = 'none';
-		onAgeUpCallback = null;
-	}
-
-	// Enable buttons
-	nextBtn.disabled = false;
-	ageBtn.disabled = false;
-}
-
-// Disable main buttons (e.g. while a popup is open)
-export function disableMainButtons(): void {
-	const nextBtn = findElement('btn-next-week') as HTMLButtonElement | null;
-	const ageBtn = findElement('btn-age-up') as HTMLButtonElement | null;
-	if (nextBtn) {
-		nextBtn.disabled = true;
-	}
-	if (ageBtn) {
-		ageBtn.disabled = true;
-	}
-}
-
-// Enable main buttons (e.g. after popup closes)
-export function enableMainButtons(): void {
-	const nextBtn = findElement('btn-next-week') as HTMLButtonElement | null;
-	const ageBtn = findElement('btn-age-up') as HTMLButtonElement | null;
-	if (nextBtn) {
-		nextBtn.disabled = false;
-	}
-	if (ageBtn) {
-		ageBtn.disabled = false;
-	}
-}
-
-// Hide the main action bar entirely (e.g. during character creation)
-export function hideMainActionBar(): void {
-	const bar = findElement('main-action-bar');
-	if (bar) {
-		bar.style.display = 'none';
-	}
-}
-
-// Show the main action bar
-export function showMainActionBar(): void {
-	const bar = findElement('main-action-bar');
-	if (bar) {
-		bar.style.display = '';
-	}
-}
-
-// Initialize click handlers for the main action bar buttons.
-// Called once at app startup.
-export function initMainActionBar(): void {
-	const nextBtn = getElement('btn-next-week') as HTMLButtonElement;
-	const ageBtn = getElement('btn-age-up') as HTMLButtonElement;
-
-	nextBtn.addEventListener('click', () => {
-		if (onNextWeekCallback && !nextBtn.disabled) {
-			onNextWeekCallback();
-		}
-	});
-
-	ageBtn.addEventListener('click', () => {
-		if (onAgeUpCallback && !ageBtn.disabled) {
-			// Show confirmation popup before age-up
-			showChoicePopup('Simulate Year', [
-				{
-					text: 'Simulate Year',
-					primary: true,
-					action: () => {
-						if (onAgeUpCallback) {
-							onAgeUpCallback();
-						}
-					},
-				},
-				{
-					text: 'Cancel',
-					action: () => {
-						// Popup auto-closes via hideEventModal in showChoicePopup handler
-					},
-				},
-			], 'Simulate the rest of the year? All weekly decisions will be auto-resolved.');
-		}
-	});
-
-	// Hide by default until a phase configures it
-	hideMainActionBar();
-}
-
-//============================================
 // STATUS BAR MANAGEMENT
 //============================================
 
@@ -471,7 +266,7 @@ export function showWeeklyFocusChoices(
 		},
 	];
 
-	showChoices(focusOptions);
+	_waitForInteraction('Weekly Focus', focusOptions);
 }
 
 //============================================
