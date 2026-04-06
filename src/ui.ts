@@ -1188,7 +1188,7 @@ export function showRecentChange(text: string): void {
 //============================================
 
 // Update sidebar season+career section based on current phase
-export function updateSeasonCareer(player: Player): void {
+export function updateSeasonCareer(player: Player, seasonRecord?: string): void {
 	const container = document.getElementById('sidebar-season-career');
 	if (!container) {
 		return;
@@ -1209,10 +1209,13 @@ export function updateSeasonCareer(player: Player): void {
 	label.textContent = 'Season & Career';
 	container.appendChild(label);
 
-	// Season record
-	const history = player.careerHistory;
-	if (history.length > 0) {
-		const current = history[history.length - 1];
+	// Season record — prefer live season record over careerHistory.
+	// careerHistory is only populated at season end, so mid-season
+	// it would show stale or empty data.
+	if (seasonRecord) {
+		addSidebarRow(container, 'Record', seasonRecord);
+	} else if (player.careerHistory.length > 0) {
+		const current = player.careerHistory[player.careerHistory.length - 1];
 		const record = `${current.wins}-${current.losses}`;
 		addSidebarRow(container, 'Record', record);
 	}
@@ -1367,6 +1370,7 @@ export function updateSidebar(
 	weekState: WeekState | null,
 	opponent: string,
 	focusLabel: string,
+	seasonRecord?: string,
 ): void {
 	if (!isSidebarVisible()) {
 		return;
@@ -1374,7 +1378,7 @@ export function updateSidebar(
 
 	updateSidebarPlayerIdentity(player);
 	renderSidebarStatBars(player);
-	updateSeasonCareer(player);
+	updateSeasonCareer(player, seasonRecord);
 	updateThisWeekPanel(weekState, opponent, focusLabel);
 }
 

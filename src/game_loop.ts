@@ -424,7 +424,7 @@ export function showYearRecap(recap: YearSimRecap, onContinue: () => void): void
 
 //============================================
 // TAB CONTENT REFRESH
-// Called by handleTabSwitch in main.ts when Activities tab is opened
+// Called by tab_manager.ts when Activities tab is opened
 //============================================
 
 export function refreshActivitiesTabForCurrentPhase(): void {

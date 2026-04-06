@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mid_intensity",
+    "category": "train",
+    "text": "Crank up the intensity",
+    "description": "Go harder than everyone else in practice.",
+    "risk": "High reward, high injury risk.",
+    "conditions": {},
+    "outcomes": {
+      "success": { "probability": 0.45, "effects": { "technique": 3, "athleticism": 1, "health": -1 }, "narrative": "You were the best player on the practice field. Everyone noticed." },
+      "failure": { "probability": 0.55, "effects": { "health": -4, "confidence": -1 }, "narrative": "You went too hard and tweaked something. Trainer is concerned." }
+    }
+  },
+  {
+    "id": "mid_confront",
+    "category": "social",
+    "text": "Confront a teammate about effort",
+    "description": "Someone has been slacking. Call them out.",
+    "risk": "Could rally the team or create a rift.",
+    "conditions": {},
+    "outcomes": {
+      "success": { "probability": 0.5, "effects": { "confidence": 3, "discipline": 1 }, "narrative": "They took it well. The whole unit picked up their effort." },
+      "failure": { "probability": 0.5, "effects": { "confidence": -2, "discipline": -1 }, "narrative": "It got heated. Now there is tension in the locker room." }
+    }
+  },
+  {
+    "id": "mid_position",
+    "category": "risk",
+    "text": "Ask to try a new position",
+    "description": "You think you could contribute more somewhere else.",
+    "risk": "Bold move. Could open doors or close them.",
+    "conditions": { "depthChart": ["backup", "bench"] },
+    "outcomes": {
+      "success": { "probability": 0.35, "effects": { "technique": 2, "confidence": 3 }, "narrative": "Coach liked the initiative. You are getting reps at the new spot." },
+      "failure": { "probability": 0.65, "effects": { "confidence": -3 }, "narrative": "Coach shut it down. 'Know your role.' Ouch." }
+    }
+  },
+  {
+    "id": "mid_steady",
+    "category": "train",
+    "text": "Stay the course",
+    "description": "Keep doing what you have been doing. Consistent effort.",
+    "risk": "Safe. Won't wow anyone but won't hurt either.",
+    "conditions": {},
+    "outcomes": {
+      "success": { "probability": 0.85, "effects": { "technique": 1, "discipline": 1 }, "narrative": "Quiet week. Solid work. Coaches appreciate the reliability." },
+      "failure": { "probability": 0.15, "effects": { "confidence": -1 }, "narrative": "Nothing went wrong, but nothing stood out either. Are you coasting?" }
+    }
+  }
+]

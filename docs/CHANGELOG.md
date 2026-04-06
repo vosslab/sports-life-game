@@ -2,42 +2,112 @@
 
 ## 2026-04-05
 
+### Behavior or Interface Changes
+
+- **Crimson color theme for 4th quarter clutch moments** (`src/styles/modals.css`, `src/popup.ts`):
+  Clutch moment popups now use a distinct crimson/dark-red color scheme: dark red
+  modal background (#2a0808), red left border, red-tinted overlay, uppercase red
+  title text, and dark red buttons. Uses hardcoded colors independent of team palette
+  so clutch moments always look distinct from the player's school/team colors. Added
+  new `'clutch'` style variant to the popup system alongside existing narrative,
+  decision, activity, and goal styles.
+
+### Fixes and Maintenance
+
+- **Fix tab bar disappearing during high school** (`src/tab_manager.ts`, `src/core/year_runner.ts`):
+  Team and Career tabs were invisible on iPad landscape during high school because
+  `year_runner.ts` set `player.phase` without calling `updateTabBar()`. The tab bar
+  stayed rendered for the previous phase (childhood = life/stats/activities), and CSS
+  hides stats/activities on iPad, leaving only Life visible. Created new `tab_manager.ts`
+  as the single owner of tab lifecycle. Moved `handleTabSwitch` content logic from
+  `main.ts` into tab_manager. Added `syncTabsToPhase()` calls in `year_runner.ts`
+  after every phase change, plus a safety net in `refreshDashboard()`. Also fixed
+  sidebar record desync: the "Season & Career" section now reads from the live season
+  record during active seasons instead of `careerHistory` (which is only populated at
+  season end). Decision: centralized tab management prevents future regressions —
+  all phase transitions go through `year_runner.ts` which now auto-syncs tabs.
+- **Add UI update checklists to weekly_engine.ts** (`src/weekly/weekly_engine.ts`):
+  Added three checklists as code comments above `advanceToNextWeek` and `endSeason`:
+  week-end checklist (12 items), season-end checklist (7 items), and year-end
+  checklist (9 items). Each item is marked `[x]` showing it is currently handled.
+  Comments instruct future developers to add new UI elements to the relevant
+  checklist and verify they update correctly.
+- **Convert JSON data files to TypeScript modules** (`src/data/choices/*.ts`, `src/data/crises.ts`):
+  Converted 6 JSON files to typed TypeScript modules to fix browser ES module import errors
+  (MIME type "application/json" not allowed for modules). Created: preseason.ts, opening.ts,
+  midseason.ts, stretch.ts, postseason.ts, and crises.ts. Each exports typed const using
+  WeeklyChoice and CrisisDefinition interfaces. Updated weekly_engine.ts imports from .json
+  to .js (compiled .ts). TypeScript compilation now succeeds with no errors.
+
 ### Additions and New Features
 
-- **Special teams model for simulator** (`src/simulator/models/special_teams_model.ts`):
-  TypeScript port of nflsim special teams module (`nflsim/engine/special_teams.py`).
-  Exported functions: `resolveKickoff(state, tuning)` handles touchbacks (tuning
-  parameter), returns, TDs (1%), fumbles (1%); `resolvePunt(state, tuning)` simulates
-  punt distance (normal ~45y, 8y stddev), blocked punts (1.5%), fair catches
-  (tuning parameter), muffed punts (2%, no turnover), return TDs (1%), net yards;
-  `resolveFieldGoal(state, rules, tuning)` interpolates success probability from
-  distance curve (97% at 20y down to 40% at 60y+), scaled by tuning.fieldGoalAccuracy
-  normalized to NFL 85% baseline, auto-miss beyond fieldGoalMaxRange; `resolveExtraPoint(state, rules)`
-  and `resolveTwoPoint(state, rules)` use rules-defined success rates. All play
-  outcomes include full PlayOutcome interface with descriptive strings. Helper
-  function `randomNormal(mean, stddev)` uses Box-Muller transform for normal
-  distribution generation via Math.random().
+- **Integrated season arc, adaptive choices, and crisis system** (`src/weekly/weekly_engine.ts`):
+  Core weekly engine now drives the new game variety framework. Added imports for
+  season arc phase detection, weekly choice pools (preseason/opening/midseason/stretch/postseason),
+  and crisis scheduling/resolution. Module-level initialization loads choice pools and crisis
+  definitions from JSON. Modified `advanceToNextWeek()` to detect arc phase transitions and
+  display phase-change narrative text. Replaced `applyGoalAndAdvance()` body to check for
+  active crises first, then conditionally trigger midseason crises, then show adaptive weekly
+  choices. Added two new functions: `showWeeklyChoices()` displays arc-aware choice options
+  with UI interaction; `showCrisisResponse()` handles player responses to active crises with
+  timer advancement and resolution. Arc phase flows: goal effects (kept) → crisis check/trigger
+  → choice menu (or crisis response if already active) → event check → game. Choice resolution
+  applies narrative and stat effects before proceeding to event. Crisis responses advance
+  crisis state and may resolve the crisis entirely. Legacy `applyBackgroundActivityFromGoal()`
+  and `showActivities()` functions remain for potential future reuse but are no longer called
+  during weekly advancement.
 
-- **Play calling model for simulator** (`src/simulator/models/play_call_model.ts`):
-  TypeScript port of nflsim's play-calling heuristics (`nflsim/engine/play_resolver.py`
-  lines 67-114, 338-369). Main function `choosePlay(state, tuning)` decides play type
-  (pass/run/punt/field_goal/kneel/spike) based on game context. Exported binning helpers
-  `distanceBucket()`, `fieldZone()`, `scoreBucket()` categorize game features for
-  consistency with data-driven models. Decision tree: kneel when winning late in Q4
-  with no defensive timeouts; spike when losing with <60s; 4th down logic using field
-  goal distance and go-for-it probability; 1st-3rd down pass/run probability adjusted
-  by down, distance, situation (TWO_MINUTE, GOAL_LINE, GARBAGE_TIME), score
-  differential, and quarter. Uses `Math.random()` for all stochastic decisions.
+### Behavior or Interface Changes
 
-- **Rules engine for simulator** (`src/simulator/engine/rules_engine.ts`): TypeScript port
-  of nflsim's rules engine (`nflsim/engine/rules.py`). Handles all state transitions:
-  scoring (touchdown, PAT, field goal, safety), turnovers (interception, fumble),
-  kickoff/punt outcomes, down/distance management, and possession changes. Main function
-  `applyPlayResult(state, outcome)` dispatches to helpers like `applyTouchdown()`,
-  `applyFieldGoal()`, `applyKickoffResult()`, `applyTurnover()`, and `applyNormalPlay()`.
-  Strict TypeScript with explicit yard line bounds (1-99), proper first down tracking,
-  and turnover-on-downs logic. Constants `KICKOFF_TOUCHBACK_YARD_LINE = 30` and
-  `PUNT_TOUCHBACK_YARD_LINE = 20`.
+- **Rebalanced weekly stat progression** (`src/week_sim.ts`, `src/weekly/weekly_engine.ts`):
+  Added natural health recovery each week (+1 to +4, stronger when low) so health no
+  longer spirals to zero. Reduced stat gain ranges for steadier progression (technique
+  grind +3-6 to +1-3, popularity +3-5 to +2-3). Softened goal tradeoffs and reduced
+  injury rates and severity. Game-day starter health cost reduced from -0-2 to -0-1.
+
+### Fixes and Maintenance
+
+- **ES module import extensions in simulator** (`src/simulator/`): Added `.js`
+  extensions to all relative imports across simulator modules. Project uses
+  `"type": "module"` in package.json and `"module": "ES2020"` in tsconfig.json,
+  requiring explicit extensions for ES module resolution. Fixed: 12 files including
+  game engine, rules engine, play models, special teams, box score, output,
+  rules presets, adapter, and test files.
+
+### Additions and New Features
+
+- **Clutch checkpoint bridge** (`src/simulator/engine/clutch_checkpoint.ts`): Clean
+  interface between the game engine and clutch moment system. Provides three functions:
+  `shouldTriggerClutch()` (checks Q4+, starter status, score margin, situation, random
+  gate), `buildClutchCheckpoint()` (extracts game state into a readonly snapshot),
+  `clutchResultToPlayOutcome()` (converts clutch outcome tier + situation into a
+  concrete PlayOutcome). Integrates without mutating GameState: engine calls functions
+  only to decide UI flow and translate results, leaving normal play simulation untouched.
+
+- **Play-by-play game simulator** (`src/simulator/`): New simulation engine adapted
+  from the nflsim reference repo. Replaces the old formula-based score generation with
+  a state-machine-driven play-by-play engine where scores emerge from drives and stats
+  accumulate from individual plays. Architecture: `engine/` (state machine, rules engine,
+  game loop), `models/` (play calling, play results, special teams, team strength),
+  `rules/` (LeagueRules and LeagueTuning interfaces with NFL preset), `output/` (box
+  score, stat line extraction, story summary), `adapter.ts` (bridges new engine to
+  existing weekly game flow). Key features: context-based play calling using
+  down/distance/field/score binning, pass/run resolution with empirical yard
+  distributions and matchup multipliers, special teams with distance-based FG curves,
+  position-specific player stat extraction with snap shares, narrative story generation
+  with game tone classification (blowout, shootout, comeback, defensive struggle).
+  Design spec: `docs/superpowers/specs/2026-04-05-simulator-redesign-design.md`.
+- **League-specific rules for IHSA and FCS** (`src/simulator/rules/ihsa_rules.ts`,
+  `src/simulator/rules/fcs_rules.ts`): IHSA file exports frosh/soph and varsity
+  presets with different constants for quarter length, kicking, passing, turnovers,
+  parity, and blowout tendency. FCS preset sits between IHSA and NFL with stronger
+  home field, ranking impact, and moderate variance. Adapter auto-selects rules by
+  player phase and age (frosh/soph for ages 14-15, varsity for 16-17).
+- **Standings, rankings, and narrative systems** (`src/simulator/season/`):
+  Enhanced standings with PF/PA, streaks, SOS, tiebreakers. Weekly rankings with
+  inertia and upset detection. Narrative generator for league-wide recaps (upsets,
+  blowouts, thrillers, streaks, playoff implications). Non-player games use same
+  play-by-play engine. Clutch checkpoint interface for clean engine/story separation.
 
 - **Childhood event revamp for ages 1-9** (`src/data/events/childhood_1.json` through
   `childhood_9.json`, `src/events.ts`, `src/player.ts`, `src/childhood/kid_years.ts`,

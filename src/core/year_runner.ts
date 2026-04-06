@@ -14,6 +14,7 @@
 import { Player } from '../player.js';
 import { CareerContext } from './year_handler.js';
 import { getHandler, hasHandler } from './year_registry.js';
+import { syncTabsToPhase } from '../tab_manager.js';
 
 //============================================
 // Advance player to the next year and dispatch to the correct handler
@@ -37,6 +38,10 @@ export function advanceToNextYear(player: Player, ctx: CareerContext): void {
 	// Update phase based on handler id
 	player.phase = getPhaseForHandler(handler.id);
 
+	// Tab bar must sync after phase change. Without this, tabs show stale
+	// buttons from the previous phase (e.g. childhood tabs during high school).
+	syncTabsToPhase(player.phase);
+
 	// Dispatch to handler
 	handler.startYear(player, ctx);
 }
@@ -53,6 +58,8 @@ export function startYear(player: Player, ctx: CareerContext): void {
 	const handler = getHandler(player.age);
 	// Update phase based on handler id (matches advanceToNextYear behavior)
 	player.phase = getPhaseForHandler(handler.id);
+	// Tab bar must sync after phase change (see advanceToNextYear comment)
+	syncTabsToPhase(player.phase);
 	handler.startYear(player, ctx);
 }
 

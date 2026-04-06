@@ -195,3 +195,47 @@
 	background: color-mix(in srgb, var(--goal-color) 25%, var(--bg-card));
 	border-color: var(--goal-color);
 }
+
+/*============================================*/
+/* Clutch style: crimson intensity for 4th quarter moments */
+/* Uses hardcoded colors (not team palette) so it always  */
+/* looks distinct from the player's school/team colors.    */
+/*============================================*/
+
+/* Red-tinted overlay when clutch modal is active */
+.modal-overlay:has(.clutch-style) {
+	background: rgba(60, 0, 0, 0.9);
+}
+
+.clutch-style {
+	background: #2a0808;
+	border-left: 4px solid #dc3545;
+	text-align: left;
+}
+
+.clutch-style h2 {
+	font-size: 1.25em;
+	color: #ff6b6b;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.clutch-style p {
+	color: #e8c8c8;
+}
+
+.clutch-style #modal-options .choice-button {
+	background: #3a1515;
+	border: 1px solid #5a2020;
+}
+
+.clutch-style #modal-options .choice-button:hover {
+	background: #4a1a1a;
+	border-color: #dc3545;
+}
+
+.clutch-style #modal-options .choice-button.primary {
+	background: #4a1515;
+	border-color: #dc3545;
+}

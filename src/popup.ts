@@ -31,7 +31,10 @@ function showModal(
 	descEl.textContent = description;
 
 	// Apply style class (remove previous theme first)
-	card.classList.remove('decision-style', 'narrative-style', 'activity-style', 'goal-style');
+	card.classList.remove(
+		'decision-style', 'narrative-style', 'activity-style',
+		'goal-style', 'clutch-style',
+	);
 	if (styleClass) {
 		card.classList.add(styleClass);
 	}
@@ -76,7 +79,10 @@ function hideModal(): void {
 	const modal = getElement('game-modal');
 	const card = modal.querySelector('.modal-card') as HTMLElement;
 	modal.classList.add('hidden');
-	card.classList.remove('decision-style', 'narrative-style', 'activity-style', 'goal-style');
+	card.classList.remove(
+		'decision-style', 'narrative-style', 'activity-style',
+		'goal-style', 'clutch-style',
+	);
 }
 
 //============================================
@@ -115,6 +121,8 @@ export function waitForInteraction(
 		styleClass = 'activity-style';
 	} else if (style === 'goal') {
 		styleClass = 'goal-style';
+	} else if (style === 'clutch') {
+		styleClass = 'clutch-style';
 	}
 	showModal(title, description ?? '', options, styleClass, true);
 }

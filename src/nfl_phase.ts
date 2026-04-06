@@ -16,7 +16,8 @@ import {
 } from './player.js';
 import { Team, Conference, generateConference, simulateConferenceWeek } from './team.js';
 import { WeeklyFocus } from './week_sim.js';
-import { simulateGame, evaluateDepthChartUpdate, runPracticeSession } from './week_sim.js';
+import { evaluateDepthChartUpdate, runPracticeSession } from './week_sim.js';
+import { simulateWeeklyGame as simulateGame } from './simulator/adapter.js';
 import { generateNFLPalette, applyPalette } from './theme.js';
 import { checkRetirement, getNFLDraftResult, getNFLTeams } from './nfl.js';
 import {
@@ -25,7 +26,8 @@ import {
 } from './game_loop.js';
 import type { GameContext, YearSimRecap } from './game_loop.js';
 import { simulateWeekSilently, showYearRecap } from './game_loop.js';
-import { updateTabBar, switchTab } from './tabs.js';
+import { switchTab } from './tabs.js';
+import { syncTabsToPhase } from './tab_manager.js';
 import * as ui from './ui.js';
 
 //============================================
@@ -144,7 +146,7 @@ export function startNFLCareer(gameContext: GameContext, onRetire: () => void): 
 	const player = ctx.getPlayer();
 
 	// Update tab bar for NFL phase
-	updateTabBar(player.phase);
+	syncTabsToPhase(player.phase);
 	switchTab('life');
 
 	ctx.clearStory();

@@ -23,7 +23,8 @@ import {
 	assignPlayerCollege,
 } from './ncaa.js';
 import { generateNILDeal, calculateDraftStock, checkDeclarationEligibility } from './college.js';
-import { simulateGame } from './week_sim.js';
+import { simulateWeeklyGame as simulateGame } from './simulator/adapter.js';
+import { generateScoutReport, formatScoutReport } from './scout_report.js';
 import { generateTeamPalette, applyPalette } from './theme.js';
 import * as ui from './ui.js';
 
@@ -455,9 +456,19 @@ function proceedToCollegeGame(): void {
 		ui.updateHeader(player);
 	}
 
-	// Show draft stock for juniors/seniors
-	if (player.collegeYear >= 3) {
-		ctx.addText(`Draft stock: ${player.draftStock}/100`);
+	// Show scout report for juniors/seniors (sophomore gets a teaser)
+	if (player.collegeYear >= 2) {
+		const prevStock = player.collegeYear > 2 ? player.draftStock - 5 : null;
+		const report = generateScoutReport(player, prevStock);
+		ctx.addHeadline('Scout Report');
+		ctx.addText(report.summary);
+		for (const note of report.notes) {
+			const prefix = note.category === 'strength' ? '+'
+				: note.category === 'weakness' ? '-'
+				: note.category === 'concern' ? '!'
+				: '*';
+			ctx.addText(`  ${prefix} ${note.text}`);
+		}
 	}
 
 	// Update life status bar with record, next opponent, and conference/draft info

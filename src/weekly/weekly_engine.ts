@@ -13,7 +13,8 @@
 import { Player, CareerPhase, randomInRange, createEmptySeasonStats, modifyStat } from '../player.js';
 import { CareerContext, SeasonConfig, WeekAdvanceResult } from '../core/year_handler.js';
 import { SeasonGoal } from '../player.js';
-import { applySeasonGoal, getGoalsForPhase, GoalInfo, getPreferredActivitiesForGoal, simulateGame, evaluateDepthChartUpdate } from '../week_sim.js';
+import { applySeasonGoal, getGoalsForPhase, GoalInfo, getPreferredActivitiesForGoal, evaluateDepthChartUpdate } from '../week_sim.js';
+import { simulateWeeklyGame as simulateGame } from '../simulator/adapter.js';
 import { Team } from '../team.js';
 import {
 	Activity, WeekState, createWeekState, getActivitiesForPhase,
@@ -30,6 +31,22 @@ import {
 	ClutchGameContext, buildClutchMoment, resolveClutchMoment,
 } from '../clutch_moment.js';
 
+// Arc, choice, and crisis system imports
+import { getArcPhase, ArcPhase, getPhaseTransitionText } from '../season_arc.js';
+import { getWeeklyChoices, resolveChoice, WeeklyChoice, ChoiceResult, loadChoicePools } from '../weekly_choices.js';
+import {
+	scheduleCrises, startCrisis, getCrisisResponses, resolveCrisisResponse,
+	advanceCrisis, loadCrisisDefinitions,
+} from '../crisis.js';
+
+// Data imports
+import preseasonChoices from '../data/choices/preseason.js';
+import openingChoices from '../data/choices/opening.js';
+import midseasonChoices from '../data/choices/midseason.js';
+import stretchChoices from '../data/choices/stretch.js';
+import postseasonChoices from '../data/choices/postseason.js';
+import crisisData from '../data/crises.js';
+
 // Season layer imports
 import { LeagueSeason } from '../season/season_model.js';
 import {
@@ -38,6 +55,16 @@ import {
 } from '../season/season_simulator.js';
 import { PlayoffBracket, createHSPlayoffBracket, createCollegePlayoffBracket, createNFLPlayoffBracket } from '../season/playoff_bracket.js';
 import { PlayoffSeed } from '../season/season_types.js';
+
+// Initialize choice pools and crisis definitions at module load
+loadChoicePools({
+	preseason: preseasonChoices as unknown as WeeklyChoice[],
+	opening: openingChoices as unknown as WeeklyChoice[],
+	midseason: midseasonChoices as unknown as WeeklyChoice[],
+	stretch: stretchChoices as unknown as WeeklyChoice[],
+	postseason: postseasonChoices as unknown as WeeklyChoice[],
+});
+loadCrisisDefinitions(crisisData as unknown as any[]);
 
 //============================================
 // Engine state: minimal, just tracks weekly phase and callbacks
@@ -66,6 +93,14 @@ export function startSeason(
 	player.seasonStats = createEmptySeasonStats();
 	player.currentSeason += 1;
 
+	// Reset season arc and crisis state
+	player.activeCrisis = null;
+	player.scheduledCrises = [];
+	player.crisisTriggeredThisSeason = false;
+
+	// Clear seen events so they can repeat in new seasons
+	player.seenEventIds = {};
+
 	activeEngine = {
 		season,
 		config,
@@ -85,6 +120,23 @@ export function startSeason(
 //============================================
 // Core advancement function. This is the only way weeks advance.
 // GUARANTEE: this function always either starts a new week or ends the season.
+//
+// WEEK-END UI CHECKLIST (things that must update when a new week starts):
+//   [x] player.currentWeek — mirrored from season for save compatibility
+//   [x] weekState — reset to fresh focus phase
+//   [x] header — shows new age/week/team via ctx.updateHeader
+//   [x] story panel — cleared and shows week intro headline
+//   [x] opponent display — current week opponent from schedule
+//   [x] arc phase — transition text if season arc phase changed
+//   [x] season goal — re-prompt every 5 weeks
+//   [x] stat bars — refreshed via refreshDashboard (called by tab switch)
+//   [x] sidebar record — updated via refreshDashboard -> updateSidebar
+//   [x] sidebar "This Week" checklist — reset via refreshDashboard
+//   [x] week card — opponent and pressure updated via refreshDashboard
+//   [x] tab content — refreshed on next tab switch via tab_manager.ts
+//
+// If adding a new UI element that shows weekly state, add it here and
+// verify it updates in refreshDashboard or refreshTabContent.
 function advanceToNextWeek(player: Player, ctx: CareerContext): void {
 	if (!activeEngine) {
 		return;
@@ -115,6 +167,15 @@ function advanceToNextWeek(player: Player, ctx: CareerContext): void {
 	const opponentName = getPlayerOpponentName(activeEngine.season);
 	if (opponentName !== 'TBD') {
 		ctx.addText(`This week: vs ${opponentName}`);
+	}
+
+	// Detect arc phase and show transition text if phase changed
+	const arcPhase = getArcPhase(player.currentWeek, activeEngine.config.seasonLength);
+	const prevArcPhase = player.currentWeek > 1
+		? getArcPhase(player.currentWeek - 1, activeEngine.config.seasonLength)
+		: 'preseason';
+	if (arcPhase !== prevArcPhase) {
+		ctx.addText(getPhaseTransitionText(arcPhase));
 	}
 
 	// Every 5 games, re-prompt the player about their season goal
@@ -168,9 +229,9 @@ function showGoalSelection(
 }
 
 //============================================
-// Phase 1: Apply season goal effects (no popup, goal persists from season start)
+// Phase 1: Apply season goal effects and show adaptive choices or crisis response
 function applyGoalAndAdvance(player: Player, ctx: CareerContext): void {
-	// Apply the season goal's stat effects
+	// Apply the season goal's stat effects (kept - background layer)
 	const goalStory = applySeasonGoal(player);
 	ctx.addText(goalStory);
 	ctx.updateStats(player);
@@ -180,10 +241,121 @@ function applyGoalAndAdvance(player: Player, ctx: CareerContext): void {
 		return;
 	}
 
-	// Auto-resolve the side activity from the season goal
-	activeEngine.weekState.phase = 'activity_done';
-	applyBackgroundActivityFromGoal(player, ctx);
-	proceedToEventCheck(player, ctx);
+	// Check for active crisis first
+	if (player.activeCrisis && !player.activeCrisis.resolved) {
+		showCrisisResponse(player, ctx);
+		return;
+	}
+
+	// Check if crisis should trigger (midseason phase, not yet triggered)
+	const arcPhase = getArcPhase(player.currentWeek, activeEngine.config.seasonLength);
+	if (arcPhase === 'midseason' && !player.crisisTriggeredThisSeason) {
+		// Schedule crises at start of midseason
+		if (player.scheduledCrises.length === 0) {
+			const record = activeEngine.season.getPlayerRecord();
+			player.scheduledCrises = scheduleCrises(player, record.losses);
+		}
+		// Trigger next scheduled crisis
+		if (player.scheduledCrises.length > 0) {
+			const crisisId = player.scheduledCrises.shift()!;
+			const crisis = startCrisis(crisisId);
+			if (crisis) {
+				player.activeCrisis = crisis;
+				player.crisisTriggeredThisSeason = true;
+				ctx.addHeadline(crisis.name);
+				ctx.addText(crisis.description);
+				showCrisisResponse(player, ctx);
+				return;
+			}
+		}
+	}
+
+	// Normal week: show adaptive choices
+	showWeeklyChoices(player, ctx, arcPhase);
+}
+
+//============================================
+// Show adaptive weekly choices based on arc phase and context
+function showWeeklyChoices(player: Player, ctx: CareerContext, arcPhase: ArcPhase): void {
+	if (!activeEngine) {
+		return;
+	}
+
+	const record = activeEngine.season.getPlayerRecord();
+	const choices = getWeeklyChoices(
+		player, arcPhase, record.wins, record.losses,
+		player.activeCrisis !== null,
+	);
+
+	if (choices.length === 0) {
+		// No choices available, proceed directly
+		activeEngine.weekState.phase = 'activity_done';
+		proceedToEventCheck(player, ctx);
+		return;
+	}
+
+	const choiceOptions = choices.map(choice => ({
+		text: choice.text,
+		description: `${choice.description} (${choice.risk})`,
+		action: () => {
+			const result = resolveChoice(player, choice);
+			ctx.addText(result.narrative);
+			ctx.updateStats(player);
+			ctx.save();
+
+			if (activeEngine) {
+				activeEngine.weekState.phase = 'activity_done';
+			}
+			proceedToEventCheck(player, ctx);
+		},
+	}));
+
+	ctx.waitForInteraction('What do you do this week?', choiceOptions, undefined, 'activity');
+}
+
+//============================================
+// Show crisis response options during an active crisis
+function showCrisisResponse(player: Player, ctx: CareerContext): void {
+	if (!player.activeCrisis) {
+		return;
+	}
+
+	const responses = getCrisisResponses(player.activeCrisis.crisisId);
+	if (responses.length === 0) {
+		player.activeCrisis.resolved = true;
+		if (activeEngine) {
+			activeEngine.weekState.phase = 'activity_done';
+		}
+		proceedToEventCheck(player, ctx);
+		return;
+	}
+
+	const responseOptions = responses.map(response => ({
+		text: response.text,
+		description: response.risk,
+		action: () => {
+			const narrative = resolveCrisisResponse(player, player.activeCrisis!, response.id);
+			ctx.addText(narrative);
+			ctx.updateStats(player);
+			ctx.save();
+
+			// Advance crisis timer
+			if (player.activeCrisis) {
+				const crisisOver = advanceCrisis(player.activeCrisis);
+				if (crisisOver) {
+					ctx.addText("The crisis has passed. Back to football.");
+					player.activeCrisis = null;
+				}
+			}
+
+			if (activeEngine) {
+				activeEngine.weekState.phase = 'activity_done';
+			}
+			proceedToEventCheck(player, ctx);
+		},
+	}));
+
+	ctx.waitForInteraction('Crisis: ' + player.activeCrisis.name, responseOptions, undefined, 'narrative');
 }
 
 //============================================
@@ -314,8 +486,11 @@ function proceedToEventCheck(player: Player, ctx: CareerContext): void {
 			);
 		}
 
-		const event = selectEvent(eligible);
+		// Filter out events already seen this season
+		const unseen = eligible.filter(e => !player.seenEventIds[e.id]);
+		const event = selectEvent(unseen.length > 0 ? unseen : eligible);
 		if (event) {
+			player.seenEventIds[event.id] = true;
 			showEventCard(player, ctx, event);
 			return;
 		}
@@ -428,6 +603,9 @@ function proceedToGame(player: Player, ctx: CareerContext): void {
 						gameResult.opponentScore += 3;
 					}
 				}
+				// Regenerate story text with updated scores
+				const winLoss = gameResult.result === 'win' ? 'win' : 'loss';
+				gameResult.storyText = `${player.teamName} ${gameResult.teamScore} - ${opponentName} ${gameResult.opponentScore} (${winLoss}).`;
 				// Show the clutch narrative
 				ctx.addHeadline('4th Quarter - Clutch Moment');
 				ctx.addText(resolution.narrative);
@@ -440,7 +618,7 @@ function proceedToGame(player: Player, ctx: CareerContext): void {
 				showRegularSeasonPostGame(player, ctx, gameResult, opponentName);
 			},
 		}));
-		ctx.waitForInteraction('4th Quarter - Clutch Moment', clutchOptions, clutchMoment.scene, 'narrative');
+		ctx.waitForInteraction('4th Quarter - Clutch Moment', clutchOptions, clutchMoment.scene, 'clutch');
 		return;
 	}
 
@@ -482,9 +660,9 @@ function showRegularSeasonPostGame(
 		}
 	}
 
-	// Game-day wear: small health cost for starters only
+	// Game-day wear: starters take a hit from playing
 	if (player.depthChart === 'starter') {
-		modifyStat(player, 'health', -randomInRange(0, 2));
+		modifyStat(player, 'health', -randomInRange(0, 1));
 	}
 
 	// Evaluate depth chart
@@ -511,6 +689,16 @@ function showRegularSeasonPostGame(
 
 	ctx.updateStats(player);
 	ctx.updateHeader(player);
+
+	// Update the record display immediately so it reflects the game just played
+	const updatedRecord = activeEngine.season.getPlayerRecord();
+	ui.updateLifeStatus(
+		`Record: ${updatedRecord.wins}-${updatedRecord.losses}`,
+		player.currentWeek < activeEngine.config.seasonLength
+			? `Week ${player.currentWeek + 1}`
+			: 'End of Season',
+	);
+
 	ctx.save();
 
 	// Check for milestones after game results
@@ -617,7 +805,33 @@ function simulateRestOfSeason(player: Player, ctx: CareerContext): void {
 }
 
 //============================================
-// End the season
+// End the season. Called when advanceToNextWeek finds no more weeks.
+//
+// SEASON-END UI CHECKLIST (things that must update when a season ends):
+//   [x] story panel — cleared, shows final record headline
+//   [x] careerHistory — season record pushed in finalizeSeason
+//   [x] playoffs — bracket created and run if team qualifies
+//   [x] sidebar record — will read from careerHistory after engine clears
+//   [x] Career tab — shows updated careerHistory on next tab switch
+//   [x] Team tab — standings frozen at final week
+//   [x] tab bar — stays on current phase tabs until year_runner changes phase
+//
+// After finalizeSeason, activeEngine is set to null. The handler's
+// onSeasonEnd callback runs next (typically calls advanceToNextYear).
+//
+// YEAR-END UI CHECKLIST (things that update in advanceToNextYear):
+//   [x] player.age — incremented
+//   [x] player.phase — set from handler id via getPhaseForHandler
+//   [x] tab bar — synced to new phase via syncTabsToPhase (tab_manager.ts)
+//   [x] header — updated by new handler's startYear via ctx.updateHeader
+//   [x] stat bars — refreshed when new handler calls ctx.updateStats
+//   [x] sidebar — refreshed on next refreshDashboard call
+//   [x] team palette — may change if joining a new team (HS, college, NFL)
+//   [x] team name — updated by handler (player.teamName)
+//   [x] depth chart — reset or promoted by handler
+//
+// If adding a new UI element that shows season/year state, add it to
+// the relevant checklist and verify it updates.
 function endSeason(player: Player, ctx: CareerContext): void {
 	if (!activeEngine) {
 		return;
@@ -774,6 +988,8 @@ function startPlayoffs(
 								gameResult.opponentScore += 3;
 							}
 						}
+						// Regenerate story text with updated scores
+						gameResult.storyText = `${player.teamName} ${gameResult.teamScore} - ${opponentName} ${gameResult.opponentScore} (${gameResult.result}).`;
 						ctx.addHeadline('4th Quarter - Clutch Moment');
 						ctx.addText(resolution.narrative);
 						ctx.addText(resolution.spotlightText);
@@ -784,7 +1000,7 @@ function startPlayoffs(
 					},
 				}));
 				ctx.waitForInteraction(
-					'4th Quarter - Clutch Moment', clutchOptions, clutchMoment.scene, 'narrative',
+					'4th Quarter - Clutch Moment', clutchOptions, clutchMoment.scene, 'clutch',
 				);
 				return;
 			}

@@ -63,10 +63,10 @@ import {
 	checkRetirement, loadNFLTeams,
 } from './nfl.js';
 import {
-	updateTabBar, switchTab, hideTabBar, showTabBar, setOnTabSwitch,
+	switchTab, hideTabBar, showTabBar,
 	isSidebarVisible, updateSidebarVisibility, initSidebarListener,
 } from './tabs.js';
-import type { TabId } from './tabs.js';
+import { initTabManager, syncTabsToPhase } from './tab_manager.js';
 import {
 	initGameLoop, GameContext, refreshActivitiesTabForCurrentPhase, getWeekState,
 } from './game_loop.js';
@@ -213,6 +213,10 @@ function refreshDashboard(): void {
 		return;
 	}
 
+	// Safety net: re-sync tabs on every dashboard refresh in case a code path
+	// changed phase without calling syncTabsToPhase directly
+	syncTabsToPhase(currentPlayer.phase);
+
 	// Get opponent info from active season
 	let opponentName = '';
 	let pressure = '';
@@ -239,7 +243,10 @@ function refreshDashboard(): void {
 	// Prefer the weekly engine's week state (tracks actual phase progression)
 	// over game_loop's separate week state
 	const weekState = getActiveWeekState() || getWeekState();
-	ui.updateSidebar(currentPlayer, weekState, opponentName, lastFocusLabel);
+	// Pass live season record to sidebar so it stays in sync with Life tab
+	const seasonRec = getSeasonRecord();
+	const sidebarRecord = seasonRec ? `${seasonRec.wins}-${seasonRec.losses}` : undefined;
+	ui.updateSidebar(currentPlayer, weekState, opponentName, lastFocusLabel, sidebarRecord);
 	ui.showRecentChange(lastRecentChange);
 }
 
@@ -271,136 +278,9 @@ let currentSeasonStats: SeasonStats = {
 
 //============================================
 // TAB SWITCHING AND UI COORDINATION
-// Handles tab content refresh and UI wiring. Rendering lives in ui.ts.
+// Tab content refresh is handled by tab_manager.ts.
+// main.ts only manages show/hide of the tab bar during modals/creation.
 //============================================
-
-// Refresh tab content when user switches to a tab
-function handleTabSwitch(tabId: TabId): void {
-	if (!currentPlayer) {
-		return;
-	}
-
-	// Update stat bars and dashboard whenever any tab is opened
-	ui.updateAllStats(currentPlayer);
-	refreshDashboard();
-
-	// Get season data from the new season layer (single source of truth)
-	const activeSeason = getActiveSeason();
-	const newSeasonRecord = getSeasonRecord();
-	let lifeRecord = 'No team record yet.';
-	let lifeNextOpponent = 'No upcoming opponent.';
-	let lifeExtra = '';
-	if (activeSeason && newSeasonRecord) {
-		lifeRecord = `Record: ${newSeasonRecord.wins}-${newSeasonRecord.losses}`;
-		// Show current week opponent
-		const playerGame = activeSeason.getPlayerGame();
-		if (playerGame) {
-			const oppId = playerGame.getOpponentId(activeSeason.playerTeamId);
-			const opp = oppId ? activeSeason.getTeam(oppId) : undefined;
-			const oppName = opp ? opp.getDisplayName() : 'TBD';
-			lifeNextOpponent = `Week ${activeSeason.getCurrentWeek()} vs ${oppName}`;
-		} else {
-			lifeNextOpponent = `Week ${activeSeason.getCurrentWeek()}`;
-		}
-		// Get conference record from standings
-		const playerTeam = activeSeason.getPlayerTeam();
-		if (playerTeam && playerTeam.conferenceId) {
-			const standings = activeSeason.getStandings(playerTeam.conferenceId);
-			const playerRow = standings.find(
-				r => r.teamId === activeSeason.playerTeamId
-			);
-			if (playerRow && (playerRow.conferenceWins > 0 || playerRow.conferenceLosses > 0)) {
-				lifeExtra = `Conference: ${playerRow.conferenceWins}-${playerRow.conferenceLosses}`;
-			}
-		}
-		// Add draft stock for college juniors/seniors
-		if (currentPlayer.phase === 'college' && currentPlayer.collegeYear >= 3) {
-			lifeExtra += lifeExtra
-				? ` | Draft Stock: ${currentPlayer.draftStock}`
-				: `Draft Stock: ${currentPlayer.draftStock}`;
-		}
-		// Add recruiting stars for high school
-		if (currentPlayer.phase === 'high_school' && currentPlayer.recruitingStars > 0) {
-			lifeExtra += lifeExtra
-				? ` | Recruiting: ${currentPlayer.recruitingStars} stars`
-				: `Recruiting: ${currentPlayer.recruitingStars} stars`;
-		}
-	}
-	ui.updateLifeStatus(lifeRecord, lifeNextOpponent, lifeExtra);
-
-	if (tabId === 'stats') {
-		ui.updateStatsTab(currentPlayer);
-	} else if (tabId === 'team') {
-		// Build team tab content from season layer (single source of truth)
-		const teamName = currentPlayer.teamName || 'No Team';
-
-		// Get record from season or career history
-		let record = '0-0';
-		if (activeSeason) {
-			const seasonRecord = activeSeason.getPlayerRecord();
-			record = `${seasonRecord.wins}-${seasonRecord.losses}`;
-		} else if (currentPlayer.careerHistory.length > 0) {
-			const latest = currentPlayer.careerHistory[currentPlayer.careerHistory.length - 1];
-			record = `${latest.wins}-${latest.losses}`;
-		}
-
-		// Get standings from the season layer
-		// For NFL, show only the player's conference (AFC or NFC)
-		let standingsText = '';
-		if (activeSeason) {
-			const playerTeam = activeSeason.getPlayerTeam();
-			const confId = playerTeam ? playerTeam.conferenceId : undefined;
-			// Filter by conference in NFL (shows 16 teams instead of 32)
-			const useConference = currentPlayer.phase === 'nfl' && confId;
-			const standings = useConference
-				? activeSeason.getStandings(confId)
-				: activeSeason.getStandings();
-			// Header shows conference name if filtered
-			const confLabel = useConference ? `${confId} Standings` : 'Standings';
-			standingsText += `${confLabel}:\n`;
-			for (let i = 0; i < standings.length; i++) {
-				const row = standings[i];
-				const rank = (i + 1).toString().padStart(2, ' ');
-				const recordStr = `${row.wins}-${row.losses}`;
-				const isPlayer = row.teamId === activeSeason.playerTeamId;
-				const prefix = isPlayer ? '>>> ' : '  ';
-				standingsText += `${prefix}${rank}. ${row.name.padEnd(25)} ${recordStr}\n`;
-			}
-		}
-
-		// Get schedule from the season layer
-		let schedule: import('./team.js').ScheduleEntry[] = [];
-		let week = currentPlayer.currentWeek;
-		if (activeSeason) {
-			// Convert season schedule to legacy ScheduleEntry format for UI compatibility
-			const seasonSchedule = activeSeason.getScheduleDisplay(activeSeason.playerTeamId);
-			schedule = seasonSchedule.map(row => ({
-				opponentName: row.opponentName,
-				opponentStrength: 0,
-				week: row.week,
-				played: row.played,
-				teamScore: row.teamScore || 0,
-				opponentScore: row.opponentScore || 0,
-			}));
-			week = activeSeason.getCurrentWeek();
-		}
-
-		// Coach info from season team
-		let coachInfo = '';
-		if (activeSeason) {
-			const playerTeam = activeSeason.getPlayerTeam();
-			if (playerTeam) {
-				coachInfo = `Coach (${playerTeam.coachPersonality})`;
-			}
-		}
-
-		ui.updateTeamTab(teamName, record, standingsText, schedule, week, coachInfo);
-	} else if (tabId === 'activities') {
-		refreshActivitiesTabForCurrentPhase();
-	} else if (tabId === 'career') {
-		ui.updateCareerTab(currentPlayer);
-	}
-}
 
 //============================================
 // GAME INITIALIZATION AND SAVE/LOAD
@@ -417,8 +297,15 @@ async function initGame(): Promise<void> {
 	// Load NFL team data from CSV
 	await loadNFLTeams();
 
-	// Register tab content refresh callback
-	setOnTabSwitch(handleTabSwitch);
+	// Initialize tab manager with dependency accessors
+	initTabManager({
+		getPlayer: () => currentPlayer,
+		getActiveSeason,
+		getSeasonRecord,
+		getWeekState: () => getActiveWeekState() || getWeekState(),
+		refreshActivities: refreshActivitiesTabForCurrentPhase,
+		refreshDashboard,
+	});
 
 	// Initialize sidebar resize listener
 	initSidebarListener();
@@ -466,7 +353,7 @@ async function initGame(): Promise<void> {
 		currentPlayer = loadGame();
 		if (currentPlayer) {
 			// Resume existing game: show tab bar for current phase
-			updateTabBar(currentPlayer.phase);
+			syncTabsToPhase(currentPlayer.phase);
 			showTabBar();
 			switchTab('life');
 			addStoryHeadline('Welcome Back');
@@ -700,7 +587,7 @@ function startNewGame(firstName: string, lastName: string): void {
 	wonStateThisSeason = false;
 
 	// Show tab bar for childhood phase
-	updateTabBar(currentPlayer.phase);
+	syncTabsToPhase(currentPlayer.phase);
 	showTabBar();
 	switchTab('life');
 
@@ -1156,7 +1043,7 @@ function startHighSchool(): void {
 	saveGame(currentPlayer);
 
 	// Update tab bar for high school (adds Team and Career tabs)
-	updateTabBar(currentPlayer.phase);
+	syncTabsToPhase(currentPlayer.phase);
 	switchTab('life');
 
 	clearStory();
@@ -1509,7 +1396,7 @@ function retirePlayer(): void {
 	saveGame(currentPlayer);
 
 	// Update tab bar for legacy phase (Life, Stats, Career)
-	updateTabBar(currentPlayer.phase);
+	syncTabsToPhase(currentPlayer.phase);
 	switchTab('life');
 
 	clearStory();

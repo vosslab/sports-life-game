@@ -1,0 +1,186 @@
+import type { CrisisDefinition } from '../crisis.js';
+
+const crises: CrisisDefinition[] = [
+	{
+		id: "injury_setback",
+		name: "Injury Setback",
+		description: "You felt something pop during practice. The trainer wants to talk.",
+		duration: 2,
+		triggerWeight: { base: 1.0, healthBelow50Bonus: 1.5 },
+		responses: [
+			{
+				id: "rest_full",
+				text: "Shut it down and recover fully",
+				risk: "Miss 2 games but come back 100%.",
+				effects: { health: 8, confidence: -2 },
+				narrative: "You sat out and watched. Frustrating but smart. Body feels great now.",
+				depthChartChange: null,
+				missGames: 2
+			},
+			{
+				id: "play_through",
+				text: "Play through it",
+				risk: "Keep your stats going but risk making it worse.",
+				effects: { health: -4, confidence: 2 },
+				narrative: "You gutted it out. Teammates respect the toughness, but you are limping.",
+				depthChartChange: null,
+				missGames: 0
+			},
+			{
+				id: "rehab_hard",
+				text: "Aggressive rehab, miss one game",
+				risk: "Faster recovery but not full rest.",
+				effects: { health: 3, technique: 1 },
+				narrative: "Rehab went well. Not 100% but functional. One game missed.",
+				depthChartChange: null,
+				missGames: 1
+			}
+		]
+	},
+	{
+		id: "depth_chart_shakeup",
+		name: "Depth Chart Shake-Up",
+		description: "Coach pulled you aside after practice. Your spot is not guaranteed anymore.",
+		duration: 2,
+		triggerWeight: { base: 0.5, benchBackupBonus: 1.5 },
+		responses: [
+			{
+				id: "earn_back",
+				text: "Earn it back in practice",
+				risk: "Show them what you've got. Or embarrass yourself trying.",
+				effects: { technique: 2, confidence: 1 },
+				narrative: "You went harder than anyone all week. Coaches took notice.",
+				depthChartChange: "promote",
+				missGames: 0
+			},
+			{
+				id: "confront_coach",
+				text: "Talk to the coach about it",
+				risk: "Could get answers or get shut down.",
+				effects: { confidence: -1, discipline: 1 },
+				narrative: "Coach was honest. You know what you need to fix. No shortcuts.",
+				depthChartChange: null,
+				missGames: 0
+			},
+			{
+				id: "accept_role",
+				text: "Accept the new role and be a team player",
+				risk: "Shows maturity but might cement you as a backup.",
+				effects: { discipline: 2, confidence: -2 },
+				narrative: "You handled it with class. Teammates respect that. But you are still on the bench.",
+				depthChartChange: null,
+				missGames: 0
+			}
+		]
+	},
+	{
+		id: "locker_room_conflict",
+		name: "Locker Room Conflict",
+		description: "Two teammates got into it after practice. The whole team feels the tension.",
+		duration: 1,
+		triggerWeight: { base: 1.0, losingStreakBonus: 1.0 },
+		responses: [
+			{
+				id: "mediate",
+				text: "Step in and mediate",
+				risk: "Could defuse things or make you a target.",
+				effects: { confidence: 2, discipline: 1 },
+				narrative: "You pulled them apart and said the right things. Team feels unified again.",
+				depthChartChange: null,
+				missGames: 0
+			},
+			{
+				id: "take_sides",
+				text: "Back one of them",
+				risk: "Pick a side. Win an ally, make an enemy.",
+				effects: { confidence: 1, discipline: -1 },
+				narrative: "You made your choice. Half the team agrees with you. The other half does not.",
+				depthChartChange: null,
+				missGames: 0
+			},
+			{
+				id: "stay_out",
+				text: "Stay out of it",
+				risk: "Safe but leadership opportunity missed.",
+				effects: { discipline: 1, confidence: -1 },
+				narrative: "You kept your head down. Drama passed eventually. No one saw you step up though.",
+				depthChartChange: null,
+				missGames: 0
+			}
+		]
+	},
+	{
+		id: "personal_crisis",
+		name: "Personal Crisis",
+		description: "Something happened at home. It is weighing on you.",
+		duration: 2,
+		triggerWeight: { base: 0.8 },
+		responses: [
+			{
+				id: "handle_private",
+				text: "Handle it privately",
+				risk: "Keep it together. Nobody needs to know.",
+				effects: { discipline: 2, confidence: -1 },
+				narrative: "You dealt with it on your own. Tough week but you got through it.",
+				depthChartChange: null,
+				missGames: 0
+			},
+			{
+				id: "lean_on_team",
+				text: "Lean on your teammates for support",
+				risk: "Vulnerable but builds real bonds.",
+				effects: { confidence: 3 },
+				narrative: "The guys rallied around you. This team is more than football.",
+				depthChartChange: null,
+				missGames: 0
+			},
+			{
+				id: "ignore_play",
+				text: "Ignore it and focus on football",
+				risk: "Might work. Might blow up later.",
+				effects: { technique: 1, health: -2 },
+				narrative: "You buried yourself in football. It helped on the field but the stress is still there.",
+				depthChartChange: null,
+				missGames: 0
+			}
+		]
+	},
+	{
+		id: "rival_emergence",
+		name: "Rival Emergence",
+		description: "One player on the other side of the ball has been running his mouth about you all week.",
+		duration: 2,
+		triggerWeight: { base: 0.7, starterWinningBonus: 1.0 },
+		responses: [
+			{
+				id: "train_for_rival",
+				text: "Train specifically to beat them",
+				risk: "Focused prep. Could pay off big on game day.",
+				effects: { technique: 2, footballIq: 2 },
+				narrative: "You watched every snap of their film. You know exactly how to attack.",
+				depthChartChange: null,
+				missGames: 0
+			},
+			{
+				id: "trash_back",
+				text: "Fire back in the media",
+				risk: "Fun but dangerous. Bulletin board material.",
+				effects: { confidence: 3, discipline: -2 },
+				narrative: "Social media is exploding. Your teammates are hyped. Your coaches are not.",
+				depthChartChange: null,
+				missGames: 0
+			},
+			{
+				id: "let_play_talk",
+				text: "Let your play do the talking",
+				risk: "Classy. But no fun.",
+				effects: { discipline: 2, confidence: 1 },
+				narrative: "You said nothing. Then went out and dominated. That is the best answer.",
+				depthChartChange: null,
+				missGames: 0
+			}
+		]
+	}
+];
+
+export default crises;

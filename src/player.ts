@@ -3,6 +3,7 @@
 import { TeamPalette } from './theme.js';
 import { AvatarConfig, randomAvatarConfig } from './avatar.js';
 import { RecruitingProfile } from './recruiting_profile.js';
+import type { ActiveCrisis } from './crisis.js';
 
 //============================================
 // Core visible stats (0-100 scale)
@@ -226,6 +227,11 @@ export interface Player {
 	// Season goal (persistent across weeks, replaces per-week focus)
 	seasonGoal: SeasonGoal;
 
+	// Season arc and crisis tracking
+	activeCrisis: ActiveCrisis | null;
+	scheduledCrises: string[];
+	crisisTriggeredThisSeason: boolean;
+
 	// Story and progression
 	storyFlags: StoryFlags;
 	storyLog: string[];      // recent story entries
@@ -357,6 +363,9 @@ export function createPlayer(firstName: string, lastName: string): Player {
 
 		gpa: 2.5,
 		seasonGoal: 'grind',
+		activeCrisis: null,
+		scheduledCrises: [],
+		crisisTriggeredThisSeason: false,
 		relationships: {
 			'Mom': randomInRange(60, 90),
 			'Dad': randomInRange(50, 85),

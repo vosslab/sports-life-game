@@ -1,0 +1,54 @@
+import type { WeeklyChoice } from '../../weekly_choices.js';
+
+const choices: WeeklyChoice[] = [
+	{
+		id: "stretch_film_rival",
+		category: "prepare",
+		text: "Study film on this week's opponent",
+		description: "Break down their tendencies for the big game.",
+		risk: "Smart prep at the cost of rest.",
+		conditions: {},
+		outcomes: {
+			success: { probability: 0.8, effects: { footballIq: 2, technique: 1 }, narrative: "You found a weakness in their scheme. Shared it with coaches." },
+			failure: { probability: 0.2, effects: { footballIq: 1, health: -1 }, narrative: "Good film work but you stayed up too late. Feeling it in your legs." }
+		}
+	},
+	{
+		id: "stretch_trash_talk",
+		category: "risk",
+		text: "Talk trash to the media",
+		description: "Tell reporters exactly what you think about the opponent.",
+		risk: "Fire up your team or give them bulletin board material.",
+		conditions: { depthChart: ["starter"] },
+		outcomes: {
+			success: { probability: 0.4, effects: { confidence: 4 }, narrative: "Your teammates loved it. The locker room is fired up." },
+			failure: { probability: 0.6, effects: { confidence: -2, discipline: -2 }, narrative: "Your words are posted in the opponent's locker room. Coach is not happy." }
+		}
+	},
+	{
+		id: "stretch_rest_big",
+		category: "prepare",
+		text: "Rest and get your body right",
+		description: "Big game coming. Make sure you are 100%.",
+		risk: "No growth but maximum availability.",
+		conditions: {},
+		outcomes: {
+			success: { probability: 0.9, effects: { health: 4, confidence: 1 }, narrative: "Fresh legs, clear head. Ready for the biggest game of the year." },
+			failure: { probability: 0.1, effects: { health: 2 }, narrative: "Rested but restless. Hard to sit still when the game is this big." }
+		}
+	},
+	{
+		id: "stretch_rally",
+		category: "social",
+		text: "Rally the team",
+		description: "Give a speech in the locker room. Set the tone.",
+		risk: "Inspire them or fall flat.",
+		conditions: { depthChart: ["starter"] },
+		outcomes: {
+			success: { probability: 0.6, effects: { confidence: 3, discipline: 1 }, narrative: "The room went silent. Then they erupted. This team is ready." },
+			failure: { probability: 0.4, effects: { confidence: -2 }, narrative: "Awkward silence. Veterans don't take speeches from everyone." }
+		}
+	}
+];
+
+export default choices;

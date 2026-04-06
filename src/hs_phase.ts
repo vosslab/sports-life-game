@@ -24,9 +24,6 @@ import {
 	applyPalette,
 } from './theme.js';
 import {
-	updateTabBar, switchTab, hideTabBar, showTabBar,
-} from './tabs.js';
-import {
 	Activity, WeekState, createWeekState, canDoActivity,
 	getActivitiesForPhase, isActivityUnlocked, applyActivity, getEffectPreview,
 } from './activities.js';

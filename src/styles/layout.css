@@ -208,18 +208,20 @@
 /* Sidebar player identity */
 #sidebar-player-identity {
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	gap: 10px;
+	gap: 6px;
 	margin-bottom: 10px;
 }
 
 #sidebar-portrait {
-	width: 36px;
-	height: 36px;
+	width: 96px;
+	height: 96px;
 	border-radius: 50%;
 	overflow: hidden;
 	background: var(--bg-primary);
 	flex-shrink: 0;
+	border: 3px solid var(--border-color);
 }
 
 #sidebar-portrait svg {
@@ -230,11 +232,13 @@
 #sidebar-player-name {
 	font-weight: 700;
 	font-size: 0.95em;
+	text-align: center;
 }
 
 #sidebar-player-detail {
 	font-size: 0.8em;
 	color: var(--text-secondary);
+	text-align: center;
 }
 
 /* Recent stat change line */

@@ -119,7 +119,7 @@ function presentEventThenContinue(
 		},
 	}));
 
-	ctx.waitForInteraction(event.title, choiceButtons);
+	ctx.waitForInteraction(event.title, choiceButtons, event.description);
 }
 
 //============================================

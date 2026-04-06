@@ -110,74 +110,74 @@ export function applySeasonGoal(player: Player): string {
 	const goal = player.seasonGoal;
 	let storyText = '';
 
-	// Weekly wear and tear: minor health cost from the grind
-	const wearAndTear = randomInRange(0, 2);
-	modifyStat(player, 'health', -wearAndTear);
+	// Natural health recovery: bodies heal each week (counteracts wear and tear)
+	// Recovery is stronger when health is low (body prioritizes healing)
+	const recoveryAmount = player.core.health < 50 ? randomInRange(2, 4) : randomInRange(1, 2);
+	modifyStat(player, 'health', recoveryAmount);
+
+	// Weekly wear and tear from football: minor, predictable
+	modifyStat(player, 'health', -1);
 
 	switch (goal) {
 		case 'grind': {
-			// Grind mode: technique + athleticism up, health down, discipline up
-			modifyStat(player, 'technique', randomInRange(3, 6));
-			modifyStat(player, 'athleticism', randomInRange(1, 3));
+			// Grind mode: best skill growth, small health cost from overtraining
+			modifyStat(player, 'technique', randomInRange(1, 3));
+			modifyStat(player, 'athleticism', randomInRange(1, 2));
 			modifyStat(player, 'health', -randomInRange(0, 1));
-			modifyStat(player, 'discipline', randomInRange(0, 2));
-			// Slight GPA decay from neglecting class
-			modifyGpa(player, -randomInRange(0, 5) / 100);
+			modifyStat(player, 'discipline', randomInRange(0, 1));
+			modifyGpa(player, -randomInRange(0, 3) / 100);
 			storyText = pickFlavor(GRIND_FLAVOR);
 			break;
 		}
 
 		case 'healthy': {
-			// Stay healthy: big HP recovery, moderate stat maintenance
-			modifyStat(player, 'health', randomInRange(5, 8));
+			// Stay healthy: extra recovery, light skill maintenance
+			modifyStat(player, 'health', randomInRange(2, 4));
 			modifyStat(player, 'technique', randomInRange(0, 1));
 			modifyStat(player, 'confidence', randomInRange(0, 1));
-			// Neutral GPA effect
-			modifyGpa(player, randomInRange(-2, 2) / 100);
+			modifyGpa(player, randomInRange(-1, 1) / 100);
 			storyText = pickFlavor(HEALTHY_FLAVOR);
 			break;
 		}
 
 		case 'popular': {
-			// Be popular / build brand: popularity and confidence up, discipline down
-			const socialGain = randomInRange(3, 5);
+			// Be popular / build brand: social gains, mild discipline cost
+			const socialGain = randomInRange(2, 3);
 			player.career.popularity = clampStat(player.career.popularity + socialGain);
-			modifyStat(player, 'confidence', randomInRange(2, 4));
-			modifyStat(player, 'discipline', -randomInRange(1, 3));
-			player.hidden.leadership = clampStat(player.hidden.leadership + randomInRange(1, 3));
-			// Slight GPA decay from partying
-			modifyGpa(player, -randomInRange(0, 5) / 100);
+			modifyStat(player, 'confidence', randomInRange(1, 2));
+			modifyStat(player, 'discipline', -randomInRange(0, 1));
+			player.hidden.leadership = clampStat(player.hidden.leadership + randomInRange(1, 2));
+			modifyGpa(player, -randomInRange(0, 3) / 100);
 			storyText = pickFlavor(POPULAR_FLAVOR);
 			break;
 		}
 
 		case 'academic': {
-			// Hit the books: GPA up, IQ up, discipline up, less athletic growth
-			modifyStat(player, 'footballIq', randomInRange(3, 5));
-			modifyStat(player, 'discipline', randomInRange(1, 3));
+			// Hit the books: GPA and IQ growth, steady discipline
+			modifyStat(player, 'footballIq', randomInRange(1, 3));
+			modifyStat(player, 'discipline', randomInRange(1, 2));
 			modifyStat(player, 'technique', randomInRange(0, 1));
-			// Strong GPA improvement
-			modifyGpa(player, randomInRange(10, 20) / 100);
+			modifyGpa(player, randomInRange(5, 12) / 100);
 			storyText = pickFlavor(ACADEMIC_FLAVOR);
 			break;
 		}
 	}
 
-	// Random injury chance (4% per week, higher when health is low)
-	if (player.core.health < 30 && randomInRange(1, 100) <= 10) {
-		const injuryDamage = randomInRange(6, 12);
+	// Random injury chance (3% per week, higher when health is low)
+	if (player.core.health < 30 && randomInRange(1, 100) <= 8) {
+		const injuryDamage = randomInRange(4, 8);
 		modifyStat(player, 'health', -injuryDamage);
-		modifyStat(player, 'confidence', -randomInRange(1, 3));
+		modifyStat(player, 'confidence', -randomInRange(1, 2));
 		storyText += ' You tweaked something in practice. The trainers are keeping an eye on it.';
-	} else if (randomInRange(1, 100) <= 4) {
-		const injuryDamage = randomInRange(3, 7);
+	} else if (randomInRange(1, 100) <= 3) {
+		const injuryDamage = randomInRange(2, 5);
 		modifyStat(player, 'health', -injuryDamage);
 		storyText += ' Minor injury scare this week. You are playing through some pain.';
 	}
 
-	// Confidence drops when on the bench and health is low
-	if (player.depthChart === 'bench' && randomInRange(1, 100) <= 30) {
-		modifyStat(player, 'confidence', -randomInRange(1, 3));
+	// Confidence drifts down on the bench (less harshly)
+	if (player.depthChart === 'bench' && randomInRange(1, 100) <= 20) {
+		modifyStat(player, 'confidence', -randomInRange(0, 1));
 	}
 
 	return storyText;

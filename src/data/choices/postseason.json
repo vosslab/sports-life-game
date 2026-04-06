@@ -1,0 +1,38 @@
+[
+  {
+    "id": "post_reflect",
+    "category": "reflect",
+    "text": "Reflect on the season",
+    "description": "Think about what went right and what went wrong.",
+    "risk": "No risk. Just honest self-assessment.",
+    "conditions": {},
+    "outcomes": {
+      "success": { "probability": 1.0, "effects": { "footballIq": 2, "discipline": 1 }, "narrative": "You know exactly what you need to work on. Clear eyes for next year." },
+      "failure": { "probability": 0.0, "effects": {}, "narrative": "" }
+    }
+  },
+  {
+    "id": "post_train_hard",
+    "category": "train",
+    "text": "Hit the offseason workouts hard",
+    "description": "No breaks. Start building for next season immediately.",
+    "risk": "Great for growth but risk burnout.",
+    "conditions": {},
+    "outcomes": {
+      "success": { "probability": 0.6, "effects": { "athleticism": 3, "technique": 2, "health": -2 }, "narrative": "You came back from the offseason visibly stronger and faster." },
+      "failure": { "probability": 0.4, "effects": { "athleticism": 1, "health": -3, "confidence": -1 }, "narrative": "Pushed too hard over the break. Starting next season already banged up." }
+    }
+  },
+  {
+    "id": "post_enjoy",
+    "category": "social",
+    "text": "Take a break and enjoy life",
+    "description": "Hang out, travel, recharge mentally.",
+    "risk": "Great for mental health. Could lose your edge.",
+    "conditions": {},
+    "outcomes": {
+      "success": { "probability": 0.8, "effects": { "health": 4, "confidence": 2 }, "narrative": "Best offseason ever. Recharged and motivated." },
+      "failure": { "probability": 0.2, "effects": { "health": 2, "discipline": -2 }, "narrative": "Maybe too much fun. Took a while to get back into football shape." }
+    }
+  }
+]
