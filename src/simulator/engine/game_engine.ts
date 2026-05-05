@@ -24,6 +24,7 @@ import {
 } from "../models/team_strength_model.js";
 import { choosePlay } from "../models/play_call_model.js";
 import { resolvePass, resolveRun, resolveKneel, resolveSpike } from "../models/play_result_model.js";
+import { rand } from '../../core/rng.js';
 import {
 	resolveKickoff,
 	resolvePunt,
@@ -147,10 +148,10 @@ export function simulateGame(
 //============================================
 
 function coinToss(state: GameState): void {
-	const winner = Math.random() < 0.5 ? state.home_team : state.away_team;
+	const winner = rand() < 0.5 ? state.home_team : state.away_team;
 
 	// ~60% of coin toss winners defer to receive in 2nd half
-	if (Math.random() < 0.60) {
+	if (rand() < 0.60) {
 		// Winner defers: they receive in 2H, so they kick first
 		if (winner === state.home_team) {
 			state.home_receives_2h = true;
@@ -252,7 +253,7 @@ function resolvePat(
 		}
 	}
 	// Small random chance regardless
-	if (Math.random() < 0.05) {
+	if (rand() < 0.05) {
 		goFor2 = true;
 	}
 
@@ -407,7 +408,7 @@ function transitionQuarter(state: GameState, rules: LeagueRules): void {
 			state.kickoff_reason = "start_of_game";
 
 			// Coin toss for OT possession
-			if (Math.random() < 0.5) {
+			if (rand() < 0.5) {
 				state.possession = state.home_team;
 				state.scoring_team_last = state.home_team;
 			} else {
@@ -422,7 +423,7 @@ function transitionQuarter(state: GameState, rules: LeagueRules): void {
 	} else if (state.quarter === 5) {
 		// End of overtime - if still tied, award FG to random team
 		if (state.home_score === state.away_score) {
-			if (Math.random() < 0.5) {
+			if (rand() < 0.5) {
 				state.home_score += 3;
 				state.logPlay("Home team wins with late field goal in overtime.");
 			} else {

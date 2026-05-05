@@ -5,6 +5,7 @@
 
 import { GameState, Situation } from "../engine/state_machine.js";
 import { LeagueTuning } from "../rules/league_tuning.js";
+import { rand } from '../../core/rng.js';
 
 //============================================
 // Context binning helpers
@@ -179,7 +180,7 @@ function fourthDownGoProb(
  * 3. 4th down: FG, go-for-it, or punt
  * 4. 1st-3rd: pass or run based on probability
  *
- * Uses Math.random() for all stochastic decisions.
+ * Uses rand() for all stochastic decisions.
  */
 export function choosePlay(state: GameState, tuning: LeagueTuning): string {
 	const down = state.down;
@@ -214,12 +215,12 @@ export function choosePlay(state: GameState, tuning: LeagueTuning): string {
 		(quarter === 2 || quarter === 4) &&
 		down <= 3
 	) {
-		if (Math.random() < 0.15) {
+		if (rand() < 0.15) {
 			return "spike";
 		}
 	}
 
-	// ── 4th down decisions ──
+	// -- 4th down decisions --
 	if (down === 4) {
 		const fgDistance = state.field_goal_distance;
 
@@ -231,16 +232,16 @@ export function choosePlay(state: GameState, tuning: LeagueTuning): string {
 
 		// Go for it or punt based on context
 		const goProb = fourthDownGoProb(ytg, oppYardLine, scoreDiff, quarter, secsRemaining);
-		if (Math.random() < goProb) {
+		if (rand() < goProb) {
 			// Go for it: slightly more pass-heavy (55% pass)
-			return Math.random() < 0.55 ? "pass" : "run";
+			return rand() < 0.55 ? "pass" : "run";
 		}
 
 		// Default to punt
 		return "punt";
 	}
 
-	// ── 1st-3rd down: pass or run ──
+	// -- 1st-3rd down: pass or run --
 	const passProb_ = passProb(
 		down,
 		ytg,
@@ -249,5 +250,5 @@ export function choosePlay(state: GameState, tuning: LeagueTuning): string {
 		quarter,
 		secsRemaining,
 	);
-	return Math.random() < passProb_ ? "pass" : "run";
+	return rand() < passProb_ ? "pass" : "run";
 }

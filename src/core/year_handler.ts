@@ -5,7 +5,40 @@
 import { Player, CareerPhase } from '../player.js';
 import { GameEvent } from '../events.js';
 import { NCAASchool } from '../ncaa.js';
-import { ChoiceOption } from '../ui.js';
+import { ChoiceOption } from './choice_option.js';
+import type { Activity, WeekState } from '../activities.js';
+import type { GoalInfo } from '../week_sim.js';
+import type { SeasonGoal } from '../player.js';
+import type { StatLine } from '../week_sim.js';
+
+//============================================
+// Re-export ChoiceOption for legacy importers (main.ts, popup.ts).
+export type { ChoiceOption } from './choice_option.js';
+
+//============================================
+// Action bar config used by the weekly engine and main.ts.
+export interface MainButtonConfig {
+	nextLabel: string;
+	nextAction: () => void;
+	// True to show the Age Up shortcut alongside Next Week.
+	ageUpVisible: boolean;
+	ageUpAction?: () => void;
+}
+
+//============================================
+// Activities tab payload provided by simulation, rendered by UI.
+export interface ActivitiesRender {
+	activities: readonly Activity[];
+	weekState: WeekState;
+	isUnlocked: (activity: Activity) => boolean;
+	effectPreview: (activity: Activity) => string;
+	onSelect: (activity: Activity) => void;
+	goalInfo?: {
+		goals: GoalInfo[];
+		currentGoal: SeasonGoal;
+		onGoalChange: (goal: SeasonGoal) => void;
+	};
+}
 
 //============================================
 // Weekly engine return type: impossible to misuse
@@ -67,6 +100,24 @@ export interface CareerContext {
 	updateStats(player: Player): void;
 	// Header refresh
 	updateHeader(player: Player): void;
+	// Italic stat-change line appended to the story log
+	addStatChange(text: string): void;
+	// Compact game-day status line on the Life tab
+	updateLifeStatus(record: string, nextOpponent: string, extraStatus?: string): void;
+	// Format a simulator stat line (like "Pass Yards: 250 | TDs: 2") for the log
+	formatStatLine(statLine: StatLine): string;
+	// Re-render the Activities tab with the simulation's current state
+	renderActivitiesTab(payload: ActivitiesRender): void;
+	// Toggle the bottom action bar
+	hideMainActionBar(): void;
+	showMainActionBar(): void;
+	// Configure the action-bar buttons for the current week
+	configureMainButtons(config: MainButtonConfig): void;
+	// UI tab routing (replaces direct tabs.js imports in simulation)
+	switchToLifeTab(): void;
+	hideTabBar(): void;
+	showTabBar(): void;
+	syncTabsToPhase(phase: Player['phase']): void;
 }
 
 

@@ -32,21 +32,68 @@ src/
 +- main.ts              Entry point: character creation, phase transitions, save/load
 +- player.ts            Player state model, stat types, identity fields, avatar config
 +- team.ts              Team structure, conference, schedule, standings
-+- week_sim.ts          Game simulation, focus effects, depth chart, performance ratings
++- week_sim.ts          Re-export shim; canonical impl under src/week_sim/ (M4)
++- week_sim/             Modular weekly simulation tree (M4 split)
+|  +- focus.ts          Season-goal weekly stat updates and flavor pools
+|  +- goals.ts          GoalInfo, getGoalsForPhase, activity-preference map
+|  +- momentum.ts       updateMomentum, performance ratings, letter grades
+|  +- stat_lines.ts     Per-position StatLine generators, depth-chart scaling
+|  +- game.ts           simulateGame: performance, score, narrative
+|  +- depth_chart.ts    evaluateDepthChartUpdate (week-to-week promotions)
+|  +- practice.ts       runPracticeSession for backups/bench
+|  `- index.ts          Barrel re-exports for the legacy shim
++- clutch_moment.ts     Re-export shim; canonical impl under src/clutch/ (M4)
++- clutch/               4Q clutch-moment engine (M4 split)
+|  +- types.ts          Public types, BASE_RATES, SCORING_MAPS
+|  +- situation.ts      deriveSituation, scene/atmosphere, RNG helpers
+|  +- choices_qb.ts     QB choice pool (situation-tagged narrative variants)
+|  +- choices_rb.ts     RB choice pool
+|  +- choices_wr.ts     WR/TE choice pool
+|  +- choices_ol.ts     OL/DL choice pool
+|  +- choices_def.ts    Defender choice pool
+|  +- choices_kicker.ts Kicker/punter choice pool
+|  +- resolve.ts        Pool selection, risk spread, success/failure resolution
+|  `- index.ts          buildClutchMoment, resolveClutchMoment
 +- activities.ts        Weekly activity system with unlockable options
 +- events.ts            Narrative event filtering, selection, and application
 +- milestones.ts        One-time career story moments (18 total across HS/college/NFL)
-+- save.ts              Browser localStorage persistence with migration
-+- game_loop.ts         Shared weekly rhythm engine (legacy, being replaced)
-+- hs_phase.ts          High school phase runner (legacy)
-+- college_phase.ts     College phase runner (legacy)
++- save.ts              Re-export shim; canonical impl in src/save/
++- save/                 Versioned save (v1) with strict validation
+|  +- schema.ts          CURRENT_SCHEMA_VERSION, SAVE_KEY, SaveEnvelope
+|  +- validate.ts        validateRawSave: ok | reset | empty
+|  `- index.ts           saveGame, loadGame, deleteSave, hasSave (no migrators)
++- player/               Narrow Player type slices (M2)
+|  +- identity.ts        PlayerIdentity, Position, PositionBucket, CareerPhase
+|  +- stats.ts           CoreStats, CareerStats, HiddenStats
+|  +- stats_bundle.ts    PlayerStatsBundle (nested stat-object grouping; M3)
+|  +- career.ts          PlayerCareer, SeasonRecord
+|  +- season_state.ts    PlayerSeasonState, SeasonGoal
+|  +- snapshot.ts        PlayerSnapshot (composed save/load type)
+|  `- index.ts           Re-exports for narrow imports
++- view_state/           Simulation -> render contract (M2; lands ahead of M5)
+|  `- game_view_state.ts GameViewState, HeaderView, StatBarView, CareerView
++- render/              Pull-model render layer (M5)
+|  +- render_state.ts   renderState(view: GameViewState), clearRenderCache()
+|  `- story_log.ts      Collapsible age/week story-log DOM helpers (M6)
++- ui/                  Widget modules, split from monolithic ui.ts (M5)
+|  +- header_widget.ts  updateHeader, updateLifeStatus
+|  +- stats_widget.ts   updateStatBar, updateAllStats, updateMiniStatStrip, updateStatsTab
+|  +- story_widget.ts   clearStory, addHeadline, addText, addResult, addStatChange, showRecentChange
+|  +- choice_widget.ts  ChoiceOption type, showChoices, clearChoices, showWeeklyFocusChoices, showGameResult
+|  +- team_widget.ts    updateTeamTab
+|  +- activities_widget.ts renderActivitiesTab
+|  +- career_widget.ts  updateCareerTab, updateSeasonCareer (large module)
+|  +- week_card_widget.ts updateWeekCard, hideWeekCard, updateThisWeekPanel
+|  +- sidebar_widget.ts updateSidebar, showMilestoneCard
+|  +- format_helpers.ts formatStatKey, formatStatLine
+|  `- index.ts          Barrel re-export of all widgets + popup functions
++- game_loop.ts         Activities-tab refresh adapter (legacy weekly helpers; retired in M5)
 +- college.ts           College logic (NIL, draft stock, declaration)
-+- nfl_phase.ts         NFL phase runner (legacy)
 +- nfl.ts               NFL logic (draft, retirement, Hall of Fame, legacy)
 +- recruiting.ts        College recruiting and offer generation
 +- ncaa.ts              NCAA school data loading and assignment
-+- ui.ts                Centralized DOM rendering, stat bars, modals, story log
 +- tabs.ts              Tab navigation with phase-specific tab sets
++- tab_manager.ts       Centralized tab lifecycle and coordination
 +- theme.ts             Team color palettes and dynamic CSS theming
 +- avatar.ts            SVG portrait generator (Avataaars-inspired, age-aware)
 +- core/                Core engine interfaces and registry
@@ -70,7 +117,11 @@ src/
 +- childhood/           Childhood handlers (ages 1-13, no football)
 |  +- kid_years.ts      Ages 1-7: BitLife-style events, narrative only
 |  +- peewee_years.ts   Ages 8-10: peewee football intro, town generation
-|  `- travel_years.ts   Ages 11-13: travel team competitions
+|  +- travel_years.ts   Ages 11-13: travel team competitions
+|  +- character_creation.ts  Name input form and birth narrative (M6)
+|  `- name_loader.ts    First/last name CSV loader with defaults (M6)
++- legacy/              Career end-of-life flow (M6)
+|  `- retirement.ts     Hall of Fame check, career summary, restart
 +- high_school/         High school handlers (ages 14-17, 10-week seasons)
 |  +- hs_frosh_soph.ts  Ages 14-15: frosh/soph, HS identity generation
 |  +- hs_varsity.ts     Ages 16-17: varsity, driver license, recruiting stars
@@ -143,9 +194,14 @@ src/
   subdirectory, register it in [src/core/register_handlers.ts](src/core/register_handlers.ts)
 - **New events**: add entries to [src/data/events.json](src/data/events.json)
 - **New positions**: update [src/player.ts](src/player.ts) types and
-  [src/week_sim.ts](src/week_sim.ts) simulation
+  [src/week_sim/stat_lines.ts](src/week_sim/stat_lines.ts) for the
+  position-specific stat line, plus [src/clutch/](src/clutch/) if a new
+  bucket needs its own clutch choice pool
 - **Shared logic**: add to [src/shared/](src/shared/) for cross-handler utilities
-- **UI components**: extend [src/ui.ts](src/ui.ts)
+- **UI widgets**: add to [src/ui/](src/ui/) with a focused widget module;
+  re-export from [src/ui/index.ts](src/ui/index.ts) for callers
+- **Render layer**: extend [src/render/render_state.ts](src/render/render_state.ts)
+  if adding new GameViewState slices or optimizing dirty-flag logic
 - **Documentation**: add to `docs/` using ALL CAPS naming
 - **Tests**: add to `tests/` with `test_` prefix
 - **Build tools**: add to `tools/`

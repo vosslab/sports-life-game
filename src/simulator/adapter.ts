@@ -33,6 +33,7 @@ import { LeagueRules } from "./rules/league_rules.js";
 import { LeagueTuning } from "./rules/league_tuning.js";
 import { getSnapShare } from "./output/stat_line.js";
 import { buildStorySummary, generateStoryText } from "./output/story_summary.js";
+import { rand } from '../core/rng.js';
 
 // Re-export the StatLine type for compatibility
 export type StatLine = Record<string, number | string>;
@@ -154,7 +155,7 @@ function buildOpponentContext(
 ): GameTeamContext {
 	// Playoff opponents get a boost
 	const effectiveStrength = playoffIntensity
-		? Math.min(100, opponentStrength + Math.floor(Math.random() * 8) + 5)
+		? Math.min(100, opponentStrength + Math.floor(rand() * 8) + 5)
 		: opponentStrength;
 
 	const profile = createDefaultTeamProfile("Opponent", effectiveStrength);
@@ -373,7 +374,7 @@ function extractPlayerStatsFromSim(
 				: totalSacks <= 4 ? 'C'
 				: totalSacks <= 6 ? 'D' : 'F';
 			stat.grade = grade;
-			stat.keyPlays = Math.floor(Math.random() * 6) + 2;
+			stat.keyPlays = Math.floor(rand() * 6) + 2;
 			break;
 		}
 		case 'defender': {
@@ -435,7 +436,7 @@ function estimatePerformanceScore(stat: StatLine, positionBucket: string): numbe
 			break;
 		case 'kicker': {
 			// Kicker score: FG accuracy + XP reliability
-			// Average game: 1-2 FGs, 3-4 XPs → should be C (~60)
+			// Average game: 1-2 FGs, 3-4 XPs -> should be C (~60)
 			let kickScore = 45;
 			if (num('fgAttempts') > 0) {
 				kickScore += (num('fgMade') / num('fgAttempts')) * 20;

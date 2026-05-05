@@ -16,7 +16,7 @@ import {
 	getActivitiesForPhase, isActivityUnlocked, applyActivity, getEffectPreview, formatActivityResult,
 } from './activities.js';
 import { switchTab, hideTabBar, showTabBar } from './tabs.js';
-import * as ui from './ui.js';
+import * as ui from './ui/index.js';
 
 //============================================
 // GameContext: main.ts provides this so phase modules can access shared

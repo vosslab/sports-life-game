@@ -13,6 +13,7 @@
 // continues with regular play simulation, modified only by the resulting PlayOutcome.
 
 import { GameState, Phase, Situation, PlayOutcome, PlayResult } from './state_machine.js';
+import { rand } from '../../core/rng.js';
 
 //============================================
 // Types
@@ -78,7 +79,7 @@ export function shouldTriggerClutch(
 
 	// Random gate: higher chance in playoffs
 	const triggerChance = isPlayoff ? 0.25 : 0.15;
-	if (Math.random() > triggerChance) {
+	if (rand() > triggerChance) {
 		return false;
 	}
 
@@ -172,7 +173,7 @@ export function clutchResultToPlayOutcome(
 			outcome.description = `Pinpoint pass for a touchdown! Clutch completion in the endzone.`;
 		} else if (situationType === 'must_have_stop') {
 			// Big success on defense: sack or INT
-			if (Math.random() < 0.5) {
+			if (rand() < 0.5) {
 				outcome.play_type = 'pass';
 				outcome.result = PlayResult.INTERCEPTION;
 				outcome.turnover = true;
@@ -204,7 +205,7 @@ export function clutchResultToPlayOutcome(
 			outcome.play_type = 'pass';
 			outcome.result = PlayResult.FIRST_DOWN;
 			outcome.is_complete = true;
-			const gain = 15 + Math.floor(Math.random() * 11);
+			const gain = 15 + Math.floor(rand() * 11);
 			outcome.yards_gained = gain;
 			outcome.air_yards = gain;
 			outcome.description = `Solid pass completes for a first down. Drive stays alive.`;
@@ -212,7 +213,7 @@ export function clutchResultToPlayOutcome(
 			// Partial success: short run gain (4-8 yards)
 			outcome.play_type = 'run';
 			outcome.result = PlayResult.FIRST_DOWN;
-			const gain = 4 + Math.floor(Math.random() * 5);
+			const gain = 4 + Math.floor(rand() * 5);
 			outcome.yards_gained = gain;
 			outcome.clock_running = true;
 			outcome.description = `Solid running play moves the chains on crucial down.`;
@@ -238,7 +239,7 @@ export function clutchResultToPlayOutcome(
 			// Failure: short run, minimal or negative yards
 			outcome.play_type = 'run';
 			outcome.result = PlayResult.SHORT_OF_FIRST;
-			const gain = -2 + Math.floor(Math.random() * 5);
+			const gain = -2 + Math.floor(rand() * 5);
 			outcome.yards_gained = gain;
 			outcome.clock_running = true;
 			outcome.description = `Run play stuffed at the line. No gain.`;
@@ -253,7 +254,7 @@ export function clutchResultToPlayOutcome(
 	//============================================
 	// DISASTER outcomes (always turnover or major loss)
 	else if (tier === 'disaster') {
-		const isInt = Math.random() < 0.6;
+		const isInt = rand() < 0.6;
 
 		if (isInt) {
 			// Interception returned for TD

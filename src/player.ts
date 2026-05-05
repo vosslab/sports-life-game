@@ -1,9 +1,19 @@
-// player.ts - player state: stats, age, position, injuries, career history
+// player.ts - player state: stats, age, position, injuries, career history.
+//
+// `Player` was previously a wide hand-written interface mixing identity,
+// stats, career, and season-state fields. As of M3 it is composed from the
+// narrow slices in src/player/ (PlayerIdentity, PlayerStatsBundle,
+// PlayerCareer, PlayerSeasonState). This file still owns the runtime
+// helpers (createPlayer, accumulateGameStats, etc.) and the data types that
+// have not been moved yet (SeasonStatTotals, StoryFlags). New code should
+// import the narrow slices from src/player/ rather than the composed Player.
 
-import { TeamPalette } from './theme.js';
-import { AvatarConfig, randomAvatarConfig } from './avatar.js';
-import { RecruitingProfile } from './recruiting_profile.js';
-import type { ActiveCrisis } from './crisis.js';
+import { randomAvatarConfig } from './avatar.js';
+import { randInt } from './core/rng.js';
+import { PlayerIdentity } from './player/identity.js';
+import { PlayerStatsBundle } from './player/stats_bundle.js';
+import { PlayerCareer } from './player/career.js';
+import { PlayerSeasonState } from './player/season_state.js';
 
 //============================================
 // Core visible stats (0-100 scale)
@@ -32,23 +42,23 @@ export interface HiddenStats {
 }
 
 //============================================
-// Position buckets for simplified first build
-export type PositionBucket = 'passer' | 'runner_receiver' | 'lineman' | 'defender' | 'kicker';
-
-// Specific positions within buckets
-export type Position = 'QB' | 'RB' | 'WR' | 'TE' | 'OL' | 'DL' | 'LB' | 'CB' | 'S' | 'K' | 'P';
-
-//============================================
-// Career phases
-export type CareerPhase = 'childhood' | 'youth' | 'high_school' | 'college' | 'nfl' | 'legacy';
-
-//============================================
-// Season goals (replaces per-week focus choices)
-export type SeasonGoal = 'grind' | 'healthy' | 'popular' | 'academic';
-
-//============================================
-// Depth chart status
-export type DepthChartStatus = 'starter' | 'backup' | 'bench';
+// Position, phase, depth-chart, and goal types now live with the narrow
+// PlayerIdentity slice. Re-export them here so existing legacy importers of
+// `./player.js` continue to compile while new code imports from
+// `./player/index.js` directly.
+export type {
+	Position,
+	PositionBucket,
+	CareerPhase,
+	DepthChartStatus,
+} from './player/identity.js';
+export type { SeasonGoal } from './player/season_state.js';
+import type {
+	Position,
+	PositionBucket,
+	CareerPhase,
+	DepthChartStatus,
+} from './player/identity.js';
 
 //============================================
 // Weekly game performance rating
@@ -168,21 +178,8 @@ export function accumulateGameStats(
 }
 
 //============================================
-// A single season record entry
-export interface SeasonRecord {
-	phase: CareerPhase;
-	year: number;
-	age: number;
-	team: string;
-	position: Position | null;
-	wins: number;
-	losses: number;
-	ties: number;
-	depthChart: DepthChartStatus;
-	highlights: string[];
-	awards: string[];
-	statTotals?: SeasonStatTotals;
-}
+// SeasonRecord lives with PlayerCareer; re-exported for legacy importers.
+export type { SeasonRecord } from './player/career.js';
 
 //============================================
 // Persistent story flags for multi-step event chains
@@ -191,107 +188,23 @@ export interface StoryFlags {
 }
 
 //============================================
-// The full player state
-export interface Player {
-	// Identity
-	firstName: string;
-	lastName: string;
-	age: number;
-
-	// Current phase and position
-	phase: CareerPhase;
-	position: Position | null;
-	positionBucket: PositionBucket | null;
-	depthChart: DepthChartStatus;
-
-	// Stats
-	core: CoreStats;
-	career: CareerStats;
-	hidden: HiddenStats;
-	seasonStats: SeasonStatTotals;
-	careerGamesPlayed: number;  // cumulative games across all seasons
-
-	// Season tracking
-	currentSeason: number;   // which season in career (1-based)
-	currentWeek: number;     // which week in current season (0 = offseason)
-	seasonYear: number;      // calendar year
-
-	// Team
-	teamName: string;
-	teamStrength: number;    // 1-100
-
-	// Academic and social
-	gpa: number;             // 0.0-4.0 scale
-	relationships: Record<string, number>; // name -> 0-100 score
-
-	// Season goal (persistent across weeks, replaces per-week focus)
-	seasonGoal: SeasonGoal;
-
-	// Season arc and crisis tracking
-	activeCrisis: ActiveCrisis | null;
-	scheduledCrises: string[];
-	crisisTriggeredThisSeason: boolean;
-
-	// Story and progression
-	storyFlags: StoryFlags;
-	storyLog: string[];      // recent story entries
-	careerHistory: SeasonRecord[];
-	bigDecisions: string[];  // log of major choices made
-
-	// Recruiting (HS/college)
-	recruitingStars: number; // 0-5
-	collegeOffers: string[];
-	recruitingProfile: RecruitingProfile | null;
-	draftStock: number;      // 0-100
-
-	// Career year tracking (persisted for save/load)
-	collegeYear: number;     // 0 = not started, 1-4 = freshman-senior
-	nflYear: number;         // 0 = not started, 1+ = NFL seasons played
-
-	// Persistent team identity (generated once, reused across years)
-	townName: string;        // peewee/travel town name
-	townMascot: string;      // peewee/travel team mascot
-	hsName: string;          // high school name
-	hsMascot: string;        // high school mascot
-
-	// NFL team identity (set at draft)
-	nflTeamId: string;       // real NFL team abbreviation (e.g., "BUF")
-	nflConference: string;   // "AFC" or "NFC"
-	nflDivision: string;     // "East", "West", "North", "South"
-
-	// College status
-	isRedshirt: boolean;     // currently redshirting
-	eligibilityYears: number; // remaining college eligibility (4 or 5 with redshirt)
-
-	// Settings
-	useRealTeamNames: boolean;
-
-	// Theme
-	teamPalette: TeamPalette | null;
-
-	// Portrait
-	avatarConfig: AvatarConfig | null;
-
-	// Milestones: tracks which milestone events have fired
-	milestones: Record<string, boolean>;
-
-	// Childhood event tracking (prevents repeats and tonal duplicates)
-	seenEventIds: Record<string, boolean>;
-	seenEventFamilies: Record<string, boolean>;
-	eventTagCounts: Record<string, number>;
-
-	// Incremental progress toward personality flags (promoted to storyFlags at threshold)
-	flagProgress: Record<string, number>;
-
-	// Fotomagic social feed (Bitlife-style). Optional for save compatibility:
-	// older saves load with this undefined and addPost initializes it lazily.
-	fotomagicFeed?: import('./social/fotomagic.js').FotomagicPost[];
-}
+// Player is the composition of the four narrow slices in src/player/.
+// New code should depend on the slice it actually needs (PlayerIdentity,
+// PlayerStatsBundle, PlayerCareer, PlayerSeasonState) rather than the wide
+// composed type. The wide type is preserved here only as a convenience for
+// save/load and the still-uncleaved legacy importers.
+export type Player =
+	& PlayerIdentity
+	& PlayerStatsBundle
+	& PlayerCareer
+	& PlayerSeasonState;
 
 //============================================
 // Random integer in range [min, max] inclusive
+// Routes through the seeded RNG in src/core/rng.ts so the simulation tree
+// produces deterministic output under a fixed seed.
 export function randomInRange(min: number, max: number): number {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
+	return randInt(min, max);
 }
 
 //============================================

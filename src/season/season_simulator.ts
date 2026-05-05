@@ -8,6 +8,7 @@ import { randomInRange } from '../player.js';
 import { LeagueSeason } from './season_model.js';
 import { SeasonGame } from './game_model.js';
 import { GameResult } from '../week_sim.js';
+import { rand } from '../core/rng.js';
 
 //============================================
 function rollOvertimePoints(): number {
@@ -45,8 +46,9 @@ export function simulateNonPlayerGames(season: LeagueSeason): void {
 }
 
 //============================================
-// Simulate a single game between two non-player teams
-function simulateGameBetweenTeams(season: LeagueSeason, game: SeasonGame): void {
+// Simulate a single game between two teams using strength-based scoring.
+// Exported so testing and analysis tools can use the same game logic.
+export function simulateGameBetweenTeams(season: LeagueSeason, game: SeasonGame): void {
 	const homeTeam = season.getTeam(game.homeTeamId);
 	const awayTeam = season.getTeam(game.awayTeamId);
 
@@ -69,7 +71,7 @@ function simulateGameBetweenTeams(season: LeagueSeason, game: SeasonGame): void 
 		const winProb = 0.5 + (strengthDiff / 200);
 			const overtimePoints = rollOvertimePoints();
 
-		if (Math.random() < winProb) {
+		if (rand() < winProb) {
 			season.recordGameResult(game.id, homeScore + overtimePoints, awayScore);
 		} else {
 			season.recordGameResult(game.id, homeScore, awayScore + overtimePoints);

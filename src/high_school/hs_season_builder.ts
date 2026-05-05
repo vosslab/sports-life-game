@@ -2,6 +2,7 @@
 //
 // Creates an 8-team conference with the player's team plus 7 generated opponents.
 // 10-game schedule: 7 conference (round-robin subset) + 3 non-conference.
+// Supports parameterized configuration for testing and analysis tools.
 
 import { TeamId } from '../season/season_types.js';
 import { SeasonTeam } from '../season/team_model.js';
@@ -23,34 +24,77 @@ const HS_CONFERENCE_REGIONS = [
 ];
 
 //============================================
-// Build a complete high school season
-export function buildHighSchoolSeason(
-	playerTeamName: string,
-	playerMascot: string,
-	playerStrength: number,
+// Configuration for parameterized high school season building
+export interface HighSchoolSeasonConfig {
+	playerTeamName: string;
+	playerMascot: string;
+	playerStrength: number;
+	conferenceTeams?: number;      // default 8
+	gamesPerTeam?: number;         // default 10
+	nonConferenceTeams?: number;   // default 8 (same as conferenceTeams)
+}
+
+//============================================
+// Build a complete high school season with optional configuration
+export function buildHighSchoolSeasonConfigured(
+	config: HighSchoolSeasonConfig,
 ): LeagueSeason {
+	const conferenceTeams = config.conferenceTeams ?? 8;
+	const gamesPerTeam = config.gamesPerTeam ?? 10;
+	const nonConferenceTeams = config.nonConferenceTeams ?? conferenceTeams;
+
+	// Validate configuration
+	if (conferenceTeams < 2 || conferenceTeams % 2 !== 0) {
+		throw new Error(
+			`conferenceTeams must be even and >= 2 (got ${conferenceTeams})`,
+		);
+	}
+	if (gamesPerTeam < 1) {
+		throw new Error(
+			`gamesPerTeam must be >= 1 (got ${gamesPerTeam})`,
+		);
+	}
+
+	// Calculate how many conference games are played
+	const maxConfGames = conferenceTeams - 1; // single round-robin
+	const maxTotalGames = maxConfGames * 2;   // double round-robin
+
+	if (gamesPerTeam > maxTotalGames) {
+		throw new Error(
+			`gamesPerTeam ${gamesPerTeam} exceeds max for ${conferenceTeams} ` +
+			`teams (double round-robin: ${maxTotalGames})`,
+		);
+	}
+
+	// Check if we have enough non-conf teams if needed
+	if (gamesPerTeam > maxConfGames && nonConferenceTeams < gamesPerTeam - maxConfGames) {
+		throw new Error(
+			`gamesPerTeam ${gamesPerTeam} requires ${gamesPerTeam - maxConfGames} ` +
+			`non-conf games, but only ${nonConferenceTeams} non-conf teams available`,
+		);
+	}
+
 	resetGameIdCounter();
 
 	// Create the player's team
 	const playerTeamId: TeamId = 'player';
 	const playerTeam = new SeasonTeam(
 		playerTeamId,
-		playerTeamName,
-		playerMascot,
-		playerStrength,
+		config.playerTeamName,
+		config.playerMascot,
+		config.playerStrength,
 		randomCoachPersonality(),
 		'main_conference',
 	);
 
-	// Generate 7 conference opponents
+	// Generate conference opponents
 	const teams = new Map<TeamId, SeasonTeam>();
 	teams.set(playerTeamId, playerTeam);
 	const conferenceTeamIds: TeamId[] = [playerTeamId];
 
-	for (let i = 0; i < 7; i++) {
+	for (let i = 0; i < conferenceTeams - 1; i++) {
 		const opponentId = `conf_${i}`;
 		const opponentName = generateOpponentName();
-		// Split into name and mascot parts
 		const parts = opponentName.split(' ');
 		const mascot = parts.pop() || 'Team';
 		const name = parts.join(' ') || 'Unknown';
@@ -68,12 +112,9 @@ export function buildHighSchoolSeason(
 		conferenceTeamIds.push(opponentId);
 	}
 
-	// Generate non-conference opponents (one per conference team so every conf
-	// team can be paired in each non-conf week without repeats). Pool size
-	// equals conference size (8). These teams do not appear in standings.
+	// Generate non-conference opponents
 	const nonConfTeamIds: TeamId[] = [];
-	const NUM_NONCONF_TEAMS = conferenceTeamIds.length;
-	for (let i = 0; i < NUM_NONCONF_TEAMS; i++) {
+	for (let i = 0; i < nonConferenceTeams; i++) {
 		const ncId = `nonconf_${i}`;
 		const ncName = generateOpponentName();
 		const parts = ncName.split(' ');
@@ -92,75 +133,97 @@ export function buildHighSchoolSeason(
 		nonConfTeamIds.push(ncId);
 	}
 
-	// Build schedule: 7 conference + 3 non-conference = 10 games for player
+	// Build schedule
 	const allGames = buildHSSchedule(
-		playerTeamId,
 		conferenceTeamIds,
 		nonConfTeamIds,
+		gamesPerTeam,
 	);
 
 	// Validate schedule
-	const validation = validateSchedule(allGames, 10);
+	const validation = validateSchedule(allGames, gamesPerTeam);
 	if (!validation.valid) {
-		console.warn('HS schedule validation warnings:', validation.errors);
+		// Suppress imbalance warnings for non-conf padding (by design)
+		const hasNonConfPadding = gamesPerTeam > maxConfGames;
+		const filterErrors = hasNonConfPadding
+			? validation.errors.filter(e => !e.includes('imbalance'))
+			: validation.errors;
+		if (filterErrors.length > 0) {
+			console.warn('HS schedule validation warnings:', filterErrors);
+		}
 	}
 
-	// Pick a conference name
-	const region = HS_CONFERENCE_REGIONS[
+	// Pick a conference name (unused but generated for consistency with original)
+	void HS_CONFERENCE_REGIONS[
 		randomInRange(0, HS_CONFERENCE_REGIONS.length - 1)
 	];
 
-	return new LeagueSeason(teams, allGames, 10, playerTeamId, 'high_school');
+	return new LeagueSeason(teams, allGames, gamesPerTeam, playerTeamId, 'high_school');
 }
 
 //============================================
-// Build the 10-week schedule for an HS conference.
-// Uses proper round-robin rounds so ALL teams play every week.
-// 8 teams = 7 rounds of 4 games. 7 rounds fill 7 of the 10 weeks.
-// In the remaining 3 weeks, each conf team is paired with a non-conf team
-// via a bipartite rotation so every team plays exactly 10 games.
+// Build a complete high school season (backward compatible)
+export function buildHighSchoolSeason(
+	playerTeamName: string,
+	playerMascot: string,
+	playerStrength: number,
+): LeagueSeason {
+	return buildHighSchoolSeasonConfigured({
+		playerTeamName,
+		playerMascot,
+		playerStrength,
+		conferenceTeams: 8,
+		gamesPerTeam: 10,
+		nonConferenceTeams: 8,
+	});
+}
+
+//============================================
+// Build the schedule for an HS conference with configurable game count.
+// Uses proper round-robin rounds so teams play every week without conflicts.
+// If gamesPerTeam <= conferenceTeams-1: single round-robin (conference only)
+// If gamesPerTeam > conferenceTeams-1: add non-conf games for the remainder
 function buildHSSchedule(
-	playerTeamId: TeamId,
 	conferenceTeamIds: TeamId[],
 	nonConfTeamIds: TeamId[],
+	gamesPerTeam: number,
 ): SeasonGame[] {
-	// Generate conflict-free round-robin rounds for all 8 conference teams
-	const rounds = generateRoundRobinRounds(conferenceTeamIds);
-
-	// Assign each round to a week. Reserve 3 weeks for non-conf games.
-	// Conference rounds go into 7 of the 10 weeks.
-	const confWeeks = [1, 2, 3, 5, 6, 8, 9];
-	const ncWeeks = [4, 7, 10];
+	// Generate conflict-free round-robin rounds
+	const allRounds = generateRoundRobinRounds(conferenceTeamIds);
+	const maxConfGamesPerTeam = conferenceTeamIds.length - 1;
 
 	const allGames: SeasonGame[] = [];
+	let currentWeek = 1;
 
-	// Create conference games from the round-robin rounds
-	for (let r = 0; r < rounds.length && r < confWeeks.length; r++) {
-		const week = confWeeks[r];
-		for (const [home, away] of rounds[r]) {
-			allGames.push(new SeasonGame(nextGameId(), week, home, away, true));
+	// Conference round-robin games
+	const confRoundsToUse = Math.min(gamesPerTeam, maxConfGamesPerTeam);
+	for (let r = 0; r < confRoundsToUse; r++) {
+		for (const [home, away] of allRounds[r]) {
+			allGames.push(new SeasonGame(nextGameId(), currentWeek, home, away, true));
 		}
+		currentWeek++;
 	}
 
-	// Bipartite rotation: every conf team plays one non-conf team each non-conf
-	// week, with no opponent repeats across the 3 non-conf weeks.
-	// The player is rotated to position 0 so their schedule is varied too.
-	const confOrdered = [...conferenceTeamIds];
-	shuffleArray(confOrdered);
-	const ncOrdered = [...nonConfTeamIds];
-	shuffleArray(ncOrdered);
+	// Non-conference games (if needed)
+	if (gamesPerTeam > maxConfGamesPerTeam) {
+		const nonConfGamesToSchedule = gamesPerTeam - maxConfGamesPerTeam;
+		const confOrdered = [...conferenceTeamIds];
+		shuffleArray(confOrdered);
+		const ncOrdered = [...nonConfTeamIds];
+		shuffleArray(ncOrdered);
 
-	const ncRounds = generateBipartiteRotation(confOrdered, ncOrdered, ncWeeks.length);
-	for (let r = 0; r < ncRounds.length; r++) {
-		const week = ncWeeks[r];
-		for (const [home, away] of ncRounds[r]) {
-			allGames.push(new SeasonGame(nextGameId(), week, home, away, false));
+		const ncRounds = generateBipartiteRotation(
+			confOrdered,
+			ncOrdered,
+			nonConfGamesToSchedule,
+		);
+		for (let r = 0; r < ncRounds.length; r++) {
+			for (const [home, away] of ncRounds[r]) {
+				allGames.push(new SeasonGame(nextGameId(), currentWeek, home, away, false));
+			}
+			currentWeek++;
 		}
 	}
-
-	// Suppress unused-import warning while we keep the playerTeamId param
-	// for future tweaks (player-specific opponent prioritization).
-	void playerTeamId;
 
 	return allGames;
 }

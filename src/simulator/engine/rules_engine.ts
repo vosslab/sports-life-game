@@ -19,7 +19,7 @@ const PUNT_TOUCHBACK_YARD_LINE = 20;
  *
  * Handles: yard advancement, down/distance, first downs, turnovers,
  * scoring, possession changes, and phase transitions. This is the heart
- * of the state machine — all transitions flow through here.
+ * of the state machine - all transitions flow through here.
  */
 export function applyPlayResult(state: GameState, outcome: PlayOutcome): void {
 	state.play_number += 1;
@@ -208,7 +208,7 @@ function applyKickoffResult(state: GameState, outcome: PlayOutcome): void {
 }
 
 /**
- * Handle punt result — possession typically changes to receiving team.
+ * Handle punt result - possession typically changes to receiving team.
  * Special cases: muffed punt (punting team recovers), blocked punt (defense recovers).
  */
 function applyPuntResult(state: GameState, outcome: PlayOutcome): void {

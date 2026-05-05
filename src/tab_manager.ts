@@ -2,7 +2,7 @@
 //
 // This file is the single owner of tab bar state and tab content refresh.
 // All tab updates flow through here. Do not call updateTabBar directly
-// from handlers or phase code — use syncTabsToPhase instead.
+// from handlers or phase code - use syncTabsToPhase instead.
 //
 // tabs.ts owns the low-level DOM (button rendering, panel show/hide).
 // ui.ts owns the rendering of tab content (stat bars, team info, career info).
@@ -19,7 +19,7 @@ import type { LeagueSeason } from './season/season_model.js';
 import {
 	updateTabBar, switchTab, setOnTabSwitch,
 } from './tabs.js';
-import * as ui from './ui.js';
+import * as ui from './ui/index.js';
 import { renderSocialTab } from './social/feed_render.js';
 
 //============================================
@@ -48,7 +48,7 @@ export function initTabManager(d: TabManagerDeps): void {
 //============================================
 // Sync the tab bar to the current phase.
 // Called on every phase transition (year_runner.ts) and as a safety net
-// in refreshDashboard. Idempotent — safe to call multiple times.
+// in refreshDashboard. Idempotent - safe to call multiple times.
 export function syncTabsToPhase(phase: CareerPhase): void {
 	updateTabBar(phase);
 }

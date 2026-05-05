@@ -1,5 +1,460 @@
 # Changelog
 
+## 2026-05-05 (continued)
+
+### Behavior or Interface Changes
+
+- **weekly_engine.ts split by cohesion completed**: Previous pass left shadow re-export barrels in `season_lifecycle.ts`, `week_phases.ts`, `game_handler.ts`, and `playoff_handler.ts`. This pass moved implementations into each module so they own their functions. No function re-exports remain; each module imports directly from its dependencies. Circular dependencies broken using namespace imports (`import * as`) to delay binding. Final split: `weekly_engine.ts` (48 lines, barrel only), `season_lifecycle.ts` (252 lines), `week_phases.ts` (357 lines), `game_handler.ts` (301 lines), `playoff_handler.ts` (209 lines), `engine_state.ts` (83 lines). Smoke test (autoplay) reached age 22 baseline after rebuild.
+
+## 2026-05-06
+
+### Additions and New Features
+
+- **Parameterized high school season builder** (`src/high_school/hs_season_builder.ts`):
+  - New `buildHighSchoolSeasonConfigured(config: HighSchoolSeasonConfig)` accepts optional `conferenceTeams`, `gamesPerTeam`, and `nonConferenceTeams` parameters.
+  - Validates: `conferenceTeams` must be even and >= 2 (round-robin requirement); `gamesPerTeam` must fit within single or double round-robin (1 to 2*teams-2); sufficient non-conf teams available if needed.
+  - Existing `buildHighSchoolSeason(name, mascot, strength)` delegates to the configured version with current defaults (8 conf teams, 10 games, 8 non-conf teams), preserving runtime behavior for game engine.
+  - Schedule imbalance warnings suppressed when non-conf padding is intentional (`gamesPerTeam > conferenceTeams-1`).
+
+- **Exported game simulator** (`src/season/season_simulator.ts`):
+  - `simulateGameBetweenTeams(season, game)` now public; previously internal to `simulateNonPlayerGames`.
+  - Same strength-based scoring logic (home-field advantage, overtime tiebreaker) used by season engine, now available for standalone analysis tools.
+
+- **sim_conference_season.ts rewrite**: calls real builders/simulators instead of local mirrors.
+  - New CLI flags (renamed for clarity):
+    - `--conference-teams N` (default 8): conference size (4-32, even only)
+    - `--games-per-team N` (default 10): games per team (auto-fills non-conf if needed)
+    - `--nonconference-teams N` (default same as conference-teams): non-conf opponent pool
+  - Analysis flags preserved: `--details`, `--box-scores`, `--rankings`, `--awards`, `--runs`, `--json`, `--quiet`
+  - Tool split into modular helpers (`tools/sim_conf/{types,display,aggregators}.ts`); main entry 277 lines.
+
+### Decisions and Failures
+
+- Smoke test (autoplay) reached age 22 baseline, confirming parameterized builder preserved runtime behavior. Pre-existing error "Cannot advance: 6 unfinished game(s)" in season engine at age 22 is not caused by builder changes.
+
+## 2026-05-05
+
+### Additions and New Features
+
+- **M7 closure**: modularization plan archived to
+  `docs/archive/2026-05-modularization_plan.md` with a closure note at
+  `docs/archive/2026-05-modularization_closure.md`. `CODE_ARCHITECTURE.md`
+  and `FILE_STRUCTURE.md` audited against the post-refactor tree;
+  references to deleted files (`src/ui.ts`, `src/hs_phase.ts`,
+  `src/college_phase.ts`, `src/nfl_phase.ts`) removed.
+
+- **P5.1: Render layer implementation** (`src/render/render_state.ts`): pull-model
+  rendering over `GameViewState` contract from M2. `renderState(view)` reads a
+  snapshot of game state and selectively updates DOM based on dirty flags.
+  Shallow-compare each view slice (header, statBars, career, story, social)
+  against last-rendered state; skips widget calls when slices unchanged.
+  Implements `clearRenderCache()` for game resets.
+
+- **P5.2: ui.ts split into focused widget modules** (`src/ui/`): 1440-line
+  monolith split into focused modules <=400 lines each:
+  - `header_widget.ts`: `updateHeader`, `updateLifeStatus`
+  - `stats_widget.ts`: `updateStatBar`, `updateAllStats`, `updateMiniStatStrip`, `updateStatsTab`
+  - `story_widget.ts`: `clearStory`, `addHeadline`, `addText`, `addResult`, `addStatChange`, `showRecentChange`
+  - `choice_widget.ts`: `ChoiceOption` type, `showChoices`, `clearChoices`, `showWeeklyFocusChoices`, `showGameResult`
+  - `team_widget.ts`: `updateTeamTab`
+  - `activities_widget.ts`: `renderActivitiesTab`
+  - `career_widget.ts`: `updateCareerTab`, `updateSeasonCareer`
+  - `week_card_widget.ts`: `updateWeekCard`, `hideWeekCard`, `updateThisWeekPanel`
+  - `sidebar_widget.ts`: `updateSidebar`, `showMilestoneCard`
+  - `format_helpers.ts`: `formatStatKey`, `formatStatLine`
+  - `index.ts`: barrel export of all above + re-export popup.js functions for backward compat
+  Original `src/ui.ts` deleted. All callers now import from `./ui/index.js`.
+
+- **P5.3: Phase -> render decoupling** (completed upstream, included in M5):
+  Checked: weekly_engine rewired through `CareerContext` for view updates
+  instead of direct ui.* calls. Phase handlers no longer import `src/ui/` or
+  `src/render/`. Zero raw DOM access from simulator tree.
+
+- **M6 main.ts slimdown** (`src/main.ts` 1357 -> 283 lines, 79% reduction):
+  Bootstrap-only main.ts. Extractions performed by parallel implementers,
+  each owning a single new module:
+  - `src/render/story_log.ts` (139 lines): BitLife-style collapsible age/week
+    section helpers (`addStoryHeadline`, `addStoryText`, `clearStory`,
+    `hardClearStory`). Module-level section trackers live with the DOM code,
+    not in main.
+  - `src/childhood/character_creation.ts` (115 lines): name input form,
+    random name generation, and birth-story narrative. Takes a
+    `CharacterCreationContext` so it does not depend on main.ts globals.
+  - `src/legacy/retirement.ts` (93 lines): legacy-phase career summary,
+    Hall of Fame check, and new-game restart flow. Takes a
+    `RetirementContext` for the same reason.
+  - `src/childhood/name_loader.ts` (47 lines, written earlier): CSV loader
+    for first/last name lists with default fallbacks; main.ts now calls
+    `loadNameLists()` once during bootstrap instead of inlining the fetch.
+  Remaining DOM access in main.ts: `document.addEventListener('DOMContentLoaded', ...)`
+  and a single fallback `panel.innerHTML` in the bootstrap error handler.
+  Story log section state moved out of main.ts entirely. Empty stub files
+  from the prior consolidation attempt removed (`character_creation.ts`,
+  `position_selection.ts`, `retirement.ts` stubs, `_deleted.txt`).
+
+### Behavior or Interface Changes
+
+- Import path for ui functions changed from `./ui.js` to `./ui/index.js` in
+  `main.ts`, `game_loop.ts`, `tab_manager.ts`. Existing callers using
+  `import * as ui` continue to work; the barrel export ensures no breaking
+  changes to call sites.
+
+### Fixes and Maintenance
+
+- Removed stale re-exports of popup functions from monolithic ui.ts; now
+  properly re-exported from `src/ui/index.ts` where applicable.
+- Story log section tracking consolidated into 3 module-level variables
+  (currentStorySection, currentWeekSection, currentWeekHeader).
+
+### Decisions and Failures
+
+- **Why P5.1+P5.2 land together:** Render layer implementation and widget split
+  are complementary. The pull-model design in renderState depends on widgets
+  accepting consistent parameter patterns, which becomes clear only after
+  refactoring into focused modules. Landing in same milestone (P5) avoids
+  intermediate state where render_state.ts imports the monolithic ui.ts.
+- **Backward compatibility maintained at all import sites:** Callers using
+  `import * as ui from './ui.js'` immediately fail to resolve after
+  `src/ui.ts` deletion, but switching to `import * as ui from './ui/index.js'`
+  is a one-line fix per file (3 files touched: main.ts, game_loop.ts,
+  tab_manager.ts). No loss of functionality.
+- **M6 main.ts reaches 521 lines, not the 300-line target:** Core orchestration
+  requires essential DOM handling for story log collapsibility (age/week section
+  folding), character creation UI (name input form), and narrative flows
+  (legacy summary). These cannot be safely extracted without introducing
+  circular imports or breaking the year-handler dispatch system. The 62%
+  reduction (1357 -> 521 lines) dramatically improves modularity and readability.
+  Further cuts would require refactoring GameContext or moving UI framework
+  concerns, which is architectural debt beyond M6 scope.
+
+## 2026-05-08
+
+### Additions and New Features
+
+- **Reality-check / architecture-validation simulator scripts**
+  (`tools/sim_season.ts`, `tools/sim_distribution.ts`,
+  `tools/sim_positions.ts`): three CLI tools that consume the simulator
+  programmatically after the M4 split. `sim_season.ts` runs one full
+  synthetic season for a chosen position/depth/strength and prints a
+  per-game stat table plus season totals. `sim_distribution.ts` runs N
+  seasons per position and prints mean/min/max/stddev. `sim_positions.ts`
+  compares all 11 positions side-by-side, auto-detects byte-identical
+  (mean, stddev) tuples across positions ("flat-by-bucket"), and flags
+  cells where stddev/mean < 0.05 ("flat variance"). All three seed the
+  RNG via `seedDefaultRng` so runs reproduce. Examples:
+  `npx tsx tools/sim_season.ts --position QB --weeks 17 --seed 42`,
+  `npx tsx tools/sim_distribution.ts --runs 30`,
+  `npx tsx tools/sim_positions.ts --runs 30`.
+
+### Decisions and Failures
+
+- **Side simulation scripts are intentional architecture validation, not
+  just realism checks.** They demonstrate that the simulator and season
+  modules now have a clean programmatic interface independent of the
+  browser render path. All three scripts import only from
+  `src/player.js`, `src/team.js`, `src/week_sim/game.js`, and
+  `src/core/rng.js` -- zero imports from `src/ui*`, `src/render*`,
+  `src/main.ts`, or `src/tabs.ts`. Successfully running these scripts
+  end-to-end is direct evidence that the M4 decomposition produced a
+  reusable simulator API.
+- **Realism gaps surfaced by the scripts (filed for follow-up,
+  intentionally NOT tuned in this milestone):** the position comparison
+  caught six byte-identical distributions across roles --
+  `tackles`/`sacks`/`ints` collapse LB+CB+S into one defender bucket,
+  `fgMade`/`fgAttempts` collapse K and P, and `totalTouchdowns` is
+  shared across RB and WR. Flat-variance check (stddev/mean < 0.05)
+  flagged QB total/pass yardage (ratio 0.017), RB total/rush yardage
+  (0.021), WR receiving yardage (0.049), and defender tackles (0.029)
+  as suspiciously deterministic across seeds. Plus the earlier finds:
+  QB completion % ~78 vs NFL 60-72; kicker FG% ~75 vs NFL 84-90; RB
+  YPC ~6.3 vs elite NFL 5.5-6.0. These are tuning gaps in
+  `src/week_sim/stat_lines.ts` and `src/week_sim/game.ts`, not
+  M4-introduced regressions. Tuning is deferred until after M5 / M6 so
+  this milestone stays architectural.
+
+## 2026-05-07
+
+### Additions and New Features
+
+- **Modular `src/week_sim/` tree (M4 of the modularization plan)**: the
+  legacy 1,180-line [src/week_sim.ts](../src/week_sim.ts) was decomposed
+  into focused submodules. New files:
+  [src/week_sim/focus.ts](../src/week_sim/focus.ts) (154 lines,
+  `applySeasonGoal`, `applyWeeklyFocus`, flavor pools),
+  [src/week_sim/goals.ts](../src/week_sim/goals.ts) (83 lines,
+  `getGoalsForPhase`, `getPreferredActivitiesForGoal`),
+  [src/week_sim/momentum.ts](../src/week_sim/momentum.ts) (80 lines,
+  `updateMomentum`, `calculatePerformanceRating`, `calculateLetterGrade`),
+  [src/week_sim/stat_lines.ts](../src/week_sim/stat_lines.ts) (325 lines,
+  per-position `StatLine` generators, depth-chart scaling),
+  [src/week_sim/game.ts](../src/week_sim/game.ts) (363 lines,
+  `simulateGame` and helpers),
+  [src/week_sim/depth_chart.ts](../src/week_sim/depth_chart.ts) (107
+  lines, `evaluateDepthChartUpdate`),
+  [src/week_sim/practice.ts](../src/week_sim/practice.ts) (75 lines,
+  `runPracticeSession`), and
+  [src/week_sim/index.ts](../src/week_sim/index.ts) (26 lines,
+  barrel-style re-exports). [src/week_sim.ts](../src/week_sim.ts)
+  shrinks to a 24-line re-export shim that keeps the existing six
+  importers (main, ui, game_loop, social/fotomagic,
+  season/season_simulator, weekly/weekly_engine) working unchanged.
+- **Modular `src/clutch/` engine (M4 of the modularization plan)**: the
+  legacy 1,958-line [src/clutch_moment.ts](../src/clutch_moment.ts) was
+  decomposed. New files:
+  [src/clutch/types.ts](../src/clutch/types.ts) (103 lines, public types,
+  `BASE_RATES`, `SCORING_MAPS`, `ChoiceTemplate`),
+  [src/clutch/situation.ts](../src/clutch/situation.ts) (304 lines,
+  helpers + `deriveSituation`, `generateScene`, `shouldTrigger`),
+  six per-position choice pools
+  ([choices_qb.ts](../src/clutch/choices_qb.ts) 319 lines,
+  [choices_rb.ts](../src/clutch/choices_rb.ts) 175,
+  [choices_wr.ts](../src/clutch/choices_wr.ts) 171,
+  [choices_ol.ts](../src/clutch/choices_ol.ts) 171,
+  [choices_def.ts](../src/clutch/choices_def.ts) 201,
+  [choices_kicker.ts](../src/clutch/choices_kicker.ts) 177),
+  [src/clutch/resolve.ts](../src/clutch/resolve.ts) (360 lines, choice
+  pool selection, risk spread, success/failure resolution, legacy-tag
+  and reputation text), and
+  [src/clutch/index.ts](../src/clutch/index.ts) (73 lines,
+  `buildClutchMoment` and `resolveClutchMoment`).
+  [src/clutch_moment.ts](../src/clutch_moment.ts) shrinks to an 18-line
+  shim. Sole importer (weekly_engine.ts) compiles unchanged.
+- **`tests/test_simulator.ts`** (M4 characterization test): exercises
+  determinism of `simulateGame` under a fixed seed, the
+  offense-vs-defense win-rate property over 50 seeded runs, stat
+  accumulation through `accumulateGameStats`, performance rating and
+  letter grade boundaries (`poor`/`average`/`elite`, `F`/`C`/`A`),
+  and the clutch round trip (`buildClutchMoment` produces a valid
+  moment, `resolveClutchMoment` returns a non-empty narrative, blowouts
+  return null). Wired into [tests/run.ts](../tests/run.ts).
+
+### Behavior or Interface Changes
+
+- **Math.random budget tightened to 0** (was 54). All direct
+  `Math.random()` call sites in the simulation tree
+  (`src/core`, `src/weekly`, `src/simulator`, `src/clutch`,
+  `src/season`, `src/high_school`, `src/college`, `src/nfl_handlers`)
+  are gone. Replacements use `rand()` / `randInt()` / `randRange()`
+  from [src/core/rng.ts](../src/core/rng.ts). Files touched:
+  [src/weekly/weekly_engine.ts](../src/weekly/weekly_engine.ts) (2),
+  [src/simulator/adapter.ts](../src/simulator/adapter.ts) (2),
+  [src/simulator/models/special_teams_model.ts](../src/simulator/models/special_teams_model.ts)
+  (13),
+  [src/simulator/models/play_result_model.ts](../src/simulator/models/play_result_model.ts)
+  (14),
+  [src/simulator/models/team_strength_model.ts](../src/simulator/models/team_strength_model.ts)
+  (1),
+  [src/simulator/models/play_call_model.ts](../src/simulator/models/play_call_model.ts)
+  (5),
+  [src/simulator/engine/game_engine.ts](../src/simulator/engine/game_engine.ts)
+  (5),
+  [src/simulator/engine/clutch_checkpoint.ts](../src/simulator/engine/clutch_checkpoint.ts)
+  (6),
+  [src/season/season_simulator.ts](../src/season/season_simulator.ts) (1),
+  [src/season/season_builder.ts](../src/season/season_builder.ts) (3),
+  [src/season/playoff_bracket.ts](../src/season/playoff_bracket.ts) (1),
+  [src/high_school/hs_recruiting.ts](../src/high_school/hs_recruiting.ts)
+  (1). 54 total replacements.
+- **`randomInRange` in [src/player.ts](../src/player.ts) now routes
+  through the seeded RNG** via `randInt(min, max)`. The seam is
+  upstream of every existing caller, so the cascade fixes the dozens
+  of `randomInRange` call sites in `src/season/`, `src/high_school/`,
+  etc. without touching them individually.
+
+### Fixes and Maintenance
+
+- **Pure-simulation invariant restored**: every module under
+  `src/simulator/`, `src/clutch/`, `src/week_sim/`, `src/season/`,
+  `src/core/`, `src/weekly/`, `src/high_school/`, `src/college/`, and
+  `src/nfl_handlers/` now has zero direct DOM access, zero `ui.ts`
+  imports, and zero `Math.random()` references.
+
+### Removals and Deprecations
+
+- The 1,180-line [src/week_sim.ts](../src/week_sim.ts) and 1,958-line
+  [src/clutch_moment.ts](../src/clutch_moment.ts) are no longer
+  authoritative. Both are shrunk to thin re-export shims; their
+  contents live under `src/week_sim/` and `src/clutch/`.
+
+### Decisions and Failures
+
+- **Shim retained over hard delete.** Per M4 acceptance criteria, the
+  smaller-blast-radius option was a re-export shim at the legacy path
+  rather than rewriting six importers (week_sim) and one importer
+  (clutch_moment). Shims will be removed in a later cleanup once all
+  importers move to `from './week_sim/index.js'` /
+  `from './clutch/index.js'`.
+- **Per-position choice pools intentionally kept as one file each.**
+  The QB pool is the largest at 319 lines; further splitting would
+  spread one position's narrative across multiple files for no gain.
+  All pool files are well under the 600-line ceiling.
+
+### Developer Tests and Notes
+
+- `npx tsc --noEmit` clean.
+- `npx tsx tests/run.ts` green: 5 modules pass (rng, player_helpers,
+  handler_registry, simulator, math_random_budget). Budget = 0/0.
+
+## 2026-05-06
+
+### Removals and Deprecations
+
+- **Legacy phase runners deleted (M3 of the modularization plan)**:
+  `src/hs_phase.ts` (1,201 lines), `src/college_phase.ts` (753 lines),
+  and `src/nfl_phase.ts` (715 lines) are removed. The year-handler
+  registry under `src/core/`, `src/weekly/weekly_engine.ts`, and the
+  per-phase adapter packages (`src/high_school/`, `src/college/`,
+  `src/nfl_handlers/`) now own every weekly loop. `main.ts` boots phases
+  only through `core/year_runner.ts` -- the legacy
+  `initHighSchoolPhase` / `beginCollegePhase` / `startNFLCareerPhase`
+  call sites are gone. School choice for college now happens during
+  `showSigningDay` in [src/high_school/hs_recruiting.ts]
+  (../src/high_school/hs_recruiting.ts), so the legacy
+  `showCollegeChoiceScreen` in `main.ts` was dropped along with the
+  unused `CollegeChoiceOption` interface.
+
+### Behavior or Interface Changes
+
+- **`Player` god-type is now a composition** (`src/player.ts`,
+  `src/player/stats_bundle.ts`, `src/player/index.ts`): the previously
+  ~95-line hand-written `interface Player` is replaced by the type
+  intersection
+  `PlayerIdentity & PlayerStatsBundle & PlayerCareer & PlayerSeasonState`.
+  The new `PlayerStatsBundle` slice owns the four nested stat objects
+  (`core`, `career`, `hidden`, `seasonStats`). All 23 importers continue
+  to compile against the composed type while new code can depend on the
+  narrow slice it actually needs. `Position`, `PositionBucket`,
+  `CareerPhase`, `DepthChartStatus`, `SeasonGoal`, and `SeasonRecord`
+  are re-exported from `./player.js` for legacy importers but now live
+  with the slice that owns them.
+- **Phase architecture is "shared engine, distinct phase adapters"**:
+  `src/weekly/weekly_engine.ts` owns only the week lifecycle skeleton
+  (prepare -> focus -> activity -> event -> game -> results -> advance).
+  Each handler owns its phase identity (season length, opponent base,
+  events, recruiting/transfer/draft hooks, retirement, awards). HS is
+  10 weeks with silly-mascot HS identity; college is 11-12 weeks with
+  redshirt/transfer/declaration; NFL is 17 weeks with combine, draft,
+  salary, retirement.
+
+### Additions and New Features
+
+- **`tests/test_handler_registry.ts`** (M3 characterization test):
+  asserts every age 1-39 maps to exactly one of the 13 registered
+  handlers, that ages 0 and 40+ have none, that the season configs
+  for HS, college, and NFL are distinctly different (10 / 11 / 17
+  weeks; ascending opponent strength), and that there are no gaps
+  between age bands.
+- **Richer school-name pool ported into the new handler.**
+  `hs_frosh_soph.ts` now generates HS identities from the silly
+  minor-league pool that previously lived only in `hs_phase.ts`
+  (Pine Bluff Wyverns, River City Kumquats, Elkhorn Narwhals, etc.),
+  preserving user-facing flavor while the legacy file is deleted.
+
+### Fixes and Maintenance
+
+- **Math.random budget tightened to 54** (was 56). The two call sites
+  removed are in `hs_frosh_soph.ts`'s `generateHSIdentity`, now using
+  `randomInRange`. Tests/check_math_random_budget.ts updated.
+- **ASCII compliance**: replaced Unicode arrows U+2191 (^) and U+2193
+  (v) in `src/simulator/season/rankings.ts` with HTML entities
+  `&uarr;` and `&darr;` per docs/MARKDOWN_STYLE / repo ASCII rules.
+
+### Developer Tests and Notes
+
+- `npx tsx tests/run.ts` now runs 4 modules: rng (7/7), player_helpers
+  (4/4), handler_registry (4/4), Math.random budget (54/54).
+- `npx tsc --noEmit` clean after deleting 2,669 lines of legacy phase
+  code.
+- Playwright smoke run (276 steps in ~90s) successfully advances
+  childhood -> peewee -> travel -> HS frosh/soph -> HS varsity ->
+  recruiting/signing -> college freshman through senior -> NFL combine
+  -> NFL draft (Miami Dolphins). Autoplay then trips on a pre-existing
+  strict check in [src/season/season_model.ts](../src/season/season_model.ts)
+  (`Cannot advance: 6 unfinished game(s) in week 1`) at the start of
+  the NFL season; this lives in the season layer, not M3-touched code,
+  and is filed as a known gap below.
+
+## 2026-05-05
+
+### Additions and New Features
+
+- **M1 minimal safety rails for the architecture reset**
+  (`src/core/rng.ts`, `tests/test_rng.ts`, `tests/test_player_helpers.ts`,
+  `tests/check_math_random_budget.ts`, `tests/run.ts`, `tests/smoke.sh`):
+  First milestone of the modularization plan
+  ([`drifting-crafting-sedgewick.md`](../../.claude/plans/drifting-crafting-sedgewick.md)).
+  Adds a seeded mulberry32 RNG (`createRng`, `seedDefaultRng`, `rand`,
+  `randInt`, `randRange`, `randChoice`) intended as the canonical source
+  of randomness for the simulation tree. Adds a Math.random budget
+  ratchet that records the current baseline (56 call sites in
+  `src/core`, `src/weekly`, `src/simulator`, `src/season`,
+  `src/high_school`, `src/college`, `src/nfl_handlers`) and fails only
+  if the count grows; the budget will be lowered as M3, M4, and M5 land.
+  Adds Node-runnable characterization tests for pure helpers
+  (`clampStat`, `getPositionBucket`, `getAcademicStanding`,
+  `getRelationshipLevel`) and a single `tests/run.ts` runner that
+  invokes every Node-side test under `tsx`. Adds `tests/smoke.sh` as a
+  one-command wrapper around the existing `tests/autoplay.mjs`
+  Playwright path; the Playwright run remains the end-to-end guard.
+
+### Decisions and Failures
+
+- **No full-career Node harness in M1.** The original plan called for a
+  deterministic full-career test under `tsx`. After audit, this would
+  require either jsdom shims around `main.ts`, `ui.ts`, `tabs`,
+  `localStorage`, and DOM state, or a partial pre-refactor of the very
+  code M3 deletes. Both are sideways work that preserve the current
+  coupling. Decision: defer deterministic phase tests to M3 (once
+  handlers exist), simulator unit tests to M4 (once those modules are
+  pure), and any DOM/render tests to M5. M1 ships only minimal safety
+  rails. The plan was revised to match.
+- **Save round-trip deferred from M1 to M2.** The current `src/save.ts`
+  uses field-existence inference for migrations and there is no
+  `schemaVersion`. Writing a v0 round-trip fixture before the M2 save
+  reset would lock in the very inference pattern the reset removes.
+  Round-trip lands with `src/save/{schema,default_save,validate}.ts` in
+  M2.
+
+### Developer Tests and Notes
+
+- `npx tsx tests/run.ts` runs all Node-side tests (RNG unit tests, pure
+  helpers, Math.random budget). Currently `3/3` modules green at
+  baseline `56/56`.
+- `bash tests/smoke.sh` builds, serves, and auto-plays the game via
+  Playwright. Use `--headed` to watch.
+
+### Behavior or Interface Changes
+
+- **Save reset (M2 of the modularization plan).** Saves now carry
+  `{ schemaVersion: 1, ...payload }` and the loader accepts only
+  `schemaVersion === 1`. Pre-v1 saves (no `schemaVersion` field),
+  malformed JSON, and any other version trigger a console warning,
+  clear the slot, and start a fresh game on next load. The previous
+  field-existence inference block in `src/save.ts` is gone. There are
+  no live players to migrate, so no v0 migrator is implemented.
+  Canonical impl lives at `src/save/index.ts` with `src/save/schema.ts`
+  and `src/save/validate.ts`; `src/save.ts` is a one-line re-export
+  shim for the 23 legacy importers.
+
+### Additions and New Features
+
+- **Narrow Player type slices** (`src/player/identity.ts`,
+  `src/player/stats.ts`, `src/player/career.ts`,
+  `src/player/season_state.ts`, `src/player/snapshot.ts`,
+  `src/player/index.ts`): the wide `Player` interface in `src/player.ts`
+  is now mirrored as four narrow shapes (`PlayerIdentity`,
+  `PlayerStats` types, `PlayerCareer`, `PlayerSeasonState`) plus a
+  composed `PlayerSnapshot` for save/load. New code should import the
+  slice it actually uses. The legacy `Player` interface remains
+  unchanged in shape so the 23 existing importers compile without
+  edits; the transitional alias is removed at M3 exit per the plan.
+- **`GameViewState` simulation -> render contract**
+  (`src/view_state/game_view_state.ts`): pure data interface that the
+  render layer (M5) will consume and that handler/season code (M3) can
+  populate. Lands ahead of the render implementation so the M3
+  migration does not carry old `ui.*` coupling forward. Includes
+  `HeaderView`, `StatBarView`, `CareerView`, `StoryView`, `SocialView`.
+
 ## 2026-05-04
 
 ### Additions and New Features
@@ -97,7 +552,7 @@
   after every phase change, plus a safety net in `refreshDashboard()`. Also fixed
   sidebar record desync: the "Season & Career" section now reads from the live season
   record during active seasons instead of `careerHistory` (which is only populated at
-  season end). Decision: centralized tab management prevents future regressions —
+  season end). Decision: centralized tab management prevents future regressions -
   all phase transitions go through `year_runner.ts` which now auto-syncs tabs.
 - **Add UI update checklists to weekly_engine.ts** (`src/weekly/weekly_engine.ts`):
   Added three checklists as code comments above `advanceToNextWeek` and `endSeason`:
@@ -123,8 +578,8 @@
   active crises first, then conditionally trigger midseason crises, then show adaptive weekly
   choices. Added two new functions: `showWeeklyChoices()` displays arc-aware choice options
   with UI interaction; `showCrisisResponse()` handles player responses to active crises with
-  timer advancement and resolution. Arc phase flows: goal effects (kept) → crisis check/trigger
-  → choice menu (or crisis response if already active) → event check → game. Choice resolution
+  timer advancement and resolution. Arc phase flows: goal effects (kept) -> crisis check/trigger
+  -> choice menu (or crisis response if already active) -> event check -> game. Choice resolution
   applies narrative and stat effects before proceeding to event. Crisis responses advance
   crisis state and may resolve the crisis entirely. Legacy `applyBackgroundActivityFromGoal()`
   and `showActivities()` functions remain for potential future reuse but are no longer called

@@ -5,6 +5,7 @@
 
 import { TeamId, GameId } from './season_types.js';
 import { SeasonGame } from './game_model.js';
+import { rand } from '../core/rng.js';
 
 // Running game id counter for unique ids within a season
 let gameIdCounter = 0;
@@ -32,7 +33,7 @@ export function generateRoundRobin(teamIds: TeamId[]): [TeamId, TeamId][] {
 	for (let i = 0; i < teamIds.length; i++) {
 		for (let j = i + 1; j < teamIds.length; j++) {
 			// Randomly assign home/away
-			if (Math.random() < 0.5) {
+			if (rand() < 0.5) {
 				pairs.push([teamIds[i], teamIds[j]]);
 			} else {
 				pairs.push([teamIds[j], teamIds[i]]);
@@ -165,7 +166,7 @@ export function generateNonConferenceGames(
 
 		const week = weeks[games.length];
 		// Randomly assign home/away
-		if (Math.random() < 0.5) {
+		if (rand() < 0.5) {
 			games.push(new SeasonGame(nextGameId(), week, teamId, opponentId, false));
 		} else {
 			games.push(new SeasonGame(nextGameId(), week, opponentId, teamId, false));
@@ -285,7 +286,7 @@ export function validateSchedule(
 // Fisher-Yates shuffle (in-place)
 export function shuffleArray<T>(array: T[]): void {
 	for (let i = array.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
+		const j = Math.floor(rand() * (i + 1));
 		[array[i], array[j]] = [array[j], array[i]];
 	}
 }

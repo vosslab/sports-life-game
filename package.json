@@ -1,6 +1,5 @@
 {
   "name": "sports-life-game",
-  "version": "26.02.0",
   "description": "A BitLife-style American football career simulator",
   "type": "module",
   "scripts": {
@@ -11,5 +10,25 @@
     "playwright": "^1.59.1",
     "typescript": "^5.4"
   },
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "version": "1.0.0",
+  "main": "eslint.config.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "dependencies": {
+    "fsevents": "^2.3.2",
+    "playwright-core": "^1.59.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vosslab/sports-life-game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/vosslab/sports-life-game/issues"
+  },
+  "homepage": "https://github.com/vosslab/sports-life-game#readme"
 }

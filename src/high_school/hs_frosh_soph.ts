@@ -95,25 +95,33 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 }
 
 //============================================
-// Generate a high school name and mascot from curated lists
+// Generate a high school name and mascot. Names tilt minor-league silly so
+// every save grows its own identity (e.g. "Pine Bluff Wyverns").
 function generateHSIdentity(player: Player): void {
 	const names = [
-		'Lincoln', 'Washington', 'Jefferson', 'Roosevelt', 'Kennedy',
-		'Central', 'Northside', 'Westview', 'Eastlake', 'Southfield',
-		'Heritage', 'Summit', 'Valley', 'Mountain View', 'Ridgewood',
-		'Oak Park', 'Lakeview', 'Bayshore', 'Fieldstone', 'Crestview',
+		'Westfield', 'North Valley', 'Lincoln', 'Riverside',
+		'Cedar Creek', 'Oakmont', 'Fairview', 'Heritage',
+		'Summit', 'Crestwood', 'Lakewood', 'Eastside',
+		'Mountainview', 'Bayshore', 'Pinecrest', 'Highland',
+		'Pine Bluff', 'Lakeview', 'Milltown', 'Copper Hills',
+		'Dry Creek', 'Maple Fork', 'River City', 'Willow Springs',
+		'Elkhorn', 'Blue Ridge', 'Fox Hollow', 'Stonebridge',
 	];
 	const mascots = [
-		'Spartans', 'Knights', 'Trojans', 'Patriots', 'Rebels',
-		'Pioneers', 'Rangers', 'Chargers', 'Vikings', 'Titans',
-		'Crusaders', 'Braves', 'Rockets', 'Comets', 'Thunder',
-		'Hurricanes', 'Storm', 'Blazers', 'Grizzlies', 'Miners',
+		// Animals
+		'Alpacas', 'Bumblebees', 'Cobras', 'Ferrets', 'Foxes',
+		'Frogs', 'Gophers', 'Jackrabbits', 'Lemurs', 'Narwhals',
+		'Puffins', 'Raccoons', 'Seals', 'Squids', 'Turtles',
+		'Wombats', 'Lobsters', 'Platypus', 'Tadpoles', 'Zebras',
+		// Food
+		'Avocados', 'Beets', 'Hot Peppers', 'Kumquats', 'Spuds',
+		// Plants
+		'Dandelions', 'Clovers', 'Marigolds', 'Ferns',
+		// Rare weird
+		'Wyverns',
 	];
-
-	const nameIdx = Math.floor(Math.random() * names.length);
-	const mascotIdx = Math.floor(Math.random() * mascots.length);
-	player.hsName = names[nameIdx];
-	player.hsMascot = mascots[mascotIdx];
+	player.hsName = names[randomInRange(0, names.length - 1)];
+	player.hsMascot = mascots[randomInRange(0, mascots.length - 1)];
 }
 
 //============================================

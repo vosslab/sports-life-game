@@ -6,6 +6,7 @@
 import { GameState, PlayOutcome, PlayResult } from "../engine/state_machine.js";
 import { LeagueRules } from "../rules/league_rules.js";
 import { LeagueTuning } from "../rules/league_tuning.js";
+import { rand } from '../../core/rng.js';
 
 //============================================
 // Helper: Box-Muller normal distribution
@@ -13,8 +14,8 @@ import { LeagueTuning } from "../rules/league_tuning.js";
 
 function randomNormal(mean: number, stddev: number): number {
 	// Box-Muller transform to generate normal distribution from uniform random
-	const u1 = Math.random();
-	const u2 = Math.random();
+	const u1 = rand();
+	const u2 = rand();
 	const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
 	return mean + z0 * stddev;
 }
@@ -28,7 +29,7 @@ export function resolveKickoff(
 	tuning: LeagueTuning
 ): PlayOutcome {
 	// Touchback probability (typically 55%)
-	if (Math.random() < tuning.kickoffTouchbackRate) {
+	if (rand() < tuning.kickoffTouchbackRate) {
 		return {
 			play_type: "kickoff",
 			result: PlayResult.TOUCHBACK,
@@ -58,7 +59,7 @@ export function resolveKickoff(
 	returnYards = Math.min(returnYards, 100); // can't return past own endzone
 
 	// Return touchdown (1% chance)
-	if (Math.random() < 0.01) {
+	if (rand() < 0.01) {
 		return {
 			play_type: "kickoff",
 			result: PlayResult.TOUCHDOWN,
@@ -84,7 +85,7 @@ export function resolveKickoff(
 	}
 
 	// Fumble on return (1% chance)
-	if (Math.random() < 0.01) {
+	if (rand() < 0.01) {
 		return {
 			play_type: "kickoff",
 			result: PlayResult.FUMBLE_LOST,
@@ -152,8 +153,8 @@ export function resolvePunt(
 	);
 
 	// Blocked punt (1.5% chance)
-	if (Math.random() < 0.015) {
-		const blockRecoveryYards = Math.floor(Math.random() * 15);
+	if (rand() < 0.015) {
+		const blockRecoveryYards = Math.floor(rand() * 15);
 		return {
 			play_type: "punt",
 			result: PlayResult.FUMBLE_LOST,
@@ -208,7 +209,7 @@ export function resolvePunt(
 	}
 
 	// Fair catch chance
-	if (Math.random() < tuning.puntFairCatchRate) {
+	if (rand() < tuning.puntFairCatchRate) {
 		return {
 			play_type: "punt",
 			result: PlayResult.FAIR_CATCH,
@@ -237,7 +238,7 @@ export function resolvePunt(
 	const returnYards = Math.max(0, Math.round(randomNormal(9, 5)));
 
 	// Muffed punt (2% chance) - punting team recovers, keeps ball
-	if (Math.random() < 0.02) {
+	if (rand() < 0.02) {
 		return {
 			play_type: "punt",
 			result: PlayResult.FUMBLE_LOST,
@@ -263,7 +264,7 @@ export function resolvePunt(
 	}
 
 	// Punt return touchdown (1% chance)
-	if (Math.random() < 0.01) {
+	if (rand() < 0.01) {
 		return {
 			play_type: "punt",
 			result: PlayResult.TOUCHDOWN,
@@ -377,7 +378,7 @@ export function resolveFieldGoal(
 	const normalizedTuning = tuning.fieldGoalAccuracy / 0.85;
 	const successProb = Math.max(0, Math.min(1, baseProb * normalizedTuning));
 
-	if (Math.random() < successProb) {
+	if (rand() < successProb) {
 		return {
 			play_type: "field_goal",
 			result: PlayResult.FIELD_GOAL_MADE,
@@ -436,7 +437,7 @@ export function resolveExtraPoint(
 ): PlayOutcome {
 	const successProb = rules.patSuccessRate;
 
-	if (Math.random() < successProb) {
+	if (rand() < successProb) {
 		return {
 			play_type: "extra_point",
 			result: PlayResult.FIELD_GOAL_MADE,
@@ -495,7 +496,7 @@ export function resolveTwoPoint(
 ): PlayOutcome {
 	const successProb = rules.twoPointRate;
 
-	if (Math.random() < successProb) {
+	if (rand() < successProb) {
 		return {
 			play_type: "two_point",
 			result: PlayResult.TOUCHDOWN,

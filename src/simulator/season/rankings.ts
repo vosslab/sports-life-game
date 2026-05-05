@@ -267,10 +267,10 @@ export function formatRankingsDisplay(
 			movementIndicator = " NE"; // New entry
 		} else if (team.rank < team.previousRank) {
 			const jump = team.previousRank - team.rank;
-			movementIndicator = ` ↑${jump}`;
+			movementIndicator = ` &uarr;${jump}`;
 		} else if (team.rank > team.previousRank) {
 			const drop = team.rank - team.previousRank;
-			movementIndicator = ` ↓${drop}`;
+			movementIndicator = ` &darr;${drop}`;
 		} else {
 			movementIndicator = "  =";
 		}

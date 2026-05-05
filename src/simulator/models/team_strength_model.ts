@@ -1,3 +1,4 @@
+import { rand } from '../../core/rng.js';
 //============================================
 // Team Strength Model
 //
@@ -7,8 +8,8 @@
 //
 // Matchup adjustment combines offense and defense multipliers:
 //   pass_yard_mult = off_passOffense_mult * def_passDefense_mult
-// Good offense (1.2) vs bad defense (1.1) → 1.32 (highly favorable).
-// Bad offense (0.8) vs good defense (0.9) → 0.72 (suppressed).
+// Good offense (1.2) vs bad defense (1.1) -> 1.32 (highly favorable).
+// Bad offense (0.8) vs good defense (0.9) -> 0.72 (suppressed).
 //
 // All stat values are 0-100; multipliers hover around 1.0 with
 // dampening to prevent unrealistic extremes.
@@ -81,18 +82,18 @@ export function computeMatchupAdjustment(
 	const defCompMult = statToMultiplier(defense.profile.passDefense);
 	let compRateMult = offCompMult * defCompMult;
 
-	// Sack rate: inverted discipline (low discipline → more sacks)
+	// Sack rate: inverted discipline (low discipline -> more sacks)
 	// Offensive discipline (OL/QB protection), defensive pass rush
 	const offSackMult = 1.0 / statToMultiplier(offense.profile.discipline);
 	const defSackMult = statToMultiplier(defense.profile.passDefense);
 	let sackRateMult = offSackMult * defSackMult;
 
-	// INT rate: inverted discipline (low discipline → more INTs)
+	// INT rate: inverted discipline (low discipline -> more INTs)
 	const offIntMult = 1.0 / statToMultiplier(offense.profile.discipline);
 	const defIntMult = statToMultiplier(defense.profile.passDefense);
 	let intRateMult = offIntMult * defIntMult;
 
-	// Fumble rate: inverted discipline (low discipline → more fumbles)
+	// Fumble rate: inverted discipline (low discipline -> more fumbles)
 	const offFumbleMult = 1.0 / statToMultiplier(offense.profile.discipline);
 	const defFumbleMult = statToMultiplier(defense.profile.defense);
 	let fumbleRateMult = offFumbleMult * defFumbleMult;
@@ -142,7 +143,7 @@ export function computeMatchupAdjustment(
 //============================================
 // Create a balanced team profile from a single overall rating.
 //
-// Fills in sub-stats with slight random variation (±5) to avoid
+// Fills in sub-stats with slight random variation (+/-5) to avoid
 // teams with identical sub-ratings. All values clamped to 0-100.
 //============================================
 export function createDefaultTeamProfile(
@@ -154,7 +155,7 @@ export function createDefaultTeamProfile(
 
 	// Helper to add variation and clamp
 	const varyAndClamp = (base: number): number => {
-		const variation = (Math.random() - 0.5) * 10; // ±5
+		const variation = (rand() - 0.5) * 10; // +/-5
 		return Math.max(0, Math.min(100, base + variation));
 	};
 
@@ -199,7 +200,7 @@ export function createDefaultTeamProfile(
 //          0  = 0.0 (minimum)
 //          100 = 2.0 (double average)
 //
-// Clamped to 0.5–1.5 to prevent extreme swings.
+// Clamped to 0.5-1.5 to prevent extreme swings.
 //============================================
 export function statToMultiplier(stat: number): number {
 	const mult = stat / 50;
@@ -211,7 +212,7 @@ export function statToMultiplier(stat: number): number {
 //
 // strength: 0.0 = no dampening (raw multiplier)
 //           1.0 = fully dampened (result = 1.0)
-//   Recommended: 0.2–0.4 for realistic spread without chaos.
+//   Recommended: 0.2-0.4 for realistic spread without chaos.
 //
 // Formula: 1.0 + (mult - 1.0) * (1.0 - strength)
 //============================================

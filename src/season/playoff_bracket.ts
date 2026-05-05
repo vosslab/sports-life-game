@@ -7,6 +7,7 @@
 import { TeamId, GameId, PlayoffSeed } from './season_types.js';
 import { SeasonGame } from './game_model.js';
 import { randomInRange } from '../player.js';
+import { rand } from '../core/rng.js';
 
 // Running playoff game id counter
 let playoffGameCounter = 0;
@@ -255,7 +256,7 @@ export class PlayoffBracket {
 		if (homeScore === awayScore) {
 				const overtimePoints = rollOvertimePoints();
 			const winProb = 0.5 + ((homeStrength - awayStrength) / 200);
-			if (Math.random() < winProb) {
+			if (rand() < winProb) {
 				homeScore += overtimePoints;
 			} else {
 				awayScore += overtimePoints;

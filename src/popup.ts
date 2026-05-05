@@ -6,7 +6,7 @@
 // Phase modules import directly from this file.
 
 import { getElement, findElement } from './dom_utils.js';
-import type { ChoiceOption } from './ui.js';
+import type { ChoiceOption } from './core/choice_option.js';
 
 //============================================
 // UNIFIED MODAL (single DOM element, two visual themes)

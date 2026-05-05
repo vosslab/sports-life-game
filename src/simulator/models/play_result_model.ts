@@ -6,6 +6,7 @@
 import { GameState, PlayOutcome, PlayResult, Situation } from "../engine/state_machine.js";
 import { LeagueTuning } from "../rules/league_tuning.js";
 import { MatchupAdjustment } from "./team_strength_model.js";
+import { rand } from '../../core/rng.js';
 
 //============================================
 // Helper functions for randomness
@@ -15,8 +16,8 @@ import { MatchupAdjustment } from "./team_strength_model.js";
  * Generate a random number from a normal distribution using Box-Muller transform.
  */
 function randomNormal(mean: number, stddev: number): number {
-	const u1 = Math.random();
-	const u2 = Math.random();
+	const u1 = rand();
+	const u2 = rand();
 	const z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
 	return mean + z * stddev;
 }
@@ -27,14 +28,14 @@ function randomNormal(mean: number, stddev: number): number {
  */
 function randomExponential(lambda: number): number {
 	// Use 1-random to avoid log(0) which produces Infinity
-	return -lambda * Math.log(1 - Math.random());
+	return -lambda * Math.log(1 - rand());
 }
 
 /**
  * Generate a uniform random integer in [min, max] inclusive.
  */
 function randomInRange(min: number, max: number): number {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
+	return Math.floor(rand() * (max - min + 1)) + min;
 }
 
 //============================================
@@ -63,13 +64,13 @@ export function resolvePass(
 ): PlayOutcome {
 	// Sack check (adjusted by matchup)
 	const sackRateBase = tuning.sackRate;
-	const sacked = Math.random() < (sackRateBase * matchup.sackRateMult);
+	const sacked = rand() < (sackRateBase * matchup.sackRateMult);
 
 	if (sacked) {
 		const sackYards = randomInRange(-12, -3);
 		const fumbleRate = 0.12;
 
-		if (Math.random() < fumbleRate) {
+		if (rand() < fumbleRate) {
 			return {
 				play_type: "pass",
 				result: PlayResult.FUMBLE_LOST,
@@ -120,16 +121,16 @@ export function resolvePass(
 
 	// Completion check (adjusted by matchup)
 	const completionRateBase = tuning.completionRate;
-	const completed = Math.random() < (completionRateBase * matchup.compRateMult);
+	const completed = rand() < (completionRateBase * matchup.compRateMult);
 
 	if (!completed) {
 		// Interception check (adjusted by matchup)
 		const intRateBase = tuning.intRate;
 		const intRate = intRateBase * matchup.intRateMult;
 
-		if (Math.random() < intRate) {
+		if (rand() < intRate) {
 			const intReturn = Math.max(0, Math.round(randomNormal(15, 10)));
-			const isPickSix = Math.random() < 0.15;
+			const isPickSix = rand() < 0.15;
 
 			if (isPickSix) {
 				return {
@@ -205,7 +206,7 @@ export function resolvePass(
 		};
 	}
 
-	// Complete pass — sample yards (adjusted by matchup)
+	// Complete pass - sample yards (adjusted by matchup)
 	// Real NFL avg completion = ~6.5 yards. Use air=4, yac=2.5 for mean ~6.5.
 	let airYards = Math.floor(randomExponential(4));
 	let yac = Math.max(0, Math.floor(randomExponential(2.5)));
@@ -249,7 +250,7 @@ export function resolvePass(
 
 	// Fumble after catch (adjusted by matchup)
 	const catchFumbleRate = tuning.catchFumbleRate * matchup.fumbleRateMult;
-	if (Math.random() < catchFumbleRate) {
+	if (rand() < catchFumbleRate) {
 		return {
 			play_type: "pass",
 			result: PlayResult.FUMBLE_LOST,
@@ -276,7 +277,7 @@ export function resolvePass(
 
 	// Out of bounds check
 	const oobRate = 0.15;
-	const outOfBounds = Math.random() < oobRate;
+	const outOfBounds = rand() < oobRate;
 
 	// Determine result
 	let result = PlayResult.SHORT_OF_FIRST;
@@ -329,7 +330,7 @@ export function resolveRun(
 ): PlayOutcome {
 	// Sample yards (adjusted by matchup)
 	let yards: number;
-	if (Math.random() < tuning.explosivePlayRate) {
+	if (rand() < tuning.explosivePlayRate) {
 		// Explosive play (big gain)
 		yards = randomInRange(12, 40);
 	} else {
@@ -398,7 +399,7 @@ export function resolveRun(
 
 	// Fumble check (adjusted by matchup)
 	const rushFumbleRate = tuning.rushFumbleRate * matchup.fumbleRateMult;
-	if (Math.random() < rushFumbleRate) {
+	if (rand() < rushFumbleRate) {
 		return {
 			play_type: "run",
 			result: PlayResult.FUMBLE_LOST,
@@ -425,7 +426,7 @@ export function resolveRun(
 
 	// Out of bounds check
 	const oobRate = 0.08;
-	const outOfBounds = Math.random() < oobRate;
+	const outOfBounds = rand() < oobRate;
 
 	// Determine result
 	let result = PlayResult.SHORT_OF_FIRST;
