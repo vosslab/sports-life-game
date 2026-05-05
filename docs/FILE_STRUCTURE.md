@@ -9,7 +9,11 @@ sports-life-game/
 +- package.json         Node project config (TypeScript dev dependency)
 +- tsconfig.json        TypeScript compiler settings (ES2020, strict, sourcemaps)
 +- eslint.config.js     ESLint flat config for compiled JS output
-+- run_game.sh          Build and launch game in browser
++- run_web_server.sh    Start local dev server (calls build_github_pages.sh)
++- build_github_pages.sh Build dist/ via tsc (canonical compile step)
++- setup_game.sh        One-time npm install and initial build
++- setup_playwright.sh   One-time Playwright + chromium install (optional)
++- check_codebase.sh    Type-check and run unit tests
 +- source_me.sh         Python environment bootstrap
 +- AGENTS.md            Agent instructions and coding conventions
 +- README.md            Project overview and quick start

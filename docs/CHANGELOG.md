@@ -2,7 +2,20 @@
 
 ## 2026-05-05 (continued)
 
+### Additions and New Features
+
+- **Added `build_github_pages.sh`**: Canonical typecheck + emit step. Runs `npx tsc -p tsconfig.json`, creates `dist/` and `dist/.nojekyll`, and verifies output. Preserves repo-root deployment model (Pages serves repo root, not a self-contained `dist/`). Replaces inline `tsc` call in `run_web_server.sh` and `setup_game.sh`.
+- **Added `setup_playwright.sh`**: One-time Playwright + chromium install, separate from `setup_game.sh` because the chromium download is heavy and optional for developers who only run the dev server.
+
 ### Behavior or Interface Changes
+
+- **Renamed `run_game.sh` -> `run_web_server.sh`**: Clarifies the script's role as a local dev preview, not a portable export. Now calls `./build_github_pages.sh` instead of inlining `npx tsc`. Uses `PORT` environment variable with default 8123. Updated help text in `setup_game.sh` to reference the new name.
+- **Renamed `run_lint.sh` -> `check_codebase.sh`**: Better name for the type-check + unit test workflow. Matches the skill name `web-game-parallel-build`. Body unchanged: precondition on `node_modules`, `npx tsc -p tsconfig.lint.json --noEmit`, `npx tsx tests/run.ts`.
+- **Updated `setup_game.sh`**: Now calls `./build_github_pages.sh` instead of inlining `npx tsc`. Updated trailing help text to list `./run_web_server.sh`, `./check_codebase.sh`, and `./setup_playwright.sh`.
+
+### Decisions and Failures
+
+- **Decided not to add `export_single_file.sh`** while the repo uses `tsc` multi-file emit. A best-effort partial-inlining exporter under multi-file `tsc` would produce broken artifacts; a stub that always exits 1 fakes a capability that does not exist. Reintroduce only after an esbuild migration.
 
 - **weekly_engine.ts split by cohesion completed**: Previous pass left shadow re-export barrels in `season_lifecycle.ts`, `week_phases.ts`, `game_handler.ts`, and `playoff_handler.ts`. This pass moved implementations into each module so they own their functions. No function re-exports remain; each module imports directly from its dependencies. Circular dependencies broken using namespace imports (`import * as`) to delay binding. Final split: `weekly_engine.ts` (48 lines, barrel only), `season_lifecycle.ts` (252 lines), `week_phases.ts` (357 lines), `game_handler.ts` (301 lines), `playoff_handler.ts` (209 lines), `engine_state.ts` (83 lines). Smoke test (autoplay) reached age 22 baseline after rebuild.
 
@@ -31,6 +44,16 @@
 ### Decisions and Failures
 
 - Smoke test (autoplay) reached age 22 baseline, confirming parameterized builder preserved runtime behavior. Pre-existing error "Cannot advance: 6 unfinished game(s)" in season engine at age 22 is not caused by builder changes.
+
+- **File-size limit policy** clarified after the weekly_engine split: the 600-line cap in the modularization plan is secondary to cohesion. The previous `weekly_engine.ts` split landed at 856 lines with shadow re-export barrels, which traded a line-count miss for genuine indirection. The follow-up cohesion pass moved implementations and produced smaller files as a side effect. No 600-line override entry is needed because none of the post-split files exceed the cap; the principle going forward is to optimize for module ownership first and let line counts follow.
+
+### Additions and New Features
+
+- **Wider type-check via `tsconfig.lint.json` and `run_lint.sh`**: the build `tsconfig.json` only covers `src/` (the bundle root). A new `tsconfig.lint.json` extends it with `rootDir: "."`, includes `tools/` and `tests/`, and adds `"types": ["node"]`. `run_lint.sh` runs `tsc -p tsconfig.lint.json --noEmit` followed by `tsx tests/run.ts`. `package.json` gains `npm run lint` and `npm run test` script aliases. `setup_game.sh` mentions both helpers after install. `@types/node` and `tsx` added to devDependencies.
+
+- The wider check immediately surfaced two real bugs:
+  - `tools/sim_conference_season.ts` had `SimConfig` declared twice - imported from `./sim_conf/types.js` and re-declared locally. The local copy shadowed the import; removed.
+  - `tools/sim_conf/display.ts:128` accessed `game.homeScore`/`game.awayScore` without checking `game.status === 'final'`, so the values were possibly-undefined per the `SeasonGame` shape. Added the status check before the comparison.
 
 ## 2026-05-05
 

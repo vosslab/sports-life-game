@@ -40,6 +40,40 @@ Complete career arc from birth to legacy is playable:
 - Pro Bowl and Super Bowl simulation
 - Hall of Fame tracking with realistic criteria
 
+### Phase 5: Build pipeline (deferred until M6/M7 complete)
+
+Long-term build model is `tsc` for safety + `esbuild` for shipping. Current
+repo uses `tsc` multi-file emit only; `export_single_file.sh` is intentionally
+absent until this phase lands.
+
+```
+source code in src/
+        |
+        | 1. tsc --noEmit checks types
+        v
+type-safe project
+        |
+        | 2. esbuild bundles browser entry
+        v
+dist/main.js (self-contained)
+```
+
+| Tool    | Role                                  |
+| ------- | ------------------------------------- |
+| tsc     | Typechecking and correctness          |
+| esbuild | Fast browser bundling and deployment  |
+
+Sequence (do not start until M6/M7 are done):
+
+1. Keep `src/`.
+2. Add `tsc --noEmit` as the typecheck step (replace emit-mode `tsc`).
+3. Add `esbuild` for bundled output (`src/main.ts` -> `dist/main.js`).
+4. Make `dist/` self-contained (copy `index.html`, inline or copy CSS,
+   `dist/.nojekyll`).
+5. Add `export_single_file.sh` (portable single-HTML build to `dist-single/`).
+6. Update GitHub Pages docs and scripts (`build_github_pages.sh`,
+   `run_web_server.sh`) to serve `dist/` instead of repo root.
+
 ## Intentionally not started
 
 - Multiplayer or online features

@@ -117,6 +117,11 @@ export function printPlayerTeamSchedule(season: LeagueSeason): void {
 		const oppTeam = season.getTeam(oppId);
 		if (!oppTeam) continue;
 
+		// Skip games that aren't final yet (homeScore/awayScore are undefined).
+		if (game.status !== 'final' || game.homeScore === undefined
+				|| game.awayScore === undefined) {
+			continue;
+		}
 		const playerScore = isHome ? game.homeScore : game.awayScore;
 		const oppScore = isHome ? game.awayScore : game.homeScore;
 

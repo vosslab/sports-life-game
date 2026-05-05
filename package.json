@@ -4,10 +4,15 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "lint": "tsc -p tsconfig.lint.json --noEmit",
+    "test": "tsx tests/run.ts"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^20.0.0",
     "playwright": "^1.59.1",
+    "tsx": "^4.7.0",
     "typescript": "^5.4"
   },
   "license": "GPL-3.0",
