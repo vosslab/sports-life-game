@@ -1,0 +1,110 @@
+/* Fotomagic social feed styling. */
+
+#tab-social {
+	padding: 8px 6px;
+}
+
+.fotomagic-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 10px;
+	background: var(--bg-secondary);
+	border-radius: 8px;
+	margin-bottom: 8px;
+}
+
+.fotomagic-handle {
+	font-weight: 700;
+	font-size: 1.05em;
+	color: var(--text-primary);
+}
+
+.fotomagic-followers {
+	font-size: 0.85em;
+	color: var(--text-secondary);
+}
+
+.fotomagic-new-post {
+	width: 100%;
+	margin-bottom: 12px;
+}
+
+.fotomagic-empty {
+	padding: 16px;
+	text-align: center;
+	color: var(--text-secondary);
+	font-style: italic;
+}
+
+.fotomagic-feed {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.fotomagic-post {
+	background: var(--bg-secondary);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 10px;
+	padding: 8px;
+	overflow: hidden;
+}
+
+.fotomagic-post-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 4px 8px 4px;
+}
+
+.fotomagic-avatar-placeholder {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #c39 0%, #f60 100%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	font-weight: 700;
+}
+
+.fotomagic-post-meta {
+	font-size: 0.85em;
+	color: var(--text-secondary);
+}
+
+.fotomagic-post-image {
+	height: 140px;
+	background: linear-gradient(135deg, #1a1a2e 0%, #2a3050 100%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: rgba(255, 255, 255, 0.4);
+	font-weight: 700;
+	font-size: 1.1em;
+	letter-spacing: 0.1em;
+	border-radius: 6px;
+}
+
+.fotomagic-post-caption {
+	padding: 8px 4px 4px 4px;
+	color: var(--text-primary);
+	font-size: 0.95em;
+	line-height: 1.35;
+}
+
+.fotomagic-post-stats {
+	padding: 2px 4px 4px 4px;
+	font-size: 0.78em;
+	color: var(--text-secondary);
+	font-family: monospace;
+}
+
+.fotomagic-post-likes {
+	padding: 4px 4px 0 4px;
+	font-size: 0.85em;
+	color: var(--text-secondary);
+	font-weight: 600;
+}

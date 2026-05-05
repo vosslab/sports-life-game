@@ -1,6 +1,92 @@
 /* Stat bars, stat strips, stats panel, stats summary */
 
 /*============================================*/
+/* Career stat history table (Career tab)     */
+/*============================================*/
+
+.career-stats-wrapper {
+	overflow-x: auto;
+	margin: 6px 0 12px 0;
+}
+
+.career-stats-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.78em;
+}
+
+.career-stats-table th,
+.career-stats-table td {
+	padding: 4px 6px;
+	text-align: right;
+	border-bottom: 1px solid var(--bar-bg);
+	white-space: nowrap;
+}
+
+.career-stats-table th:first-child,
+.career-stats-table td:first-child,
+.career-stats-table th:nth-child(2),
+.career-stats-table td:nth-child(2),
+.career-stats-table th:nth-child(3),
+.career-stats-table td:nth-child(3) {
+	text-align: left;
+}
+
+.career-stats-table th {
+	color: var(--text-secondary);
+	font-weight: 600;
+	border-bottom: 1px solid currentColor;
+}
+
+.career-stats-table td {
+	color: var(--text-primary);
+}
+
+.career-stats-table tr.career-stats-totals td {
+	font-weight: 700;
+	border-top: 1px solid currentColor;
+	background: rgba(255, 255, 255, 0.04);
+}
+
+
+/*============================================*/
+/* Stat label tooltips (hover/tap to explain) */
+/*============================================*/
+
+.stat-label[data-tip],
+.mini-stat-label[data-tip] {
+	position: relative;
+	cursor: help;
+	border-bottom: 1px dotted currentColor;
+	outline: none;
+}
+
+.stat-label[data-tip]:hover::after,
+.stat-label[data-tip]:focus::after,
+.mini-stat-label[data-tip]:hover::after,
+.mini-stat-label[data-tip]:focus::after {
+	content: attr(data-tip);
+	position: absolute;
+	left: 0;
+	top: 100%;
+	margin-top: 6px;
+	background: #1a1a2e;
+	color: #f0f0f0;
+	padding: 8px 10px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 6px;
+	font-size: 0.78em;
+	font-weight: 400;
+	line-height: 1.35;
+	white-space: normal;
+	width: 220px;
+	z-index: 1000;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+	pointer-events: none;
+}
+
+
+/*============================================*/
 /* Phone-only compact stat strip              */
 /*============================================*/
 

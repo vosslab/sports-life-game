@@ -13,6 +13,8 @@ import type { Archetype } from './avatar.js';
 import { getTeamEmoji, formatTeamWithEmoji } from './team_emoji.js';
 import { isSidebarVisible } from './tabs.js';
 import { getElement, findElement } from './dom_utils.js';
+import { STAT_INFO, StatKey } from './stat_info.js';
+import { renderCareerStatsTable } from './career_stats_view.js';
 import { waitForInteraction as _waitForInteraction } from './popup.js';
 
 //============================================
@@ -687,6 +689,9 @@ function renderHSCareer(container: HTMLElement, player: Player): void {
 			addCareerNote(container, decision);
 		}
 	}
+
+	// Per-season stat history (HS-only rows + current season if HS)
+	renderCareerStatsTable(container, player, 'high_school');
 }
 
 //============================================
@@ -714,6 +719,9 @@ function renderCollegeCareer(container: HTMLElement, player: Player): void {
 			addCareerNote(container, decision);
 		}
 	}
+
+	// Per-season stat history (HS + college)
+	renderCareerStatsTable(container, player);
 }
 
 //============================================
@@ -751,6 +759,9 @@ function renderNFLCareer(container: HTMLElement, player: Player): void {
 			addCareerNote(container, decision);
 		}
 	}
+
+	// Full career stat history (all phases)
+	renderCareerStatsTable(container, player);
 }
 
 //============================================
@@ -791,6 +802,9 @@ function renderLegacyCareer(container: HTMLElement, player: Player): void {
 			addCareerNote(container, decision);
 		}
 	}
+
+	// Full career stat history across all phases
+	renderCareerStatsTable(container, player);
 }
 
 //============================================
@@ -1098,6 +1112,13 @@ function renderSidebarStatBars(player: Player): void {
 			const label = document.createElement('span');
 			label.className = 'stat-label';
 			label.textContent = stat.label;
+			// Attach hover/tap tooltip describing the stat
+			const info = STAT_INFO[stat.key as StatKey];
+			if (info) {
+				label.setAttribute('data-tip', info.tip);
+				label.setAttribute('aria-label', info.name + ': ' + info.tip);
+				label.setAttribute('tabindex', '0');
+			}
 			row.appendChild(label);
 
 			const bar = document.createElement('div');

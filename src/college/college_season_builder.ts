@@ -10,7 +10,7 @@ import { LeagueSeason } from '../season/season_model.js';
 import { SeasonGame } from '../season/game_model.js';
 import {
 	resetGameIdCounter, nextGameId, generateRoundRobinRounds,
-	generateNonConferenceGames, shuffleArray, validateSchedule,
+	generateBipartiteRotation, shuffleArray, validateSchedule,
 } from '../season/season_builder.js';
 import { NCAASchool, formatSchoolName, getConferenceSchools } from '../ncaa.js';
 import { randomInRange } from '../player.js';
@@ -78,13 +78,22 @@ export function buildCollegeSeason(
 		conferenceTeamIds.push(teamId);
 	}
 
-	// Get non-conference opponents from schools outside the player's conference
+	// Get non-conference opponents from schools outside the player's conference.
+	// Pool size equals conference size so every conf team can be paired with a
+	// distinct non-conf opponent each non-conf week.
 	const nonConfSchools = allSchools.filter(
 		s => s.conference !== playerSchool.conference
 			&& s.commonName !== playerSchool.commonName
 	);
 	shuffleArray(nonConfSchools);
-	const ncOpponents = nonConfSchools.slice(0, 4);
+	const NUM_NONCONF_TEAMS = conferenceTeamIds.length;
+	if (nonConfSchools.length < NUM_NONCONF_TEAMS) {
+		throw new Error(
+			'College season builder: only ' + nonConfSchools.length
+			+ ' out-of-conference schools available, need ' + NUM_NONCONF_TEAMS,
+		);
+	}
+	const ncOpponents = nonConfSchools.slice(0, NUM_NONCONF_TEAMS);
 
 	for (let i = 0; i < ncOpponents.length; i++) {
 		const school = ncOpponents[i];
@@ -117,7 +126,8 @@ export function buildCollegeSeason(
 // Build the 11-week college schedule.
 // Uses proper round-robin rounds so ALL conference teams play every week.
 // 8 teams = 7 rounds of 4 games. Conference rounds fill weeks 5-11.
-// All conference teams get non-conference games in weeks 1-4.
+// In weeks 1-4, every conf team is paired with a distinct non-conf team via
+// a bipartite rotation so all teams play exactly 11 games.
 function buildCollegeSchedule(
 	playerTeamId: TeamId,
 	conferenceTeamIds: TeamId[],
@@ -140,44 +150,23 @@ function buildCollegeSchedule(
 		}
 	}
 
-	// Player's 4 non-conference games in weeks 1-4
-	const playerNonConfGames = generateNonConferenceGames(
-		playerTeamId, nonConfTeamIds, 4, ncWeeks,
-	);
-	allGames.push(...playerNonConfGames);
+	// Bipartite rotation: every conf team plays one non-conf team each non-conf
+	// week, with no opponent repeats across the 4 non-conf weeks.
+	const confOrdered = [...conferenceTeamIds];
+	shuffleArray(confOrdered);
+	const ncOrdered = [...nonConfTeamIds];
+	shuffleArray(ncOrdered);
 
-	// Schedule non-conference games for ALL other conference teams
-	// Each non-conference team can only play once per team (they only exist for these weeks)
-	const availableNonConfTeams = [...nonConfTeamIds];
-	shuffleArray(availableNonConfTeams);
-	let ncTeamIndex = 0;
-
-	for (const week of ncWeeks) {
-		for (const confTeam of conferenceTeamIds) {
-			// Skip the player team (already has non-conf games)
-			if (confTeam === playerTeamId) {
-				continue;
-			}
-
-			// Check if this team already has a game this week
-			const hasGameThisWeek = allGames.some(g =>
-				g.week === week && (g.homeTeamId === confTeam || g.awayTeamId === confTeam)
-			);
-
-			if (!hasGameThisWeek && ncTeamIndex < availableNonConfTeams.length) {
-				// Assign a non-conference opponent
-				const opponentId = availableNonConfTeams[ncTeamIndex];
-				ncTeamIndex++;
-
-				// Randomly assign home/away
-				if (Math.random() < 0.5) {
-					allGames.push(new SeasonGame(nextGameId(), week, confTeam, opponentId, false));
-				} else {
-					allGames.push(new SeasonGame(nextGameId(), week, opponentId, confTeam, false));
-				}
-			}
+	const ncRounds = generateBipartiteRotation(confOrdered, ncOrdered, ncWeeks.length);
+	for (let r = 0; r < ncRounds.length; r++) {
+		const week = ncWeeks[r];
+		for (const [home, away] of ncRounds[r]) {
+			allGames.push(new SeasonGame(nextGameId(), week, home, away, false));
 		}
 	}
+
+	// Keep the playerTeamId parameter for future scheduling tweaks
+	void playerTeamId;
 
 	return allGames;
 }

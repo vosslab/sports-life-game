@@ -1,5 +1,78 @@
 # Changelog
 
+## 2026-05-04
+
+### Additions and New Features
+
+- **Per-season and career stat history in the Career tab**
+  (`src/career_stats_view.ts`, `src/ui.ts`, `src/styles/stats.css`): The Career
+  tab now shows a position-aware stat table with one row per completed season
+  plus the in-progress current season, ending with a totals row. Columns adapt
+  to the player's primary position: QB sees Cmp/Att/PYds/PTD/INT, RB sees
+  Car/RYds/RTD/Rec/RecYds, WR/TE see Tgt/Rec/RecYds/TD, defenders see
+  Tkl/Sk/INT, kickers see FGM/FGA/XPM/XPA. Pulls from the existing
+  `careerHistory[].statTotals` field that the simulator already populates via
+  `accumulateGameStats()`; no save migration required. New module
+  `career_stats_view.ts` owns the table render and the `pickStatColumns()`
+  helper. Inline assertions verify column selection per position. CSS adds a
+  scrollable wrapper so the table stays compact on phone widths.
+- **Fotomagic social media tab and post-game share prompt**
+  (`src/social/fotomagic.ts`, `src/social/feed_render.ts`,
+  `src/styles/social.css`, `src/tabs.ts`, `src/tab_manager.ts`,
+  `src/player.ts`, `index.html`, `src/hs_phase.ts`, `src/college_phase.ts`):
+  New "Social" tab unlocked from high school onward shows a Bitlife-style
+  Fotomagic feed with reverse-chronological post cards (avatar, time, image
+  placeholder, caption, optional stat snippet, like count) and a "New Post"
+  button for free-form manual posts. After notable games (3+ TDs, 300+ pass
+  yards, 150+ rush yards, 120+ rec yards, 3+ sacks, 2+ INTs, elite ratings,
+  playoff games, career firsts) a modal pops up with three options: Post,
+  Skip, or "Skip rest of season" (resets at season end). Posting nudges
+  popularity with diminishing returns (capped at 3 posts/week) and grows
+  estimated likes from the popularity stat. Player gains a new optional
+  `fotomagicFeed?: FotomagicPost[]` field; old saves load with the field
+  undefined and treat it as empty. Wired into HS regular and playoff games and
+  college regular games. NFL phase auto-simulates seasons silently and is not
+  hooked yet.
+
+### Fixes and Maintenance
+
+- **Balanced league schedules end the year with equal game counts**
+  (`src/season/season_builder.ts`,
+  `src/high_school/hs_season_builder.ts`,
+  `src/college/college_season_builder.ts`): End-of-season standings used to
+  show wildly varying records (e.g. 6-2 for one team and 2-1 for another)
+  because non-conference weeks only filled a handful of conference teams: the
+  non-conf opponent pool was just 3 (HS) or 4 (college) teams used by a
+  single global counter, so most conference teams sat out every non-conf
+  week. Added `generateBipartiteRotation(groupA, groupB, weeks)` to
+  `season_builder.ts` which pairs every conference team with a distinct
+  non-conf team in each non-conf week using the standard `(i+k) mod n`
+  rotation, with home/away alternating by week. HS and college builders now
+  size the non-conf pool to the conference size (8 teams) so every conf team
+  gets a full slate of non-conf games with no opponent repeats across weeks.
+  `validateSchedule()` was tightened to flag schedules where
+  `max(games_per_team) - min(games_per_team) > 1`. Inline assertions verify
+  the bipartite rotation property on a 4x4x3 fixture.
+
+- **Hover/tap tooltips on stat labels** (`src/stat_info.ts`, `src/ui.ts`,
+  `index.html`, `src/styles/stats.css`): Stat abbreviations like DSC, IQ, ATH, CON,
+  POP now show a popup describing what they mean on hover (desktop) or tap (mobile,
+  via `tabindex="0"` and `:focus`). Centralized descriptions live in
+  `src/stat_info.ts`. Sidebar labels are wired up at render time in
+  `renderSidebarStatBars()`; static labels in the mini stat strip and full Stats
+  tab carry `data-tip` attributes directly. CSS shows the tooltip via a
+  `::after` pseudo-element with a dotted underline cue on the label. (`setup_game.sh`): New script that runs
+  `npm install` and an initial `npx tsc` build. Needed because `node_modules/` and
+  `dist/` are gitignored, so a fresh clone has no TypeScript installed and `npx tsc`
+  fails with "This is not the tsc command you are looking for."
+
+### Fixes and Maintenance
+
+- **`run_game.sh` bails early when deps missing** (`run_game.sh`): Added a
+  `node_modules` existence check that prints "Run ./setup_game.sh first" and exits 1
+  instead of producing the cryptic npx tsc error and serving a stale/missing
+  `dist/main.js`, which had caused the page to render with no working Next Week button.
+
 ## 2026-04-05
 
 ### Behavior or Interface Changes

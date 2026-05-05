@@ -28,6 +28,7 @@ import {
 	getActivitiesForPhase, isActivityUnlocked, applyActivity, getEffectPreview,
 } from './activities.js';
 import type { GameContext } from './game_loop.js';
+import { maybePromptShareAfterGame } from './social/fotomagic.js';
 import {
 	showWeeklyFocusUI, handleWeeklyFocus, applyGoalAndProceed, proceedToEventCheck,
 	resetWeekState, getWeekState, initGameLoop,
@@ -733,22 +734,35 @@ function proceedToGameDay(): void {
 		: '';
 	ui.updateLifeStatus(recordStr, nextWeek, recruitInfo);
 
-	// Check if season is over
-	if (player.currentWeek >= HS_SEASON_WEEKS) {
-		ui.showChoices([
-			{ text: 'Season Summary', primary: true, action: endSeason },
-		]);
-	} else {
-		ui.showChoices([
-			{ text: 'Next Week', primary: true, action: startWeek },
-		]);
-	}
+	// Wrap the next-step action so the Fotomagic share prompt (if notable)
+	// opens first, then the user advances. Non-notable games skip the modal
+	// and proceed immediately.
+	const isFirstWin = result.result === 'win' && persistentHSTeam.wins === 1;
+	const isFirstStart = player.depthChart === 'starter' && player.careerGamesPlayed <= 1;
+	const advance = (player.currentWeek >= HS_SEASON_WEEKS) ? endSeason : startWeek;
+	const advanceLabel = (player.currentWeek >= HS_SEASON_WEEKS) ? 'Season Summary' : 'Next Week';
+	const wrappedAdvance = (): void => {
+		maybePromptShareAfterGame(
+			player, result, opponent.opponentName,
+			{ isPlayoff: false, isFirstWin, isFirstStart },
+			advance,
+		);
+	};
+	ui.showChoices([
+		{ text: advanceLabel, primary: true, action: wrappedAdvance },
+	]);
 }
 
 //============================================
 function endSeason(): void {
 	if (!ctx || !persistentHSTeam) {
 		return;
+	}
+
+	// Reset Fotomagic per-season opt-out so prompts return next year
+	const playerForReset = ctx.getPlayer();
+	if (playerForReset.storyFlags) {
+		delete playerForReset.storyFlags['fotomagicSkipSeason'];
 	}
 
 	// Hide main action bar during offseason/transition
@@ -940,6 +954,18 @@ function preparePlayoffGame(
 		ui.updateHeader(player);
 	}
 
+	// Wrap the next-step action so the Fotomagic share prompt opens first.
+	const playoffOpponentName = roundNames[playoffRound - 1] + ' Opponent';
+	const wrapShare = (next: () => void): () => void => {
+		return () => {
+			maybePromptShareAfterGame(
+				player, result, playoffOpponentName,
+				{ isPlayoff: true, isFirstWin: false, isFirstStart: false },
+				next,
+			);
+		};
+	};
+
 	if (result.result === 'win') {
 		persistentHSTeam.wins += 1;
 		ctx.addResult('PLAYOFF WIN!');
@@ -951,7 +977,7 @@ function preparePlayoffGame(
 			{
 				text: 'Advance',
 				primary: true,
-				action: () => playPlayoffGame(playoffRound + 1),
+				action: wrapShare(() => playPlayoffGame(playoffRound + 1)),
 			},
 		]);
 	} else {
@@ -965,7 +991,7 @@ function preparePlayoffGame(
 			{
 				text: 'End Season',
 				primary: true,
-				action: completeSeasonSummary,
+				action: wrapShare(completeSeasonSummary),
 			},
 		]);
 	}

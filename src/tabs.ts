@@ -4,7 +4,7 @@ import { CareerPhase } from './player.js';
 
 //============================================
 // Tab ID and configuration types
-export type TabId = 'life' | 'stats' | 'activities' | 'team' | 'career';
+export type TabId = 'life' | 'stats' | 'activities' | 'team' | 'career' | 'social';
 
 export interface TabConfig {
 	id: TabId;
@@ -30,6 +30,7 @@ const PHASE_TABS: Record<CareerPhase, TabConfig[]> = {
 		{ id: 'activities', label: 'Activities' },
 		{ id: 'team', label: 'Team' },
 		{ id: 'career', label: 'Career' },
+		{ id: 'social', label: 'Social' },
 	],
 	college: [
 		{ id: 'life', label: 'Life' },
@@ -37,6 +38,7 @@ const PHASE_TABS: Record<CareerPhase, TabConfig[]> = {
 		{ id: 'activities', label: 'Activities' },
 		{ id: 'team', label: 'Team' },
 		{ id: 'career', label: 'Career' },
+		{ id: 'social', label: 'Social' },
 	],
 	nfl: [
 		{ id: 'life', label: 'Life' },
@@ -44,17 +46,19 @@ const PHASE_TABS: Record<CareerPhase, TabConfig[]> = {
 		{ id: 'activities', label: 'Activities' },
 		{ id: 'team', label: 'Team' },
 		{ id: 'career', label: 'Career' },
+		{ id: 'social', label: 'Social' },
 	],
 	legacy: [
 		{ id: 'life', label: 'Life' },
 		{ id: 'stats', label: 'Stats' },
 		{ id: 'career', label: 'Career' },
+		{ id: 'social', label: 'Social' },
 	],
 };
 
 //============================================
 // All possible tab panel IDs for DOM queries
-const ALL_TAB_IDS: TabId[] = ['life', 'stats', 'activities', 'team', 'career'];
+const ALL_TAB_IDS: TabId[] = ['life', 'stats', 'activities', 'team', 'career', 'social'];
 
 // Current active tab
 let currentTab: TabId = 'life';

@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Bail out early if dependencies are not installed yet.
+if [ ! -d node_modules ]; then
+	echo "node_modules missing. Run ./setup_game.sh first." >&2
+	exit 1
+fi
+
 # Compile TypeScript
 npx tsc
 

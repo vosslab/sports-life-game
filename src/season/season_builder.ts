@@ -177,8 +177,50 @@ export function generateNonConferenceGames(
 }
 
 //============================================
+// Generate a bipartite rotation pairing two equal-size team pools across
+// multiple weeks. Every team in `groupA` plays exactly one team in `groupB`
+// per week, with no repeated pairings across weeks.
+// Requires groupA.length === groupB.length and weeks <= group size.
+// Returns an array of weeks, each week a list of [home, away] pairs.
+// Home/away alternates between groups by week to balance home games.
+export function generateBipartiteRotation(
+	groupA: TeamId[],
+	groupB: TeamId[],
+	weeks: number,
+): [TeamId, TeamId][][] {
+	if (groupA.length !== groupB.length) {
+		throw new Error('generateBipartiteRotation requires equal-size groups');
+	}
+	if (weeks > groupA.length) {
+		throw new Error('generateBipartiteRotation: weeks exceeds group size');
+	}
+
+	const n = groupA.length;
+	const rounds: [TeamId, TeamId][][] = [];
+
+	// For week k, pair groupA[i] with groupB[(i+k) mod n]
+	for (let k = 0; k < weeks; k++) {
+		const round: [TeamId, TeamId][] = [];
+		for (let i = 0; i < n; i++) {
+			const a = groupA[i];
+			const b = groupB[(i + k) % n];
+			// Alternate home/away by week so neither side dominates
+			if (k % 2 === 0) {
+				round.push([a, b]);
+			} else {
+				round.push([b, a]);
+			}
+		}
+		rounds.push(round);
+	}
+
+	return rounds;
+}
+
+//============================================
 // Validate a schedule: no team plays twice in one week,
-// and every week in [1..seasonLength] has at least one game.
+// every week in [1..seasonLength] has at least one game,
+// and every team plays roughly the same number of games (max-min <= 1).
 export function validateSchedule(
 	games: SeasonGame[],
 	seasonLength: number,
@@ -208,6 +250,31 @@ export function validateSchedule(
 		const weekGames = games.filter(g => g.week === week);
 		if (weekGames.length === 0) {
 			errors.push(`Week ${week} has no scheduled games`);
+		}
+	}
+
+	// Check that every team plays roughly the same number of games.
+	// Allow a single bye difference (max - min <= 1) to accommodate odd team counts.
+	const gamesPerTeam = new Map<TeamId, number>();
+	for (const game of games) {
+		gamesPerTeam.set(game.homeTeamId, (gamesPerTeam.get(game.homeTeamId) || 0) + 1);
+		gamesPerTeam.set(game.awayTeamId, (gamesPerTeam.get(game.awayTeamId) || 0) + 1);
+	}
+	if (gamesPerTeam.size > 0) {
+		const counts = Array.from(gamesPerTeam.values());
+		const max = Math.max(...counts);
+		const min = Math.min(...counts);
+		if (max - min > 1) {
+			// Build a compact list of imbalanced teams for the error message
+			const detail: string[] = [];
+			for (const [teamId, count] of gamesPerTeam) {
+				if (count === max || count === min) {
+					detail.push(`${teamId}=${count}`);
+				}
+			}
+			errors.push(
+				`Schedule imbalance: max ${max} games vs min ${min} games (${detail.join(', ')})`,
+			);
 		}
 	}
 
@@ -312,4 +379,20 @@ for (const round of rrRounds) {
 		teamsInRound.add(a);
 		teamsInRound.add(b);
 	}
+}
+
+// Bipartite rotation: 4 vs 4 over 3 weeks should give 12 pairs, each team plays 3 distinct opponents
+const bpRounds = generateBipartiteRotation(['a', 'b', 'c', 'd'], ['x', 'y', 'z', 'w'], 3);
+console.assert(bpRounds.length === 3, 'Bipartite: 3 rounds');
+console.assert(bpRounds[0].length === 4, 'Bipartite: 4 pairs per round');
+const bpOpponents: Record<string, Set<string>> = { a: new Set(), b: new Set(), c: new Set(), d: new Set() };
+for (const round of bpRounds) {
+	for (const [home, away] of round) {
+		const aTeam = ['a', 'b', 'c', 'd'].includes(home) ? home : away;
+		const bTeam = aTeam === home ? away : home;
+		bpOpponents[aTeam].add(bTeam);
+	}
+}
+for (const t of ['a', 'b', 'c', 'd']) {
+	console.assert(bpOpponents[t].size === 3, `Bipartite: team ${t} should play 3 distinct opponents, got ${bpOpponents[t].size}`);
 }

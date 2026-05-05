@@ -18,6 +18,7 @@
 	<link rel="stylesheet" href="src/styles/tabs.css">
 	<link rel="stylesheet" href="src/styles/activities.css">
 	<link rel="stylesheet" href="src/styles/phases.css">
+	<link rel="stylesheet" href="src/styles/social.css">
 </head>
 <body>
 	<div id="app">
@@ -55,15 +56,15 @@
 				<!-- Phone-only compact stat strip -->
 				<div id="life-stats-strip" class="hidden">
 					<div class="mini-stat">
-						<span class="mini-stat-label">HP</span>
+						<span class="mini-stat-label" tabindex="0" data-tip="Health (HP). Physical condition. Low health raises injury risk.">HP</span>
 						<div class="mini-stat-bar"><div class="mini-stat-fill" id="mini-bar-health"></div></div>
 					</div>
 					<div class="mini-stat">
-						<span class="mini-stat-label">TEC</span>
+						<span class="mini-stat-label" tabindex="0" data-tip="Technique (TEC). Skill and refinement of football mechanics.">TEC</span>
 						<div class="mini-stat-bar"><div class="mini-stat-fill" id="mini-bar-technique"></div></div>
 					</div>
 					<div class="mini-stat">
-						<span class="mini-stat-label">IQ</span>
+						<span class="mini-stat-label" tabindex="0" data-tip="Football IQ. Reads, decision-making, and play recognition.">IQ</span>
 						<div class="mini-stat-bar"><div class="mini-stat-fill" id="mini-bar-footballIq"></div></div>
 					</div>
 				</div>
@@ -93,42 +94,42 @@
 				<div id="tab-stats" class="tab-panel hidden">
 					<section id="stats-panel">
 						<div class="stat-row">
-							<span class="stat-label">Athleticism</span>
+							<span class="stat-label" tabindex="0" data-tip="Raw physical ability: speed, strength, and agility.">Athleticism</span>
 							<div class="stat-bar"><div class="stat-fill" id="bar-athleticism"></div></div>
 							<span class="stat-value" id="val-athleticism">0</span>
 						</div>
 						<div class="stat-row">
-							<span class="stat-label">Technique</span>
+							<span class="stat-label" tabindex="0" data-tip="Skill and refinement of football mechanics from coaching and reps.">Technique</span>
 							<div class="stat-bar"><div class="stat-fill" id="bar-technique"></div></div>
 							<span class="stat-value" id="val-technique">0</span>
 						</div>
 						<div class="stat-row">
-							<span class="stat-label">Football IQ</span>
+							<span class="stat-label" tabindex="0" data-tip="Reads, decision-making, and play recognition.">Football IQ</span>
 							<div class="stat-bar"><div class="stat-fill" id="bar-footballIq"></div></div>
 							<span class="stat-value" id="val-footballIq">0</span>
 						</div>
 						<div class="stat-row">
-							<span class="stat-label">Discipline</span>
+							<span class="stat-label" tabindex="0" data-tip="Practice habits, focus, and reliability under pressure.">Discipline</span>
 							<div class="stat-bar"><div class="stat-fill" id="bar-discipline"></div></div>
 							<span class="stat-value" id="val-discipline">0</span>
 						</div>
 						<div class="stat-row">
-							<span class="stat-label">Health</span>
+							<span class="stat-label" tabindex="0" data-tip="Physical condition. Low health raises injury risk.">Health</span>
 							<div class="stat-bar"><div class="stat-fill" id="bar-health"></div></div>
 							<span class="stat-value" id="val-health">0</span>
 						</div>
 						<div class="stat-row">
-							<span class="stat-label">Confidence</span>
+							<span class="stat-label" tabindex="0" data-tip="Self-belief. Affects clutch moments and big-game play.">Confidence</span>
 							<div class="stat-bar"><div class="stat-fill" id="bar-confidence"></div></div>
 							<span class="stat-value" id="val-confidence">0</span>
 						</div>
 						<div class="stat-row">
-							<span class="stat-label">Popularity</span>
+							<span class="stat-label" tabindex="0" data-tip="How fans, media, and teammates view you.">Popularity</span>
 							<div class="stat-bar"><div class="stat-fill" id="bar-popularity"></div></div>
 							<span class="stat-value" id="val-popularity">0</span>
 						</div>
 						<div class="stat-row gpa-row" id="gpa-row">
-							<span class="stat-label">GPA</span>
+							<span class="stat-label" tabindex="0" data-tip="Academic standing. Required for high school and college eligibility.">GPA</span>
 							<div class="stat-bar"><div class="stat-fill" id="bar-gpa"></div></div>
 							<span class="stat-value" id="val-gpa">2.5</span>
 						</div>
@@ -156,6 +157,13 @@
 				<div id="tab-career" class="tab-panel hidden">
 					<div id="career-content">
 						<p class="tab-placeholder">Career info appears during high school.</p>
+					</div>
+				</div>
+
+				<!-- SOCIAL TAB: Fotomagic feed -->
+				<div id="tab-social" class="tab-panel hidden">
+					<div id="social-content">
+						<p class="tab-placeholder">Fotomagic unlocks in high school.</p>
 					</div>
 				</div>
 			</div>

@@ -9,7 +9,7 @@ import { SeasonGame } from '../season/game_model.js';
 import { LeagueSeason } from '../season/season_model.js';
 import {
 	resetGameIdCounter, nextGameId, generateRoundRobinRounds,
-	generateNonConferenceGames, shuffleArray, validateSchedule,
+	generateBipartiteRotation, shuffleArray, validateSchedule,
 } from '../season/season_builder.js';
 import { generateOpponentName } from '../team.js';
 import { randomInRange } from '../player.js';
@@ -68,9 +68,12 @@ export function buildHighSchoolSeason(
 		conferenceTeamIds.push(opponentId);
 	}
 
-	// Generate 3 non-conference opponents (not in standings, just for schedule)
+	// Generate non-conference opponents (one per conference team so every conf
+	// team can be paired in each non-conf week without repeats). Pool size
+	// equals conference size (8). These teams do not appear in standings.
 	const nonConfTeamIds: TeamId[] = [];
-	for (let i = 0; i < 3; i++) {
+	const NUM_NONCONF_TEAMS = conferenceTeamIds.length;
+	for (let i = 0; i < NUM_NONCONF_TEAMS; i++) {
 		const ncId = `nonconf_${i}`;
 		const ncName = generateOpponentName();
 		const parts = ncName.split(' ');
@@ -114,7 +117,8 @@ export function buildHighSchoolSeason(
 // Build the 10-week schedule for an HS conference.
 // Uses proper round-robin rounds so ALL teams play every week.
 // 8 teams = 7 rounds of 4 games. 7 rounds fill 7 of the 10 weeks.
-// All conference teams get non-conference games in the remaining 3 weeks.
+// In the remaining 3 weeks, each conf team is paired with a non-conf team
+// via a bipartite rotation so every team plays exactly 10 games.
 function buildHSSchedule(
 	playerTeamId: TeamId,
 	conferenceTeamIds: TeamId[],
@@ -138,44 +142,25 @@ function buildHSSchedule(
 		}
 	}
 
-	// Player's 3 non-conference games
-	const playerNonConfGames = generateNonConferenceGames(
-		playerTeamId, nonConfTeamIds, 3, ncWeeks,
-	);
-	allGames.push(...playerNonConfGames);
+	// Bipartite rotation: every conf team plays one non-conf team each non-conf
+	// week, with no opponent repeats across the 3 non-conf weeks.
+	// The player is rotated to position 0 so their schedule is varied too.
+	const confOrdered = [...conferenceTeamIds];
+	shuffleArray(confOrdered);
+	const ncOrdered = [...nonConfTeamIds];
+	shuffleArray(ncOrdered);
 
-	// Schedule non-conference games for ALL other conference teams
-	// Each non-conference team can only play once per team (they only exist for these weeks)
-	const availableNonConfTeams = [...nonConfTeamIds];
-	shuffleArray(availableNonConfTeams);
-	let ncTeamIndex = 0;
-
-	for (const week of ncWeeks) {
-		for (const confTeam of conferenceTeamIds) {
-			// Skip the player team (already has non-conf games)
-			if (confTeam === playerTeamId) {
-				continue;
-			}
-
-			// Check if this team already has a game this week
-			const hasGameThisWeek = allGames.some(g =>
-				g.week === week && (g.homeTeamId === confTeam || g.awayTeamId === confTeam)
-			);
-
-			if (!hasGameThisWeek && ncTeamIndex < availableNonConfTeams.length) {
-				// Assign a non-conference opponent
-				const opponentId = availableNonConfTeams[ncTeamIndex];
-				ncTeamIndex++;
-
-				// Randomly assign home/away
-				if (Math.random() < 0.5) {
-					allGames.push(new SeasonGame(nextGameId(), week, confTeam, opponentId, false));
-				} else {
-					allGames.push(new SeasonGame(nextGameId(), week, opponentId, confTeam, false));
-				}
-			}
+	const ncRounds = generateBipartiteRotation(confOrdered, ncOrdered, ncWeeks.length);
+	for (let r = 0; r < ncRounds.length; r++) {
+		const week = ncWeeks[r];
+		for (const [home, away] of ncRounds[r]) {
+			allGames.push(new SeasonGame(nextGameId(), week, home, away, false));
 		}
 	}
+
+	// Suppress unused-import warning while we keep the playerTeamId param
+	// for future tweaks (player-specific opponent prioritization).
+	void playerTeamId;
 
 	return allGames;
 }

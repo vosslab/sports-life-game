@@ -27,6 +27,7 @@ import { simulateWeeklyGame as simulateGame } from './simulator/adapter.js';
 import { generateScoutReport, formatScoutReport } from './scout_report.js';
 import { generateTeamPalette, applyPalette } from './theme.js';
 import * as ui from './ui.js';
+import { maybePromptShareAfterGame } from './social/fotomagic.js';
 
 //============================================
 // Module state for college phase
@@ -490,16 +491,26 @@ function proceedToCollegeGame(): void {
 	}
 	ui.updateLifeStatus(collegeRecordStr, nextCollegeWeek, collegeExtra);
 
-	// Check if season is over
-	if (player.currentWeek >= COLLEGE_SEASON_WEEKS) {
-		ui.showChoices([
-			{ text: 'Season Summary', primary: true, action: endCollegeSeason },
-		]);
-	} else {
-		ui.showChoices([
-			{ text: 'Next Week', primary: true, action: startCollegeWeek },
-		]);
-	}
+	// Wrap the next-step action so the Fotomagic share prompt opens first
+	// when the user clicks Next Week / Season Summary.
+	const isFirstWin = result.result === 'win' && collegeTeam.wins === 1
+		&& (player.careerHistory.length === 0
+			|| player.careerHistory[player.careerHistory.length - 1].phase !== 'college'
+			|| player.careerHistory[player.careerHistory.length - 1].wins === 0);
+	const advance = (player.currentWeek >= COLLEGE_SEASON_WEEKS)
+		? endCollegeSeason : startCollegeWeek;
+	const advanceLabel = (player.currentWeek >= COLLEGE_SEASON_WEEKS)
+		? 'Season Summary' : 'Next Week';
+	const wrappedAdvance = (): void => {
+		maybePromptShareAfterGame(
+			player, result, opponent.opponentName,
+			{ isPlayoff: false, isFirstWin, isFirstStart: false },
+			advance,
+		);
+	};
+	ui.showChoices([
+		{ text: advanceLabel, primary: true, action: wrappedAdvance },
+	]);
 }
 
 //============================================

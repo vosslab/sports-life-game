@@ -20,6 +20,7 @@ import {
 	updateTabBar, switchTab, setOnTabSwitch,
 } from './tabs.js';
 import * as ui from './ui.js';
+import { renderSocialTab } from './social/feed_render.js';
 
 //============================================
 // Dependency injection interface
@@ -143,6 +144,19 @@ function refreshTabContent(tabId: TabId): void {
 		deps.refreshActivities();
 	} else if (tabId === 'career') {
 		ui.updateCareerTab(player);
+	} else if (tabId === 'social') {
+		const socialContent = document.getElementById('social-content');
+		if (socialContent) {
+			renderSocialTab(player, socialContent, () => {
+				// After a manual post: refresh stat bars (popularity may have moved)
+				// and re-render the feed in place.
+				ui.updateAllStats(player);
+				if (deps) {
+					deps.refreshDashboard();
+				}
+				renderSocialTab(player, socialContent, () => {});
+			});
+		}
 	}
 }
 

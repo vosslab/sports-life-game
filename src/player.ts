@@ -282,6 +282,10 @@ export interface Player {
 
 	// Incremental progress toward personality flags (promoted to storyFlags at threshold)
 	flagProgress: Record<string, number>;
+
+	// Fotomagic social feed (Bitlife-style). Optional for save compatibility:
+	// older saves load with this undefined and addPost initializes it lazily.
+	fotomagicFeed?: import('./social/fotomagic.js').FotomagicPost[];
 }
 
 //============================================
