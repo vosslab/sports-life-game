@@ -20,7 +20,7 @@ fi
 
 # Cache-bust: add timestamp query param to script tag so browser loads fresh JS
 TIMESTAMP=$(date +%s)
-sed -i '' "s|dist/main.js[^\"]*|dist/main.js?v=${TIMESTAMP}|" index.html
+perl -0pi -e "s|dist/main\\.js(?:\\?v=[0-9]+)?|dist/main.js?v=${TIMESTAMP}|g" index.html
 
 # Open browser and start server
 PORT="${PORT:-8123}"

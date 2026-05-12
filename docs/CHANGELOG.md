@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-12
+
+### Fixes and Maintenance
+
+- **Fixed `run_web_server.sh` cache-busting on GNU sed environments**: replaced the BSD-only `sed -i ''` command with a portable Perl in-place replacement so the local dev server can update `index.html` without treating the substitution expression as a filename.
+
 ## 2026-05-05 (continued)
 
 ### Additions and New Features
