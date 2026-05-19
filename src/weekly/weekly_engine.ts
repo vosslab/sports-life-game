@@ -17,26 +17,24 @@
 // - playoff_handler: playoff bracket progression
 // - engine_state: engine state management and queries
 
-import { WeeklyChoice, ChoiceResult, loadChoicePools } from '../weekly_choices.js';
-import { loadCrisisDefinitions } from '../crisis.js';
+import { WeeklyChoice, ChoiceResult, loadChoicePools } from './choices.js';
+import { loadCrisisDefinitions, type CrisisDefinition } from '../crisis.js';
 
 // Data imports
-import preseasonChoices from '../data/choices/preseason.js';
-import openingChoices from '../data/choices/opening.js';
-import midseasonChoices from '../data/choices/midseason.js';
-import stretchChoices from '../data/choices/stretch.js';
-import postseasonChoices from '../data/choices/postseason.js';
 import crisisData from '../data/crises.js';
 
-// Initialize choice pools and crisis definitions at module load
-loadChoicePools({
-	preseason: preseasonChoices as unknown as WeeklyChoice[],
-	opening: openingChoices as unknown as WeeklyChoice[],
-	midseason: midseasonChoices as unknown as WeeklyChoice[],
-	stretch: stretchChoices as unknown as WeeklyChoice[],
-	postseason: postseasonChoices as unknown as WeeklyChoice[],
-});
-loadCrisisDefinitions(crisisData as unknown as any[]);
+// Track whether data has been loaded
+let isInitialized = false;
+
+// Initialize choice pools and crisis definitions (must be called before game starts)
+export async function initializeWeeklyEngine(): Promise<void> {
+	if (isInitialized) {
+		return;
+	}
+	await loadChoicePools();
+	loadCrisisDefinitions(crisisData as CrisisDefinition[]);
+	isInitialized = true;
+}
 
 // Re-export public API from cohesive submodules
 export { startSeason, advanceToNextWeek, endSeason, finalizeSeason } from './season_lifecycle.js';

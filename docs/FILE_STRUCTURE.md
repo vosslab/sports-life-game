@@ -31,6 +31,7 @@ sports-life-game/
 +- tests/                  TS unit/integration tests + Python lint suite
 +- tools/                  Simulation and analysis utilities
 +- devel/                  Developer helpers (commit changelog, playwright setup)
++- archive/                Disconnected features and experimental modules
 +- dist/                   Compiled JS output (git-ignored)
 +- _site/                  Staged GitHub Pages artifact (git-ignored)
 +- node_modules/           npm dependencies (git-ignored)
@@ -46,7 +47,6 @@ src/
 +- team.ts                 Team structure, conference, schedule, standings
 +- ncaa.ts                 NCAA school CSV loader, conference assignment
 +- nfl.ts                  NFL business logic (draft, retirement, HOF, legacy)
-+- college.ts              College business logic (NIL, draft stock)
 +- recruiting.ts           College recruiting and offer generation
 +- recruiting_profile.ts   Persistent recruiting profile and star rating
 +- season_arc.ts           Five-phase season arc (preseason..postseason)
@@ -54,7 +54,6 @@ src/
 +- activities.ts           Weekly activity options with phase filters
 +- events.ts               Narrative event filter/select/apply
 +- milestones.ts           One-time career story moments
-+- weekly_choices.ts       Weekly choice menus driven by season arc
 +- career_stats_view.ts    Career stat aggregation view helpers
 +- tab_manager.ts          Centralized tab lifecycle and coordination
 +- tabs.ts                 Tab navigation with phase-specific tab sets
@@ -65,8 +64,6 @@ src/
 +- popup.ts                Modal/interaction popup helpers
 +- dom_utils.ts            Small DOM helpers used across widgets
 +- game_loop.ts            Activities-tab refresh adapter (legacy weekly helpers)
-+- week_sim.ts             Re-export shim; canonical impl under src/week_sim/
-+- clutch_moment.ts        Re-export shim; canonical impl under src/clutch/
 +- save.ts                 Re-export shim; canonical impl under src/save/
 +- styles/                 CSS modules loaded by index.html
 |  +- base.css             Reset, typography, color tokens
@@ -110,7 +107,8 @@ src/
 |  |  +- play_call_model.ts Offensive/defensive play selection
 |  |  +- play_result_model.ts Yardage/turnover resolution
 |  |  +- special_teams_model.ts FG/punt/kickoff resolution
-|  |  `- team_strength_model.ts Ratings used by play resolution
+|  |  +- team_strength_model.ts Ratings used by play resolution
+|  |  `- math_utils.ts      Math helpers for play resolution
 |  +- rules/
 |  |  +- league_rules.ts   Shared rule interface
 |  |  +- ihsa_rules.ts     High-school rule variant
@@ -162,6 +160,7 @@ src/
 |  +- week_card_widget.ts  updateWeekCard, hideWeekCard, updateThisWeekPanel
 |  +- sidebar_widget.ts    updateSidebar, showMilestoneCard
 |  +- format_helpers.ts    formatStatKey, formatStatLine
+|  +- ui_utils.ts          UI phase helpers and formatting utilities
 |  `- index.ts             Barrel of all widgets
 +- social/                 Fotomagic social feed
 |  +- fotomagic.ts         Post prompts, popularity effects
@@ -175,6 +174,7 @@ src/
 |  +- snapshot.ts          PlayerSnapshot (composed save/load type)
 |  `- index.ts             Re-exports for narrow imports
 +- shared/                 Cross-handler utilities
+|  +- game_utils.ts        Shared game simulation utilities (performance ratings, OT points)
 |  `- year_helpers.ts      Age-based stat drift, position assignment
 +- childhood/              Childhood handlers (ages 1-13, no football)
 |  +- kid_years.ts         Ages 1-7: BitLife-style events
@@ -228,7 +228,6 @@ src/
 ```text
 tests/
 +- run.ts                  TS unit test runner (used by check_codebase.sh)
-+- autoplay.mjs            Headless autoplay smoke driver
 +- smoke.sh                Shell wrapper for smoke runs
 +- test_*.ts               TS tests (handler registry, player helpers, RNG, simulator)
 +- check_dom_imports.ts    Boundary check: core code must not import DOM
@@ -236,13 +235,19 @@ tests/
 +- test_*.py               Python lint/compliance tests (pyflakes, ASCII, imports)
 +- conftest.py             pytest config
 +- git_file_utils.py       Repo-root helper used by Python tests
-`- playwright/             Browser-driven Playwright tests
++- playwright/             Browser-driven Playwright tests
+   `- autoplay.mjs         Headless autoplay smoke driver
 
 tools/
 +- sim_player_season.ts    Standalone single-player season simulator
 +- sim_conference_season.ts Conference simulation harness
 +- sim_distribution.ts     Output distribution diagnostics
 +- sim_positions.ts        Per-position stat distribution
++- dead_code_scan.ts       Find unused functions in reachable code
++- dead_exports_to_json.ts Export unused exports as JSON
++- find_dead_branches.ts   Scan for dead code branches (literal if false)
++- find_duplicates.ts      Find duplicate function definitions
++- find_unused_deps.ts     Find unused npm dependencies
 +- sim_conf/               Conference sim configs
 `- extract_avataaars.py    Pull Avataaars parts into avatar_parts.ts
 
@@ -255,34 +260,34 @@ devel/
 
 ### Game design
 
-- [docs/BITLIFE_GAME_SPEC.md](docs/BITLIFE_GAME_SPEC.md)
-- [docs/THE_SHOW_GAME_SPEC.md](docs/THE_SHOW_GAME_SPEC.md)
-- [docs/AGE_PROGRESSION.md](docs/AGE_PROGRESSION.md)
-- [docs/PORTRAIT_SYSTEM.md](docs/PORTRAIT_SYSTEM.md)
+- [BITLIFE_GAME_SPEC.md](BITLIFE_GAME_SPEC.md)
+- [THE_SHOW_GAME_SPEC.md](THE_SHOW_GAME_SPEC.md)
+- [AGE_PROGRESSION.md](AGE_PROGRESSION.md)
+- [PORTRAIT_SYSTEM.md](PORTRAIT_SYSTEM.md)
 
 ### Project management
 
-- [docs/CHANGELOG.md](docs/CHANGELOG.md)
-- [docs/ROADMAP.md](docs/ROADMAP.md)
-- [docs/TODO.md](docs/TODO.md)
-- [docs/IDEAS_LIST.md](docs/IDEAS_LIST.md)
-- [docs/AUTOPLAY_FINDINGS.md](docs/AUTOPLAY_FINDINGS.md)
+- [CHANGELOG.md](CHANGELOG.md)
+- [ROADMAP.md](ROADMAP.md)
+- [TODO.md](TODO.md)
+- [IDEAS_LIST.md](IDEAS_LIST.md)
+- [AUTOPLAY_FINDINGS.md](AUTOPLAY_FINDINGS.md)
 
 ### Developer reference
 
-- [docs/CODE_ARCHITECTURE.md](docs/CODE_ARCHITECTURE.md)
-- [docs/E2E_TESTS.md](docs/E2E_TESTS.md)
-- [docs/PLAYWRIGHT_USAGE.md](docs/PLAYWRIGHT_USAGE.md)
-- [docs/AUTHORS.md](docs/AUTHORS.md)
+- [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md)
+- [E2E_TESTS.md](E2E_TESTS.md)
+- [PLAYWRIGHT_USAGE.md](PLAYWRIGHT_USAGE.md)
+- [AUTHORS.md](AUTHORS.md)
 
 ### Style guides
 
-- [docs/TYPESCRIPT_STYLE.md](docs/TYPESCRIPT_STYLE.md)
-- [docs/PYTHON_STYLE.md](docs/PYTHON_STYLE.md)
-- [docs/PYTEST_STYLE.md](docs/PYTEST_STYLE.md)
-- [docs/REPO_STYLE.md](docs/REPO_STYLE.md)
-- [docs/MARKDOWN_STYLE.md](docs/MARKDOWN_STYLE.md)
-- [docs/CLAUDE_HOOK_USAGE_GUIDE.md](docs/CLAUDE_HOOK_USAGE_GUIDE.md)
+- [TYPESCRIPT_STYLE.md](TYPESCRIPT_STYLE.md)
+- [PYTHON_STYLE.md](PYTHON_STYLE.md)
+- [PYTEST_STYLE.md](PYTEST_STYLE.md)
+- [REPO_STYLE.md](REPO_STYLE.md)
+- [MARKDOWN_STYLE.md](MARKDOWN_STYLE.md)
+- [CLAUDE_HOOK_USAGE_GUIDE.md](CLAUDE_HOOK_USAGE_GUIDE.md)
 
 ## Generated artifacts
 
@@ -295,19 +300,19 @@ devel/
 
 ## Where to add new work
 
-- **New age bands**: implement `YearHandler` in the right phase subdirectory, register in [src/core/register_handlers.ts](src/core/register_handlers.ts).
-- **New events**: add JSON entries under [src/data/events/](src/data/events/) and let [src/events.ts](src/events.ts) auto-filter.
-- **New positions**: extend `Position` in [src/player/identity.ts](src/player/identity.ts), add a StatLine in [src/week_sim/stat_lines.ts](src/week_sim/stat_lines.ts), and add a clutch pool in [src/clutch/](src/clutch/) if a new bucket.
-- **Play-by-play rules**: add a rule module under [src/simulator/rules/](src/simulator/rules/) and wire it in via the league rules interface.
-- **Shared logic**: add to [src/shared/](src/shared/) for cross-handler utilities.
-- **UI widgets**: add a focused module under [src/ui/](src/ui/) and re-export from [src/ui/index.ts](src/ui/index.ts).
-- **Render layer**: extend [src/render/render_state.ts](src/render/render_state.ts) if adding a new `GameViewState` slice.
-- **Styles**: add or extend a CSS module under [src/styles/](src/styles/) and link it from [index.html](index.html).
+- **New age bands**: implement `YearHandler` in the right phase subdirectory, register in [src/core/register_handlers.ts](../src/core/register_handlers.ts).
+- **New events**: add JSON entries under [src/data/events/](../src/data/events/) and let [src/events.ts](../src/events.ts) auto-filter.
+- **New positions**: extend `Position` in [src/player/identity.ts](../src/player/identity.ts), add a StatLine in [src/week_sim/stat_lines.ts](../src/week_sim/stat_lines.ts), and add a clutch pool in [src/clutch/](../src/clutch/) if a new bucket.
+- **Play-by-play rules**: add a rule module under [src/simulator/rules/](../src/simulator/rules/) and wire it in via the league rules interface.
+- **Shared logic**: add to [src/shared/](../src/shared/) for cross-handler utilities.
+- **UI widgets**: add a focused module under [src/ui/](../src/ui/) and re-export from [src/ui/index.ts](../src/ui/index.ts).
+- **Render layer**: extend  if adding a new `GameViewState` slice.
+- **Styles**: add or extend a CSS module under [src/styles/](../src/styles/) and link it from [index.html](../index.html).
 - **Tests**: TS tests as `tests/test_*.ts` (TS) or `tests/test_*.py` (Python lint/compliance).
 - **Tools**: standalone analysis scripts under `tools/`.
 - **Documentation**: under `docs/` using SCREAMING_SNAKE_CASE.
 
 ## Known gaps
 
-- [docs/college_football_recruiting_bitlife_sim_design.md](docs/college_football_recruiting_bitlife_sim_design.md) violates the SCREAMING_SNAKE_CASE rule from [docs/REPO_STYLE.md](docs/REPO_STYLE.md). Rename via `git mv` before next docs pass.
+-  violates the SCREAMING_SNAKE_CASE rule from [REPO_STYLE.md](REPO_STYLE.md). Rename via `git mv` before next docs pass.
 - `docs/superpowers/` and `docs/archive/` are project artifact directories; verify whether they should remain under `docs/` or move to `tools/` / a separate planning directory.

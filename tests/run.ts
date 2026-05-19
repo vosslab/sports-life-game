@@ -1,7 +1,7 @@
 // run.ts - Node-side test runner for sports-life-game.
 //
 // Runs every characterization test under tsx in sequence. No DOM, no network.
-// Browser-coupled flows are covered by Playwright (tests/autoplay.mjs) and
+// Browser-coupled flows are covered by Playwright (tests/playwright/autoplay.mjs) and
 // not invoked here.
 //
 // Run with: npx tsx tests/run.ts
@@ -24,6 +24,7 @@ const TEST_MODULES: readonly string[] = [
 	'tests/test_simulator.ts',
 	'tests/check_math_random_budget.ts',
 	'tests/check_dom_imports.ts',
+	'tests/test_choice_schemas.ts',
 ];
 
 //============================================

@@ -49,8 +49,7 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for what is planned next.
 
 ## License
 
-GPL-3.0. See [LICENSE.LGPL_v3](LICENSE.LGPL_v3) for code,
-[LICENSE.CC_BY_4_0](LICENSE.CC_BY_4_0) for non-code content.
+See [LICENSE.LGPL_v3](LICENSE.LGPL_v3) for code licensing terms.
 
 ## Maintainer
 

@@ -3,7 +3,7 @@
 // Exports renderActivitiesTab to display available activities and action budget.
 
 import type { Activity, WeekState } from '../activities.js';
-import type { GoalInfo } from '../week_sim.js';
+import type { GoalInfo } from '../week_sim/index.js';
 import type { SeasonGoal } from '../player.js';
 
 //============================================

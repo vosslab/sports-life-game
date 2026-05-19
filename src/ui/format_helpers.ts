@@ -3,7 +3,7 @@
 // Exports formatStatKey and formatStatLine for converting stat data
 // into human-readable display strings.
 
-import type { StatLine } from '../week_sim.js';
+import type { StatLine } from '../week_sim/index.js';
 
 //============================================
 // Map camelCase stat keys to human-readable display labels

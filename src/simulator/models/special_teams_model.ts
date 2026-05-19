@@ -7,18 +7,7 @@ import { GameState, PlayOutcome, PlayResult } from "../engine/state_machine.js";
 import { LeagueRules } from "../rules/league_rules.js";
 import { LeagueTuning } from "../rules/league_tuning.js";
 import { rand } from '../../core/rng.js';
-
-//============================================
-// Helper: Box-Muller normal distribution
-//============================================
-
-function randomNormal(mean: number, stddev: number): number {
-	// Box-Muller transform to generate normal distribution from uniform random
-	const u1 = rand();
-	const u2 = rand();
-	const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-	return mean + z0 * stddev;
-}
+import { randomNormal } from './math_utils.js';
 
 //============================================
 // Kickoff

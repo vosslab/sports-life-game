@@ -7,6 +7,7 @@ import type { Player } from '../player.js';
 import { getAcademicStanding } from '../player.js';
 import { findElement, getElement } from '../dom_utils.js';
 import { isSidebarVisible } from '../tabs.js';
+import { formatMoney } from './ui_utils.js';
 
 //============================================
 // Update a single stat bar width, color, and numeric value
@@ -169,16 +170,3 @@ function updateMiniBar(statName: string, value: number): void {
 	}
 }
 
-//============================================
-// Helper: format money amount
-function formatMoney(amount: number): string {
-	if (amount >= 1000000) {
-		const millions = (amount / 1000000).toFixed(1);
-		return `$${millions}M`;
-	}
-	if (amount >= 1000) {
-		const thousands = (amount / 1000).toFixed(0);
-		return `$${thousands}K`;
-	}
-	return `$${amount}`;
-}

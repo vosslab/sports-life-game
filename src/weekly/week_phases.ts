@@ -5,9 +5,9 @@
 import { Player } from '../player.js';
 import { CareerContext } from '../core/year_handler.js';
 import { SeasonGoal } from '../player.js';
-import { applySeasonGoal, getGoalsForPhase, getPreferredActivitiesForGoal } from '../week_sim.js';
+import { applySeasonGoal, getGoalsForPhase, getPreferredActivitiesForGoal } from '../week_sim/index.js';
 import { ArcPhase, getArcPhase } from '../season_arc.js';
-import { getWeeklyChoices, resolveChoice, WeeklyChoice, ChoiceResult } from '../weekly_choices.js';
+import { getWeeklyChoices, resolveChoice, WeeklyChoice, ChoiceResult } from './choices.js';
 import {
 	scheduleCrises, startCrisis, getCrisisResponses, resolveCrisisResponse,
 	advanceCrisis,

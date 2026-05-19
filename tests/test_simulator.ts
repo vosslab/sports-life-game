@@ -17,9 +17,9 @@ import { accumulateGameStats, createPlayer } from '../src/player.js';
 import { Team } from '../src/team.js';
 import {
 	calculateLetterGrade,
-	calculatePerformanceRating,
 	simulateGame,
 } from '../src/week_sim/index.js';
+import { calculatePerformanceRating } from '../src/shared/game_utils.js';
 import {
 	ClutchGameContext,
 	buildClutchMoment,

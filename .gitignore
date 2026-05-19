@@ -10,5 +10,6 @@ _te*.sh
 _te*.cjs
 OTHER_REPOS_FOR_STUDY/
 tools/avataaars_source/
+tools/_out/
 .superpowers/
 _site/

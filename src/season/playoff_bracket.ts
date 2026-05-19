@@ -8,6 +8,7 @@ import { TeamId, GameId, PlayoffSeed } from './season_types.js';
 import { SeasonGame } from './game_model.js';
 import { randomInRange } from '../player.js';
 import { rand } from '../core/rng.js';
+import { rollOvertimePoints } from '../shared/game_utils.js';
 
 // Running playoff game id counter
 let playoffGameCounter = 0;
@@ -25,19 +26,6 @@ export interface PlayoffRound {
 	roundNumber: number;
 	roundName: string;
 	games: SeasonGame[];
-}
-
-//============================================
-// The playoff bracket
-function rollOvertimePoints(): number {
-	const roll = randomInRange(1, 100);
-	if (roll <= 55) {
-		return 3;
-	}
-	if (roll <= 95) {
-		return 7;
-	}
-	return 6;
 }
 
 //============================================

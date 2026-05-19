@@ -10,7 +10,7 @@ import { Player, CareerPhase, randomInRange } from './player.js';
 import {
 	GameEvent, filterEvents, selectEvent, applyEventChoice,
 } from './events.js';
-import { WeeklyFocus, applySeasonGoal, applyWeeklyFocus } from './week_sim.js';
+import { WeeklyFocus, applySeasonGoal, applyWeeklyFocus } from './week_sim/index.js';
 import {
 	Activity, WeekState, createWeekState, canDoActivity,
 	getActivitiesForPhase, isActivityUnlocked, applyActivity, getEffectPreview, formatActivityResult,

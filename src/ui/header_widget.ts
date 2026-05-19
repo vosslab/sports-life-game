@@ -7,6 +7,7 @@ import type { Player, CareerPhase } from '../player.js';
 import { generatePortraitSVG } from '../avatar.js';
 import { formatTeamWithEmoji } from '../team_emoji.js';
 import { getElement, findElement } from '../dom_utils.js';
+import { getPhaseLabel } from './ui_utils.js';
 
 //============================================
 // Update player header with name, position, team, age, and phase
@@ -61,16 +62,3 @@ export function updateLifeStatus(
 	}
 }
 
-//============================================
-// Helper: convert career phase to readable label
-function getPhaseLabel(phase: CareerPhase): string {
-	const labels: Record<CareerPhase, string> = {
-		childhood: 'Childhood',
-		youth: 'Youth',
-		high_school: 'High School',
-		college: 'College',
-		nfl: 'NFL',
-		legacy: 'Legacy',
-	};
-	return labels[phase] || 'Unknown';
-}

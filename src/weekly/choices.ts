@@ -1,10 +1,11 @@
-// weekly_choices.ts - adaptive weekly choice generation
+// choices.ts - adaptive weekly choice generation
 //
 // Replaces static activity selection with context-sensitive choices
 // that have real stakes and uncertain outcomes.
 
-import { Player, modifyStat, clampStat, randomInRange } from './player.js';
-import { ArcPhase } from './season_arc.js';
+import { Player, modifyStat, clampStat, randomInRange } from '../player.js';
+import { ArcPhase } from '../season_arc.js';
+import { rand } from '../core/rng.js';
 
 //============================================
 // Choice data loaded from JSON
@@ -47,10 +48,17 @@ const choicePools: Record<ArcPhase, WeeklyChoice[]> = {
 };
 
 //============================================
-// Load choice pools from imported JSON data
-export function loadChoicePools(data: Record<ArcPhase, WeeklyChoice[]>): void {
-	for (const phase of Object.keys(data) as ArcPhase[]) {
-		choicePools[phase] = data[phase];
+// Load choice pools from JSON files at runtime
+export async function loadChoicePools(): Promise<void> {
+	const phases: ArcPhase[] = ['preseason', 'opening', 'midseason', 'stretch', 'postseason'];
+
+	for (const phase of phases) {
+		const response = await fetch(`src/data/choices/${phase}.json`);
+		if (!response.ok) {
+			throw new Error(`Failed to load choices for ${phase}: ${response.status}`);
+		}
+		const data = await response.json() as WeeklyChoice[];
+		choicePools[phase] = data;
 	}
 }
 
@@ -133,7 +141,7 @@ export function resolveChoice(
 	player: Player,
 	choice: WeeklyChoice,
 ): ChoiceResult {
-	const roll = Math.random();
+	const roll = rand();
 	const succeeded = roll < choice.outcomes.success.probability;
 
 	const outcome = succeeded ? choice.outcomes.success : choice.outcomes.failure;

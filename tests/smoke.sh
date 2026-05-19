@@ -2,7 +2,7 @@
 # smoke.sh - one-command HS-season smoke test for sports-life-game.
 #
 # Builds the TS bundle, starts a throwaway HTTP server, and runs the existing
-# Playwright autoplay script (tests/autoplay.mjs) against it. Tears the server
+# Playwright autoplay script (tests/playwright/autoplay.mjs) against it. Tears the server
 # down on exit. Returns 0 on a clean playthrough, nonzero otherwise.
 #
 # Use:
@@ -45,4 +45,4 @@ done
 # Run autoplay against the server. autoplay.mjs hardcodes its own URL; if
 # index.html is reachable on PORT, autoplay can be pointed there via env if
 # needed. For now we just invoke it; on first failure the user can adjust.
-node tests/autoplay.mjs "$@"
+node tests/playwright/autoplay.mjs "$@"

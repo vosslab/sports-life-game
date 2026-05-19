@@ -7,20 +7,11 @@ import { GameState, PlayOutcome, PlayResult, Situation } from "../engine/state_m
 import { LeagueTuning } from "../rules/league_tuning.js";
 import { MatchupAdjustment } from "./team_strength_model.js";
 import { rand } from '../../core/rng.js';
+import { randomNormal } from './math_utils.js';
 
 //============================================
 // Helper functions for randomness
 //============================================
-
-/**
- * Generate a random number from a normal distribution using Box-Muller transform.
- */
-function randomNormal(mean: number, stddev: number): number {
-	const u1 = rand();
-	const u2 = rand();
-	const z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-	return mean + z * stddev;
-}
 
 /**
  * Generate a random number from an exponential distribution.

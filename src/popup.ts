@@ -178,29 +178,28 @@ export function configureMainButtons(config: {
 }
 
 //============================================
-// Disable main buttons (e.g. while a popup is open)
-export function disableMainButtons(): void {
+// Helper: set disabled state on main buttons
+function setMainButtonsDisabled(disabled: boolean): void {
 	const nextBtn = findElement('btn-next-week') as HTMLButtonElement | null;
 	const ageBtn = findElement('btn-age-up') as HTMLButtonElement | null;
 	if (nextBtn) {
-		nextBtn.disabled = true;
+		nextBtn.disabled = disabled;
 	}
 	if (ageBtn) {
-		ageBtn.disabled = true;
+		ageBtn.disabled = disabled;
 	}
+}
+
+//============================================
+// Disable main buttons (e.g. while a popup is open)
+export function disableMainButtons(): void {
+	setMainButtonsDisabled(true);
 }
 
 //============================================
 // Enable main buttons (e.g. after popup closes)
 export function enableMainButtons(): void {
-	const nextBtn = findElement('btn-next-week') as HTMLButtonElement | null;
-	const ageBtn = findElement('btn-age-up') as HTMLButtonElement | null;
-	if (nextBtn) {
-		nextBtn.disabled = false;
-	}
-	if (ageBtn) {
-		ageBtn.disabled = false;
-	}
+	setMainButtonsDisabled(false);
 }
 
 //============================================

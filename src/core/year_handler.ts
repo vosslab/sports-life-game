@@ -7,9 +7,9 @@ import { GameEvent } from '../events.js';
 import { NCAASchool } from '../ncaa.js';
 import { ChoiceOption } from './choice_option.js';
 import type { Activity, WeekState } from '../activities.js';
-import type { GoalInfo } from '../week_sim.js';
+import type { GoalInfo } from '../week_sim/index.js';
 import type { SeasonGoal } from '../player.js';
-import type { StatLine } from '../week_sim.js';
+import type { StatLine } from '../week_sim/index.js';
 
 //============================================
 // Re-export ChoiceOption for legacy importers (main.ts, popup.ts).

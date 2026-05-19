@@ -7,20 +7,9 @@
 import { randomInRange } from '../player.js';
 import { LeagueSeason } from './season_model.js';
 import { SeasonGame } from './game_model.js';
-import { GameResult } from '../week_sim.js';
+import { GameResult } from '../week_sim/index.js';
 import { rand } from '../core/rng.js';
-
-//============================================
-function rollOvertimePoints(): number {
-	const roll = randomInRange(1, 100);
-	if (roll <= 55) {
-		return 3;
-	}
-	if (roll <= 95) {
-		return 7;
-	}
-	return 6;
-}
+import { rollOvertimePoints } from '../shared/game_utils.js';
 
 //============================================
 // Simulate all non-player games for the current week.

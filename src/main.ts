@@ -20,7 +20,7 @@ import {
 } from './game_loop.js';
 import { registerAllHandlers } from './core/register_handlers.js';
 import { advanceToNextYear, startYear } from './core/year_runner.js';
-import { getSeasonRecord, getActiveSeason, getActiveWeekState } from './weekly/weekly_engine.js';
+import { getSeasonRecord, getActiveSeason, getActiveWeekState, initializeWeeklyEngine } from './weekly/weekly_engine.js';
 import * as ui from './ui/index.js';
 import { applyPalette } from './theme.js';
 import type { Activity } from './activities.js';
@@ -187,6 +187,7 @@ async function initGame(): Promise<void> {
 	const { firstNames, lastNames } = await loadNameLists();
 	ncaaSchools = await loadNCAASchools();
 	await loadNFLTeams();
+	await initializeWeeklyEngine();
 
 	initTabManager({
 		getPlayer: () => currentPlayer,

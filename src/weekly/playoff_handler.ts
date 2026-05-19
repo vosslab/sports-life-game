@@ -9,7 +9,7 @@ import { CareerContext } from '../core/year_handler.js';
 import { simulateWeeklyGame as simulateGame } from '../simulator/adapter.js';
 import {
 	ClutchGameContext, buildClutchMoment, resolveClutchMoment,
-} from '../clutch_moment.js';
+} from '../clutch/index.js';
 import { rand } from '../core/rng.js';
 
 //============================================

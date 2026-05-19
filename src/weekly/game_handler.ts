@@ -8,14 +8,14 @@ import { simulateWeeklyGame as simulateGame } from '../simulator/adapter.js';
 import { Team } from '../team.js';
 import {
 	ClutchGameContext, buildClutchMoment, resolveClutchMoment,
-} from '../clutch_moment.js';
+} from '../clutch/index.js';
 import {
 	simulateNonPlayerGames, recordPlayerGameResult,
 	getPlayerOpponentStrength, getPlayerOpponentName,
 } from '../season/season_simulator.js';
-import { evaluateDepthChartUpdate } from '../week_sim.js';
+import { evaluateDepthChartUpdate } from '../week_sim/index.js';
 import { checkMilestones } from '../milestones.js';
-import { applySeasonGoal } from '../week_sim.js';
+import { applySeasonGoal } from '../week_sim/index.js';
 import { rand } from '../core/rng.js';
 import { activeEngine } from './engine_state.js';
 import * as seasonLifecycle from './season_lifecycle.js';

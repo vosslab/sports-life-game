@@ -1,8 +1,8 @@
 // index.ts - barrel re-exports for the week_sim module.
 //
-// New code can import the named modules directly (focus, goals, momentum,
-// game, depth_chart, practice). This barrel exists so the legacy
-// `src/week_sim.ts` shim and existing importers continue to compile.
+// Imports the named modules directly (focus, goals, momentum,
+// game, depth_chart, practice) and re-exports key types and functions
+// for consuming code.
 
 export type { WeeklyFocus } from './focus.js';
 export { applySeasonGoal, applyWeeklyFocus } from './focus.js';
@@ -12,7 +12,6 @@ export { getGoalsForPhase, getPreferredActivitiesForGoal } from './goals.js';
 
 export {
 	updateMomentum,
-	calculatePerformanceRating,
 	calculateLetterGrade,
 } from './momentum.js';
 

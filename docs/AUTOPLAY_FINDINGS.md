@@ -1,6 +1,6 @@
 # Autoplay test findings
 
-Results from running `tests/autoplay.mjs` and manual Playwright inspection on 2026-04-05.
+Results from running `tests/playwright/autoplay.mjs` and manual Playwright inspection on 2026-04-05.
 
 ## Clicks per year of life
 

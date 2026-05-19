@@ -5,6 +5,7 @@
 
 import type { Player } from '../player.js';
 import { renderCareerStatsTable } from '../career_stats_view.js';
+import { formatMoney } from './ui_utils.js';
 
 //============================================
 // Update the career tab with phase-appropriate career info
@@ -265,18 +266,24 @@ function renderLegacyCareer(container: HTMLElement, player: Player): void {
 //============================================
 // Helper functions
 
-function addCareerRow(container: HTMLElement, label: string, value: string): void {
-	const div = document.createElement('div');
-	div.className = 'stats-summary-row';
+//============================================
+// Helper: create a label-value row (used by both addCareerRow and addSidebarRow)
+function createLabelValueRow(container: HTMLElement, label: string, value: string): void {
+	const row = document.createElement('div');
+	row.className = 'stats-summary-row';
 	const labelSpan = document.createElement('span');
 	labelSpan.className = 'stats-summary-label';
 	labelSpan.textContent = label;
 	const valueSpan = document.createElement('span');
 	valueSpan.className = 'stats-summary-value';
 	valueSpan.textContent = value;
-	div.appendChild(labelSpan);
-	div.appendChild(valueSpan);
-	container.appendChild(div);
+	row.appendChild(labelSpan);
+	row.appendChild(valueSpan);
+	container.appendChild(row);
+}
+
+function addCareerRow(container: HTMLElement, label: string, value: string): void {
+	createLabelValueRow(container, label, value);
 }
 
 function addCareerSection(container: HTMLElement, title: string): void {
@@ -306,28 +313,6 @@ function getStarDisplay(stars: number): string {
 	return `${stars}-star (${display})`;
 }
 
-function formatMoney(amount: number): string {
-	if (amount >= 1000000) {
-		const millions = (amount / 1000000).toFixed(1);
-		return `$${millions}M`;
-	}
-	if (amount >= 1000) {
-		const thousands = (amount / 1000).toFixed(0);
-		return `$${thousands}K`;
-	}
-	return `$${amount}`;
-}
-
 function addSidebarRow(container: HTMLElement, label: string, value: string): void {
-	const row = document.createElement('div');
-	row.className = 'stats-summary-row';
-	const labelSpan = document.createElement('span');
-	labelSpan.className = 'stats-summary-label';
-	labelSpan.textContent = label;
-	const valueSpan = document.createElement('span');
-	valueSpan.className = 'stats-summary-value';
-	valueSpan.textContent = value;
-	row.appendChild(labelSpan);
-	row.appendChild(valueSpan);
-	container.appendChild(row);
+	createLabelValueRow(container, label, value);
 }

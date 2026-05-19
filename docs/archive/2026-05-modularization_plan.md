@@ -167,7 +167,7 @@ source-comment marker alone is not sufficient.
   - Patch 3 pure-helper characterization tests where easy (RNG done; add
     season helpers and any other pure utilities found).
   - Patch 4 Playwright smoke test that auto-plays one HS season via the
-    existing `tests/autoplay.mjs` path; runs in CI/local.
+    existing `tests/playwright/autoplay.mjs` path; runs in CI/local.
 - **Exit criteria:**
   - `npx tsc --noEmit` clean.
   - `npx tsx tests/test_rng.ts` passes.
@@ -299,7 +299,7 @@ source-comment marker alone is not sufficient.
   for any pure helpers easy to isolate (season helpers, position
   bucketing, stat clamps). Skip anything that needs DOM. Patch P1.3.
 - **W1.D Playwright HS-season smoke.** Owner: tester. Wire
-  `tests/autoplay.mjs` (or its Playwright equivalent) into a one-click
+  `tests/playwright/autoplay.mjs` (or its Playwright equivalent) into a one-click
   smoke. Patch P1.4.
 
 ### M2 Workstreams

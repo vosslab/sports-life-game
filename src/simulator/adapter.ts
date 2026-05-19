@@ -2,7 +2,8 @@
 // Simulator Adapter
 //
 // Bridges the new play-by-play simulator to the existing game.
-// week_sim.ts calls this instead of the old formula-based simulateGame().
+// src/week_sim/game.ts calls this to simulate game outcomes
+// for players during weekly play.
 //
 // Three contracts:
 // 1. Input: builds GameTeamContext from Player + Team + opponentStrength
@@ -34,6 +35,7 @@ import { LeagueTuning } from "./rules/league_tuning.js";
 import { getSnapShare } from "./output/stat_line.js";
 import { buildStorySummary, generateStoryText } from "./output/story_summary.js";
 import { rand } from '../core/rng.js';
+import { calculatePerformanceRating } from '../shared/game_utils.js';
 
 // Re-export the StatLine type for compatibility
 export type StatLine = Record<string, number | string>;
@@ -452,29 +454,6 @@ function estimatePerformanceScore(stat: StatLine, positionBucket: string): numbe
 	}
 
 	return clampStat(Math.round(score));
-}
-
-//============================================
-// Performance rating thresholds (matches existing week_sim.ts)
-//============================================
-
-function calculatePerformanceRating(score: number): PerformanceRating {
-	if (score >= 86) {
-		return 'elite';
-	}
-	if (score >= 71) {
-		return 'great';
-	}
-	if (score >= 56) {
-		return 'good';
-	}
-	if (score >= 41) {
-		return 'average';
-	}
-	if (score >= 21) {
-		return 'below_average';
-	}
-	return 'poor';
 }
 
 //============================================

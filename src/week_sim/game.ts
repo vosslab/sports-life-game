@@ -10,7 +10,8 @@ import {
 } from '../player.js';
 import { Team } from '../team.js';
 import { rand } from '../core/rng.js';
-import { calculateLetterGrade, calculatePerformanceRating } from './momentum.js';
+import { calculateLetterGrade } from './momentum.js';
+import { rollOvertimePoints, calculatePerformanceRating } from '../shared/game_utils.js';
 import {
 	StatLine,
 	adjustStatLineForDepthChart,
@@ -29,18 +30,6 @@ export interface GameResult {
 	opponentScore: number;
 	result: 'win' | 'loss';
 	storyText: string;
-}
-
-//============================================
-function rollOvertimePoints(): number {
-	const roll = randomInRange(1, 100);
-	if (roll <= 55) {
-		return 3;
-	}
-	if (roll <= 95) {
-		return 7;
-	}
-	return 6;
 }
 
 //============================================

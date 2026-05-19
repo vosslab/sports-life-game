@@ -6,7 +6,7 @@
 // manual "New Post" button for any-time posting.
 
 import { Player, clampStat } from '../player.js';
-import type { GameResult, StatLine } from '../week_sim.js';
+import type { GameResult, StatLine } from '../week_sim/index.js';
 import { waitForInteraction } from '../popup.js';
 
 //============================================

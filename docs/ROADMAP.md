@@ -74,6 +74,18 @@ Sequence (do not start until M6/M7 are done):
 6. Update GitHub Pages docs and scripts (`build_github_pages.sh`,
    `run_web_server.sh`) to serve `dist/` instead of repo root.
 
+## Reactivation candidates
+
+Seven disconnected features are archived in `archive/disconnected_features/` (see `docs/TODO.md`). These are planned re-wiring work:
+
+- `scout_report.ts` - Wire draft scout reports into player career feedback loop
+- `render/render_state.ts` - Switch render layer to dirty-flag optimization model (deferred pending profiling needs)
+- `simulator/engine/clock.ts` - Wire clock refinements (two-minute warning, timeout tracking, play clock)
+- `simulator/engine/clutch_checkpoint.ts` - Wire clutch moment UI and decision system
+- `simulator/season/rankings.ts` - Wire weekly rankings display alongside conference standings
+- `simulator/season/sim_non_player_games.ts` - Switch non-player game simulation to play-by-play engine for consistency
+- `simulator/season/weekly_narrative.ts` - Wire weekly narrative generation into league display
+
 ## Intentionally not started
 
 - Multiplayer or online features

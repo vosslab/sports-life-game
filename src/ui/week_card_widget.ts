@@ -6,6 +6,7 @@
 import type { Player, CareerPhase } from '../player.js';
 import type { WeekState } from '../activities.js';
 import { formatTeamWithEmoji } from '../team_emoji.js';
+import { getPhaseLabel } from './ui_utils.js';
 
 //============================================
 // Phase CSS class names for accent colors
@@ -47,19 +48,6 @@ function getYearLabel(player: Player): string {
 	return `Age ${player.age}`;
 }
 
-//============================================
-// Convert career phase to readable label
-function getPhaseLabel(phase: CareerPhase): string {
-	const labels: Record<CareerPhase, string> = {
-		childhood: 'Childhood',
-		youth: 'Youth',
-		high_school: 'High School',
-		college: 'College',
-		nfl: 'NFL',
-		legacy: 'Legacy',
-	};
-	return labels[phase] || 'Unknown';
-}
 
 //============================================
 // Update the current-week card with player context

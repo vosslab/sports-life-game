@@ -41,27 +41,6 @@ export function updateMomentum(
 }
 
 //============================================
-// Calculate performance rating from a 0-100 score
-export function calculatePerformanceRating(score: number): PerformanceRating {
-	if (score >= 86) {
-		return 'elite';
-	}
-	if (score >= 71) {
-		return 'great';
-	}
-	if (score >= 56) {
-		return 'good';
-	}
-	if (score >= 41) {
-		return 'average';
-	}
-	if (score >= 21) {
-		return 'below_average';
-	}
-	return 'poor';
-}
-
-//============================================
 // Convert performance score into a report-card grade
 export function calculateLetterGrade(score: number): string {
 	if (score >= 85) {
