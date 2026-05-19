@@ -29,4 +29,23 @@ if [ ! -f dist/main.js ]; then
 	exit 1
 fi
 
-echo "Built dist/ (tsc emit, repo-root Pages model)."
+# Stage Pages artifact under _site/ for GitHub Actions upload.
+# Mirrors the repo-root layout the browser expects: index.html + src/styles + dist.
+rm -rf _site
+mkdir -p _site/src
+cp index.html _site/index.html
+cp -R src/styles _site/src/styles
+cp -R dist _site/dist
+touch _site/.nojekyll
+
+# Cache-bust the staged index.html so deploys serve fresh JS without
+# touching the tracked index.html.
+TIMESTAMP=$(date +%s)
+perl -0pi -e "s|dist/main\\.js(?:\\?v=[0-9]+)?|dist/main.js?v=${TIMESTAMP}|g" _site/index.html
+
+if [ ! -f _site/index.html ] || [ ! -f _site/dist/main.js ]; then
+	echo "ERROR: _site/ staging incomplete." >&2
+	exit 1
+fi
+
+echo "Built dist/ + staged _site/ (repo-root Pages model)."

@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-05-18
+
+### Additions and New Features
+
+- **GitHub Pages auto-deploy via GitHub Actions**: added `.github/workflows/deploy-pages.yml` that builds on every push to `main` and publishes the site through the official `actions/upload-pages-artifact@v3` + `actions/deploy-pages@v4` flow. Workflow uses `npm install` (not `npm ci`) because `package-lock.json` is intentionally gitignored in this repo.
+- **`build_github_pages.sh` now stages `_site/`**: after the existing `tsc` emit, the script assembles a clean Pages artifact (`_site/index.html`, `_site/src/styles/`, `_site/dist/`, `_site/.nojekyll`) so the workflow uploads only the files the browser needs, with no `node_modules/` or TypeScript sources. The staged `_site/index.html` also receives the same `?v=<timestamp>` cache-bust that `run_web_server.sh` applies locally, without mutating the tracked `index.html`.
+- **Gitignored `_site/`**: added to `.gitignore` next to `dist/` so local Pages builds stay out of git.
+
+### Behavior or Interface Changes
+
+- **One-time GitHub UI step required**: in repo settings, set Pages source to "GitHub Actions" so the new workflow can publish. Site URL will be `https://vosslab.github.io/sports-life-game/`.
+
 ## 2026-05-12
 
 ### Fixes and Maintenance
