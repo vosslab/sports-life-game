@@ -49,7 +49,6 @@ src/
 +- college.ts              College business logic (NIL, draft stock)
 +- recruiting.ts           College recruiting and offer generation
 +- recruiting_profile.ts   Persistent recruiting profile and star rating
-+- scout_report.ts         Per-player scouting report rendering
 +- season_arc.ts           Five-phase season arc (preseason..postseason)
 +- crisis.ts               Midseason crisis system (0-2 per season)
 +- activities.ts           Weekly activity options with phase filters
@@ -106,9 +105,7 @@ src/
 |  +- engine/
 |  |  +- game_engine.ts    Top-level game runner
 |  |  +- state_machine.ts  Drive/down/possession state machine
-|  |  +- clock.ts          Game clock model
-|  |  +- rules_engine.ts   Apply rule set per league
-|  |  `- clutch_checkpoint.ts  Late-game clutch hooks
+|  |  `- rules_engine.ts   Apply rule set per league
 |  +- models/
 |  |  +- play_call_model.ts Offensive/defensive play selection
 |  |  +- play_result_model.ts Yardage/turnover resolution
@@ -125,10 +122,7 @@ src/
 |  |  +- stat_line.ts      Player stat-line extraction
 |  |  `- story_summary.ts  Narrative summary text
 |  `- season/
-|     +- sim_non_player_games.ts Background game sim for non-player teams
-|     +- standings.ts      Standings projection helpers
-|     +- rankings.ts       AP-style rankings derivation
-|     `- weekly_narrative.ts Weekly recap text
+|     `- standings.ts      Standings projection helpers
 +- clutch/                 4Q clutch-moment engine (split from clutch_moment.ts)
 |  +- types.ts             Public types, BASE_RATES, SCORING_MAPS
 |  +- situation.ts         deriveSituation, scene/atmosphere, RNG helpers
@@ -156,7 +150,6 @@ src/
 +- view_state/             Simulation -> render contract
 |  `- game_view_state.ts   GameViewState, HeaderView, StatBarView, CareerView
 +- render/                 Pull-model render layer
-|  +- render_state.ts      renderState(view) with dirty-flag compare
 |  `- story_log.ts         Collapsible age/week story-log DOM helpers
 +- ui/                     Widget modules (split from monolithic ui.ts)
 |  +- header_widget.ts     updateHeader, updateLifeStatus

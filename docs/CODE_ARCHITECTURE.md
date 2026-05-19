@@ -94,9 +94,8 @@ Two simulation paths coexist:
 
 - **Play-by-play simulator** ([src/simulator/](src/simulator/)): newer engine
   invoked through [src/simulator/adapter.ts](src/simulator/adapter.ts). The
-  engine runs a clock, drive, and possession state machine
-  ([engine/state_machine.ts](src/simulator/engine/state_machine.ts),
-  [engine/clock.ts](src/simulator/engine/clock.ts)), selects plays via
+  engine runs a drive and possession state machine
+  ([engine/state_machine.ts](src/simulator/engine/state_machine.ts)), selects plays via
   [models/play_call_model.ts](src/simulator/models/play_call_model.ts), resolves
   yardage and turnovers via
   [models/play_result_model.ts](src/simulator/models/play_result_model.ts) and
@@ -104,9 +103,7 @@ Two simulation paths coexist:
   and applies per-league rules under [rules/](src/simulator/rules/) (IHSA, FCS,
   NFL). Outputs go through [output/box_score.ts](src/simulator/output/box_score.ts),
   [output/stat_line.ts](src/simulator/output/stat_line.ts), and
-  [output/story_summary.ts](src/simulator/output/story_summary.ts). The
-  [engine/clutch_checkpoint.ts](src/simulator/engine/clutch_checkpoint.ts) hook
-  hands late-game decisions to the clutch system below.
+  [output/story_summary.ts](src/simulator/output/story_summary.ts).
 - **Formula path** ([src/week_sim/](src/week_sim/)): the older formula-based
   `simulateGame`, still used by the legacy code paths and the standalone
   simulation tools under `tools/`.
@@ -173,7 +170,6 @@ Two simulation paths coexist:
 - [src/recruiting.ts](src/recruiting.ts),
   [src/recruiting_profile.ts](src/recruiting_profile.ts): college recruiting and
   persistent profile.
-- [src/scout_report.ts](src/scout_report.ts): scouting report rendering.
 - [src/career_stats_view.ts](src/career_stats_view.ts): career stat aggregation
   view helpers.
 - [src/save/](src/save/): versioned save (v1) with strict validation. No
@@ -184,10 +180,6 @@ Two simulation paths coexist:
 - [src/view_state/game_view_state.ts](src/view_state/game_view_state.ts):
   simulation -> render contract (`GameViewState`, `HeaderView`, `StatBarView`,
   `CareerView`).
-- [src/render/render_state.ts](src/render/render_state.ts): pull-model
-  orchestrator. `renderState(view)` shallow-compares each slice against its
-  last-rendered version and only invokes widget functions when slices changed.
-  `clearRenderCache()` resets on new game.
 - [src/render/story_log.ts](src/render/story_log.ts): collapsible age/week
   story-log DOM helpers.
 - [src/ui/](src/ui/): focused widget modules

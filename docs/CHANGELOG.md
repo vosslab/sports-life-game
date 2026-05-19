@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-05-19
+
+### Removals and Deprecations
+
+- **Deleted 7 disconnected feature files** (M2.W2.2 final cleanup): removed `src/scout_report.ts`, `src/render/render_state.ts`, `src/simulator/engine/clock.ts`, `src/simulator/engine/clutch_checkpoint.ts`, `src/simulator/season/rankings.ts`, `src/simulator/season/sim_non_player_games.ts`, `src/simulator/season/weekly_narrative.ts`. All confirmed zero-importers despite documentation claims (documented in CODE_ARCHITECTURE.md and FILE_STRUCTURE.md but never wired into live game engine). Deleted per user cleanup directive; restore from git history if feature is re-prioritized.
+- **Deleted `src/college.ts` only** (M2.W2.1 correction): previously confirmed zero-importer, shadow of unused directory. Remains deleted.
+- **Reverted deletion of clutch system** (M2.W2.1 correction): initial pass deleted `src/clutch_moment.ts` and `src/clutch/` (10 files) based on false-positive dead-code scan. Clutch system is REACHABLE: `src/clutch_moment.ts` is imported by `src/weekly/game_handler.ts` and `src/weekly/playoff_handler.ts`, both of which are re-exported through `src/weekly/weekly_engine.ts` (the main entry point for weekly simulation). Dead-code scan tool does not track barrel re-exports, causing false negatives for files re-exported through index.ts. System is feature-complete (see docs/superpowers/specs/2026-04-05-clutch-moment-system-design.md) and is part of the active game engine. Files restored from HEAD.
+
+### Decisions and Failures
+
+- **Scout report feature (src/scout_report.ts) was designed but never wired**: intended to display per-player scouting reports for college-to-NFL draft prospects. Feature was documented in CODE_ARCHITECTURE.md and FILE_STRUCTURE.md but never integrated into the game engine. Zero importers confirmed. Deleted per user cleanup directive. Restore from git history if feature is re-prioritized in future release.
+- **Dead code scan tool limitation**: tools/dead_code_scan.ts does not detect barrel re-exports (`export { X } from './module'` or `export * from './module'`), causing files re-exported through public APIs to incorrectly appear as zero-importer candidates. A file is reachable if ANY reachable module re-exports it in a barrel. This blind spot caused the false-positive clutch deletion. Tool improved by adding barrel-export detection logic (see Developer Tests below).
+- **Autoplay verification passed**: timeout 240s `node tests/autoplay.mjs` completed in 78.4s, reached age 22 with final stats recorded.
+
+### Developer Tests and Notes
+
+- **Enhanced dead_code_scan.ts**: added barrel re-export detection. When processing import chains, the scanner now recognizes `export { ... } from './path'` and `export * from './path'` patterns in each module's source, treating those as effective imports of the re-exported module for reachability purposes. Re-run identified clutch_moment.ts as reachable through weekly_engine.ts barrel. Updated tools/_out/dead_code.json accordingly.
+
 ## 2026-05-18
 
 ### Additions and New Features
