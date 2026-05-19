@@ -15,6 +15,7 @@
 ### Fixes and Maintenance
 
 - **Moved `fsevents` from `dependencies` to `optionalDependencies` in `package.json`**: the Pages workflow's `npm install` failed on Ubuntu with `EBADPLATFORM` because `fsevents` is darwin-only and was listed as a hard dependency. Marking it optional lets Linux CI skip it cleanly while keeping it available on macOS for local dev. Regenerated `package-lock.json` to match.
+- **Stage `src/data/` in `_site/` for Pages deploy**: the build script only copied `src/styles/`, so the deployed game errored with "Error loading game. Check console." because `loadNameLists`, `loadNCAASchools`, `loadNFLTeams`, and `loadEvents` all `fetch('src/data/...')` for CSV/JSON content. `build_github_pages.sh` now also copies `src/data/` into the staged artifact.
 
 ## 2026-05-12
 

@@ -35,6 +35,7 @@ rm -rf _site
 mkdir -p _site/src
 cp index.html _site/index.html
 cp -R src/styles _site/src/styles
+cp -R src/data _site/src/data
 cp -R dist _site/dist
 touch _site/.nojekyll
 
