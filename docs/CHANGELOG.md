@@ -17,6 +17,10 @@
 - **Moved `fsevents` from `dependencies` to `optionalDependencies` in `package.json`**: the Pages workflow's `npm install` failed on Ubuntu with `EBADPLATFORM` because `fsevents` is darwin-only and was listed as a hard dependency. Marking it optional lets Linux CI skip it cleanly while keeping it available on macOS for local dev. Regenerated `package-lock.json` to match.
 - **Stage `src/data/` in `_site/` for Pages deploy**: the build script only copied `src/styles/`, so the deployed game errored with "Error loading game. Check console." because `loadNameLists`, `loadNCAASchools`, `loadNFLTeams`, and `loadEvents` all `fetch('src/data/...')` for CSV/JSON content. `build_github_pages.sh` now also copies `src/data/` into the staged artifact.
 
+### Documentation
+
+- **Refreshed `docs/CODE_ARCHITECTURE.md` and `docs/FILE_STRUCTURE.md`** to match the current repo: documented the new `src/simulator/` play-by-play engine and its bridge through `src/simulator/adapter.ts`; the cohesion-split `src/weekly/` tree (`season_lifecycle`, `week_phases`, `game_handler`, `playoff_handler`, `engine_state`); the `src/social/` Fotomagic feed; the `src/crisis.ts` midseason crisis system; the `src/season_arc.ts` five-phase arc; `src/weekly_choices.ts` plus `src/data/choices/`; `src/data/events/` phase libraries; the moved `src/styles/` CSS modules; and supporting helpers (`scout_report`, `recruiting_profile`, `career_stats_view`, `stat_info`, `team_emoji`, `popup`, `dom_utils`). Top-level file map now reflects current root (Brewfile, pip_requirements*.txt, tsconfig.lint.json, LICENSE.* split, _site/, devel/) and removes the stale `styles.css` root entry.
+
 ## 2026-05-12
 
 ### Fixes and Maintenance
