@@ -12,6 +12,10 @@
 
 - **One-time GitHub UI step required**: in repo settings, set Pages source to "GitHub Actions" so the new workflow can publish. Site URL will be `https://vosslab.github.io/sports-life-game/`.
 
+### Fixes and Maintenance
+
+- **Moved `fsevents` from `dependencies` to `optionalDependencies` in `package.json`**: the Pages workflow's `npm install` failed on Ubuntu with `EBADPLATFORM` because `fsevents` is darwin-only and was listed as a hard dependency. Marking it optional lets Linux CI skip it cleanly while keeping it available on macOS for local dev. Regenerated `package-lock.json` to match.
+
 ## 2026-05-12
 
 ### Fixes and Maintenance

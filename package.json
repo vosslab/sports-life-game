@@ -23,8 +23,10 @@
     "test": "tests"
   },
   "dependencies": {
-    "fsevents": "^2.3.2",
     "playwright-core": "^1.59.1"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.2"
   },
   "repository": {
     "type": "git",
