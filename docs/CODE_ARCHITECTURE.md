@@ -32,8 +32,9 @@ and resume-game flows, and delegate yearly gameplay to the year runner.
   validates no age-band overlap, frozen after boot.
 - [src/core/year_runner.ts](../src/core/year_runner.ts): age advancement and handler
   dispatch (`advanceToNextYear`, `startYear`).
-- [src/core/register_handlers.ts](../src/core/register_handlers.ts): boot-time
-  registration of all age-band handlers.
+- [src/plugins/register_plugins.ts](../src/plugins/register_plugins.ts): boot-time
+  registration of all phase plugins via PluginHost (each plugin calls
+  `host.phases.register()` to wire its age-band handlers).
 
 ### Weekly engine
 
@@ -122,9 +123,7 @@ Two simulation paths coexist:
 ### Narrative systems
 
 - [src/events.ts](../src/events.ts): filter events by phase, week, position, and
-  stats; apply choice consequences.
-- [src/data/events/](../src/data/events/): per-phase event libraries
-  (`childhood_1..9`, `youth`, `high_school`, `college`, `nfl`).
+  stats; apply choice consequences from per-phase event libraries.
 - [src/milestones.ts](../src/milestones.ts): one-time career story moments fired
   after game results.
 - [src/season_arc.ts](../src/season_arc.ts): five-phase arc
@@ -273,10 +272,21 @@ childhood (1-13)
 
 ## Extension points
 
-- **New age band**: implement `YearHandler`, register in
-  [src/core/register_handlers.ts](../src/core/register_handlers.ts).
-- **New event**: add JSON under [src/data/events/](../src/data/events/); the
-  filter in [src/events.ts](../src/events.ts) picks it up automatically.
+> **STATUS (M3-C complete):** All four career-phase plugins (childhood, high_school,
+> college, nfl) now register through the plugin host. Phase handlers are registered
+> by each plugin's `register(host)` call in
+> [src/plugins/register_plugins.ts](../src/plugins/register_plugins.ts).
+> See [PLUGIN_ARCHITECTURE.md](PLUGIN_ARCHITECTURE.md) for the plugin contract.
+> Optional feature plugins (e.g., scout_report) follow panel-only pattern with
+> DOM-free index.ts registration. Extension-points rewrite owned by M6.
+
+- **New age band**: implement `YearHandler`, register via plugin under
+  [plugins](../src/plugins/) (create `src/plugins/<phase_name>/`) by calling
+  `host.phases.register(handler)` in the plugin's `register(host)` method. See
+  [PLUGIN_ARCHITECTURE.md](PLUGIN_ARCHITECTURE.md) for worked examples.
+- **New event**: register via plugin by calling `host.events.registerMany(loadEvents())`
+  in the plugin's `register(host)` method (see plugins for examples). Shared events
+  can be loaded from JSON via the core loader in [src/events.ts](../src/events.ts).
 - **New crisis**: add to [src/data/crises.json](../src/data/crises.json); loader
   in [src/data/crises.ts](../src/data/crises.ts).
 - **New weekly choice**: add to the right JSON under

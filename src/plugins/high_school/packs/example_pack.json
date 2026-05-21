@@ -1,0 +1,29 @@
+{
+	"id": "example_pack",
+	"name": "Example Data Pack",
+	"description": "Minimal example pack demonstrating DataPack contract",
+	"version": "1.0.0",
+	"events": [
+		{
+			"id": "example_pack_event",
+			"title": "Example Pack Event",
+			"description": "A minimal event from the example pack",
+			"phase": "high_school",
+			"tags": ["example"],
+			"weight": 1,
+			"is_big_decision": false,
+			"conditions": {},
+			"choices": []
+		}
+	],
+	"activities": [
+		{
+			"id": "example_pack_activity",
+			"name": "Example Pack Activity",
+			"description": "A minimal activity from the example pack",
+			"phases": ["high_school"],
+			"effects": {},
+			"flavorText": "Example activity completed"
+		}
+	]
+}

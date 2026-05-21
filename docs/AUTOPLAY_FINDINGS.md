@@ -36,8 +36,7 @@ events). "Activities" are choices-panel buttons (Game Day, activity selections).
 | 21 | College senior | 46 | 28 | 5 | 13 |
 | 22 | NFL rookie | 1148* | 3 | 1144 | 1 |
 
-(*) Age 22 is inflated by the NFL `advanceWeek` bug -- 1144 failed "Game Day"
-clicks that error without advancing.
+(*) Age 22 inflated in this dataset by the NFL `advanceWeek` bug (fixed as of 2026-05-20; see CHANGELOG.md). Previously 1144 failed "Game Day" clicks erroring without advancing. Current runs progress past age 22 without errors.
 
 ### Observations from click data
 
@@ -74,6 +73,12 @@ clicks that error without advancing.
 - **Files**: `src/weekly/weekly_engine.ts:51`, `src/season/season_model.ts:68-78`
 - **Fix**: Before calling `advanceWeek()`, simulate (auto-resolve) all non-player
   games for the current week, marking them as `'final'`.
+- **Cross-reference (2026-05-20)**: investigator confirmed this is a
+  pre-existing bug in `src/weekly/season_lifecycle.ts:77-127`
+  (`advanceToNextWeek` is missing a `simulateNonPlayerGames` call). It
+  surfaces now only because the headless-Chromium fetch fix (see
+  [docs/CHANGELOG.md](CHANGELOG.md) 2026-05-20) unblocks autoplay reaching
+  age 22. A separate fix is queued as WP-NFL-WEEK1.
 
 ## Duplicate content bugs
 

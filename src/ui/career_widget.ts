@@ -3,9 +3,26 @@
 // Exports updateCareerTab and updateSeasonCareer to display career progress,
 // awards, and phase-specific information.
 
+import type { PluginHost } from '../plugins/plugin_host.js';
 import type { Player } from '../player.js';
+import type { CareerContext } from '../core/year_handler.js';
 import { renderCareerStatsTable } from '../career_stats_view.js';
 import { formatMoney } from './ui_utils.js';
+
+//============================================
+// Module-level plugin host (set during app initialization)
+let pluginHost: PluginHost | null = null;
+
+export function setCareerPluginHost(host: PluginHost): void {
+	pluginHost = host;
+}
+
+// Module-level context (set during app gameplay)
+let currentContext: CareerContext | null = null;
+
+export function setCurrentCareerContext(ctx: CareerContext): void {
+	currentContext = ctx;
+}
 
 //============================================
 // Update the career tab with phase-appropriate career info
@@ -19,7 +36,17 @@ export function updateCareerTab(player: Player): void {
 
 	// Phase-specific content
 	if (player.phase === 'high_school') {
-		renderHSCareer(content, player);
+		if (!pluginHost) {
+			throw new Error('PluginHost not initialized: updateCareerTab called for high_school before setCareerPluginHost()');
+		}
+		if (!currentContext) {
+			throw new Error('Career context not initialized: updateCareerTab called before setCurrentCareerContext()');
+		}
+		const hsCareerPanel = pluginHost.ui.getAllPanels().find((p) => p.panelId === 'high_school_career');
+		if (!hsCareerPanel) {
+			throw new Error('high_school_career panel not registered');
+		}
+		hsCareerPanel.render(currentContext);
 	} else if (player.phase === 'college') {
 		renderCollegeCareer(content, player);
 	} else if (player.phase === 'nfl') {
@@ -117,35 +144,6 @@ export function updateSeasonCareer(
 	}
 }
 
-//============================================
-// High school career rendering
-function renderHSCareer(container: HTMLElement, player: Player): void {
-	addCareerRow(container, 'Recruiting Stars', getStarDisplay(player.recruitingStars));
-	if (player.age < 16) {
-		addCareerNote(container, 'Recruiting updates start in your junior year.');
-	}
-
-	// Show offers if any
-	if (player.collegeOffers.length > 0) {
-		addCareerRow(container, 'Offers', player.collegeOffers.length.toString());
-		// Show top offer
-		const topOffer = player.collegeOffers[0];
-		addCareerRow(container, 'Top Offer', topOffer);
-	} else {
-		addCareerRow(container, 'Offers', 'None yet');
-	}
-
-	// Big decisions
-	if (player.bigDecisions.length > 0) {
-		addCareerSection(container, 'Key Decisions');
-		for (const decision of player.bigDecisions) {
-			addCareerNote(container, decision);
-		}
-	}
-
-	// Per-season stat history (HS-only rows + current season if HS)
-	renderCareerStatsTable(container, player, 'high_school');
-}
 
 //============================================
 // College career rendering

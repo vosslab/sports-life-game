@@ -80,7 +80,88 @@ src/
 |  +- year_handler.ts      YearHandler, CareerContext, SeasonConfig interfaces
 |  +- year_registry.ts     Age-to-handler map with overlap validation
 |  +- year_runner.ts       Age advancement and handler dispatch
-|  `- register_handlers.ts Boot-time registration of all 13 handlers
+|  +- game_context.ts      GameContext type alias for CareerContext (used by plugin hooks)
+|  +- choice_option.ts     Shared ChoiceOption type
+|  +- rng.ts               Seeded mulberry32 RNG (rand, randInt, randRange)
++- plugins/                Plugin host facade and plugin tree (M1+)
+|  +- plugin_host.ts       PluginHost facade and 8 registry contract interfaces
+|  +- build_host.ts        buildPluginHost() factory
+|  +- register_plugins.ts  registerAllPlugins(host) boot site
+|  +- registries/          8 thin registry implementations
+|  |  +- phase_registry.ts
+|  |  +- event_registry.ts
+|  |  +- choice_registry.ts
+|  |  +- rules_registry.ts
+|  |  +- ui_registry.ts
+|  |  +- lifecycle_registry.ts
+|  |  +- activity_registry.ts
+|  |  `- data_pack_registry.ts
+|  +- childhood/           M3-A vertical-slice plugin (ages 1-13)
+|  |  +- index.ts          childhoodPlugin entry, register() call site
+|  |  +- phase_handler.ts  3 phase handlers (kid_years, peewee, travel)
+|  |  +- activities.json   Childhood activity data
+|  |  +- activities_loader.ts  Fetch + cache
+|  |  +- events_loader.ts  Fetch + cache childhood events
+|  |  +- events/
+|  |  |  `- childhood.json  Merged 9 age-specific event files
+|  |  +- lifecycle/
+|  |  |  +- age_5_first_football.ts  AgeHook at age 5
+|  |  |  +- entry.ts        PhaseStartHook at phase start
+|  |  |  `- hooks.ts        Registration aggregator
+|  |  `- panels/
+|  |     `- career_panel.ts Career-tab panel (minimal status-only)
+|  +- high_school/         M2 vertical-slice plugin (ages 14-17)
+|  |  +- index.ts          highSchoolPlugin GamePlugin entry, register() call site
+|  |  +- phase_handler.ts  Registers hsFroshSophHandler and hsVarsityHandler via host.phases
+|  |  +- activities.json   HS activity data (authoritative source)
+|  |  +- activities_loader.ts  Fetch + cache HS activities
+|  |  +- tabs.ts           6 tab registrations (life/stats/activities/team/career/social)
+|  |  +- events_loader.ts  Fetch + cache HS events
+|  |  +- events/
+|  |  |  `- high_school.json  HS event data (moved via git mv)
+|  |  +- lifecycle/
+|  |  |  +- drivers_permit.ts  AgeHook at age 15
+|  |  |  +- hs_entry.ts        PhaseStartHook for HS phase entry
+|  |  |  `- hooks.ts           Lifecycle registration aggregator
+|  |  +- panels/
+|  |  |  `- career_panel.ts Career-tab panel using ctx.getPlayer() accessor
+|  |  `- packs/
+|  |     +- example_pack.json  DataPack M5 proof example
+|  |     `- example_pack_loader.ts  Fetch + cache example pack
+|  +- college/             M3-B vertical-slice plugin (ages 18-21)
+|  |  +- index.ts          collegePlugin entry, register() call site
+|  |  +- phase_handler.ts  3 phase handlers
+|  |  +- activities.json   College activity data
+|  |  +- activities_loader.ts  Fetch + cache
+|  |  +- events_loader.ts  Fetch + cache college events
+|  |  +- events/
+|  |  |  `- college.json  College event data
+|  |  +- lifecycle/
+|  |  |  +- age_20_nfl_declaration.ts  AgeHook at age 20
+|  |  |  +- entry.ts        PhaseStartHook at phase start
+|  |  |  `- hooks.ts        Registration aggregator
+|  |  `- panels/
+|  |     `- career_panel.ts Career-tab panel
+|  +- nfl/                 M3-C vertical-slice plugin (ages 22-39)
+|  |  +- index.ts          nflPlugin entry, register() call site
+|  |  +- phase_handler.ts  5 phase handlers
+|  |  +- activities.json   NFL activity data
+|  |  +- activities_loader.ts  Fetch + cache
+|  |  +- events_loader.ts  Fetch + cache NFL events
+|  |  +- events/
+|  |  |  `- nfl.json      NFL event data
+|  |  +- lifecycle/
+|  |  |  +- age_22_draft_day.ts  AgeHook at age 22
+|  |  |  +- entry.ts             PhaseStartHook at phase start
+|  |  |  +- retirement.ts        CareerEndHook at retirement
+|  |  |  `- hooks.ts             Registration aggregator
+|  |  `- panels/
+|  |     `- career_panel.ts Career-tab panel
+|  `- scout_report/        M6-A optional feature plugin (panel-only proof)
+|     +- index.ts          scoutReportPlugin entry, register() only (DOM-free)
+|     +- scout_report_logic.ts  Report generation logic
+|     `- panels/
+|        `- scout_report_panel.ts Scout report render using ctx.getPlayer()
 +- weekly/                 Weekly engine (split by cohesion, 2026-05)
 |  +- weekly_engine.ts     Barrel exports for shared engine entry points
 |  +- season_lifecycle.ts  startSeason / endSeason outer boundary
@@ -145,8 +226,7 @@ src/
 |  +- schema.ts            CURRENT_SCHEMA_VERSION, SAVE_KEY, SaveEnvelope
 |  +- validate.ts          validateRawSave: ok | reset | empty
 |  `- index.ts             saveGame, loadGame, deleteSave, hasSave
-+- view_state/             Simulation -> render contract
-|  `- game_view_state.ts   GameViewState, HeaderView, StatBarView, CareerView
++- view_state/             (archived; see archive/disconnected_features/view_state/)
 +- render/                 Pull-model render layer
 |  `- story_log.ts         Collapsible age/week story-log DOM helpers
 +- ui/                     Widget modules (split from monolithic ui.ts)
@@ -202,6 +282,19 @@ src/
 +- legacy/                 Career end-of-life flow
 |  `- retirement.ts        Hall of Fame check, career summary, restart
 `- data/                   Static data files
+```
+
+### Phase folder architecture decision (M3)
+
+The four phase folders (childhood, high_school, college, nfl_handlers) remain
+in the tree under `src/` even though handler registration moved to
+`src/plugins/` in M3. The cost of moving and deleting ~95 lines of handler
+code outweighs the architectural benefit of colocation. Handler implementations
+stay under their phase folders; each phase plugin's `register(host)` method
+imports its handlers and wires them via `host.phases.register()`. This
+decoupling is acceptable and maintains stable code organization across M1-M3.
+
+```text
    +- avatar_parts.ts      SVG part definitions and color palettes
    +- positions.json       Position config (stat weights, sizes, outputs)
    +- teams.json           Team name pools (NFL, Power 5, G5, FCS)
@@ -214,7 +307,7 @@ src/
    +- ncaa_schools-FBS.csv FBS schools with conferences
    +- ncaa_schools-FCS.csv FCS schools with conferences
    +- nfl_teams.csv        NFL team roster
-   +- events/              Phase event libraries (childhood_1..9, youth, high_school, college, nfl)
+   +- events/              Shared event data (phase events now also in src/plugins/<phase>/events/)
    `- choices/             Per-arc weekly-choice catalogs
       +- preseason.{json,ts}
       +- opening.{json,ts}
@@ -243,11 +336,6 @@ tools/
 +- sim_conference_season.ts Conference simulation harness
 +- sim_distribution.ts     Output distribution diagnostics
 +- sim_positions.ts        Per-position stat distribution
-+- dead_code_scan.ts       Find unused functions in reachable code
-+- dead_exports_to_json.ts Export unused exports as JSON
-+- find_dead_branches.ts   Scan for dead code branches (literal if false)
-+- find_duplicates.ts      Find duplicate function definitions
-+- find_unused_deps.ts     Find unused npm dependencies
 +- sim_conf/               Conference sim configs
 `- extract_avataaars.py    Pull Avataaars parts into avatar_parts.ts
 
@@ -300,8 +388,8 @@ devel/
 
 ## Where to add new work
 
-- **New age bands**: implement `YearHandler` in the right phase subdirectory, register in [src/core/register_handlers.ts](../src/core/register_handlers.ts).
-- **New events**: add JSON entries under [src/data/events/](../src/data/events/) and let [src/events.ts](../src/events.ts) auto-filter.
+- **New age bands**: implement `YearHandler` in a plugin under [plugins](../src/plugins/) (create `src/plugins/<phase_name>/`), then call `host.phases.register(handler)` from the plugin's `register(host)` method. See [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md) for examples.
+- **New events**: add JSON entries to src/data and let [src/events.ts](../src/events.ts) auto-filter.
 - **New positions**: extend `Position` in [src/player/identity.ts](../src/player/identity.ts), add a StatLine in [src/week_sim/stat_lines.ts](../src/week_sim/stat_lines.ts), and add a clutch pool in [src/clutch/](../src/clutch/) if a new bucket.
 - **Play-by-play rules**: add a rule module under [src/simulator/rules/](../src/simulator/rules/) and wire it in via the league rules interface.
 - **Shared logic**: add to [src/shared/](../src/shared/) for cross-handler utilities.
@@ -314,5 +402,4 @@ devel/
 
 ## Known gaps
 
--  violates the SCREAMING_SNAKE_CASE rule from [REPO_STYLE.md](REPO_STYLE.md). Rename via `git mv` before next docs pass.
 - `docs/superpowers/` and `docs/archive/` are project artifact directories; verify whether they should remain under `docs/` or move to `tools/` / a separate planning directory.

@@ -16,7 +16,6 @@ Then restore any necessary imports and integration points that reference the fea
 
 Files are organized here to mirror their original `src/` structure:
 
-- `scout_report.ts` - NFL draft scout reports for college players
 - `render/render_state.ts` - Pull-model render layer over GameViewState
 - `simulator/engine/clock.ts` - Game clock runoffs, quarter transitions, and time tracking
 - `simulator/engine/clutch_checkpoint.ts` - Bridge between game engine and clutch moment system

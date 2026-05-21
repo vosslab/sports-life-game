@@ -8,17 +8,28 @@ import type { Player } from './player.js';
 import type { GameEvent } from './events.js';
 import type { CareerContext } from './core/year_handler.js';
 import { saveGame, loadGame, hasSave, deleteSave } from './save.js';
-import { loadEvents } from './events.js';
 import { loadNCAASchools, type NCAASchool } from './ncaa.js';
 import { loadNFLTeams } from './nfl.js';
 import {
-	switchTab, hideTabBar, showTabBar, initSidebarListener,
+	switchTab, hideTabBar, showTabBar, initSidebarListener, setTabsPluginHost,
 } from './tabs.js';
+import { setPluginHost } from './activities.js';
+import { setCareerPluginHost, setCurrentCareerContext } from './ui/career_widget.js';
 import { initTabManager, syncTabsToPhase } from './tab_manager.js';
 import {
-	initGameLoop, type GameContext, refreshActivitiesTabForCurrentPhase, getWeekState,
+	initGameLoop, type GameLoopContext, refreshActivitiesTabForCurrentPhase, getWeekState,
 } from './game_loop.js';
-import { registerAllHandlers } from './core/register_handlers.js';
+import { buildPluginHost } from './plugins/build_host.js';
+import { registerAllPlugins } from './plugins/register_plugins.js';
+import { preloadChildhoodActivities } from './plugins/childhood/activities_loader.js';
+import { preloadChildhoodEvents } from './plugins/childhood/events_loader.js';
+import { preloadHsActivities } from './plugins/high_school/activities_loader.js';
+import { preloadHsEvents } from './plugins/high_school/events_loader.js';
+import { preloadExamplePack } from './plugins/high_school/packs/example_pack_loader.js';
+import { preloadCollegeActivities } from './plugins/college/activities_loader.js';
+import { preloadCollegeEvents } from './plugins/college/events_loader.js';
+import { preloadNflActivities } from './plugins/nfl/activities_loader.js';
+import { preloadNflEvents } from './plugins/nfl/events_loader.js';
 import { advanceToNextYear, startYear } from './core/year_runner.js';
 import { getSeasonRecord, getActiveSeason, getActiveWeekState, initializeWeeklyEngine } from './weekly/weekly_engine.js';
 import * as ui from './ui/index.js';
@@ -81,6 +92,7 @@ function refreshDashboard(): void {
 
 function buildCareerContext(): void {
 	careerCtx = {
+		getPlayer: () => currentPlayer as Player,
 		events: allEvents,
 		ncaaSchools,
 		clearStory: () => {},
@@ -112,6 +124,7 @@ function buildCareerContext(): void {
 		showTabBar: () => showTabBar(),
 		syncTabsToPhase: (phase) => syncTabsToPhase(phase),
 	};
+	setCurrentCareerContext(careerCtx);
 }
 
 //============================================
@@ -201,7 +214,7 @@ async function initGame(): Promise<void> {
 	initSidebarListener();
 	ui.initMainActionBar();
 
-	const gameContext: GameContext = {
+	const gameContext: GameLoopContext = {
 		getPlayer: () => currentPlayer!,
 		getAllEvents: () => allEvents,
 		save: () => { if (currentPlayer) saveGame(currentPlayer); },
@@ -212,8 +225,22 @@ async function initGame(): Promise<void> {
 	};
 	initGameLoop(gameContext);
 
-	registerAllHandlers();
-	allEvents = await loadEvents();
+	const host = buildPluginHost();
+	// Preload all plugin assets (activities, events, packs) before registration so plugin register() calls are synchronous.
+	await preloadChildhoodActivities();
+	await preloadChildhoodEvents();
+	await preloadHsActivities();
+	await preloadHsEvents();
+	await preloadExamplePack();
+	await preloadCollegeActivities();
+	await preloadCollegeEvents();
+	await preloadNflActivities();
+	await preloadNflEvents();
+	registerAllPlugins(host);
+	setPluginHost(host);
+	setTabsPluginHost(host);
+	setCareerPluginHost(host);
+	allEvents = Array.from(host.events.getAll());
 	buildCareerContext();
 
 	hideTabBar();
@@ -278,11 +305,12 @@ async function initGame(): Promise<void> {
 // Entry point
 
 document.addEventListener('DOMContentLoaded', () => {
-	initGame().catch((error) => {
+	initGame().catch((error: unknown) => {
 		console.error('Game initialization failed:', error);
 		const panel = document.getElementById('choices-panel');
 		if (panel) {
-			panel.innerHTML = '<p style="color:red;">Error loading game. Check console.</p>';
+			const message = error instanceof Error ? error.message : 'unknown error';
+			panel.innerHTML = '<p style="color:red;">Error loading game: ' + message + '</p>';
 		}
 	});
 });

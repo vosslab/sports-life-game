@@ -7,7 +7,7 @@ import { LeagueSeason } from '../season/season_model.js';
 import { PlayoffBracket, createHSPlayoffBracket, createCollegePlayoffBracket, createNFLPlayoffBracket } from '../season/playoff_bracket.js';
 import { PlayoffSeed } from '../season/season_types.js';
 import { getArcPhase, getPhaseTransitionText } from '../season_arc.js';
-import { getPlayerOpponentName } from '../season/season_simulator.js';
+import { getPlayerOpponentName, simulateNonPlayerGames } from '../season/season_simulator.js';
 import { Activity, createWeekState } from '../activities.js';
 import { activeEngine, setActiveEngine, EngineState } from './engine_state.js';
 import * as weekPhases from './week_phases.js';
@@ -78,6 +78,9 @@ export function advanceToNextWeek(player: Player, ctx: CareerContext): void {
 	if (!activeEngine) {
 		return;
 	}
+
+	// Ensure all non-player games are finalized before advancing
+	simulateNonPlayerGames(activeEngine.season);
 
 	// Advance the season week (strict: refuses if games are unfinished)
 	const hasMoreWeeks = activeEngine.season.advanceWeek();

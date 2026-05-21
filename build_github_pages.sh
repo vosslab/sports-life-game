@@ -30,13 +30,15 @@ if [ ! -f dist/main.js ]; then
 fi
 
 # Stage Pages artifact under _site/ for GitHub Actions upload.
-# Mirrors the repo-root layout the browser expects: index.html + src/styles + dist.
+# Mirrors the repo-root layout the browser expects: index.html + src/styles + dist + src/plugins.
 rm -rf _site
 mkdir -p _site/src
 cp index.html _site/index.html
 cp -R src/styles _site/src/styles
 cp -R src/data _site/src/data
 cp -R dist _site/dist
+# Copy plugin JSON files (activities and events needed by loaders)
+cp -R src/plugins _site/src/plugins
 touch _site/.nojekyll
 
 # Cache-bust the staged index.html so deploys serve fresh JS without

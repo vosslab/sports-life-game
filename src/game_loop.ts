@@ -19,9 +19,9 @@ import { switchTab, hideTabBar, showTabBar } from './tabs.js';
 import * as ui from './ui/index.js';
 
 //============================================
-// GameContext: main.ts provides this so phase modules can access shared
+// GameLoopContext: main.ts provides this so phase modules can access shared
 // state without importing main.ts (avoids circular deps)
-export interface GameContext {
+export interface GameLoopContext {
 	// Player access
 	getPlayer(): Player;
 	// Event pool
@@ -36,12 +36,12 @@ export interface GameContext {
 }
 
 // Module-level context set once by main.ts at init
-let ctx: GameContext | null = null;
+let ctx: GameLoopContext | null = null;
 let currentOnGameDay: (() => void) | null = null;
 
 //============================================
 // Initialize the game loop engine with context from main.ts
-export function initGameLoop(context: GameContext): void {
+export function initGameLoop(context: GameLoopContext): void {
 	ctx = context;
 }
 

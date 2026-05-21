@@ -1,5 +1,6 @@
 // tabs.ts - tab bar state, switching logic, and phase-adaptive configuration
 
+import type { PluginHost } from './plugins/plugin_host.js';
 import { CareerPhase } from './player.js';
 
 //============================================
@@ -12,49 +13,12 @@ export interface TabConfig {
 }
 
 //============================================
-// Phase-to-tab mapping
-const PHASE_TABS: Record<CareerPhase, TabConfig[]> = {
-	childhood: [
-		{ id: 'life', label: 'Life' },
-		{ id: 'stats', label: 'Stats' },
-		{ id: 'activities', label: 'Activities' },
-	],
-	youth: [
-		{ id: 'life', label: 'Life' },
-		{ id: 'stats', label: 'Stats' },
-		{ id: 'activities', label: 'Activities' },
-	],
-	high_school: [
-		{ id: 'life', label: 'Life' },
-		{ id: 'stats', label: 'Stats' },
-		{ id: 'activities', label: 'Activities' },
-		{ id: 'team', label: 'Team' },
-		{ id: 'career', label: 'Career' },
-		{ id: 'social', label: 'Social' },
-	],
-	college: [
-		{ id: 'life', label: 'Life' },
-		{ id: 'stats', label: 'Stats' },
-		{ id: 'activities', label: 'Activities' },
-		{ id: 'team', label: 'Team' },
-		{ id: 'career', label: 'Career' },
-		{ id: 'social', label: 'Social' },
-	],
-	nfl: [
-		{ id: 'life', label: 'Life' },
-		{ id: 'stats', label: 'Stats' },
-		{ id: 'activities', label: 'Activities' },
-		{ id: 'team', label: 'Team' },
-		{ id: 'career', label: 'Career' },
-		{ id: 'social', label: 'Social' },
-	],
-	legacy: [
-		{ id: 'life', label: 'Life' },
-		{ id: 'stats', label: 'Stats' },
-		{ id: 'career', label: 'Career' },
-		{ id: 'social', label: 'Social' },
-	],
-};
+// Module-level plugin host (set during app initialization)
+let pluginHost: PluginHost | null = null;
+
+export function setTabsPluginHost(host: PluginHost): void {
+	pluginHost = host;
+}
 
 //============================================
 // All possible tab panel IDs for DOM queries
@@ -73,9 +37,52 @@ export function setOnTabSwitch(callback: (tabId: TabId) => void): void {
 }
 
 //============================================
+// Helper: extract generic tab name from phase-scoped tabId
+// Maps 'hs_life' -> 'life', 'nfl_stats' -> 'stats', etc.
+// Plugins register tabs with phase-scoped ids (e.g. 'hs_life') to allow
+// multiple plugins to own a 'life' tab without colliding in the UI registry.
+function stripPhasePrefix(tabId: string): TabId {
+	const parts = tabId.split('_');
+	if (parts.length >= 2) {
+		const genericName = parts.slice(1).join('_');
+		if (['life', 'stats', 'activities', 'team', 'career', 'social'].includes(genericName)) {
+			return genericName as TabId;
+		}
+	}
+	return tabId as TabId;
+}
+
+//============================================
 // Get the tab configuration for a given career phase
 export function getTabsForPhase(phase: CareerPhase): TabConfig[] {
-	return PHASE_TABS[phase];
+	if (phase === 'childhood' || phase === 'high_school' || phase === 'college' || phase === 'nfl') {
+		if (!pluginHost) {
+			throw new Error(`PluginHost not initialized: getTabsForPhase called for ${phase} before setTabsPluginHost()`);
+		}
+		const tabRegistrations = pluginHost.ui.getAllTabs().filter(
+			(tab) => tab.availableInPhase(phase),
+		);
+		return tabRegistrations.map((reg) => ({
+			id: stripPhasePrefix(reg.tabId),
+			label: reg.label,
+		}));
+	}
+	// Non-plugin phases (youth, legacy) use minimal static tabs
+	if (phase === 'youth') {
+		return [
+			{ id: 'life', label: 'Life' },
+			{ id: 'stats', label: 'Stats' },
+		];
+	}
+	if (phase === 'legacy') {
+		return [
+			{ id: 'life', label: 'Life' },
+			{ id: 'stats', label: 'Stats' },
+			{ id: 'career', label: 'Career' },
+		];
+	}
+	// Fallback for unknown phases (should not reach here)
+	throw new Error(`Unknown career phase: ${phase}`);
 }
 
 //============================================

@@ -1,0 +1,43 @@
+[
+	{
+		"id": "col_position_drills",
+		"name": "Position Drills",
+		"description": "Intensive position-specific work. Tiring but effective.",
+		"phases": ["college"],
+		"effects": { "technique": 3, "health": -1 },
+		"flavorText": "The position coach ran you through advanced drills. You feel sharper."
+	},
+	{
+		"id": "col_film_study",
+		"name": "Film Study",
+		"description": "Break down opponent film. Pure mental gain.",
+		"phases": ["college"],
+		"effects": { "footballIq": 2 },
+		"flavorText": "Two hours of film. You spotted three tendencies nobody else caught."
+	},
+	{
+		"id": "col_nil_meeting",
+		"name": "NIL Meeting",
+		"description": "Meet with a brand rep. Money but distracting.",
+		"phases": ["college"],
+		"effects": { "discipline": -1 },
+		"unlockHint": "Available in sophomore year",
+		"flavorText": "Signed a local deal. Not huge money but it feels real."
+	},
+	{
+		"id": "col_team_bonding",
+		"name": "Team Bonding",
+		"description": "Hang with teammates. Good for chemistry.",
+		"phases": ["college"],
+		"effects": { "confidence": 2 },
+		"flavorText": "Team dinner at the local spot. The locker room feels tighter."
+	},
+	{
+		"id": "col_recovery",
+		"name": "Recovery Session",
+		"description": "Sports medicine and rest. No stat gains.",
+		"phases": ["college"],
+		"effects": { "health": 3 },
+		"flavorText": "Cold tub, stretching, and a nap. Your body thanks you."
+	}
+]

@@ -80,6 +80,8 @@ export interface YearHandler {
 // Career context: story-oriented output only
 // Handlers must NOT directly manipulate tabs or low-level DOM.
 export interface CareerContext {
+	// Read accessor for plugin panels (approved M2 exception to M1 freeze; no further additions without architect ruling)
+	getPlayer(): Player;
 	// Event pool
 	events: GameEvent[];
 	// NCAA school data (for college offers)

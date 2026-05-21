@@ -52,14 +52,18 @@ const choicePools: Record<ArcPhase, WeeklyChoice[]> = {
 export async function loadChoicePools(): Promise<void> {
 	const phases: ArcPhase[] = ['preseason', 'opening', 'midseason', 'stretch', 'postseason'];
 
-	for (const phase of phases) {
-		const response = await fetch(`src/data/choices/${phase}.json`);
+	// Use relative path that resolves from page root
+	const fetchPromises = phases.map(async (phase) => {
+		const url = `/src/data/choices/${phase}.json`;
+		const response = await fetch(url);
 		if (!response.ok) {
 			throw new Error(`Failed to load choices for ${phase}: ${response.status}`);
 		}
 		const data = await response.json() as WeeklyChoice[];
 		choicePools[phase] = data;
-	}
+	});
+
+	await Promise.all(fetchPromises);
 }
 
 //============================================

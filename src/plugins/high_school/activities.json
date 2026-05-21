@@ -1,0 +1,42 @@
+[
+	{
+		"id": "hs_extra_practice",
+		"name": "Extra Practice",
+		"description": "Stay late and work on drills. Pushes your body.",
+		"phases": ["high_school"],
+		"effects": {"technique": 2, "health": -1},
+		"flavorText": "You stayed after practice. Your hands are sore but your routes are crisper."
+	},
+	{
+		"id": "hs_weight_room",
+		"name": "Weight Room",
+		"description": "Hit the weights. Builds strength but tiring.",
+		"phases": ["high_school"],
+		"effects": {"athleticism": 2, "health": -1},
+		"flavorText": "New personal record on the bench. Coach nodded approvingly."
+	},
+	{
+		"id": "hs_study_hall",
+		"name": "Study Hall",
+		"description": "Focus on academics. No football benefit this week.",
+		"phases": ["high_school"],
+		"effects": {"discipline": 2},
+		"flavorText": "You aced the history test. Coach likes players who handle their business."
+	},
+	{
+		"id": "hs_hang_with_friends",
+		"name": "Hang with Friends",
+		"description": "Relax and have fun. Good for morale, not for focus.",
+		"phases": ["high_school"],
+		"effects": {"confidence": 2, "discipline": -1},
+		"flavorText": "Friday night with the crew. You needed that."
+	},
+	{
+		"id": "hs_rest_recover",
+		"name": "Rest and Recover",
+		"description": "Take it easy. Heals the body, but no stat gains.",
+		"phases": ["high_school"],
+		"effects": {"health": 3},
+		"flavorText": "Full night of sleep, ice bath, and stretching. Body feels good."
+	}
+]

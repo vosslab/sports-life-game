@@ -238,6 +238,9 @@ export function simulateRestOfSeason(player: Player, ctx: CareerContext): void {
 
 	// Loop through remaining weeks
 	while (true) {
+		// Ensure all non-player games are finalized before advancing
+		simulateNonPlayerGames(activeEngine.season);
+
 		const hasMoreWeeks = activeEngine.season.advanceWeek();
 		player.currentWeek = activeEngine.season.getCurrentWeek();
 

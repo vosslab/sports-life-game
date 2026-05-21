@@ -46,24 +46,6 @@ export interface GameEvent {
 }
 
 //============================================
-// Load events from per-phase JSON files and combine into one array
-export async function loadEvents(): Promise<GameEvent[]> {
-	const phases = [
-		'childhood_1', 'childhood_2', 'childhood_3',
-		'childhood_4', 'childhood_5', 'childhood_6',
-		'childhood_7', 'childhood_8', 'childhood_9',
-		'youth', 'high_school', 'college', 'nfl',
-	];
-	// Fetch all phase files in parallel
-	const fetches = phases.map((phase) =>
-		fetch(`src/data/events/${phase}.json`).then((r) => r.json())
-	);
-	const arrays: GameEvent[][] = await Promise.all(fetches);
-	const events: GameEvent[] = arrays.flat();
-	return events;
-}
-
-//============================================
 // Filter events by phase, week, position, flags, and stat conditions
 export function filterEvents(
 	events: GameEvent[],

@@ -74,17 +74,22 @@ Sequence (do not start until M6/M7 are done):
 6. Update GitHub Pages docs and scripts (`build_github_pages.sh`,
    `run_web_server.sh`) to serve `dist/` instead of repo root.
 
-## Reactivation candidates
+## Plugin architecture status
 
-Seven disconnected features are archived in `archive/disconnected_features/` (see `docs/TODO.md`). These are planned re-wiring work:
+As of M6-A, the plugin host pattern is complete and proven. All four career-phase plugins (childhood, high_school, college, nfl) are wired and functional. Optional feature plugins (scout_report) are shipping as panel-only proofs with clean DOM boundary (index.ts registers only, panels/ handles render).
 
-- `scout_report.ts` - Wire draft scout reports into player career feedback loop
+## Reactivation candidates (optional plugins)
+
+Five disconnected features remain archived in `archive/disconnected_features/` (see `docs/TODO.md`). These are candidates for future optional plugin re-wiring (post-M6):
+
 - `render/render_state.ts` - Switch render layer to dirty-flag optimization model (deferred pending profiling needs)
 - `simulator/engine/clock.ts` - Wire clock refinements (two-minute warning, timeout tracking, play clock)
 - `simulator/engine/clutch_checkpoint.ts` - Wire clutch moment UI and decision system
 - `simulator/season/rankings.ts` - Wire weekly rankings display alongside conference standings
 - `simulator/season/sim_non_player_games.ts` - Switch non-player game simulation to play-by-play engine for consistency
 - `simulator/season/weekly_narrative.ts` - Wire weekly narrative generation into league display
+
+Pattern for reactivating any: create `src/plugins/<feature>/`, move/adapt logic files, create panels/ with DOM boundary, register in `src/plugins/register_plugins.ts`. Scout Report (M6-A) exemplifies the pattern.
 
 ## Intentionally not started
 

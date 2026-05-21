@@ -25,6 +25,8 @@ const TEST_MODULES: readonly string[] = [
 	'tests/check_math_random_budget.ts',
 	'tests/check_dom_imports.ts',
 	'tests/test_choice_schemas.ts',
+	'tests/test_plugin_host.ts',
+	'tests/check_plugin_boundaries.ts',
 ];
 
 //============================================
