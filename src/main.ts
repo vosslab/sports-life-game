@@ -11,33 +11,34 @@ import { saveGame, loadGame, hasSave, deleteSave } from './save.js';
 import { loadNCAASchools, type NCAASchool } from './ncaa.js';
 import { loadNFLTeams } from './nfl.js';
 import {
-	switchTab, hideTabBar, showTabBar, initSidebarListener, setTabsPluginHost,
+	switchTab,
+	hideTabBar,
+	showTabBar,
+	initSidebarListener,
+	setTabsPluginHost,
 } from './tabs.js';
 import { setPluginHost } from './activities.js';
 import { setCareerPluginHost, setCurrentCareerContext } from './ui/career_widget.js';
 import { initTabManager, syncTabsToPhase } from './tab_manager.js';
 import {
-	initGameLoop, type GameLoopContext, refreshActivitiesTabForCurrentPhase, getWeekState,
+	initGameLoop,
+	type GameLoopContext,
+	refreshActivitiesTabForCurrentPhase,
+	getWeekState,
 } from './game_loop.js';
 import { buildPluginHost } from './plugins/build_host.js';
 import { registerAllPlugins } from './plugins/register_plugins.js';
-import { preloadChildhoodActivities } from './plugins/childhood/activities_loader.js';
-import { preloadChildhoodEvents } from './plugins/childhood/events_loader.js';
-import { preloadHsActivities } from './plugins/high_school/activities_loader.js';
-import { preloadHsEvents } from './plugins/high_school/events_loader.js';
-import { preloadExamplePack } from './plugins/high_school/packs/example_pack_loader.js';
-import { preloadCollegeActivities } from './plugins/college/activities_loader.js';
-import { preloadCollegeEvents } from './plugins/college/events_loader.js';
-import { preloadNflActivities } from './plugins/nfl/activities_loader.js';
-import { preloadNflEvents } from './plugins/nfl/events_loader.js';
 import { advanceToNextYear, startYear } from './core/year_runner.js';
-import { getSeasonRecord, getActiveSeason, getActiveWeekState, initializeWeeklyEngine } from './weekly/weekly_engine.js';
+import {
+	getSeasonRecord,
+	getActiveSeason,
+	getActiveWeekState,
+	initializeWeeklyEngine,
+} from './weekly/weekly_engine.js';
 import * as ui from './ui/index.js';
 import { applyPalette } from './theme.js';
 import type { Activity } from './activities.js';
-import {
-	addStoryHeadline, addStoryText, clearStory, hardClearStory,
-} from './render/story_log.js';
+import { addStoryHeadline, addStoryText, clearStory, hardClearStory } from './render/story_log.js';
 import { loadNameLists } from './childhood/name_loader.js';
 import { startNewGameFlow } from './childhood/character_creation.js';
 import { showRetirement } from './legacy/retirement.js';
@@ -101,21 +102,30 @@ function buildCareerContext(): void {
 		addResult: (text) => ui.addResult(text),
 		showChoices: (options) => ui.showChoices(options),
 		waitForInteraction: (title, options) => ui.waitForInteraction(title, options),
-		save: () => { if (currentPlayer) saveGame(currentPlayer); },
-		updateStats: (player) => { ui.updateAllStats(player); refreshDashboard(); },
-		updateHeader: (player) => { ui.updateHeader(player); refreshDashboard(); },
+		save: () => {
+			if (currentPlayer) saveGame(currentPlayer);
+		},
+		updateStats: (player) => {
+			ui.updateAllStats(player);
+			refreshDashboard();
+		},
+		updateHeader: (player) => {
+			ui.updateHeader(player);
+			refreshDashboard();
+		},
 		addStatChange: (text) => ui.addStatChange(text),
 		updateLifeStatus: (record, nextOpponent, extraStatus) =>
 			ui.updateLifeStatus(record, nextOpponent, extraStatus),
 		formatStatLine: (statLine) => ui.formatStatLine(statLine),
-		renderActivitiesTab: (payload) => ui.renderActivitiesTab(
-			payload.activities as Activity[],
-			payload.weekState,
-			payload.isUnlocked,
-			payload.effectPreview,
-			payload.onSelect,
-			payload.goalInfo,
-		),
+		renderActivitiesTab: (payload) =>
+			ui.renderActivitiesTab(
+				payload.activities as Activity[],
+				payload.weekState,
+				payload.isUnlocked,
+				payload.effectPreview,
+				payload.onSelect,
+				payload.goalInfo
+			),
 		hideMainActionBar: () => ui.hideMainActionBar(),
 		showMainActionBar: () => ui.showMainActionBar(),
 		configureMainButtons: (config) => ui.configureMainButtons(config),
@@ -163,11 +173,15 @@ function resumeGame(): void {
 			addStoryText,
 			clearStory,
 			hardClearStory,
-			save: () => { if (currentPlayer) saveGame(currentPlayer); },
+			save: () => {
+				if (currentPlayer) saveGame(currentPlayer);
+			},
 			syncTabsToPhase,
 			switchToLife: () => switchTab('life'),
 			deleteSave,
-			onRestart: () => { initGame(); },
+			onRestart: () => {
+				initGame();
+			},
 		});
 		return;
 	}
@@ -217,7 +231,9 @@ async function initGame(): Promise<void> {
 	const gameContext: GameLoopContext = {
 		getPlayer: () => currentPlayer!,
 		getAllEvents: () => allEvents,
-		save: () => { if (currentPlayer) saveGame(currentPlayer); },
+		save: () => {
+			if (currentPlayer) saveGame(currentPlayer);
+		},
 		clearStory: () => {},
 		addHeadline: (text) => addStoryHeadline(text),
 		addText: (text) => addStoryText(text),
@@ -226,16 +242,8 @@ async function initGame(): Promise<void> {
 	initGameLoop(gameContext);
 
 	const host = buildPluginHost();
-	// Preload all plugin assets (activities, events, packs) before registration so plugin register() calls are synchronous.
-	await preloadChildhoodActivities();
-	await preloadChildhoodEvents();
-	await preloadHsActivities();
-	await preloadHsEvents();
-	await preloadExamplePack();
-	await preloadCollegeActivities();
-	await preloadCollegeEvents();
-	await preloadNflActivities();
-	await preloadNflEvents();
+	// Plugin asset data (activities, events, packs) is bundled at build time, so
+	// register() runs synchronously without any prior preload step.
 	registerAllPlugins(host);
 	setPluginHost(host);
 	setTabsPluginHost(host);
@@ -253,8 +261,7 @@ async function initGame(): Promise<void> {
 			switchTab('life');
 			addStoryHeadline('Welcome Back');
 			addStoryText(
-				`${currentPlayer.firstName} ${currentPlayer.lastName}, ` +
-				`Age ${currentPlayer.age}`,
+				`${currentPlayer.firstName} ${currentPlayer.lastName}, ` + `Age ${currentPlayer.age}`
 			);
 			ui.updateAllStats(currentPlayer);
 			ui.updateHeader(currentPlayer);
@@ -290,7 +297,7 @@ async function initGame(): Promise<void> {
 	addStoryHeadline('Welcome to Gridiron Life');
 	addStoryText(
 		'Your football career begins now. From backyard games to the big leagues, ' +
-		'every choice shapes your story.',
+			'every choice shapes your story.'
 	);
 	ui.waitForInteraction('Gridiron Life', [
 		{

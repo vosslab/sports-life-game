@@ -17,12 +17,11 @@ export function aggregateWinners(seasons: readonly LeagueSeason[]): Map<string, 
 }
 
 //============================================
-export function aggregatePlayerTeamStats(
-	seasons: readonly LeagueSeason[],
-): AggregateStats {
-	const playerTeamName = seasons.length > 0
-		? seasons[0].getTeam('player')?.getDisplayName() ?? 'Player Team'
-		: 'Player Team';
+export function aggregatePlayerTeamStats(seasons: readonly LeagueSeason[]): AggregateStats {
+	const playerTeamName =
+		seasons.length > 0
+			? (seasons[0].getTeam('player')?.getDisplayName() ?? 'Player Team')
+			: 'Player Team';
 
 	const seasonStats: Array<{
 		wins: number;
@@ -36,10 +35,10 @@ export function aggregatePlayerTeamStats(
 
 	for (const season of seasons) {
 		const standings = season.getStandings('main_conference');
-		const playerRow = standings.find(r => r.name === playerTeamName);
+		const playerRow = standings.find((r) => r.name === playerTeamName);
 		if (!playerRow) continue;
 
-		const rank = standings.findIndex(r => r.name === playerTeamName) + 1;
+		const rank = standings.findIndex((r) => r.name === playerTeamName) + 1;
 		const diff = playerRow.pointsFor - playerRow.pointsAgainst;
 		seasonStats.push({
 			wins: playerRow.wins,
@@ -69,7 +68,7 @@ export function aggregatePlayerTeamStats(
 
 	const totalWins = seasonStats.reduce((s, r) => s + r.wins, 0);
 	const totalLosses = seasonStats.reduce((s, r) => s + r.losses, 0);
-	const undefeated = seasonStats.filter(r => r.losses === 0).length;
+	const undefeated = seasonStats.filter((r) => r.losses === 0).length;
 	const totalPF = seasonStats.reduce((s, r) => s + r.pf, 0);
 	const totalPA = seasonStats.reduce((s, r) => s + r.pa, 0);
 	const totalDiff = seasonStats.reduce((s, r) => s + r.diff, 0);
@@ -113,12 +112,9 @@ export function aggregatePlayerTeamStats(
 }
 
 //============================================
-export function buildJsonOutput(
-	cfg: SimConfig,
-	seasons: readonly LeagueSeason[],
-): JsonOutput {
+export function buildJsonOutput(cfg: SimConfig, seasons: readonly LeagueSeason[]): JsonOutput {
 	const playerTeamName = `${cfg.playerName} ${cfg.playerMascot}`;
-	const allSeasons = seasons.map(season => {
+	const allSeasons = seasons.map((season) => {
 		const standings = season.getStandings('main_conference');
 		return {
 			standings: standings.map((row, idx) => ({

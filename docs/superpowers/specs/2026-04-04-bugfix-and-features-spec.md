@@ -18,11 +18,13 @@ and more like a real football life sim.
 **Problem**: childhood age milestones repeat (e.g., "chased family dog" at age 1 and 3).
 
 **Required behavior**:
+
 - Childhood and youth milestone text should feel varied
 - The exact same milestone text should not appear within a 3-5 year cooldown
 - Some milestones should be age-banded (first steps at age 1, not age 2)
 
 **Implementation**:
+
 - Add event history tracking for non-weekly life events
 - For childhood/youth milestone pools, support: minAge, maxAge, cooldownYears, tags
 - When selecting a milestone, exclude exact event IDs used within cooldown
@@ -41,6 +43,7 @@ First 10 years feel meaningfully varied across one playthrough.
 Applies to age advances, weekly results, event resolutions, milestones.
 
 **Implementation**:
+
 - After render completes, use `requestAnimationFrame()` or `setTimeout(fn, 0)`
   before setting scrollTop
 - Apply to all append functions: `addStoryHeadline()`, `addStoryText()`,
@@ -63,6 +66,7 @@ manual scrolling.
 offseason, recruiting, academics, injury management, social situations.
 
 Target:
+
 - At least 70% of event cards present 2+ choices
 - Major life events have 2-4 choices
 - Post-game should offer choices (celebrate, watch film, rest)
@@ -81,6 +85,7 @@ Target:
 high school, and college.
 
 **Events to add** (tag: "academic"):
+
 - Quiz/test performance
 - Teacher conflict
 - Group project
@@ -94,6 +99,7 @@ high school, and college.
 - Report card moments
 
 **Implementation**:
+
 - New event tag group: "academic"
 - Expand events.json with 10+ school-life events
 - Some academic events depend on academic standing
@@ -111,6 +117,7 @@ regularly affects gameplay.
 **Required behavior**: ties handled correctly in narrative and standings.
 
 **Implementation**:
+
 - Audit all score comparison logic: `>` = win, `<` = loss, `===` = tie
 - Update team record model to support ties
 - Update result text for ties: "A hard-fought battle ends in a 39-39 tie."
@@ -130,6 +137,7 @@ reflect ties correctly. Playoffs always have a winner.
 **Required behavior**: player stays at one high school unless explicitly transferring.
 
 **Implementation**:
+
 - Generate high school team ONCE at start of freshman year
 - Store persistent `schoolId` / team reference
 - Do NOT regenerate school each season
@@ -151,6 +159,7 @@ are rare and explained.
 messaging is internally consistent.
 
 **Implementation**:
+
 - Increase playoff opponent strength:
   - Regional: 65-80 (was 60)
   - State Semifinal: 75-90 (was 75)
@@ -173,6 +182,7 @@ event fires only when championship game is actually won.
 **Required behavior**: after each game week, show standings for conference.
 
 **Implementation**:
+
 - Generate a conference of 8-12 teams at start of each level
 - Store conference teams with names and records
 - After each game, simulate results for other conference teams
@@ -199,6 +209,7 @@ event fires only when championship game is actually won.
 **Required behavior**: at age 16, trigger a meaningful milestone event.
 
 **Implementation**:
+
 - Guaranteed event at age 16 (not random)
 - Choices: take test now, practice more first, not interested yet
 - Pass/fail based on discipline stat
@@ -218,15 +229,16 @@ event fires only when championship game is actually won.
 **Required behavior**: academic system runs alongside football performance.
 
 **Implementation**:
+
 - Add `gpa` stat to Player (0.0-4.0, starts at 2.5)
 - GPA changes based on choices (study vs skip, academic events)
 - Weekly focus adds "Study" as 6th option (boosts GPA)
 - GPA checks at season checkpoints:
-  - >= 2.0: eligible
+  - > = 2.0: eligible
   - 1.5-1.99: probation, must focus on school or get suspended
   - < 1.5: ineligible for season
 - GPA affects recruiting:
-  - >= 3.0: any college
+  - > = 3.0: any college
   - 2.0-2.99: normal recruiting
   - < 2.0: must attend junior college first (1-2 JUCO seasons, then transfer)
 - JUCO path: smaller programs, less exposure, but can still reach D1
@@ -244,6 +256,7 @@ create real setbacks. Recovery is possible.
 minor league baseball teams.
 
 **Implementation**:
+
 - Split team names into prefix + mascot in `src/data/names.json`
 - Replace generic mascots with silly/memorable ones:
   - Quirky (60%): Possums, Catfish, Yard Dogs, Moon Pies, Skunks, Buzzards,
@@ -266,12 +279,14 @@ generates unique silly team names.
 Features adapted from life-simulator and Life-Simulator1 reference repos:
 
 ### Relationship tracking (from life-simulator)
+
 - Track relationship scores with key people: parents, coach, teammates, rival
 - Parent relationship affects support and recruiting help
 - Coach relationship affects playing time and opportunities
 - Store as `relationships: Record<string, number>` (0-100 scale)
 
 ### Age-gated activities (from life-simulator)
+
 - Unlock new options as player ages:
   - Age 8+: join sports
   - Age 14+: part-time job
@@ -280,10 +295,12 @@ Features adapted from life-simulator and Life-Simulator1 reference repos:
 - Show locked activities as grayed out with age requirement
 
 ### Free time / offseason activities (from life-simulator)
+
 - Offseason choices: gym, read/study, hang with friends, part-time job, volunteer
 - Each has stat trade-offs and money implications
 
 ### Actions-per-period limiter (from life-simulator)
+
 - Limit stat-boosting activities per week/season
 - Prevents grinding one stat to 100 in childhood
 - Forces meaningful trade-offs
@@ -296,6 +313,7 @@ Features adapted from life-simulator and Life-Simulator1 reference repos:
 current team palette.
 
 **Requirements**:
+
 - Colors generated at runtime from the active team palette
 - Randomly choose from approved team-color combinations, not arbitrary full-spectrum
 - Every combination must pass a readability check before use
@@ -303,6 +321,7 @@ current team palette.
   with the active team identity
 
 **Color generation logic**:
+
 1. Load the current team palette (2-3 colors per team)
 2. Randomly select: one primary background, one accent, one text color
 3. Evaluate contrast between background and text
@@ -310,6 +329,7 @@ current team palette.
 5. Apply validated combination across the UI
 
 **Contrast rules**:
+
 - Normal text: WCAG AA minimum (4.5:1 ratio)
 - Large text/headers: 3:1 ratio minimum
 - If team palette is too low-contrast, automatically:
@@ -318,12 +338,14 @@ current team palette.
   - Fall back to neutral white/near-black text
 
 **Fallback behavior**:
+
 - If no random pair passes after several attempts:
   - Use team primary color for background
   - Use white or near-black text (whichever has higher contrast)
   - Use accent colors only for borders, buttons, highlights
 
 **Implementation**:
+
 - Each team gets a palette: `{ primary: string, secondary: string, accent: string }`
 - High school teams: randomly generate palettes at team creation
 - College/NFL teams: use real team colors (or generated for fictional)
@@ -337,12 +359,14 @@ current team palette.
 ## Priority order
 
 ### Priority 1: correctness / bugs
+
 1. Tie handling (BUG)
 2. Playoff/championship consistency (BUG)
 3. Persistent high school assignment (BUG)
 4. Auto-scroll (BUG)
 
 ### Priority 2: core feel improvements
+
 5. Repeated milestone prevention
 6. Silly mascots
 7. More options everywhere
@@ -350,6 +374,7 @@ current team palette.
 9. Standings view
 
 ### Priority 3: progression depth
+
 10. Driver's license milestone
 11. Academics and junior college path
 12. Relationship tracking
@@ -359,17 +384,17 @@ current team palette.
 
 ## Files likely affected
 
-| File | Changes |
-| --- | --- |
-| `src/main.ts` | Bugs 1-4, 6-7, features 1-3, 8-9 |
-| `src/week_sim.ts` | Bug 5 (tie handling) |
-| `src/team.ts` | Bug 6 (persistent team), feature 8 (conference) |
-| `src/player.ts` | Features 10, 12 (gpa, relationships) |
-| `src/data/events.json` | Features 3, 4, 9 (more events) |
-| `src/data/names.json` | Feature 11 (silly mascots) |
-| `src/college.ts` | Feature 10 (JUCO path, GPA check) |
-| `src/ui.ts` | Feature 8 (standings display) |
-| `styles.css` | Feature 8 (standings styling) |
+| File                   | Changes                                         |
+| ---------------------- | ----------------------------------------------- |
+| `src/main.ts`          | Bugs 1-4, 6-7, features 1-3, 8-9                |
+| `src/week_sim.ts`      | Bug 5 (tie handling)                            |
+| `src/team.ts`          | Bug 6 (persistent team), feature 8 (conference) |
+| `src/player.ts`        | Features 10, 12 (gpa, relationships)            |
+| `src/data/events.json` | Features 3, 4, 9 (more events)                  |
+| `src/data/names.json`  | Feature 11 (silly mascots)                      |
+| `src/college.ts`       | Feature 10 (JUCO path, GPA check)               |
+| `src/ui.ts`            | Feature 8 (standings display)                   |
+| `styles.css`           | Feature 8 (standings styling)                   |
 
 ---
 

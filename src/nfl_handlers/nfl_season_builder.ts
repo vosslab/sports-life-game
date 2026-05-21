@@ -9,7 +9,10 @@ import { SeasonTeam } from '../season/team_model.js';
 import { SeasonGame } from '../season/game_model.js';
 import { LeagueSeason } from '../season/season_model.js';
 import {
-	resetGameIdCounter, nextGameId, shuffleArray, validateSchedule,
+	resetGameIdCounter,
+	nextGameId,
+	shuffleArray,
+	validateSchedule,
 } from '../season/season_builder.js';
 import { randomInRange } from '../player.js';
 import { CoachPersonality } from '../team.js';
@@ -19,9 +22,9 @@ import { getNFLTeams, NFLTeamEntry } from '../nfl.js';
 // NFL team data used internally for season building
 interface NFLTeamData {
 	name: string;
-	conference: string;   // "AFC" or "NFC"
-	division: string;     // "East", "West", "North", "South"
-	strength: number;     // base strength 55-90
+	conference: string; // "AFC" or "NFC"
+	division: string; // "East", "West", "North", "South"
+	strength: number; // base strength 55-90
 }
 
 //============================================
@@ -47,16 +50,14 @@ function buildNFLRoster(): NFLTeamData[] {
 
 //============================================
 // Build a complete NFL season
-export function buildNFLSeason(
-	playerTeamName: string,
-): LeagueSeason {
+export function buildNFLSeason(playerTeamName: string): LeagueSeason {
 	resetGameIdCounter();
 
 	// Build roster from CSV data each season (strengths randomized)
 	const roster = buildNFLRoster();
 
 	// Find the player's team data
-	const playerData = roster.find(t => t.name === playerTeamName);
+	const playerData = roster.find((t) => t.name === playerTeamName);
 	if (!playerData) {
 		// Fallback: assign to a random team
 		const fallback = roster[randomInRange(0, roster.length - 1)];
@@ -68,10 +69,7 @@ export function buildNFLSeason(
 
 //============================================
 // Internal: build the season from known team name
-function buildNFLSeasonWithData(
-	playerTeamName: string,
-	roster: NFLTeamData[],
-): LeagueSeason {
+function buildNFLSeasonWithData(playerTeamName: string, roster: NFLTeamData[]): LeagueSeason {
 	const teams = new Map<TeamId, SeasonTeam>();
 	let playerTeamId = '';
 
@@ -89,7 +87,7 @@ function buildNFLSeasonWithData(
 			seasonStrength,
 			randomCoachPersonality(),
 			data.conference,
-			data.division,
+			data.division
 		);
 		teams.set(teamId, team);
 
@@ -114,10 +112,7 @@ function buildNFLSeasonWithData(
 // Build the simplified 17-game NFL schedule
 // Each team plays: 6 division (3 rivals x 2), 4 same-conf cross-div,
 // 4 cross-conference, 3 remaining from same conference
-function buildNFLSchedule(
-	teams: Map<TeamId, SeasonTeam>,
-	playerTeamId: TeamId,
-): SeasonGame[] {
+function buildNFLSchedule(teams: Map<TeamId, SeasonTeam>, playerTeamId: TeamId): SeasonGame[] {
 	const allGames: SeasonGame[] = [];
 	const teamIds = Array.from(teams.keys());
 
@@ -148,8 +143,11 @@ function buildNFLSchedule(
 
 	// Helper to add a game if both teams have room and week availability
 	function addGame(
-		home: TeamId, away: TeamId, week: number, isConf: boolean,
-		allowDouble: boolean = false,
+		home: TeamId,
+		away: TeamId,
+		week: number,
+		isConf: boolean,
+		allowDouble: boolean = false
 	): boolean {
 		const homeCount = teamGameCount.get(home) || 0;
 		const awayCount = teamGameCount.get(away) || 0;
@@ -218,11 +216,13 @@ function buildNFLSchedule(
 		}
 
 		// Find teams in same conference, different division
-		const crossDivOpponents = teamIds.filter(oppId => {
+		const crossDivOpponents = teamIds.filter((oppId) => {
 			const opp = teams.get(oppId)!;
-			return opp.conferenceId === team.conferenceId
-				&& opp.divisionId !== team.divisionId
-				&& oppId !== teamId;
+			return (
+				opp.conferenceId === team.conferenceId &&
+				opp.divisionId !== team.divisionId &&
+				oppId !== teamId
+			);
 		});
 		shuffleArray(crossDivOpponents);
 
@@ -252,7 +252,7 @@ function buildNFLSchedule(
 		}
 
 		// Find teams in opposite conference
-		const crossConfOpponents = teamIds.filter(oppId => {
+		const crossConfOpponents = teamIds.filter((oppId) => {
 			const opp = teams.get(oppId)!;
 			return opp.conferenceId !== team.conferenceId && oppId !== teamId;
 		});
@@ -277,7 +277,7 @@ function buildNFLSchedule(
 	}
 
 	// Phase 4: Fill remaining games to reach 17 per team
-	for (const [teamId, ] of teams) {
+	for (const [teamId] of teams) {
 		const currentCount = teamGameCount.get(teamId) || 0;
 		const team = teams.get(teamId)!;
 		if (currentCount >= 17) {
@@ -285,7 +285,7 @@ function buildNFLSchedule(
 		}
 
 		// Fill with same-conference opponents
-		const remaining = teamIds.filter(oppId => {
+		const remaining = teamIds.filter((oppId) => {
 			return oppId !== teamId && (teamGameCount.get(oppId) || 0) < 17;
 		});
 		shuffleArray(remaining);
@@ -335,8 +335,10 @@ function randomCoachPersonality(): CoachPersonality {
 
 //============================================
 // Simple assertions
-console.assert(getNFLTeams().length === 32 || getNFLTeams().length === 0,
-	'NFL roster should have 32 teams when loaded');
+console.assert(
+	getNFLTeams().length === 32 || getNFLTeams().length === 0,
+	'NFL roster should have 32 teams when loaded'
+);
 console.assert(makeTeamId('Kansas City Chiefs') === 'kansas_city_chiefs', 'Team id generation');
 const split = splitTeamName('San Francisco 49ers');
 console.assert(split.city === 'San Francisco', 'City should be San Francisco');

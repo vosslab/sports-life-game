@@ -36,16 +36,19 @@ above when the scripts use the library directly (see [Packages](#packages)).
 
 ### Shared helper: `repo_root.mjs`
 
-`tests/playwright/repo_root.mjs` is centrally propagated by
+`tests/playwright/repo_root.mjs` (when present) is centrally propagated by
 `propagate_style_guides.py`. Do not edit it per-repo. It exports `REPO_ROOT`
 resolved via `git rev-parse --show-toplevel`, so test scripts can compute
-absolute paths without brittle relative-path math:
+absolute paths without brittle relative-path math. This repo's
+[tests/playwright/autoplay.mjs](../tests/playwright/autoplay.mjs) derives
+`REPO_ROOT` inline from `import.meta.url` instead:
 
 ```javascript
-import { REPO_ROOT } from "./repo_root.mjs";
-import path from "node:path";
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const pagePath = path.join(REPO_ROOT, "index.html");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(__dirname, '..');
 ```
 
 ## Key rule: scripts must run from the project root
@@ -64,8 +67,8 @@ node /tmp/_test_game_ui.mjs
 **Right:**
 
 ```bash
-cd /Users/vosslab/nsh/cell-culture-game-claude
-node tests/playwright/test_game_ui.mjs
+cd /Users/vosslab/nsh/TYPESCRIPT/sports-life-game
+node tests/playwright/autoplay.mjs
 ```
 
 Put Playwright scripts in `tests/playwright/`.
@@ -86,22 +89,35 @@ Some repos group complete Playwright walkthroughs (multi-step user journeys, rec
 
 ## Packages
 
-| Package | Purpose |
-| --- | --- |
-| `playwright` | Library/API for browser automation (what we use) |
-| `@playwright/test` | Test runner with fixtures, assertions, reporters |
-| `playwright-core` | Low-level core without bundled browsers (rarely needed) |
+| Package            | Purpose                                                 |
+| ------------------ | ------------------------------------------------------- |
+| `playwright`       | Library/API for browser automation (what we use)        |
+| `@playwright/test` | Test runner with fixtures, assertions, reporters        |
+| `playwright-core`  | Low-level core without bundled browsers (rarely needed) |
 
 For "open a local HTML file, click things, take screenshots", use `playwright`.
 
 ## Script template
 
+This repo serves the game from the built `dist/` artifact (not a repo-root
+`index.html`); the playwright script must hit `http://localhost:8000/index.html`
+while a separate terminal is running the static server. The canonical example
+is [tests/playwright/autoplay.mjs](../tests/playwright/autoplay.mjs); copy and
+trim its top section for new scripts.
+
+Prerequisites in another terminal:
+
+```bash
+npm run build
+python3 -m http.server 8000 --directory dist
+```
+
+Then a minimal script shape:
+
 ```javascript
 import { chromium } from 'playwright';
-import path from 'path';
 
-const gamePath = path.resolve('cell_culture_game.html');
-const url = `file://${gamePath}`;
+const url = 'http://localhost:8000/index.html';
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
@@ -160,7 +176,7 @@ Use `waitForTimeout` after actions that trigger animations:
 
 ```javascript
 await page.click('[data-item-id="flask"]');
-await page.waitForTimeout(2500);  // aspiration takes ~2s
+await page.waitForTimeout(2500); // aspiration takes ~2s
 ```
 
 ### Check element alignment
@@ -179,20 +195,20 @@ console.log(`Offset: dx=${dx.toFixed(1)} dy=${dy.toFixed(1)}`);
 
 ```javascript
 const result = await page.evaluate(() => {
-    return document.querySelectorAll('.quadrant-btn').length;
+	return document.querySelectorAll('.quadrant-btn').length;
 });
 console.log('Button count:', result);
 ```
 
 ## Troubleshooting
 
-| Problem | Fix |
-| --- | --- |
-| `Cannot find module 'playwright'` | Run the script from the project root, not `/tmp/` |
-| `browserType.launch: Executable doesn't exist` | Run `npx playwright install` |
-| `npx playwright` works but `node script.mjs` fails | Different issue: npx resolves packages differently than Node require |
-| Timeout clicking an element | Check the selector; use `data-item-id` not `data-item` for hood items |
-| Browser windows pop up during test runs | An agent added `headless: false` or `--headed`; remove it. Default is headless. |
+| Problem                                            | Fix                                                                             |
+| -------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `Cannot find module 'playwright'`                  | Run the script from the project root, not `/tmp/`                               |
+| `browserType.launch: Executable doesn't exist`     | Run `npx playwright install`                                                    |
+| `npx playwright` works but `node script.mjs` fails | Different issue: npx resolves packages differently than Node require            |
+| Timeout clicking an element                        | Check the selector; use `data-item-id` not `data-item` for hood items           |
+| Browser windows pop up during test runs            | An agent added `headless: false` or `--headed`; remove it. Default is headless. |
 
 ## Verify install
 

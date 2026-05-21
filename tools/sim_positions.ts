@@ -32,7 +32,17 @@ import { seedDefaultRng, randInt } from '../src/core/rng.js';
 // Positions to compare. P (punter) is included for completeness even
 // though the kicker bucket only generates FG/XP stats.
 const POSITIONS: readonly Position[] = [
-	'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K', 'P',
+	'QB',
+	'RB',
+	'WR',
+	'TE',
+	'OL',
+	'DL',
+	'LB',
+	'CB',
+	'S',
+	'K',
+	'P',
 ];
 
 //============================================
@@ -91,11 +101,26 @@ function parseArgs(argv: readonly string[]): PositionsConfig {
 		const flag: string = argv[i];
 		const next: string | undefined = argv[i + 1];
 		switch (flag) {
-			case '--runs':       cfg.runs       = parseIntFlag(flag, next); i++; break;
-			case '--weeks':      cfg.weeks      = parseIntFlag(flag, next); i++; break;
-			case '--strength':   cfg.strength   = parseIntFlag(flag, next); i++; break;
-			case '--core':       cfg.coreValue  = parseIntFlag(flag, next); i++; break;
-			case '--base-seed':  cfg.baseSeed   = parseIntFlag(flag, next); i++; break;
+			case '--runs':
+				cfg.runs = parseIntFlag(flag, next);
+				i++;
+				break;
+			case '--weeks':
+				cfg.weeks = parseIntFlag(flag, next);
+				i++;
+				break;
+			case '--strength':
+				cfg.strength = parseIntFlag(flag, next);
+				i++;
+				break;
+			case '--core':
+				cfg.coreValue = parseIntFlag(flag, next);
+				i++;
+				break;
+			case '--base-seed':
+				cfg.baseSeed = parseIntFlag(flag, next);
+				i++;
+				break;
 			case '--depth':
 				if (next !== 'starter' && next !== 'backup' && next !== 'bench') {
 					throw new Error('--depth must be starter | backup | bench');
@@ -203,9 +228,7 @@ function summarize(values: readonly number[]): MeanStddev {
 
 //============================================
 function pad(s: string | number, width: number, right: boolean = true): string {
-	const text: string = typeof s === 'number'
-		? (Number.isInteger(s) ? String(s) : s.toFixed(1))
-		: s;
+	const text: string = typeof s === 'number' ? (Number.isInteger(s) ? String(s) : s.toFixed(1)) : s;
 	if (text.length >= width) {
 		return text;
 	}
@@ -223,7 +246,11 @@ function cellKey(s: MeanStddev): string {
 //============================================
 // Print a single matrix row: position label + each comparison stat as
 // "mean+/-stddev". Width-aligned so columns are scannable.
-function printRow(position: Position, summaries: Record<string, MeanStddev>, wins: MeanStddev): void {
+function printRow(
+	position: Position,
+	summaries: Record<string, MeanStddev>,
+	wins: MeanStddev
+): void {
 	const cells: string[] = [pad(position, 4, false)];
 	cells.push(pad(`${wins.mean.toFixed(1)}-${(17 - wins.mean).toFixed(1)}`, 9, false));
 	for (const stat of COMPARISON_STATS) {
@@ -249,7 +276,7 @@ function printHeader(): void {
 // This catches the LB/CB/S "uniform defender bucket" failure mode and any
 // future regressions where the simulator collapses two roles into one.
 function detectDuplicates(
-	allSummaries: Record<Position, Record<string, MeanStddev>>,
+	allSummaries: Record<Position, Record<string, MeanStddev>>
 ): { stat: string; positions: Position[] }[] {
 	const findings: { stat: string; positions: Position[] }[] = [];
 	for (const stat of COMPARISON_STATS) {
@@ -290,7 +317,7 @@ interface FlatVarianceFinding {
 }
 
 function detectFlatVariance(
-	allSummaries: Record<Position, Record<string, MeanStddev>>,
+	allSummaries: Record<Position, Record<string, MeanStddev>>
 ): FlatVarianceFinding[] {
 	const findings: FlatVarianceFinding[] = [];
 	for (const pos of POSITIONS) {
@@ -319,8 +346,10 @@ function main(): void {
 	console.log(`Cells show "mean+-stddev" for each stat across ${cfg.runs} seeded seasons.`);
 	console.log('');
 
-	const allSummaries: Record<Position, Record<string, MeanStddev>> =
-		{} as Record<Position, Record<string, MeanStddev>>;
+	const allSummaries: Record<Position, Record<string, MeanStddev>> = {} as Record<
+		Position,
+		Record<string, MeanStddev>
+	>;
 	const winSummaries: Record<Position, MeanStddev> = {} as Record<Position, MeanStddev>;
 
 	for (const position of POSITIONS) {
@@ -348,7 +377,9 @@ function main(): void {
 	if (dupes.length === 0) {
 		console.log('Duplicate distributions: none detected.');
 	} else {
-		console.log(`Duplicate distributions (${dupes.length} stats produce byte-identical mean+/-stddev across multiple positions):`);
+		console.log(
+			`Duplicate distributions (${dupes.length} stats produce byte-identical mean+/-stddev across multiple positions):`
+		);
 		for (const f of dupes) {
 			console.log(`  ${pad(f.stat, 16, false)} ${f.positions.join(', ')}`);
 		}
@@ -358,12 +389,14 @@ function main(): void {
 	if (flat.length === 0) {
 		console.log(`Flat variance (stddev/mean < ${FLAT_VARIANCE_RATIO}): none detected.`);
 	} else {
-		console.log(`Flat variance (stddev/mean < ${FLAT_VARIANCE_RATIO}, suspiciously deterministic across seeds):`);
+		console.log(
+			`Flat variance (stddev/mean < ${FLAT_VARIANCE_RATIO}, suspiciously deterministic across seeds):`
+		);
 		for (const f of flat) {
 			console.log(
-				`  ${pad(f.position, 4, false)} ${pad(f.stat, 16, false)}`
-				+ ` mean=${f.mean.toFixed(1)} stddev=${f.stddev.toFixed(2)}`
-				+ ` ratio=${f.ratio.toFixed(3)}`,
+				`  ${pad(f.position, 4, false)} ${pad(f.stat, 16, false)}` +
+					` mean=${f.mean.toFixed(1)} stddev=${f.stddev.toFixed(2)}` +
+					` ratio=${f.ratio.toFixed(3)}`
 			);
 		}
 	}

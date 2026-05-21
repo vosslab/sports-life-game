@@ -35,7 +35,10 @@ export function loadGame(): Player | null {
 		// Strip the schemaVersion before handing the payload back; the live
 		// Player object does not carry it.
 		const envelope = result.envelope;
-		const { schemaVersion: _ignored, ...payload } = envelope as { schemaVersion: number; [k: string]: unknown };
+		const { schemaVersion: _ignored, ...payload } = envelope as {
+			schemaVersion: number;
+			[k: string]: unknown;
+		};
 		return payload as unknown as Player;
 	}
 	if (result.kind === 'reset') {

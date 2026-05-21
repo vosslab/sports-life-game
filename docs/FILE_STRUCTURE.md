@@ -4,44 +4,60 @@
 
 ```text
 sports-life-game/
-+- index.html              Single-page app shell (links src/styles/*.css, dist/main.js)
 +- avatar_test.html        Standalone avatar preview page
-+- package.json            Node project config (TypeScript dev dependency)
++- package.json            Node project config + npm script graph
 +- package-lock.json       npm dependency lockfile
 +- tsconfig.json           TypeScript compiler settings (ES2020, strict, sourcemaps)
 +- tsconfig.lint.json      Stricter TS config used by the lint/test runner
-+- eslint.config.js        ESLint flat config for compiled JS output
++- eslint.config.js        ESLint flat config (ignores dist/, archive/, _site/, etc.)
++- .prettierrc.json        Prettier config (tabs, single quotes, 100-char width)
++- .prettierignore         Prettier ignore list (dist/, node_modules/, archive/, etc.)
 +- pip_requirements.txt    Python runtime deps for tools/tests
 +- pip_requirements-dev.txt Python dev deps (pytest, lint helpers)
 +- pip_extras.txt          Optional Python extras
 +- Brewfile                Homebrew packages
 +- source_me.sh            Python environment bootstrap
-+- setup_game.sh           One-time npm install and initial build
-+- run_web_server.sh       Start local dev server (calls build_github_pages.sh)
-+- build_github_pages.sh   Build dist/ via tsc and stage _site/ for Pages
-+- check_codebase.sh       Type-check and run unit tests
++- run_web_server.sh       Rebuild dist/ + serve on a random port
++- build_github_pages.sh   esbuild bundler that produces self-contained dist/
++- check_codebase.sh       Smart orchestrator wrapping npm scripts (--fast, --skip-playwright)
 +- AGENTS.md               Agent instructions and coding conventions
 +- CLAUDE.md               Claude Code project pointers (imports docs/*)
 +- README.md               Project overview and quick start
 +- VERSION                 CalVer version string
 +- LICENSE.LGPL_v3         LGPL v3 license (code)
-+- LICENSE.CC_BY_4_0       CC BY 4.0 license (non-code content)
-+- src/                    TypeScript source files
++- src/                    TypeScript source files (includes src/index.html)
 +- docs/                   Project documentation
 +- tests/                  TS unit/integration tests + Python lint suite
 +- tools/                  Simulation and analysis utilities
-+- devel/                  Developer helpers (commit changelog, playwright setup)
++- devel/                  Developer helpers (setup_typescript.sh, setup_playwright.sh, commit_changelog.py)
 +- archive/                Disconnected features and experimental modules
-+- dist/                   Compiled JS output (git-ignored)
-+- _site/                  Staged GitHub Pages artifact (git-ignored)
++- dist/                   Self-contained build output (git-ignored)
 +- node_modules/           npm dependencies (git-ignored)
 +- .github/workflows/      GitHub Actions (deploy-pages.yml)
+```
+
+The repo root no longer contains `index.html` or a top-level `styles.css`;
+both moved under `src/` in M3 (the legacy aggregate `styles.css` was
+unused and deleted). The build emits a self-contained `dist/` artifact
+that contains its own copy of `index.html`, the bundled `main.js`, and a
+copy of `src/styles/`.
+
+## dist/
+
+```text
+dist/
++- index.html         Page entry (relative main.js + styles/foo.css references)
++- main.js            esbuild bundle (~520KB minified; JSON + CSV data inlined)
++- main.js.map        Sourcemap for main.js
++- styles/            Copy of src/styles/*.css (10 files, served as static assets)
+`- .nojekyll          GitHub Pages marker to disable Jekyll processing
 ```
 
 ## Source directory
 
 ```text
 src/
++- index.html              Single-page app shell (copied into dist/ at build time)
 +- main.ts                 Bootstrap: load data, build context, wire game loop
 +- player.ts               Player state model, stat helpers, identity fields
 +- team.ts                 Team structure, conference, schedule, standings
@@ -99,6 +115,7 @@ src/
 |  +- childhood/           M3-A vertical-slice plugin (ages 1-13)
 |  |  +- index.ts          childhoodPlugin entry, register() call site
 |  |  +- phase_handler.ts  3 phase handlers (kid_years, peewee, travel)
+|  |  +- tabs.ts           Childhood tab registrations
 |  |  +- activities.json   Childhood activity data
 |  |  +- activities_loader.ts  Fetch + cache
 |  |  +- events_loader.ts  Fetch + cache childhood events
@@ -106,7 +123,7 @@ src/
 |  |  |  `- childhood.json  Merged 9 age-specific event files
 |  |  +- lifecycle/
 |  |  |  +- age_5_first_football.ts  AgeHook at age 5
-|  |  |  +- entry.ts        PhaseStartHook at phase start
+|  |  |  +- childhood_entry.ts  PhaseStartHook at phase start
 |  |  |  `- hooks.ts        Registration aggregator
 |  |  `- panels/
 |  |     `- career_panel.ts Career-tab panel (minimal status-only)
@@ -131,30 +148,32 @@ src/
 |  +- college/             M3-B vertical-slice plugin (ages 18-21)
 |  |  +- index.ts          collegePlugin entry, register() call site
 |  |  +- phase_handler.ts  3 phase handlers
+|  |  +- tabs.ts           College tab registrations
 |  |  +- activities.json   College activity data
 |  |  +- activities_loader.ts  Fetch + cache
 |  |  +- events_loader.ts  Fetch + cache college events
 |  |  +- events/
 |  |  |  `- college.json  College event data
 |  |  +- lifecycle/
-|  |  |  +- age_20_nfl_declaration.ts  AgeHook at age 20
-|  |  |  +- entry.ts        PhaseStartHook at phase start
-|  |  |  `- hooks.ts        Registration aggregator
+|  |  |  +- nfl_declaration.ts  AgeHook at age 20 (early-declare option)
+|  |  |  +- college_entry.ts    PhaseStartHook at phase start
+|  |  |  `- hooks.ts            Registration aggregator
 |  |  `- panels/
 |  |     `- career_panel.ts Career-tab panel
 |  +- nfl/                 M3-C vertical-slice plugin (ages 22-39)
 |  |  +- index.ts          nflPlugin entry, register() call site
 |  |  +- phase_handler.ts  5 phase handlers
+|  |  +- tabs.ts           NFL tab registrations
 |  |  +- activities.json   NFL activity data
 |  |  +- activities_loader.ts  Fetch + cache
 |  |  +- events_loader.ts  Fetch + cache NFL events
 |  |  +- events/
 |  |  |  `- nfl.json      NFL event data
 |  |  +- lifecycle/
-|  |  |  +- age_22_draft_day.ts  AgeHook at age 22
-|  |  |  +- entry.ts             PhaseStartHook at phase start
-|  |  |  +- retirement.ts        CareerEndHook at retirement
-|  |  |  `- hooks.ts             Registration aggregator
+|  |  |  +- draft_day.ts        AgeHook at age 22
+|  |  |  +- nfl_entry.ts        PhaseStartHook at phase start
+|  |  |  +- retirement.ts       CareerEndHook at retirement
+|  |  |  `- hooks.ts            Registration aggregator
 |  |  `- panels/
 |  |     `- career_panel.ts Career-tab panel
 |  `- scout_report/        M6-A optional feature plugin (panel-only proof)
@@ -265,8 +284,13 @@ src/
 +- high_school/            HS handlers (ages 14-17, 10-week seasons)
 |  +- hs_frosh_soph.ts     Ages 14-15: frosh/soph identity
 |  +- hs_varsity.ts        Ages 16-17: varsity, driver license, stars
+|  +- hs_postgrad.ts       Optional post-grad/prep-year path
 |  +- hs_season_builder.ts 8-team conference, 10-game schedule
-|  `- recruiting_events.ts HS recruiting story events
+|  +- juco_season_builder.ts JUCO alternate-path schedule builder
+|  +- hs_recruiting.ts     Recruiting flow orchestration
+|  +- recruiting_events.ts Recruiting story events
+|  +- recruiting_helpers.ts Recruiting interest/score helpers
+|  `- recruiting_offers.ts Offer generation and acceptance
 +- college/                College handlers (ages 18-21, 12-week seasons)
 |  +- college_entry.ts     Age 18: freshman, redshirt
 |  +- college_core.ts      Ages 19-20: junior early-declaration option
@@ -307,41 +331,57 @@ decoupling is acceptable and maintains stable code organization across M1-M3.
    +- ncaa_schools-FBS.csv FBS schools with conferences
    +- ncaa_schools-FCS.csv FCS schools with conferences
    +- nfl_teams.csv        NFL team roster
-   +- events/              Shared event data (phase events now also in src/plugins/<phase>/events/)
-   `- choices/             Per-arc weekly-choice catalogs
-      +- preseason.{json,ts}
-      +- opening.{json,ts}
-      +- midseason.{json,ts}
-      +- stretch.{json,ts}
-      `- postseason.{json,ts}
+   `- choices/             Per-arc weekly-choice catalogs (JSON-only as of 2026-05)
+      +- preseason.json
+      +- opening.json
+      +- midseason.json
+      +- stretch.json
+      `- postseason.json
 ```
+
+Per-phase event JSON now lives under each plugin tree
+([src/plugins/childhood/events/](../src/plugins/childhood/events/),
+[src/plugins/high_school/events/](../src/plugins/high_school/events/),
+[src/plugins/college/events/](../src/plugins/college/events/),
+[src/plugins/nfl/events/](../src/plugins/nfl/events/)); the legacy
+`src/data/events/` directory has been removed.
 
 ## Tests and tools
 
 ```text
 tests/
-+- run.ts                  TS unit test runner (used by check_codebase.sh)
-+- smoke.sh                Shell wrapper for smoke runs
-+- test_*.ts               TS tests (handler registry, player helpers, RNG, simulator)
-+- check_dom_imports.ts    Boundary check: core code must not import DOM
++- run.ts                       TS unit test runner (used by check_codebase.sh)
++- smoke.sh                     Shell wrapper for smoke runs
++- TESTS_README.md              Test-suite overview and command reference
++- test_*.ts                    TS tests (handler registry, player helpers, RNG, simulator, plugin host, choice schemas)
++- check_dom_imports.ts         Boundary check: core code must not import DOM
 +- check_math_random_budget.ts  Static budget on Math.random usage
-+- test_*.py               Python lint/compliance tests (pyflakes, ASCII, imports)
-+- conftest.py             pytest config
-+- git_file_utils.py       Repo-root helper used by Python tests
-+- playwright/             Browser-driven Playwright tests
-   `- autoplay.mjs         Headless autoplay smoke driver
++- check_plugin_boundaries.ts   Plugin tree boundary check (no cross-plugin imports)
++- test_*.py                    Python lint/compliance tests (pyflakes, ASCII, imports, indentation, shebangs, bandit, init files, naming, readme paragraph)
++- check_ascii_compliance.py    Single-file ASCII/ISO-8859-1 checker
++- fix_ascii_compliance.py      Single-file ASCII fixer
++- fix_whitespace.py            Single-file whitespace fixer
++- conftest.py                  pytest config (excludes e2e/playwright subtrees)
++- git_file_utils.py            Repo-root helper used by Python tests
++- fixtures/
+|  `- fetch_mock.ts             Browser fetch mock for plugin loader tests
++- playwright/                  Browser-driven Playwright tests
+   `- autoplay.mjs              Headless autoplay smoke driver
 
 tools/
-+- sim_player_season.ts    Standalone single-player season simulator
-+- sim_conference_season.ts Conference simulation harness
-+- sim_distribution.ts     Output distribution diagnostics
-+- sim_positions.ts        Per-position stat distribution
-+- sim_conf/               Conference sim configs
-`- extract_avataaars.py    Pull Avataaars parts into avatar_parts.ts
++- sim_player_season.ts         Standalone single-player season simulator
++- sim_conference_season.ts     Conference simulation harness
++- sim_positions.ts             Per-position stat distribution
++- sim_conf/
+|  +- aggregators.ts            Conference-sim stat aggregators
+|  +- display.ts                Conference-sim text output helpers
+|  `- types.ts                  Conference-sim shared types
+`- extract_avataaars.py         Pull Avataaars parts into avatar_parts.ts
 
 devel/
-+- commit_changelog.py     Helper for staging changelog edits before commit
-`- setup_playwright.sh     One-time Playwright + chromium install
++- commit_changelog.py          Helper for staging changelog edits before commit
++- setup_typescript.sh          One-time npm install and initial build
+`- setup_playwright.sh          One-time Playwright + chromium install
 ```
 
 ## Documentation map
@@ -352,10 +392,12 @@ devel/
 - [THE_SHOW_GAME_SPEC.md](THE_SHOW_GAME_SPEC.md)
 - [AGE_PROGRESSION.md](AGE_PROGRESSION.md)
 - [PORTRAIT_SYSTEM.md](PORTRAIT_SYSTEM.md)
+- [college_football_recruiting_bitlife_sim_design.md](college_football_recruiting_bitlife_sim_design.md)
 
 ### Project management
 
 - [CHANGELOG.md](CHANGELOG.md)
+- [CHANGELOG-2026-05a.md](CHANGELOG-2026-05a.md)
 - [ROADMAP.md](ROADMAP.md)
 - [TODO.md](TODO.md)
 - [IDEAS_LIST.md](IDEAS_LIST.md)
@@ -364,6 +406,7 @@ devel/
 ### Developer reference
 
 - [CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md)
+- [PLUGIN_ARCHITECTURE.md](PLUGIN_ARCHITECTURE.md)
 - [E2E_TESTS.md](E2E_TESTS.md)
 - [PLAYWRIGHT_USAGE.md](PLAYWRIGHT_USAGE.md)
 - [AUTHORS.md](AUTHORS.md)
@@ -379,12 +422,11 @@ devel/
 
 ## Generated artifacts
 
-| Artifact | Location | Git-ignored |
-| --- | --- | --- |
-| Compiled JS + maps | `dist/` | YES |
-| Staged Pages artifact | `_site/` | YES |
-| npm packages | `node_modules/` | YES |
-| Game screenshots | `game_screenshots/` | YES |
+| Artifact             | Location            | Git-ignored |
+| -------------------- | ------------------- | ----------- |
+| Self-contained build | `dist/`             | YES         |
+| npm packages         | `node_modules/`     | YES         |
+| Game screenshots     | `game_screenshots/` | YES         |
 
 ## Where to add new work
 
@@ -394,12 +436,22 @@ devel/
 - **Play-by-play rules**: add a rule module under [src/simulator/rules/](../src/simulator/rules/) and wire it in via the league rules interface.
 - **Shared logic**: add to [src/shared/](../src/shared/) for cross-handler utilities.
 - **UI widgets**: add a focused module under [src/ui/](../src/ui/) and re-export from [src/ui/index.ts](../src/ui/index.ts).
-- **Render layer**: extend  if adding a new `GameViewState` slice.
-- **Styles**: add or extend a CSS module under [src/styles/](../src/styles/) and link it from [index.html](../index.html).
+- **Render layer**: extend if adding a new `GameViewState` slice.
+- **Styles**: add or extend a CSS module under [src/styles/](../src/styles/) and link it from [src/index.html](../src/index.html). The build copies `src/styles/` into `dist/styles/`.
 - **Tests**: TS tests as `tests/test_*.ts` (TS) or `tests/test_*.py` (Python lint/compliance).
 - **Tools**: standalone analysis scripts under `tools/`.
 - **Documentation**: under `docs/` using SCREAMING_SNAKE_CASE.
 
 ## Known gaps
 
-- `docs/superpowers/` and `docs/archive/` are project artifact directories; verify whether they should remain under `docs/` or move to `tools/` / a separate planning directory.
+- `docs/superpowers/` and `docs/archive/` are project artifact directories
+  present under `docs/`; verify whether they should remain there or move
+  to `tools/` or a separate planning directory.
+- The `LICENSE.CC_BY_4_0` file referenced in earlier revisions of this
+  document is not present at the repo root; only `LICENSE.LGPL_v3` is
+  tracked. Confirm whether the CC-BY non-code license still applies and
+  needs to be added back.
+- An empty/orphan `_site/` tree remains at the repo root, left over from
+  the M3-era Pages staging layout that M4 removed. The directory is
+  untracked and ignored by ESLint/Prettier; the user can `rm -rf _site`
+  whenever convenient.

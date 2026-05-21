@@ -18,11 +18,7 @@ import {
 	getRecruitingStory,
 	CollegeOffer,
 } from '../recruiting.js';
-import {
-	getSchoolById,
-	getSchoolsAtState,
-	countOffers,
-} from '../recruiting_profile.js';
+import { getSchoolById, getSchoolsAtState, countOffers } from '../recruiting_profile.js';
 import {
 	clearRecruitingFlags,
 	resolveSchoolDisplayName,
@@ -32,11 +28,7 @@ import {
 
 //============================================
 // Signing Day: after senior season, the big decision
-export function showSigningDay(
-	player: Player,
-	ctx: CareerContext,
-	onDone: () => void,
-): void {
+export function showSigningDay(player: Player, ctx: CareerContext, onDone: () => void): void {
 	const profile = player.recruitingProfile;
 	if (!profile) {
 		onDone();
@@ -54,9 +46,7 @@ export function showSigningDay(
 	generateIncrementalOffers(profile, player, ctx.ncaaSchools, 2);
 
 	ctx.addHeadline('Signing Day');
-	ctx.addText(
-		`Final recruiting profile: ${player.recruitingStars} stars | Buzz: ${profile.buzz}`,
-	);
+	ctx.addText(`Final recruiting profile: ${player.recruitingStars} stars | Buzz: ${profile.buzz}`);
 
 	// Check if already committed
 	if (profile.verbalCommit) {
@@ -66,16 +56,11 @@ export function showSigningDay(
 
 	// Get all committable offers
 	const committable = profile.schools.filter(
-		(s) =>
-			s.isCommittable
-			&& s.state !== 'offer_pulled'
-			&& s.state !== 'signed'
+		(s) => s.isCommittable && s.state !== 'offer_pulled' && s.state !== 'signed'
 	);
 
 	// Also include verbal offers that are not yet committable
-	const verbalOffers = profile.schools.filter(
-		(s) => s.state === 'verbal_offer'
-	);
+	const verbalOffers = profile.schools.filter((s) => s.state === 'verbal_offer');
 
 	// Merge and deduplicate, cap at 6
 	const allOffers = [...committable, ...verbalOffers];
@@ -111,14 +96,12 @@ export function showSigningDay(
 		const schoolRecord = getSchoolById(school.schoolId, ctx.ncaaSchools);
 		const divLabel = getSchoolDivisionLabel(school.schoolId, ctx);
 		const scholarshipLabel =
-			school.scholarshipType === 'none'
-				? 'Preferred walk-on'
-				: school.scholarshipType;
+			school.scholarshipType === 'none' ? 'Preferred walk-on' : school.scholarshipType;
 		const projectedRole = getProjectedCollegeRole(
 			player,
 			divLabel,
 			school.interest,
-			school.scholarshipType,
+			school.scholarshipType
 		);
 		// Build school record display
 		let recordLine = '';
@@ -133,9 +116,7 @@ export function showSigningDay(
 
 		const detailParts = [
 			schoolRecord ? `${schoolRecord.city}, ${schoolRecord.state}` : null,
-			schoolRecord
-				? `${divLabel} - ${schoolRecord.conference}`
-				: divLabel,
+			schoolRecord ? `${divLabel} - ${schoolRecord.conference}` : divLabel,
 			recordLine || null,
 			`Scholarship: ${scholarshipLabel}`,
 			`Expected role: ${projectedRole.label}`,
@@ -149,9 +130,7 @@ export function showSigningDay(
 
 		return {
 			text: schoolName,
-			description: detailParts
-				.filter((part) => part !== null)
-				.join('\n'),
+			description: detailParts.filter((part) => part !== null).join('\n'),
 			primary: projectedRole.depthChart === 'starter',
 			action: () => {
 				// Commit and sign
@@ -192,7 +171,7 @@ export function showSigningDay(
 	ctx.waitForInteraction(
 		'College Decision',
 		offerChoices,
-		'Each offer shows where the school is, what level it plays at, the scholarship type, and the role coaches are projecting for you.',
+		'Each offer shows where the school is, what level it plays at, the scholarship type, and the role coaches are projecting for you.'
 	);
 }
 
@@ -202,16 +181,12 @@ export function getProjectedCollegeRole(
 	player: Player,
 	division: string,
 	interest: number,
-	scholarshipType: string,
+	scholarshipType: string
 ): { depthChart: 'starter' | 'backup'; label: string } {
-	const readiness =
-		player.core.technique
-		+ player.core.athleticism
-		+ player.core.footballIq;
+	const readiness = player.core.technique + player.core.athleticism + player.core.footballIq;
 	const hasFullRide = scholarshipType === 'full';
 	const hasPartial = scholarshipType === 'partial';
-	const isWalkOn =
-		scholarshipType === 'walk-on' || scholarshipType === 'none';
+	const isWalkOn = scholarshipType === 'walk-on' || scholarshipType === 'none';
 
 	// Walk-on: always backup or scout team
 	if (isWalkOn) {
@@ -254,12 +229,7 @@ export function getProjectedCollegeRole(
 	}
 
 	// FBS schools: harder to start
-	if (
-		player.recruitingStars >= 5
-		&& hasFullRide
-		&& readiness >= 195
-		&& interest >= 75
-	) {
+	if (player.recruitingStars >= 5 && hasFullRide && readiness >= 195 && interest >= 75) {
 		return {
 			depthChart: 'starter',
 			label: 'possible day-one starter, blue-chip recruit',
@@ -297,18 +267,13 @@ export function getProjectedCollegeRole(
 
 //============================================
 // Commitment decision: honor or decommit
-function showCommitmentDecision(
-	player: Player,
-	ctx: CareerContext,
-	onDone: () => void,
-): void {
+function showCommitmentDecision(player: Player, ctx: CareerContext, onDone: () => void): void {
 	const profile = player.recruitingProfile!;
 	const committedSchoolId = profile.verbalCommit!;
 	const schoolName = resolveSchoolDisplayName(committedSchoolId, ctx);
 
 	ctx.addText(
-		`You are verbally committed to ${schoolName}.`
-		+ ' They expect your signature this week.',
+		`You are verbally committed to ${schoolName}.` + ' They expect your signature this week.'
 	);
 
 	ctx.waitForInteraction('Signing Day Decision', [
@@ -318,9 +283,7 @@ function showCommitmentDecision(
 			action: () => {
 				processSigning(profile);
 
-				const school = profile.schools.find(
-					(s) => s.schoolId === committedSchoolId,
-				);
+				const school = profile.schools.find((s) => s.schoolId === committedSchoolId);
 				const offer: CollegeOffer = {
 					collegeName: committedSchoolId,
 					division: getSchoolDivisionLabel(committedSchoolId, ctx),
@@ -346,9 +309,9 @@ function showCommitmentDecision(
 			action: () => {
 				processDecommitment(profile);
 				ctx.addText(
-					`${player.firstName} decommits from ${schoolName}.`
-					+ ' The news breaks fast. Some coaches start calling again,'
-					+ ' but others have already moved on.',
+					`${player.firstName} decommits from ${schoolName}.` +
+						' The news breaks fast. Some coaches start calling again,' +
+						' but others have already moved on.'
 				);
 
 				// Now show the regular signing day flow
@@ -361,11 +324,7 @@ function showCommitmentDecision(
 
 //============================================
 // Walk-on / JUCO / Prep options when no offers
-export function showWalkOnOptions(
-	player: Player,
-	ctx: CareerContext,
-	onDone: () => void,
-): void {
+export function showWalkOnOptions(player: Player, ctx: CareerContext, onDone: () => void): void {
 	const profile = player.recruitingProfile;
 	if (!profile) {
 		onDone();
@@ -373,8 +332,8 @@ export function showWalkOnOptions(
 	}
 
 	ctx.addText(
-		'The scholarship offers did not come. But your football story is not over.'
-		+ ' There are still paths forward.',
+		'The scholarship offers did not come. But your football story is not over.' +
+			' There are still paths forward.'
 	);
 
 	// Pick a random FCS school for walk-on
@@ -418,9 +377,9 @@ export function showWalkOnOptions(
 				profile.isJuco = true;
 				profile.phase = 'postgrad';
 				ctx.addText(
-					'You decide to spend a year at a junior college.'
-					+ ' It is a chance to develop your skills and earn new offers.'
-					+ ' The road is longer, but it is still a road.',
+					'You decide to spend a year at a junior college.' +
+						' It is a chance to develop your skills and earn new offers.' +
+						' The road is longer, but it is still a road.'
 				);
 				ctx.updateStats(player);
 				ctx.save();
@@ -434,9 +393,9 @@ export function showWalkOnOptions(
 				profile.isPrepSchool = true;
 				profile.phase = 'postgrad';
 				ctx.addText(
-					'You enroll at a football prep school for an extra year.'
-					+ ' Better coaching, better competition, better film.'
-					+ ' This is your second chance.',
+					'You enroll at a football prep school for an extra year.' +
+						' Better coaching, better competition, better film.' +
+						' This is your second chance.'
 				);
 				ctx.updateStats(player);
 				ctx.save();

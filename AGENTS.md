@@ -1,4 +1,5 @@
 ## Coding Style
+
 code is under active development and has no official releases, so there is no reason to maintain any legacy code
 
 See TypeScript coding style in docs/TYPESCRIPT_STYLE.md.
@@ -11,6 +12,7 @@ When changing code always run focused tests on changed code, documentation does 
 Agents may find pytest programs to run in the tests folder, including smoke tests and pyflakes runner scripts. These should all be capable of the -k flag, such as pytest test_feature.py -k changed_file.py
 
 ## Python Environment
+
 AI agents (Codex/Claude) must run Python using `source source_me.sh && python3` (use Python 3.12 only).
 AI agents should execute shell commands with Bash (`bash -lc`) instead of Zsh because `source_me.sh` and this repo's environment assumptions target Bash semantics.
 This is only for AI agents runtime, not a requirement for repo scripts.

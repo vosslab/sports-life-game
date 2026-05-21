@@ -6,7 +6,11 @@
 
 import { Player } from '../player.js';
 import {
-	ChoiceTemplate, ClutchChoice, ClutchGameContext, ClutchMoment, ClutchResult,
+	ChoiceTemplate,
+	ClutchChoice,
+	ClutchGameContext,
+	ClutchMoment,
+	ClutchResult,
 	ClutchSituation,
 } from './types.js';
 import { deriveSituation, generateScene, shouldTrigger } from './situation.js';
@@ -29,7 +33,7 @@ export type {
 // eligible (non-key non-playoff game, non-starter, blowout margin).
 export function buildClutchMoment(
 	_player: Player,
-	context: ClutchGameContext,
+	context: ClutchGameContext
 ): ClutchMoment | null {
 	if (!shouldTrigger(context)) {
 		return null;
@@ -47,7 +51,7 @@ export function buildClutchMoment(
 		return null;
 	}
 
-	const choices: ClutchChoice[] = templates.map(t => ({
+	const choices: ClutchChoice[] = templates.map((t) => ({
 		id: t.id,
 		label: t.label,
 		description: t.description,
@@ -67,7 +71,7 @@ export function resolveClutchMoment(
 	player: Player,
 	context: ClutchGameContext,
 	choiceId: string,
-	situationOverride?: ClutchSituation,
+	situationOverride?: ClutchSituation
 ): ClutchResult {
 	return resolveChoice(player, context, choiceId, situationOverride);
 }

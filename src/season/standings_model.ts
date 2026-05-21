@@ -12,7 +12,7 @@ import { SeasonTeam } from './team_model.js';
 // Returns StandingsRow[] sorted by: wins desc, losses asc, pointsFor desc
 export function calculateStandings(
 	games: SeasonGame[],
-	teams: Map<TeamId, SeasonTeam>,
+	teams: Map<TeamId, SeasonTeam>
 ): StandingsRow[] {
 	// Initialize a row for every team
 	const rows = new Map<TeamId, StandingsRow>();
@@ -126,7 +126,7 @@ export function calculateStandings(
 export function calculateConferenceStandings(
 	games: SeasonGame[],
 	teams: Map<TeamId, SeasonTeam>,
-	conferenceId: string,
+	conferenceId: string
 ): StandingsRow[] {
 	// Filter teams to conference
 	const confTeams = new Map<TeamId, SeasonTeam>();
@@ -138,8 +138,8 @@ export function calculateConferenceStandings(
 
 	// Filter games to those involving at least one conference team
 	// Only count games where both teams are in the conference
-	const confGames = games.filter(game =>
-		confTeams.has(game.homeTeamId) && confTeams.has(game.awayTeamId)
+	const confGames = games.filter(
+		(game) => confTeams.has(game.homeTeamId) && confTeams.has(game.awayTeamId)
 	);
 
 	return calculateStandings(confGames, confTeams);

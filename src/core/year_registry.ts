@@ -14,12 +14,11 @@ const handlers: YearHandler[] = [];
 export function registerHandler(handler: YearHandler): void {
 	// Validate no overlap with existing handlers
 	for (const existing of handlers) {
-		const overlaps = handler.ageStart <= existing.ageEnd
-			&& handler.ageEnd >= existing.ageStart;
+		const overlaps = handler.ageStart <= existing.ageEnd && handler.ageEnd >= existing.ageStart;
 		if (overlaps) {
 			throw new Error(
-				`Handler "${handler.id}" (${handler.ageStart}-${handler.ageEnd}) `
-				+ `overlaps with "${existing.id}" (${existing.ageStart}-${existing.ageEnd})`
+				`Handler "${handler.id}" (${handler.ageStart}-${handler.ageEnd}) ` +
+					`overlaps with "${existing.id}" (${existing.ageStart}-${existing.ageEnd})`
 			);
 		}
 	}

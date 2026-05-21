@@ -1,20 +1,44 @@
 /* Phase-specific accent colors for week card */
 
 /* Phase-specific week card border colors */
-#current-week-card.phase-childhood { border-left-color: var(--phase-childhood); }
-#current-week-card.phase-youth { border-left-color: var(--phase-youth); }
-#current-week-card.phase-high-school { border-left-color: var(--phase-high-school); }
-#current-week-card.phase-college { border-left-color: var(--phase-college); }
-#current-week-card.phase-nfl { border-left-color: var(--phase-nfl); }
-#current-week-card.phase-legacy { border-left-color: var(--phase-legacy); }
+#current-week-card.phase-childhood {
+	border-left-color: var(--phase-childhood);
+}
+#current-week-card.phase-youth {
+	border-left-color: var(--phase-youth);
+}
+#current-week-card.phase-high-school {
+	border-left-color: var(--phase-high-school);
+}
+#current-week-card.phase-college {
+	border-left-color: var(--phase-college);
+}
+#current-week-card.phase-nfl {
+	border-left-color: var(--phase-nfl);
+}
+#current-week-card.phase-legacy {
+	border-left-color: var(--phase-legacy);
+}
 
 /* Phase badge colors match border */
-#current-week-card.phase-childhood #week-card-phase-badge { background: var(--phase-childhood); }
-#current-week-card.phase-youth #week-card-phase-badge { background: var(--phase-youth); }
-#current-week-card.phase-high-school #week-card-phase-badge { background: var(--phase-high-school); }
-#current-week-card.phase-college #week-card-phase-badge { background: var(--phase-college); }
-#current-week-card.phase-nfl #week-card-phase-badge { background: var(--phase-nfl); }
-#current-week-card.phase-legacy #week-card-phase-badge { background: var(--phase-legacy); }
+#current-week-card.phase-childhood #week-card-phase-badge {
+	background: var(--phase-childhood);
+}
+#current-week-card.phase-youth #week-card-phase-badge {
+	background: var(--phase-youth);
+}
+#current-week-card.phase-high-school #week-card-phase-badge {
+	background: var(--phase-high-school);
+}
+#current-week-card.phase-college #week-card-phase-badge {
+	background: var(--phase-college);
+}
+#current-week-card.phase-nfl #week-card-phase-badge {
+	background: var(--phase-nfl);
+}
+#current-week-card.phase-legacy #week-card-phase-badge {
+	background: var(--phase-legacy);
+}
 
 /* Team tab layout */
 .team-tab-header {

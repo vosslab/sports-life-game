@@ -40,13 +40,13 @@ randomAvatarConfig(seed: string, opts?: {
 
 Eyes, eyebrows, and mouth are chosen as a coherent set instead of independently.
 
-| Preset | Eyes | Eyebrows | Mouth |
-| --- | --- | --- | --- |
-| neutral | default | default | default |
-| confident | default | defaultNatural | smile |
-| stern | squint | flatNatural | serious |
-| friendly | happy | defaultNatural | smile |
-| intense | squint | raisedExcited | serious |
+| Preset    | Eyes    | Eyebrows       | Mouth   |
+| --------- | ------- | -------------- | ------- |
+| neutral   | default | default        | default |
+| confident | default | defaultNatural | smile   |
+| stern     | squint  | flatNatural    | serious |
+| friendly  | happy   | defaultNatural | smile   |
+| intense   | squint  | raisedExcited  | serious |
 
 These are intended default mappings, subject to visual tuning after test-page
 review. If any preset references a part key that does not exist in the extracted
@@ -107,12 +107,12 @@ in the type for caller clarity.
 
 ## Age bands
 
-| Band | Age range | Facial hair | Gray/white hair | Youth styles | Conservative styles |
-| --- | --- | --- | --- | --- | --- |
-| teen | under 22 | 0% | 0% | boosted | normal |
-| young adult | 22-35 | 20% base | 0% | normal | normal |
-| middle aged | 36-50 | 45% base | 15% chance | suppressed | boosted |
-| senior | 50+ | 55% base | 60% chance | strongly suppressed | strongly boosted |
+| Band        | Age range | Facial hair | Gray/white hair | Youth styles        | Conservative styles |
+| ----------- | --------- | ----------- | --------------- | ------------------- | ------------------- |
+| teen        | under 22  | 0%          | 0%              | boosted             | normal              |
+| young adult | 22-35     | 20% base    | 0%              | normal              | normal              |
+| middle aged | 36-50     | 45% base    | 15% chance      | suppressed          | boosted             |
+| senior      | 50+       | 55% base    | 60% chance      | strongly suppressed | strongly boosted    |
 
 Facial hair base probability is further modified by archetype (e.g., coach adds
 +15%, player subtracts -10%).
@@ -123,13 +123,14 @@ expressions.
 
 ## Hair color rarity tiers
 
-| Tier | Colors | Base weight |
-| --- | --- | --- |
-| common | black, brown, brownDark, blonde, auburn | 70% |
-| uncommon | blondeGolden, red, platinum | 25% |
-| rare | pastelPink, silverGray | 5% |
+| Tier     | Colors                                  | Base weight |
+| -------- | --------------------------------------- | ----------- |
+| common   | black, brown, brownDark, blonde, auburn | 70%         |
+| uncommon | blondeGolden, red, platinum             | 25%         |
+| rare     | pastelPink, silverGray                  | 5%          |
 
 Archetype and age modify these weights:
+
 - Coach/recruiter/scout: common 80%, uncommon 15%, rare 5%. Pink excluded.
 - Rival: common 60%, uncommon 30%, rare 10%.
 - Gray/white (silverGray): weight boosted by age band for 36+. Excluded for under 36.
@@ -192,6 +193,7 @@ Add to `avatar_test.html`:
 - Fixed seed text input
 
 So you can inspect:
+
 - Same seed, different archetype
 - Same seed, different age
 - Same archetype, many seeds

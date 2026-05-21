@@ -63,16 +63,15 @@ export const hsFroshSophHandler: YearHandler = {
 		ctx.addText(`Playing ${player.position || 'TBD'} as a ${player.depthChart}.`);
 
 		// Start the season via the weekly engine
-		ctx.waitForInteraction('High School Season', [{
-			text: 'Start Season',
-			primary: true,
-			action: () => {
-				startSeason(
-					player, ctx, SEASON_CONFIG, season,
-					() => handleSeasonEnd(player, ctx),
-				);
+		ctx.waitForInteraction('High School Season', [
+			{
+				text: 'Start Season',
+				primary: true,
+				action: () => {
+					startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
+				},
 			},
-		}]);
+		]);
 	},
 
 	getSeasonConfig(): SeasonConfig {
@@ -87,11 +86,13 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 	ctx.addText(`${yearLabel} season is over.`);
 
 	// Position change option at offseason
-	ctx.waitForInteraction('Offseason', [{
-		text: 'Continue to Next Year',
-		primary: true,
-		action: () => advanceToNextYear(player, ctx),
-	}]);
+	ctx.waitForInteraction('Offseason', [
+		{
+			text: 'Continue to Next Year',
+			primary: true,
+			action: () => advanceToNextYear(player, ctx),
+		},
+	]);
 }
 
 //============================================
@@ -99,24 +100,68 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 // every save grows its own identity (e.g. "Pine Bluff Wyverns").
 function generateHSIdentity(player: Player): void {
 	const names = [
-		'Westfield', 'North Valley', 'Lincoln', 'Riverside',
-		'Cedar Creek', 'Oakmont', 'Fairview', 'Heritage',
-		'Summit', 'Crestwood', 'Lakewood', 'Eastside',
-		'Mountainview', 'Bayshore', 'Pinecrest', 'Highland',
-		'Pine Bluff', 'Lakeview', 'Milltown', 'Copper Hills',
-		'Dry Creek', 'Maple Fork', 'River City', 'Willow Springs',
-		'Elkhorn', 'Blue Ridge', 'Fox Hollow', 'Stonebridge',
+		'Westfield',
+		'North Valley',
+		'Lincoln',
+		'Riverside',
+		'Cedar Creek',
+		'Oakmont',
+		'Fairview',
+		'Heritage',
+		'Summit',
+		'Crestwood',
+		'Lakewood',
+		'Eastside',
+		'Mountainview',
+		'Bayshore',
+		'Pinecrest',
+		'Highland',
+		'Pine Bluff',
+		'Lakeview',
+		'Milltown',
+		'Copper Hills',
+		'Dry Creek',
+		'Maple Fork',
+		'River City',
+		'Willow Springs',
+		'Elkhorn',
+		'Blue Ridge',
+		'Fox Hollow',
+		'Stonebridge',
 	];
 	const mascots = [
 		// Animals
-		'Alpacas', 'Bumblebees', 'Cobras', 'Ferrets', 'Foxes',
-		'Frogs', 'Gophers', 'Jackrabbits', 'Lemurs', 'Narwhals',
-		'Puffins', 'Raccoons', 'Seals', 'Squids', 'Turtles',
-		'Wombats', 'Lobsters', 'Platypus', 'Tadpoles', 'Zebras',
+		'Alpacas',
+		'Bumblebees',
+		'Cobras',
+		'Ferrets',
+		'Foxes',
+		'Frogs',
+		'Gophers',
+		'Jackrabbits',
+		'Lemurs',
+		'Narwhals',
+		'Puffins',
+		'Raccoons',
+		'Seals',
+		'Squids',
+		'Turtles',
+		'Wombats',
+		'Lobsters',
+		'Platypus',
+		'Tadpoles',
+		'Zebras',
 		// Food
-		'Avocados', 'Beets', 'Hot Peppers', 'Kumquats', 'Spuds',
+		'Avocados',
+		'Beets',
+		'Hot Peppers',
+		'Kumquats',
+		'Spuds',
 		// Plants
-		'Dandelions', 'Clovers', 'Marigolds', 'Ferns',
+		'Dandelions',
+		'Clovers',
+		'Marigolds',
+		'Ferns',
 		// Rare weird
 		'Wyverns',
 	];

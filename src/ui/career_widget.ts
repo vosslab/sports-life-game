@@ -37,12 +37,18 @@ export function updateCareerTab(player: Player): void {
 	// Phase-specific content
 	if (player.phase === 'high_school') {
 		if (!pluginHost) {
-			throw new Error('PluginHost not initialized: updateCareerTab called for high_school before setCareerPluginHost()');
+			throw new Error(
+				'PluginHost not initialized: updateCareerTab called for high_school before setCareerPluginHost()'
+			);
 		}
 		if (!currentContext) {
-			throw new Error('Career context not initialized: updateCareerTab called before setCurrentCareerContext()');
+			throw new Error(
+				'Career context not initialized: updateCareerTab called before setCurrentCareerContext()'
+			);
 		}
-		const hsCareerPanel = pluginHost.ui.getAllPanels().find((p) => p.panelId === 'high_school_career');
+		const hsCareerPanel = pluginHost.ui
+			.getAllPanels()
+			.find((p) => p.panelId === 'high_school_career');
 		if (!hsCareerPanel) {
 			throw new Error('high_school_career panel not registered');
 		}
@@ -64,10 +70,7 @@ export function updateCareerTab(player: Player): void {
 
 //============================================
 // Update sidebar season+career section based on current phase
-export function updateSeasonCareer(
-	player: Player,
-	seasonRecord?: string,
-): void {
+export function updateSeasonCareer(player: Player, seasonRecord?: string): void {
 	const container = document.getElementById('sidebar-season-career');
 	if (!container) {
 		return;
@@ -108,7 +111,11 @@ export function updateSeasonCareer(
 		}
 	} else if (player.phase === 'college') {
 		const yearLabels = ['', 'Freshman', 'Sophomore', 'Junior', 'Senior'];
-		addSidebarRow(container, 'Year', yearLabels[player.collegeYear] || `Year ${player.collegeYear}`);
+		addSidebarRow(
+			container,
+			'Year',
+			yearLabels[player.collegeYear] || `Year ${player.collegeYear}`
+		);
 		if (player.career.money > 0) {
 			addSidebarRow(container, 'NIL', formatMoney(player.career.money));
 		}
@@ -143,7 +150,6 @@ export function updateSeasonCareer(
 		addSidebarRow(container, 'Seasons', player.careerHistory.length.toString());
 	}
 }
-
 
 //============================================
 // College career rendering

@@ -1,73 +1,15 @@
 // nfl/activities_loader.ts - Load NFL activities from activities.json
 //
-// Preloaded at app boot before registerAllPlugins() so register() can access them synchronously.
+// Activities are imported at bundle time by esbuild (resolveJsonModule),
+// so the data is available synchronously without any preload step.
 
 import type { Activity } from '../../activities.js';
+import activitiesData from './activities.json';
 
-// Preloaded during bootstrap
-let cachedActivities: Activity[] | null = null;
-
-//============================================
-function ensureNflActivitiesLoaded(): Activity[] {
-	if (cachedActivities) {
-		return cachedActivities;
-	}
-
-	const nflActivitiesData: Activity[] = [
-		{
-			id: 'nfl_advanced_training',
-			name: 'Advanced Training',
-			description: 'Work with a private coach. Intense but effective.',
-			phases: ['nfl'],
-			effects: { technique: 3, health: -1 },
-			flavorText: 'Private session with a specialist. Details matter at this level.',
-		},
-		{
-			id: 'nfl_film_breakdown',
-			name: 'Film Breakdown',
-			description: 'Deep dive into next opponent. Mental edge.',
-			phases: ['nfl'],
-			effects: { footballIq: 2 },
-			flavorText: 'You found their weak spot. Told the coordinator. He smiled.',
-		},
-		{
-			id: 'nfl_endorsement',
-			name: 'Endorsement Deal',
-			description: 'Shoot a commercial. Pays well but distracting.',
-			phases: ['nfl'],
-			effects: { discipline: -1 },
-			flavorText: 'Camera crew all morning. Paycheck makes it worth it.',
-		},
-		{
-			id: 'nfl_media',
-			name: 'Media Appearance',
-			description: 'Press conference or interview. Builds confidence but drains focus.',
-			phases: ['nfl'],
-			effects: { confidence: 2, discipline: -1 },
-			flavorText: 'Reporters asked tough questions. You handled it with poise.',
-		},
-		{
-			id: 'nfl_recovery',
-			name: 'Recovery and Rehab',
-			description: 'Professional recovery. Essential for longevity.',
-			phases: ['nfl'],
-			effects: { health: 3 },
-			flavorText: 'Hyperbaric chamber, massage, and cryotherapy. You feel 22 again.',
-		},
-	];
-
-	cachedActivities = nflActivitiesData;
-	return cachedActivities;
-}
+// Cast through unknown: inferred JSON literal types are too narrow for Activity[].
+const nflActivities = activitiesData as unknown as Activity[];
 
 //============================================
 export function loadNflActivities(): Activity[] {
-	const cached = ensureNflActivitiesLoaded();
-	return [...cached];
-}
-
-//============================================
-// Called during async bootstrap to pre-load activities
-export async function preloadNflActivities(): Promise<void> {
-	ensureNflActivitiesLoaded();
+	return [...nflActivities];
 }

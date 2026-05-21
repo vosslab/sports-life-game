@@ -203,9 +203,7 @@ function reportKeysForBucket(bucket: Player['positionBucket']): readonly string[
 
 //============================================
 function pad(s: string | number, width: number, right: boolean = true): string {
-	const text: string = typeof s === 'number'
-		? (Number.isInteger(s) ? String(s) : s.toFixed(1))
-		: s;
+	const text: string = typeof s === 'number' ? (Number.isInteger(s) ? String(s) : s.toFixed(1)) : s;
 	if (text.length >= width) {
 		return text;
 	}
@@ -215,7 +213,12 @@ function pad(s: string | number, width: number, right: boolean = true): string {
 
 //============================================
 // Compute mean / min / max / standard deviation for an array of numbers.
-function summarize(values: readonly number[]): { mean: number; min: number; max: number; stddev: number } {
+function summarize(values: readonly number[]): {
+	mean: number;
+	min: number;
+	max: number;
+	stddev: number;
+} {
 	if (values.length === 0) {
 		return { mean: 0, min: 0, max: 0, stddev: 0 };
 	}
@@ -246,24 +249,23 @@ function reportPosition(position: Position, results: SeasonResult[]): void {
 
 	const winsArr: number[] = results.map((r) => r.wins);
 	const winSum = summarize(winsArr);
-	console.log(`  Wins:          mean=${winSum.mean.toFixed(1)}  min=${winSum.min}  max=${winSum.max}  stddev=${winSum.stddev.toFixed(2)}`);
+	console.log(
+		`  Wins:          mean=${winSum.mean.toFixed(1)}  min=${winSum.min}  max=${winSum.max}  stddev=${winSum.stddev.toFixed(2)}`
+	);
 
 	console.log(
-		'  ' + pad('stat', 14, false)
-		+ pad('mean', 9)
-		+ pad('min', 7)
-		+ pad('max', 7)
-		+ pad('stddev', 9),
+		'  ' +
+			pad('stat', 14, false) +
+			pad('mean', 9) +
+			pad('min', 7) +
+			pad('max', 7) +
+			pad('stddev', 9)
 	);
 	for (const key of keys) {
 		const series: number[] = results.map((r) => r.stats[key] ?? 0);
 		const s = summarize(series);
 		console.log(
-			'  ' + pad(key, 14, false)
-			+ pad(s.mean, 9)
-			+ pad(s.min, 7)
-			+ pad(s.max, 7)
-			+ pad(s.stddev, 9),
+			'  ' + pad(key, 14, false) + pad(s.mean, 9) + pad(s.min, 7) + pad(s.max, 7) + pad(s.stddev, 9)
 		);
 	}
 
@@ -277,22 +279,30 @@ function reportPosition(position: Position, results: SeasonResult[]): void {
 			.map((r) => r.stats.passYards / r.stats.attempts);
 		const cs = summarize(compPctArr);
 		const ys = summarize(ypaArr);
-		console.log(`  Completion %:  mean=${cs.mean.toFixed(1)}  min=${cs.min.toFixed(1)}  max=${cs.max.toFixed(1)}  stddev=${cs.stddev.toFixed(2)}`);
-		console.log(`  Yards/attempt: mean=${ys.mean.toFixed(2)}  min=${ys.min.toFixed(2)}  max=${ys.max.toFixed(2)}  stddev=${ys.stddev.toFixed(2)}`);
+		console.log(
+			`  Completion %:  mean=${cs.mean.toFixed(1)}  min=${cs.min.toFixed(1)}  max=${cs.max.toFixed(1)}  stddev=${cs.stddev.toFixed(2)}`
+		);
+		console.log(
+			`  Yards/attempt: mean=${ys.mean.toFixed(2)}  min=${ys.min.toFixed(2)}  max=${ys.max.toFixed(2)}  stddev=${ys.stddev.toFixed(2)}`
+		);
 	}
 	if (bucket === 'runner_receiver' && position === 'RB') {
 		const ypcArr: number[] = results
 			.filter((r) => r.stats.carries > 0)
 			.map((r) => r.stats.rushYards / r.stats.carries);
 		const ys = summarize(ypcArr);
-		console.log(`  Yards/carry:   mean=${ys.mean.toFixed(2)}  min=${ys.min.toFixed(2)}  max=${ys.max.toFixed(2)}  stddev=${ys.stddev.toFixed(2)}`);
+		console.log(
+			`  Yards/carry:   mean=${ys.mean.toFixed(2)}  min=${ys.min.toFixed(2)}  max=${ys.max.toFixed(2)}  stddev=${ys.stddev.toFixed(2)}`
+		);
 	}
 	if (bucket === 'kicker') {
 		const fgPctArr: number[] = results
 			.filter((r) => r.stats.fgAttempts > 0)
 			.map((r) => (r.stats.fgMade / r.stats.fgAttempts) * 100);
 		const fs = summarize(fgPctArr);
-		console.log(`  FG %:          mean=${fs.mean.toFixed(1)}  min=${fs.min.toFixed(1)}  max=${fs.max.toFixed(1)}  stddev=${fs.stddev.toFixed(2)}`);
+		console.log(
+			`  FG %:          mean=${fs.mean.toFixed(1)}  min=${fs.min.toFixed(1)}  max=${fs.max.toFixed(1)}  stddev=${fs.stddev.toFixed(2)}`
+		);
 	}
 	// avoid unused variable warning when createEmptySeasonStats is imported
 	void createEmptySeasonStats;

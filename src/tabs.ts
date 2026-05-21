@@ -57,11 +57,13 @@ function stripPhasePrefix(tabId: string): TabId {
 export function getTabsForPhase(phase: CareerPhase): TabConfig[] {
 	if (phase === 'childhood' || phase === 'high_school' || phase === 'college' || phase === 'nfl') {
 		if (!pluginHost) {
-			throw new Error(`PluginHost not initialized: getTabsForPhase called for ${phase} before setTabsPluginHost()`);
+			throw new Error(
+				`PluginHost not initialized: getTabsForPhase called for ${phase} before setTabsPluginHost()`
+			);
 		}
-		const tabRegistrations = pluginHost.ui.getAllTabs().filter(
-			(tab) => tab.availableInPhase(phase),
-		);
+		const tabRegistrations = pluginHost.ui
+			.getAllTabs()
+			.filter((tab) => tab.availableInPhase(phase));
 		return tabRegistrations.map((reg) => ({
 			id: stripPhasePrefix(reg.tabId),
 			label: reg.label,
@@ -187,7 +189,7 @@ export function updateTabBar(phase: CareerPhase): void {
 	}
 
 	// If current tab is not available in this phase, default to life
-	const availableIds = tabs.map(t => t.id);
+	const availableIds = tabs.map((t) => t.id);
 	if (availableIds.indexOf(currentTab) === -1) {
 		switchTab('life');
 	}

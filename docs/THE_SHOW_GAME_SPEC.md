@@ -31,17 +31,17 @@ Optional assists, beginner-friendly hitting and pitching, clear tutorials, scala
 
 1. Player selects a mode.
 
-2. Player enters a game, season, or career event.
+1. Player enters a game, season, or career event.
 
-3. Player competes in baseball gameplay.
+1. Player competes in baseball gameplay.
 
-4. Player earns rewards, stats, and progression.
+1. Player earns rewards, stats, and progression.
 
-5. Player upgrades skills, adjusts roster, or advances schedule.
+1. Player upgrades skills, adjusts roster, or advances schedule.
 
-6. Player returns for the next game or long-term objective.
+1. Player returns for the next game or long-term objective.
 
-5. Game Modes
+1. Game Modes
 
 Exhibition
 
@@ -70,185 +70,208 @@ Same-console multiplayer for quick play.
 6. Core Systems
 
 Batting
-* Timing-based swing input
-* Contact swing
-* Power swing
-* Bunt
-* Check swing
-* PCI-style aiming option
-* Assist options for casual users
+
+- Timing-based swing input
+- Contact swing
+- Power swing
+- Bunt
+- Check swing
+- PCI-style aiming option
+- Assist options for casual users
 
 Batting goals:
 Readable pitch recognition, satisfying contact, skill-based outcomes, reduced randomness on well-timed input.
 
 Pitching
-* Multiple pitch types
-* Timing and accuracy meter
-* Pitch confidence and stamina
-* Ball and strike count logic
-* Wildness under pressure
+
+- Multiple pitch types
+- Timing and accuracy meter
+- Pitch confidence and stamina
+- Ball and strike count logic
+- Wildness under pressure
 
 Pitching goals:
 High skill ceiling, clear feedback, realistic control loss with fatigue.
 
 Fielding
-* Assisted and manual fielding
-* Catch indicators
-* Throw meter for accuracy
-* Dive and jump actions
-* Tag and relay systems
+
+- Assisted and manual fielding
+- Catch indicators
+- Throw meter for accuracy
+- Dive and jump actions
+- Tag and relay systems
 
 Base Running
-* Auto and manual running
-* Steal timing
-* Lead-off control
-* Slide choice
-* Tag-up logic
+
+- Auto and manual running
+- Steal timing
+- Lead-off control
+- Slide choice
+- Tag-up logic
 
 7. Controls
 
 Design Goals
-* Easy to learn
-* Hard to master
-* Consistent across modes
-* Minimal input delay
+
+- Easy to learn
+- Hard to master
+- Consistent across modes
+- Minimal input delay
 
 Example Input Map
 
 Batting
-* Left Stick: aim / influence swing
-* Face Button 1: contact swing
-* Face Button 2: power swing
-* Face Button 3: bunt
-* Shoulder Button: check swing modifier or situational input
+
+- Left Stick: aim / influence swing
+- Face Button 1: contact swing
+- Face Button 2: power swing
+- Face Button 3: bunt
+- Shoulder Button: check swing modifier or situational input
 
 Pitching
-* Left Stick: aim pitch target
-* Face Buttons: choose pitch type
-* Trigger: start pitch motion
-* Stick or meter input: accuracy execution
+
+- Left Stick: aim pitch target
+- Face Buttons: choose pitch type
+- Trigger: start pitch motion
+- Stick or meter input: accuracy execution
 
 Fielding
-* Left Stick: move player
-* Face Buttons: throw to bases
-* Trigger: cutoff / relay
-* Shoulder Button: dive / jump
+
+- Left Stick: move player
+- Face Buttons: throw to bases
+- Trigger: cutoff / relay
+- Shoulder Button: dive / jump
 
 8. Progression
 
 Player Progression
-* XP earned from performance
-* Attribute upgrades
-* Perks and traits
-* Position-specific growth paths
+
+- XP earned from performance
+- Attribute upgrades
+- Perks and traits
+- Position-specific growth paths
 
 Team Progression
-* Better scouting results
-* Staff upgrades
-* Farm system improvement
-* Budget and roster efficiency
+
+- Better scouting results
+- Staff upgrades
+- Farm system improvement
+- Budget and roster efficiency
 
 9. Difficulty and Accessibility
-* Rookie, Veteran, All-Star, Hall of Fame, Legend
-* Dynamic difficulty option
-* Hitting assists
-* Pitching assists
-* Base running assists
-* Fielding assists
-* Colorblind-safe UI support
-* Subtitle and text scaling support
+
+- Rookie, Veteran, All-Star, Hall of Fame, Legend
+- Dynamic difficulty option
+- Hitting assists
+- Pitching assists
+- Base running assists
+- Fielding assists
+- Colorblind-safe UI support
+- Subtitle and text scaling support
 
 10. AI Requirements
 
 Gameplay AI
-* Pitch selection should reflect count, hitter tendencies, and game situation
-* Batters should adapt to repeated pitch patterns
-* Fielders should prioritize realistic baseball decisions
-* Runners should react to hit type, outs, and arm strength
+
+- Pitch selection should reflect count, hitter tendencies, and game situation
+- Batters should adapt to repeated pitch patterns
+- Fielders should prioritize realistic baseball decisions
+- Runners should react to hit type, outs, and arm strength
 
 Simulation AI
-* Trade logic must value age, salary, contract length, and team needs
-* Lineup decisions must consider fatigue, handedness, and injuries
-* Prospect development should vary but remain understandable
+
+- Trade logic must value age, salary, contract length, and team needs
+- Lineup decisions must consider fatigue, handedness, and injuries
+- Prospect development should vary but remain understandable
 
 11. Presentation
 
 Broadcast Style
-* TV-style overlays
-* Dynamic commentary
-* Replays
-* Crowd reactions
-* Walk-up moments
-* Stat callouts and milestones
+
+- TV-style overlays
+- Dynamic commentary
+- Replays
+- Crowd reactions
+- Walk-up moments
+- Stat callouts and milestones
 
 Audio
-* Stadium ambience
-* Bat crack and glove audio with strong feedback
-* Commentary variation by context
-* Menu music and team-specific atmosphere cues
+
+- Stadium ambience
+- Bat crack and glove audio with strong feedback
+- Commentary variation by context
+- Menu music and team-specific atmosphere cues
 
 12. UI/UX
 
 Principles
-* Fast navigation
-* Clear stat visibility
-* Low menu clutter
-* Important actions reachable in few inputs
+
+- Fast navigation
+- Clear stat visibility
+- Low menu clutter
+- Important actions reachable in few inputs
 
 Required Screens
-* Main menu
-* Team select
-* Lineup management
-* Rotation and bullpen management
-* Player card
-* Franchise hub
-* Career hub
-* Post-game summary
-* Settings and accessibility
+
+- Main menu
+- Team select
+- Lineup management
+- Rotation and bullpen management
+- Player card
+- Franchise hub
+- Career hub
+- Post-game summary
+- Settings and accessibility
 
 13. Technical Requirements
-* Target 60 FPS gameplay
-* Stable online matchmaking
-* Fast save and load times
-* Minimal transition downtime between innings and menus
-* Robust autosave for career and franchise modes
+
+- Target 60 FPS gameplay
+- Stable online matchmaking
+- Fast save and load times
+- Minimal transition downtime between innings and menus
+- Robust autosave for career and franchise modes
 
 14. Save Data
 
 Store:
-* User settings
-* Rosters
-* Franchise files
-* Career files
-* Online profile data
-* Unlocks and earned rewards
+
+- User settings
+- Rosters
+- Franchise files
+- Career files
+- Online profile data
+- Unlocks and earned rewards
 
 15. Live Service / Post-Launch Support
-* Roster updates
-* Balance tuning
-* Bug fixes
-* Limited-time online events
-* Seasonal rewards
+
+- Roster updates
+- Balance tuning
+- Bug fixes
+- Limited-time online events
+- Seasonal rewards
 
 16. Success Metrics
-* High match completion rate
-* Strong retention in franchise and career modes
-* Positive user feedback on responsiveness
-* Reduced frustration in batting and fielding onboarding
-* Stable online play and matchmaking
+
+- High match completion rate
+- Strong retention in franchise and career modes
+- Positive user feedback on responsiveness
+- Reduced frustration in batting and fielding onboarding
+- Stable online play and matchmaking
 
 17. Risks
-* Overly complex controls for new players
-* Frustration from batting difficulty spikes
-* AI exploits in pitching and base running
-* Franchise depth becoming menu-heavy
-* Commentary repetition
+
+- Overly complex controls for new players
+- Frustration from batting difficulty spikes
+- AI exploits in pitching and base running
+- Franchise depth becoming menu-heavy
+- Commentary repetition
 
 18. Out of Scope
-* Open-world hub exploration
-* Arcade mini-games unrelated to baseball
-* Cross-sport features
-* Full GM story campaign with cinematic branching
+
+- Open-world hub exploration
+- Arcade mini-games unrelated to baseball
+- Cross-sport features
+- Full GM story campaign with cinematic branching
 
 Life Stage Simulation (The Show '25)
 
@@ -269,48 +292,55 @@ Each stage uses performance, scouting rating, and random variation.
 Purpose: Introduce mechanics and seed player trajectory.
 
 Systems
-* Short season format (10 to 25 games)
-* Regional competition tiering
-* Scout visibility score
-* Performance metrics tracked:
-* Batting average
-* On-base percentage
-* ERA (for pitchers)
-* Fielding percentage
+
+- Short season format (10 to 25 games)
+- Regional competition tiering
+- Scout visibility score
+- Performance metrics tracked:
+- Batting average
+- On-base percentage
+- ERA (for pitchers)
+- Fielding percentage
 
 Outputs
-* Draft projection (round range)
-* Scholarship offers (optional flavor system)
-* Skill baseline for next stage
+
+- Draft projection (round range)
+- Scholarship offers (optional flavor system)
+- Skill baseline for next stage
 
 3. State Championship Simulation
 
 Model
-* Tournament bracket (single elimination)
-* Team rating = average player rating + chemistry modifier + coach modifier
+
+- Tournament bracket (single elimination)
+- Team rating = average player rating + chemistry modifier + coach modifier
 
 Win Probability (Simplified)
 
 Let:
-* Team rating difference = D
+
+- Team rating difference = D
 
 Then:
-* Game win probability follows a logistic curve
+
+- Game win probability follows a logistic curve
 
 Typical ranges:
-* Even teams: ~50 percent
-* Slightly stronger team: 55 to 65 percent
-* Strong team: 70 to 85 percent
+
+- Even teams: ~50 percent
+- Slightly stronger team: 55 to 65 percent
+- Strong team: 70 to 85 percent
 
 Championship Odds
 
 Assuming 4 rounds:
-* Average team:
-~6 to 10 percent chance to win championship
-* Strong team (top 10 percent):
-~20 to 35 percent
-* Dominant team:
-~40 to 60 percent
+
+- Average team:
+  ~6 to 10 percent chance to win championship
+- Strong team (top 10 percent):
+  ~20 to 35 percent
+- Dominant team:
+  ~40 to 60 percent
 
 Random variance is intentionally high at this stage.
 
@@ -319,118 +349,138 @@ Random variance is intentionally high at this stage.
 Purpose: Development and filtering.
 
 Systems
-* Longer season
-* Fatigue and consistency modeling
-* Attribute growth tied to performance and training
+
+- Longer season
+- Fatigue and consistency modeling
+- Attribute growth tied to performance and training
 
 Key Variables
-* Consistency rating
-* Potential ceiling
-* Injury risk
-* Coach development bonus
+
+- Consistency rating
+- Potential ceiling
+- Injury risk
+- Coach development bonus
 
 5. Major League Stage
 
 Purpose: Peak gameplay and long-term progression.
 
 Systems
-* Full stat tracking
-* Contract and reputation systems
-* Media and fan interest (light simulation)
+
+- Full stat tracking
+- Contract and reputation systems
+- Media and fan interest (light simulation)
 
 Award Systems
 
 1. Player of the Week
 
 Selection Pool
-* All active players in league
-* Filter by minimum playtime
+
+- All active players in league
+- Filter by minimum playtime
 
 Scoring Formula (example)
 
 Score =
-* Offensive contribution (hits, HR, RBIs)
-* Pitching contribution (ERA, strikeouts)
-* Clutch modifier
-* Team win bonus
+
+- Offensive contribution (hits, HR, RBIs)
+- Pitching contribution (ERA, strikeouts)
+- Clutch modifier
+- Team win bonus
 
 Probability
 
 For an average starter:
-* ~1 to 3 percent chance per week
+
+- ~1 to 3 percent chance per week
 
 For strong performers:
-* ~5 to 12 percent
+
+- ~5 to 12 percent
 
 For elite streak:
-* ~15 to 25 percent during peak weeks
+
+- ~15 to 25 percent during peak weeks
 
 Distribution is skewed toward high stat output, not pure randomness.
 
 2. Seasonal Awards
 
 Examples:
-* MVP
-* Cy Young equivalent
-* Rookie of the Year
+
+- MVP
+- Cy Young equivalent
+- Rookie of the Year
 
 Model
 
 Weighted cumulative stats + narrative modifiers:
-* Team success
-* Clutch moments
-* Consistency
+
+- Team success
+- Clutch moments
+- Consistency
 
 Top candidates:
-* Top 3 to 5 percent of players statistically
+
+- Top 3 to 5 percent of players statistically
 
 Randomness vs Skill Balance
-* 70 to 85 percent driven by player input and stats
-* 15 to 30 percent randomness to simulate real-world variance
+
+- 70 to 85 percent driven by player input and stats
+- 15 to 30 percent randomness to simulate real-world variance
 
 What Changes in The Show '26
 
 1. Expanded Life Stages
-* Add College Baseball path (optional branch)
-* Add Pre-draft showcase events
-* Add late-career decline phase
+
+- Add College Baseball path (optional branch)
+- Add Pre-draft showcase events
+- Add late-career decline phase
 
 2. More Granular Probabilities
-* Hidden traits affect clutch and streaks
-* Momentum system impacts short-term performance
-* Fatigue has nonlinear effects
+
+- Hidden traits affect clutch and streaks
+- Momentum system impacts short-term performance
+- Fatigue has nonlinear effects
 
 3. Dynamic Story Layer
-* Rivalries
-* Coach relationships
-* Media pressure affecting performance
+
+- Rivalries
+- Coach relationships
+- Media pressure affecting performance
 
 4. Tournament Realism Upgrade
-* Regional strength differences
-* Seeding logic based on season performance
-* Upset probability tuned by pressure variable
+
+- Regional strength differences
+- Seeding logic based on season performance
+- Upset probability tuned by pressure variable
 
 5. Awards System Improvements
-* Voter simulation instead of pure formula
-* Bias factors:
-* Market size
-* Team success
-* Narrative moments
+
+- Voter simulation instead of pure formula
+- Bias factors:
+- Market size
+- Team success
+- Narrative moments
 
 6. Progression Changes
-* Skill growth tied to specific in-game actions
-* Training mini-systems
-* Slumps and hot streak persistence
+
+- Skill growth tied to specific in-game actions
+- Training mini-systems
+- Slumps and hot streak persistence
 
 7. AI Improvements
-* Adaptive pitching patterns
-* Batter learning model
-* Smarter base running decisions
+
+- Adaptive pitching patterns
+- Batter learning model
+- Smarter base running decisions
 
 8. Online Integration
-* Shared seasonal events
-* Weekly challenges tied to real-world stats
-* Competitive ladders with rewards
+
+- Shared seasonal events
+- Weekly challenges tied to real-world stats
+- Competitive ladders with rewards
 
 UX/UI Product Specification
 
@@ -463,56 +513,63 @@ UI elements should adapt to game state, mode, and selected team.
 3. Information Architecture
 
 Primary Navigation
-* Main Menu
-* Game Modes
-* Team Selection
-* Player Profile
-* Settings
+
+- Main Menu
+- Game Modes
+- Team Selection
+- Player Profile
+- Settings
 
 Mode Hubs
 
 Each major mode must include:
-* Overview dashboard
-* Progression summary
-* Quick access to next action
-* Recent results
+
+- Overview dashboard
+- Progression summary
+- Quick access to next action
+- Recent results
 
 Secondary Screens
-* Lineup Management
-* Rotation and Bullpen
-* Player Details
-* Statistics
-* Post-game Summary
+
+- Lineup Management
+- Rotation and Bullpen
+- Player Details
+- Statistics
+- Post-game Summary
 
 4. Layout Structure
 
 Screen Composition
-* Header: Mode context and status
-* Main Panel: Core interaction area
-* Side Panel: Supplemental data or actions
-* Footer: Controls and prompts
+
+- Header: Mode context and status
+- Main Panel: Core interaction area
+- Side Panel: Supplemental data or actions
+- Footer: Controls and prompts
 
 Navigation Behavior
-* Horizontal navigation for top-level menus
-* Vertical lists for selections
-* Persistent back navigation
-* No dead-end screens
+
+- Horizontal navigation for top-level menus
+- Vertical lists for selections
+- Persistent back navigation
+- No dead-end screens
 
 5. Typography
 
 Requirements
-* Sans-serif font optimized for console readability
-* Minimum size thresholds for standard and large displays
-* Clear hierarchy:
-* Header
-* Subheader
-* Body
-* Metadata
+
+- Sans-serif font optimized for console readability
+- Minimum size thresholds for standard and large displays
+- Clear hierarchy:
+- Header
+- Subheader
+- Body
+- Metadata
 
 Rules
-* Avoid overly condensed fonts
-* Maintain consistent spacing
-* Ensure legibility at distance
+
+- Avoid overly condensed fonts
+- Maintain consistent spacing
+- Ensure legibility at distance
 
 6. Color System
 
@@ -522,15 +579,17 @@ Rule
 The interface must dynamically adopt the color identity of the currently selected team.
 
 Requirements
-* Colors are generated at runtime using the active team palette
-* Selection must be randomized within the team's defined color set
-* The system must ensure all combinations remain readable
+
+- Colors are generated at runtime using the active team palette
+- Selection must be randomized within the team's defined color set
+- The system must ensure all combinations remain readable
 
 Color Roles
-* Background color
-* Primary text color
-* Secondary text color
-* Accent color (buttons, highlights, selection states)
+
+- Background color
+- Primary text color
+- Secondary text color
+- Accent color (buttons, highlights, selection states)
 
 Generation Logic
 
@@ -545,103 +604,119 @@ Generation Logic
 5. Regenerate if invalid
 
 6.2 Contrast and Readability
-* All text must meet WCAG AA contrast standards
-* Large text may use slightly lower thresholds but must remain clearly readable
-* UI elements must remain distinguishable under all lighting conditions
+
+- All text must meet WCAG AA contrast standards
+- Large text may use slightly lower thresholds but must remain clearly readable
+- UI elements must remain distinguishable under all lighting conditions
 
 Automatic Adjustments
 
 If contrast fails:
-* Darken background or lighten foreground
-* Replace text color with white or near-black
-* Preserve team identity through accents
 
-6.3 Fallback Behavior
+- Darken background or lighten foreground
+- Replace text color with white or near-black
+- Preserve team identity through accents
+
+  6.3 Fallback Behavior
 
 If no valid combination is found:
-* Use team primary color as background
-* Use white or near-black for text
-* Limit accent colors to interactive elements
+
+- Use team primary color as background
+- Use white or near-black for text
+- Limit accent colors to interactive elements
 
 7. Components
 
 Buttons
-* Clear visual states: default, hover, active, disabled
-* Consistent sizing and spacing
-* Immediate feedback on input
+
+- Clear visual states: default, hover, active, disabled
+- Consistent sizing and spacing
+- Immediate feedback on input
 
 Menus
-* Scrollable lists with clear focus state
-* Highlight current selection
-* Avoid clutter
+
+- Scrollable lists with clear focus state
+- Highlight current selection
+- Avoid clutter
 
 HUD (Gameplay)
-* Minimal obstruction of gameplay view
-* Persistent score, inning, and count display
-* Contextual prompts only when needed
+
+- Minimal obstruction of gameplay view
+- Persistent score, inning, and count display
+- Contextual prompts only when needed
 
 Overlays
-* Pause menu
-* Replay interface
-* Substitution and strategy menus
+
+- Pause menu
+- Replay interface
+- Substitution and strategy menus
 
 8. Interaction Design
 
 Input Principles
-* Low latency response
-* Predictable mapping across modes
-* Clear visual feedback for all inputs
+
+- Low latency response
+- Predictable mapping across modes
+- Clear visual feedback for all inputs
 
 Feedback
-* Visual: highlight, animation, transitions
-* Audio: confirmation and error cues
-* Haptic: optional vibration feedback
+
+- Visual: highlight, animation, transitions
+- Audio: confirmation and error cues
+- Haptic: optional vibration feedback
 
 9. Motion and Transitions
-* Fast and smooth transitions between screens
-* No delays that block user input
-* Subtle animations for focus and selection
-* Avoid excessive motion that distracts from gameplay
+
+- Fast and smooth transitions between screens
+- No delays that block user input
+- Subtle animations for focus and selection
+- Avoid excessive motion that distracts from gameplay
 
 10. Accessibility
 
 Required Features
-* Text size scaling
-* High contrast mode
-* Colorblind-safe palettes
-* Subtitle support
+
+- Text size scaling
+- High contrast mode
+- Colorblind-safe palettes
+- Subtitle support
 
 Optional Assists
-* Simplified UI mode
-* Reduced visual noise setting
+
+- Simplified UI mode
+- Reduced visual noise setting
 
 11. Performance Requirements
-* UI must render at target frame rate with no stutter
-* Menu transitions must complete within acceptable response time
-* No input delay introduced by UI layers
+
+- UI must render at target frame rate with no stutter
+- Menu transitions must complete within acceptable response time
+- No input delay introduced by UI layers
 
 12. Error Handling
-* Clear error messaging
-* Recovery paths for all failed actions
-* No loss of user progress without confirmation
+
+- Clear error messaging
+- Recovery paths for all failed actions
+- No loss of user progress without confirmation
 
 13. Validation Criteria
 
 The UI is considered acceptable when:
-* All text is readable under all team themes
-* Navigation requires minimal steps
-* Users can complete core actions without confusion
-* No invalid color combinations are displayed
-* Performance targets are consistently met
+
+- All text is readable under all team themes
+- Navigation requires minimal steps
+- Users can complete core actions without confusion
+- No invalid color combinations are displayed
+- Performance targets are consistently met
 
 The engagement comes from a tight mix of skill expression, uncertainty, and progression, all wrapped in a familiar structure.
 
 1. Why it feels engaging
 
 At the core, every pitch is a small decision with immediate feedback.
-* The player reads the pitch
-* The player commits to an action
-* The result is clear and fast
+
+- The player reads the pitch
+- The player commits to an action
+- The result is clear and fast
 
 That loop repeats constantly. It creates focus because each moment matters, but no single moment is overwhelming.
 
@@ -652,94 +727,105 @@ There is also strong cause and effect. Good timing and good decisions usually pr
 The game avoids feeling repetitive because it mixes consistency with variation.
 
 Consistency
-* Same rules
-* Same controls
-* Familiar structure
+
+- Same rules
+- Same controls
+- Familiar structure
 
 This builds mastery.
 
 Variation
-* Different pitchers and pitch sequences
-* Changing counts and situations
-* Player fatigue and confidence shifts
-* Defensive positioning and outcomes
+
+- Different pitchers and pitch sequences
+- Changing counts and situations
+- Player fatigue and confidence shifts
+- Defensive positioning and outcomes
 
 The player is doing the same actions, but never in the same exact context.
 
 3. Sources of variation
 
 Gameplay Variation
-* Pitch type, speed, and location
-* Timing windows that change subtly
-* Fielding outcomes based on contact quality
-* Weather and stadium effects (light influence)
+
+- Pitch type, speed, and location
+- Timing windows that change subtly
+- Fielding outcomes based on contact quality
+- Weather and stadium effects (light influence)
 
 Systemic Variation
-* Player ratings and traits
-* Hot and cold streaks
-* Fatigue and pressure
-* AI adaptation to player tendencies
+
+- Player ratings and traits
+- Hot and cold streaks
+- Fatigue and pressure
+- AI adaptation to player tendencies
 
 Situational Variation
-* Score and inning
-* Number of outs
-* Runners on base
-* Importance of the moment
+
+- Score and inning
+- Number of outs
+- Runners on base
+- Importance of the moment
 
 A swing in the first inning feels different from a swing in the ninth.
 
 4. Controlled randomness
 
 The game uses randomness, but within limits.
-* Well-timed actions increase probability of success
-* Poor input reduces probability
-* Outcomes are not guaranteed
+
+- Well-timed actions increase probability of success
+- Poor input reduces probability
+- Outcomes are not guaranteed
 
 This creates tension. The player feels in control, but not fully certain.
 
 5. Short feedback cycles
 
 Each action resolves quickly.
-* Pitch to result takes seconds
-* Immediate visual and audio feedback
-* Clear success or failure
+
+- Pitch to result takes seconds
+- Immediate visual and audio feedback
+- Clear success or failure
 
 This rapid loop encourages repeated play without fatigue.
 
 6. Long-term progression
 
 Across games, there is a second layer:
-* Player stats improve
-* Skills develop
-* Career advances
-* Team performance evolves
+
+- Player stats improve
+- Skills develop
+- Career advances
+- Team performance evolves
 
 Short-term actions feed long-term rewards. This reinforces continued play.
 
 7. Psychological drivers
-* Anticipation: waiting for the pitch
-* Risk and reward: swing or hold
-* Near-miss effect: almost perfect contact
-* Momentum: streaks and slumps
-* Identity: building a player or team
+
+- Anticipation: waiting for the pitch
+- Risk and reward: swing or hold
+- Near-miss effect: almost perfect contact
+- Momentum: streaks and slumps
+- Identity: building a player or team
 
 These elements make each session feel meaningful.
 
 8. Why each instance feels different
 
 No two at-bats are identical because multiple variables combine:
-* Pitch selection
-* Player attributes
-* Game situation
-* Random variation within limits
+
+- Pitch selection
+- Player attributes
+- Game situation
+- Random variation within limits
 
 Even if inputs repeat, the outcome space shifts slightly each time.
 
 9. Summary
 
 The game stays engaging because it balances:
-* Simple actions with high skill ceiling
-* Predictable systems with controlled randomness
-* Fast feedback with long-term progression
+
+- Simple actions with high skill ceiling
+- Predictable systems with controlled randomness
+- Fast feedback with long-term progression
 
 That combination makes repetition feel like refinement rather than repetition.

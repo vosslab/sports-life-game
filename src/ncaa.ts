@@ -1,24 +1,27 @@
 // ncaa.ts - NCAA schools and college schedule generation
 
+import fbsCsv from './data/ncaa_schools-FBS.csv';
+import fcsCsv from './data/ncaa_schools-FCS.csv';
+
 //============================================
 // NCAA school data structure
 export interface NCAASchool {
-	fullName: string;       // "Clemson University"
-	commonName: string;     // "Clemson"
-	nickname: string;       // "Tigers"
+	fullName: string; // "Clemson University"
+	commonName: string; // "Clemson"
+	nickname: string; // "Tigers"
 	city: string;
 	state: string;
-	subdivision: string;    // "FBS" or "FCS"
-	conference: string;     // "Atlantic Coast Conference"
+	subdivision: string; // "FBS" or "FCS"
+	conference: string; // "Atlantic Coast Conference"
 }
 
 //============================================
 // College schedule entry for a single game
 export interface CollegeScheduleEntry {
 	week: number;
-	opponentName: string;   // "Clemson Tigers"
+	opponentName: string; // "Clemson Tigers"
 	opponentStrength: number;
-	conference: boolean;     // true if conference game
+	conference: boolean; // true if conference game
 	played: boolean;
 	playerScore: number;
 	opponentScore: number;
@@ -46,69 +49,38 @@ const MID_MAJOR_CONFERENCES = [
 ];
 
 //============================================
-// Load NCAA schools from both FBS and FCS CSV files
+// Parse a CSV blob (with one header line) into NCAASchool entries.
+function parseNCAASchoolCsv(text: string, subdivision: string): NCAASchool[] {
+	const schools: NCAASchool[] = [];
+	const lines = text.split('\n');
+
+	// Skip header line
+	for (let i = 1; i < lines.length; i++) {
+		const line = lines[i].trim();
+		if (line.length === 0) continue;
+
+		const school = parseNCAASchoolLine(line, subdivision);
+		if (school) {
+			schools.push(school);
+		}
+	}
+	return schools;
+}
+
+//============================================
+// Load NCAA schools from bundled FBS and FCS CSV imports
 export async function loadNCAASchools(): Promise<{
 	fbs: NCAASchool[];
 	fcs: NCAASchool[];
 }> {
-	const fbsSchools: NCAASchool[] = [];
-	const fcsSchools: NCAASchool[] = [];
-
-	// Load FBS schools
-	try {
-		const fbsResponse = await fetch('src/data/ncaa_schools-FBS.csv');
-		if (fbsResponse.ok) {
-			const text = await fbsResponse.text();
-			const lines = text.split('\n');
-
-			// Skip header line
-			for (let i = 1; i < lines.length; i++) {
-				const line = lines[i].trim();
-				if (line.length === 0) continue;
-
-				const school = parseNCAASchoolLine(line, 'FBS');
-				if (school) {
-					fbsSchools.push(school);
-				}
-			}
-		}
-	} catch (error) {
-		// Return empty array on error
-		console.error('Failed to load FBS schools:', error);
-	}
-
-	// Load FCS schools
-	try {
-		const fcsResponse = await fetch('src/data/ncaa_schools-FCS.csv');
-		if (fcsResponse.ok) {
-			const text = await fcsResponse.text();
-			const lines = text.split('\n');
-
-			// Skip header line
-			for (let i = 1; i < lines.length; i++) {
-				const line = lines[i].trim();
-				if (line.length === 0) continue;
-
-				const school = parseNCAASchoolLine(line, 'FCS');
-				if (school) {
-					fcsSchools.push(school);
-				}
-			}
-		}
-	} catch (error) {
-		// Return empty array on error
-		console.error('Failed to load FCS schools:', error);
-	}
-
+	const fbsSchools = parseNCAASchoolCsv(fbsCsv, 'FBS');
+	const fcsSchools = parseNCAASchoolCsv(fcsCsv, 'FCS');
 	return { fbs: fbsSchools, fcs: fcsSchools };
 }
 
 //============================================
 // Parse a single CSV line into an NCAASchool
-function parseNCAASchoolLine(
-	line: string,
-	subdivision: string
-): NCAASchool | null {
+function parseNCAASchoolLine(line: string, subdivision: string): NCAASchool | null {
 	// Split by comma, but be careful with quoted fields
 	const parts = line.split(',');
 
@@ -150,11 +122,8 @@ function stripBracketAnnotations(text: string): string {
 
 //============================================
 // Get all schools from a specific conference
-export function getConferenceSchools(
-	schools: NCAASchool[],
-	conference: string
-): NCAASchool[] {
-	return schools.filter(school => school.conference === conference);
+export function getConferenceSchools(schools: NCAASchool[], conference: string): NCAASchool[] {
+	return schools.filter((school) => school.conference === conference);
 }
 
 //============================================
@@ -171,10 +140,7 @@ export function getUniqueConferences(schools: NCAASchool[]): string[] {
 
 //============================================
 // Assign a player college based on recruiting stars
-export function assignPlayerCollege(
-	recruitingStars: number,
-	schools: NCAASchool[]
-): NCAASchool {
+export function assignPlayerCollege(recruitingStars: number, schools: NCAASchool[]): NCAASchool {
 	let candidates: NCAASchool[] = [];
 
 	if (recruitingStars >= 5) {
@@ -192,10 +158,7 @@ export function assignPlayerCollege(
 		for (const conf of MID_MAJOR_CONFERENCES) {
 			const schoolsInConf = getConferenceSchools(schools, conf);
 			// Add only 50% of mid-major schools for 4 stars
-			const selected = schoolsInConf.slice(
-				0,
-				Math.ceil(schoolsInConf.length * 0.5)
-			);
+			const selected = schoolsInConf.slice(0, Math.ceil(schoolsInConf.length * 0.5));
 			candidates = candidates.concat(selected);
 		}
 	} else if (recruitingStars >= 3) {
@@ -206,14 +169,12 @@ export function assignPlayerCollege(
 		}
 	} else if (recruitingStars >= 2) {
 		// 2 stars: FCS schools
-		candidates = schools.filter(s => s.subdivision === 'FCS');
+		candidates = schools.filter((s) => s.subdivision === 'FCS');
 	} else {
 		// 1 star: smaller FCS schools (secondary in conference)
-		const allFCS = schools.filter(s => s.subdivision === 'FCS');
+		const allFCS = schools.filter((s) => s.subdivision === 'FCS');
 		// Take second half for "smaller" schools
-		candidates = allFCS.slice(
-			Math.ceil(allFCS.length * 0.5)
-		);
+		candidates = allFCS.slice(Math.ceil(allFCS.length * 0.5));
 	}
 
 	// Fallback to all schools if no candidates
@@ -241,16 +202,13 @@ export function generateCollegeSchedule(
 	const schedule: CollegeScheduleEntry[] = [];
 
 	// Get conference schools
-	const conferenceSchools = getConferenceSchools(
-		allSchools,
-		playerSchool.conference
-	).filter(s => s.commonName !== playerSchool.commonName);
+	const conferenceSchools = getConferenceSchools(allSchools, playerSchool.conference).filter(
+		(s) => s.commonName !== playerSchool.commonName
+	);
 
 	// Get non-conference opponents from other conferences
 	const nonConferenceSchools = allSchools.filter(
-		s =>
-			s.conference !== playerSchool.conference &&
-			s.commonName !== playerSchool.commonName
+		(s) => s.conference !== playerSchool.conference && s.commonName !== playerSchool.commonName
 	);
 
 	// Generate 8 conference games with unique weeks (5-12)
@@ -320,10 +278,7 @@ function getTeamStrength(school: NCAASchool): number {
 
 //============================================
 // Helper to select N random schools from an array
-function selectRandomSchools(
-	schools: NCAASchool[],
-	count: number
-): NCAASchool[] {
+function selectRandomSchools(schools: NCAASchool[], count: number): NCAASchool[] {
 	const selected: NCAASchool[] = [];
 	const available = [...schools];
 

@@ -68,9 +68,7 @@ export const nflLateHandler: YearHandler = {
 				primary: true,
 				action: () => {
 					player.nflYear += 1;
-					startSeason(player, ctx, SEASON_CONFIG, season,
-						() => handleSeasonEnd(player, ctx),
-					);
+					startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
 				},
 			},
 			{
@@ -78,7 +76,9 @@ export const nflLateHandler: YearHandler = {
 				primary: false,
 				action: () => {
 					ctx.addHeadline('Retirement');
-					ctx.addText(`${player.firstName} announces retirement after ${player.nflYear} NFL seasons.`);
+					ctx.addText(
+						`${player.firstName} announces retirement after ${player.nflYear} NFL seasons.`
+					);
 					ctx.addText(`Career earnings: $${(player.career.money / 1000000).toFixed(1)}M`);
 					ctx.addHeadline('Career Complete');
 					ctx.addText(`${player.firstName} ${player.lastName} has completed their NFL career.`);

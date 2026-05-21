@@ -11,29 +11,26 @@
 // 3. Story: converts to GameResult (existing shape) via story_summary
 //============================================
 
-import {
-	Player,
-	PerformanceRating,
-	PositionBucket,
-	clampStat,
-} from "../player.js";
-import { Team } from "../team.js";
-import { simulateGame, SimulatorGameResult } from "./engine/game_engine.js";
+import { Player, PerformanceRating, PositionBucket, clampStat } from '../player.js';
+import { Team } from '../team.js';
+import { simulateGame, SimulatorGameResult } from './engine/game_engine.js';
 import {
 	GameTeamContext,
 	TeamProfile,
 	createDefaultTeamProfile,
-} from "./models/team_strength_model.js";
-import { NFL_RULES, NFL_TUNING } from "./rules/nfl_rules.js";
-import { FCS_RULES, FCS_TUNING } from "./rules/fcs_rules.js";
+} from './models/team_strength_model.js';
+import { NFL_RULES, NFL_TUNING } from './rules/nfl_rules.js';
+import { FCS_RULES, FCS_TUNING } from './rules/fcs_rules.js';
 import {
-	IHSA_FROSH_SOPH_RULES, IHSA_FROSH_SOPH_TUNING,
-	IHSA_VARSITY_RULES, IHSA_VARSITY_TUNING,
-} from "./rules/ihsa_rules.js";
-import { LeagueRules } from "./rules/league_rules.js";
-import { LeagueTuning } from "./rules/league_tuning.js";
-import { getSnapShare } from "./output/stat_line.js";
-import { buildStorySummary, generateStoryText } from "./output/story_summary.js";
+	IHSA_FROSH_SOPH_RULES,
+	IHSA_FROSH_SOPH_TUNING,
+	IHSA_VARSITY_RULES,
+	IHSA_VARSITY_TUNING,
+} from './rules/ihsa_rules.js';
+import { LeagueRules } from './rules/league_rules.js';
+import { LeagueTuning } from './rules/league_tuning.js';
+import { getSnapShare } from './output/stat_line.js';
+import { buildStorySummary, generateStoryText } from './output/story_summary.js';
 import { rand } from '../core/rng.js';
 import { calculatePerformanceRating } from '../shared/game_utils.js';
 
@@ -60,7 +57,7 @@ export function simulateWeeklyGame(
 	player: Player,
 	team: Team,
 	opponentStrength: number,
-	playoffIntensity: boolean = false,
+	playoffIntensity: boolean = false
 ): GameResult {
 	// Build league rules for current phase and age
 	const rules = getLeagueRulesForPhase(player.phase, player.age);
@@ -98,7 +95,7 @@ function buildPlayerTeamContext(player: Player, team: Team): GameTeamContext {
 	let momentum = 0;
 	if (totalGames > 0) {
 		// Simple momentum: win% mapped to -1 to 1
-		momentum = ((team.wins / totalGames) - 0.5) * 2;
+		momentum = (team.wins / totalGames - 0.5) * 2;
 	}
 
 	return {
@@ -153,14 +150,14 @@ function applyPlayerBoosts(profile: TeamProfile, player: Player, scale: number):
 
 function buildOpponentContext(
 	opponentStrength: number,
-	playoffIntensity: boolean,
+	playoffIntensity: boolean
 ): GameTeamContext {
 	// Playoff opponents get a boost
 	const effectiveStrength = playoffIntensity
 		? Math.min(100, opponentStrength + Math.floor(rand() * 8) + 5)
 		: opponentStrength;
 
-	const profile = createDefaultTeamProfile("Opponent", effectiveStrength);
+	const profile = createDefaultTeamProfile('Opponent', effectiveStrength);
 
 	return {
 		profile,
@@ -212,7 +209,7 @@ function getLeagueTuningForPhase(phase: string, age?: number): LeagueTuning {
 function convertToGameResult(
 	sim: SimulatorGameResult,
 	player: Player,
-	homeContext: GameTeamContext,
+	homeContext: GameTeamContext
 ): GameResult {
 	// Determine win/loss from player's perspective (player is always home)
 	const teamScore = sim.homeScore;
@@ -232,8 +229,12 @@ function convertToGameResult(
 
 	// Build story summary and generate text
 	const story = buildStorySummary(
-		sim.homeScore, sim.awayScore, true,
-		playerStatLine, bucket, sim.playLog,
+		sim.homeScore,
+		sim.awayScore,
+		true,
+		playerStatLine,
+		bucket,
+		sim.playLog
 	);
 	const storyText = generateStoryText(story, player.teamName);
 
@@ -257,7 +258,7 @@ function extractPlayerStatsFromSim(
 	sim: SimulatorGameResult,
 	player: Player,
 	positionBucket: string,
-	snapShare: number,
+	snapShare: number
 ): StatLine {
 	// Count play types from the play log
 	let passPlays = 0;
@@ -282,48 +283,48 @@ function extractPlayerStatsFromSim(
 			continue;
 		}
 
-		if (entry.includes("Pass complete")) {
+		if (entry.includes('Pass complete')) {
 			passPlays++;
 			completions++;
 			const yardsMatch = entry.match(/for (\d+) yards/);
 			if (yardsMatch) {
 				passYards += parseInt(yardsMatch[1], 10);
 			}
-			if (entry.includes("TOUCHDOWN")) {
+			if (entry.includes('TOUCHDOWN')) {
 				passTds++;
 			}
-		} else if (entry.includes("Pass incomplete")) {
+		} else if (entry.includes('Pass incomplete')) {
 			passPlays++;
-		} else if (entry.includes("INTERCEPTED")) {
+		} else if (entry.includes('INTERCEPTED')) {
 			passPlays++;
 			passInts++;
-		} else if (entry.includes("Sacked")) {
+		} else if (entry.includes('Sacked')) {
 			passPlays++;
 			sacks++;
-			if (entry.includes("FUMBLE")) {
+			if (entry.includes('FUMBLE')) {
 				fumbles++;
 			}
-		} else if (entry.includes("Rush for")) {
+		} else if (entry.includes('Rush for')) {
 			rushPlays++;
 			const yardsMatch = entry.match(/for (-?\d+) yards/);
 			if (yardsMatch) {
 				rushYards += parseInt(yardsMatch[1], 10);
 			}
-			if (entry.includes("TOUCHDOWN")) {
+			if (entry.includes('TOUCHDOWN')) {
 				rushTds++;
 			}
-			if (entry.includes("FUMBLE")) {
+			if (entry.includes('FUMBLE')) {
 				fumbles++;
 			}
-		} else if (entry.includes("field goal is GOOD")) {
+		} else if (entry.includes('field goal is GOOD')) {
 			fgAttempts++;
 			fgMade++;
-		} else if (entry.includes("field goal is NO GOOD")) {
+		} else if (entry.includes('field goal is NO GOOD')) {
 			fgAttempts++;
-		} else if (entry.includes("Extra point is GOOD")) {
+		} else if (entry.includes('Extra point is GOOD')) {
 			xpAttempts++;
 			xpMade++;
-		} else if (entry.includes("Extra point is NO GOOD")) {
+		} else if (entry.includes('Extra point is NO GOOD')) {
 			xpAttempts++;
 		}
 	}
@@ -339,7 +340,10 @@ function extractPlayerStatsFromSim(
 			stat.passInts = Math.round(passInts * share);
 			stat.completions = Math.round(completions * share);
 			stat.attempts = Math.round(passPlays * share);
-			const pct = stat.attempts > 0 ? Math.round((stat.completions as number) / (stat.attempts as number) * 100) : 0;
+			const pct =
+				stat.attempts > 0
+					? Math.round(((stat.completions as number) / (stat.attempts as number)) * 100)
+					: 0;
 			stat.completionPct = `${pct}%`;
 			break;
 		}
@@ -358,7 +362,7 @@ function extractPlayerStatsFromSim(
 				// WR/TE: receiving stats
 				// A starter WR gets ~30% of team pass targets
 				// Snap share scales that proportionally (backup gets fewer)
-				const receiverShare = 0.30 * share;
+				const receiverShare = 0.3 * share;
 				stat.targets = Math.max(1, Math.round(passPlays * receiverShare));
 				stat.receptions = Math.max(0, Math.round(completions * receiverShare));
 				stat.recYards = Math.round(passYards * receiverShare);
@@ -371,10 +375,16 @@ function extractPlayerStatsFromSim(
 			// Grade based on sacks allowed: NFL average is ~3-4 per game
 			// Center C at 3-4 sacks (average performance)
 			const totalSacks = sacks;
-			const grade = totalSacks <= 1 ? 'A'
-				: totalSacks <= 2 ? 'B'
-				: totalSacks <= 4 ? 'C'
-				: totalSacks <= 6 ? 'D' : 'F';
+			const grade =
+				totalSacks <= 1
+					? 'A'
+					: totalSacks <= 2
+						? 'B'
+						: totalSacks <= 4
+							? 'C'
+							: totalSacks <= 6
+								? 'D'
+								: 'F';
 			stat.grade = grade;
 			stat.keyPlays = Math.floor(rand() * 6) + 2;
 			break;
@@ -383,7 +393,7 @@ function extractPlayerStatsFromSim(
 			const share = snapShare;
 			// Defenders generate stats from opponent plays
 			const oppPlays = sim.awayPlays;
-			stat.tackles = Math.round((oppPlays * 0.15) * share);
+			stat.tackles = Math.round(oppPlays * 0.15 * share);
 			stat.sacks = Math.round(sacks * share * 0.3);
 			stat.ints = Math.round(passInts * share * 0.4);
 			break;
@@ -429,27 +439,28 @@ function estimatePerformanceScore(stat: StatLine, positionBucket: string): numbe
 			}
 			break;
 		case 'lineman': {
-			const gradeMap: Record<string, number> = { 'A': 90, 'B': 78, 'C': 63, 'D': 48, 'F': 20 };
+			const gradeMap: Record<string, number> = { A: 90, B: 78, C: 63, D: 48, F: 20 };
 			score = gradeMap[stat.grade as string] ?? 50;
 			break;
 		}
 		case 'defender':
 			score = 40 + num('tackles') * 3 + num('sacks') * 10 + num('ints') * 15;
 			break;
-		case 'kicker': {
-			// Kicker score: FG accuracy + XP reliability
-			// Average game: 1-2 FGs, 3-4 XPs -> should be C (~60)
-			let kickScore = 45;
-			if (num('fgAttempts') > 0) {
-				kickScore += (num('fgMade') / num('fgAttempts')) * 20;
-				kickScore += num('fgMade') * 5;
+		case 'kicker':
+			{
+				// Kicker score: FG accuracy + XP reliability
+				// Average game: 1-2 FGs, 3-4 XPs -> should be C (~60)
+				let kickScore = 45;
+				if (num('fgAttempts') > 0) {
+					kickScore += (num('fgMade') / num('fgAttempts')) * 20;
+					kickScore += num('fgMade') * 5;
+				}
+				if (num('xpAttempts') > 0) {
+					kickScore += (num('xpMade') / num('xpAttempts')) * 10;
+				}
+				score = kickScore;
+				break;
 			}
-			if (num('xpAttempts') > 0) {
-				kickScore += (num('xpMade') / num('xpAttempts')) * 10;
-			}
-			score = kickScore;
-			break;
-		}
 			break;
 	}
 

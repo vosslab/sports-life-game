@@ -86,40 +86,42 @@ tsconfig.json          - TypeScript config
 
 ### Core stats (visible, 0-100 scale)
 
-| Stat | Description | Growth |
-| --- | --- | --- |
-| Athleticism | Raw physical talent: speed, strength, agility | Grows in youth, peaks mid-career, declines late |
-| Technique | Position-specific mechanics and fundamentals | Grows with training, slow but steady |
-| Football IQ | Reading defenses, play recognition, decision making | Grows with film study, experience |
-| Discipline | Training consistency, staying out of trouble | Affected by choices (parties vs practice) |
-| Health | Injury resistance and recovery speed | Fluctuates with injuries, rest, age |
-| Confidence | Performance under pressure, clutch factor | Rises with wins/good games, drops with losses/benching |
+| Stat        | Description                                         | Growth                                                 |
+| ----------- | --------------------------------------------------- | ------------------------------------------------------ |
+| Athleticism | Raw physical talent: speed, strength, agility       | Grows in youth, peaks mid-career, declines late        |
+| Technique   | Position-specific mechanics and fundamentals        | Grows with training, slow but steady                   |
+| Football IQ | Reading defenses, play recognition, decision making | Grows with film study, experience                      |
+| Discipline  | Training consistency, staying out of trouble        | Affected by choices (parties vs practice)              |
+| Health      | Injury resistance and recovery speed                | Fluctuates with injuries, rest, age                    |
+| Confidence  | Performance under pressure, clutch factor           | Rises with wins/good games, drops with losses/benching |
 
 ### Career stats (visible, different scales)
 
-| Stat | Description |
-| --- | --- |
+| Stat       | Description                                                                   |
+| ---------- | ----------------------------------------------------------------------------- |
 | Popularity | 0-100. How well-known you are. Affects recruiting, NIL, sponsors, draft stock |
-| Money | Dollar amount. Allowance (youth), NIL (college), contracts (NFL) |
+| Money      | Dollar amount. Allowance (youth), NIL (college), contracts (NFL)              |
 
 ### Hidden stats
 
-| Stat | Description | Range |
-| --- | --- | --- |
-| Size | Height/weight class (1=small, 5=large). Set at birth, influences position fit and line play | 1-5 |
-| Leadership | Team chemistry contribution. Affects team performance modifier | 0-100 |
-| Durability | Long-term injury proneness vs. single-game Health | 0-100 |
+| Stat       | Description                                                                                 | Range |
+| ---------- | ------------------------------------------------------------------------------------------- | ----- |
+| Size       | Height/weight class (1=small, 5=large). Set at birth, influences position fit and line play | 1-5   |
+| Leadership | Team chemistry contribution. Affects team performance modifier                              | 0-100 |
+| Durability | Long-term injury proneness vs. single-game Health                                           | 0-100 |
 
 Size uses a simple 1-5 scale (not 0-100) representing body frame:
+
 - 1-2: small/quick (fits CB, WR, K)
 - 3: medium (fits QB, RB, LB, S)
 - 4-5: large (fits OL, DL, TE)
-Size is set at birth with some growth during youth. Used for position suggestions
-and line position performance. Not shown in main UI.
+  Size is set at birth with some growth during youth. Used for position suggestions
+  and line position performance. Not shown in main UI.
 
 ### Birth stats
 
 At birth, all core stats get random initial values (weighted distribution):
+
 - Athleticism, Health: higher variance (some kids are naturally gifted)
 - Technique, Football IQ: start low (learned skills)
 - Discipline, Confidence: moderate random range
@@ -127,14 +129,14 @@ At birth, all core stats get random initial values (weighted distribution):
 
 ## Career progression
 
-| Age | Phase | Loop style | Detail level |
-| --- | --- | --- | --- |
-| 0-9 | Childhood | Year-by-year summary | Quick choices, stat reveals, sport interest |
-| 10-13 | Youth football | Season-by-season | General athlete, basic season results |
-| 14-17 | High school | **Weekly** (deep) | Full weekly loop. Position discovery, recruiting, rivals |
-| 18-21 | College | Season-by-season (v1) | Summary choices, recruiting, NIL, bowl games |
-| 22-35+ | NFL | **Weekly** (second deep system) | Contracts, trades, injuries, awards, legacy |
-| Retire | Legacy | One-time | Career summary, hall of fame check, final stats |
+| Age    | Phase          | Loop style                      | Detail level                                             |
+| ------ | -------------- | ------------------------------- | -------------------------------------------------------- |
+| 0-9    | Childhood      | Year-by-year summary            | Quick choices, stat reveals, sport interest              |
+| 10-13  | Youth football | Season-by-season                | General athlete, basic season results                    |
+| 14-17  | High school    | **Weekly** (deep)               | Full weekly loop. Position discovery, recruiting, rivals |
+| 18-21  | College        | Season-by-season (v1)           | Summary choices, recruiting, NIL, bowl games             |
+| 22-35+ | NFL            | **Weekly** (second deep system) | Contracts, trades, injuries, awards, legacy              |
+| Retire | Legacy         | One-time                        | Career summary, hall of fame check, final stats          |
 
 ### Build priority order
 
@@ -147,6 +149,7 @@ At birth, all core stats get random initial values (weighted distribution):
 Keep this fast. Just a few clicks, not drawn out.
 
 Year-by-year clicks. Each year:
+
 - Brief life event (BitLife-style one-liner with story text)
 - Occasional choice that shapes stats
 - At age 8-9: "Do you want to play football?" moment
@@ -155,6 +158,7 @@ Year-by-year clicks. Each year:
 ### Phase: Youth football (10-13)
 
 Season-by-season. Each season:
+
 - Player is a general athlete (no fixed position yet)
 - Season summary with a few key moments
 - Stat growth based on effort and natural ability
@@ -169,6 +173,7 @@ Offseason: condensed summary screens with key choices.
 #### Position discovery
 
 Position is NOT chosen at birth. In early high school:
+
 - Coach suggests a position based on your Size + stats
 - Player can accept, request a different position, or try out for multiple
 - This is a major early decision moment
@@ -233,6 +238,7 @@ weekly events and have long-term consequences tracked in the story log and
 career history.
 
 Examples by phase:
+
 - **HS**: switch positions, fight for starting spot, transfer schools, play
   through injury, commit to college, respond to rival
 - **College**: transfer portal, red-shirt, enter draft early, NIL deal
@@ -245,6 +251,7 @@ receive special UI treatment (full-screen card, dramatic text).
 ### Phase: College (compressed but meaningful)
 
 Season-by-season. Each season:
+
 - 2-3 key choices per season
 - Season performance summary based on stats
 - NIL deal opportunities
@@ -261,6 +268,7 @@ First version: playable season-by-season with meaningful choices and drama.
 Later upgraded to full weekly loop.
 
 When fully built, uses the same weekly loop as high school but with:
+
 - Contract negotiations and free agency
 - Trade demands and team changes
 - Real NFL team names
@@ -277,6 +285,7 @@ weekly loop later.
 ### Phase: Legacy
 
 One-time summary:
+
 - Career stats and records
 - Awards and achievements
 - Hall of Fame eligibility
@@ -291,13 +300,13 @@ buckets with stat weights and output types.
 
 ### Position buckets (first build)
 
-| Bucket | Positions | Primary stats | Performance outputs |
-| --- | --- | --- | --- |
-| Passer | QB | Football IQ, Technique, Confidence | Pass yards, TDs, INTs |
-| Runner/Receiver | RB, WR, TE | Athleticism, Technique | Yards, TDs, catches |
-| Lineman | OL, DL | Size, Technique, Discipline | Grade (A-F), key plays |
-| Defender | LB, CB, S | Athleticism, Football IQ | Tackles, sacks, INTs |
-| Kicker | K, P | Technique, Confidence | FG%, punt avg |
+| Bucket          | Positions  | Primary stats                      | Performance outputs    |
+| --------------- | ---------- | ---------------------------------- | ---------------------- |
+| Passer          | QB         | Football IQ, Technique, Confidence | Pass yards, TDs, INTs  |
+| Runner/Receiver | RB, WR, TE | Athleticism, Technique             | Yards, TDs, catches    |
+| Lineman         | OL, DL     | Size, Technique, Discipline        | Grade (A-F), key plays |
+| Defender        | LB, CB, S  | Athleticism, Football IQ           | Tackles, sacks, INTs   |
+| Kicker          | K, P       | Technique, Confidence              | FG%, punt avg          |
 
 Later versions split buckets into individual positions with unique formulas.
 
@@ -320,6 +329,7 @@ don't match the new position's requirements.
 ### Team state (src/team.ts)
 
 Each team tracks:
+
 - **Team strength**: overall quality rating (1-100)
 - **Depth chart**: player's position on it (starter, backup, bench)
 - **Coach personality**: supportive, demanding, or volatile (affects events)
@@ -327,6 +337,7 @@ Each team tracks:
 - **Roster competition**: other players at your position who threaten your spot
 
 Underdog mechanics depend on team state:
+
 - Starting as backup is common for freshmen
 - Must earn starter role through good weeks and choices
 - Coach personality affects how hard it is to earn playing time
@@ -335,6 +346,7 @@ Underdog mechanics depend on team state:
 ### Rivals
 
 Rival characters are generated and persist across seasons:
+
 - Named rival players at your position or on opposing teams
 - Rivalry events trigger based on schedule and history
 - Rival performance compared to yours affects recruiting/draft stock
@@ -348,87 +360,89 @@ Story text is the primary output, not stat numbers.
 
 ```json
 {
-  "id": "rival_trash_talk_pregame",
-  "title": "Rival Runs His Mouth",
-  "description": "Your biggest rival just posted about how he is going to shut you down this Friday.",
-  "phase": "high_school",
-  "tags": ["rival", "social", "confidence"],
-  "weight": 5,
-  "is_big_decision": false,
-  "conditions": {
-    "min_week": 3,
-    "positions": [],
-    "min_stats": {},
-    "max_stats": {}
-  },
-  "choices": [
-    {
-      "text": "Fire back on social media",
-      "effects": {
-        "confidence": 3,
-        "popularity": 5,
-        "discipline": -2
-      },
-      "flavor": "Your clap-back goes viral at school. Coach is not thrilled, but the team loves it."
-    },
-    {
-      "text": "Let your play do the talking",
-      "effects": {
-        "discipline": 3,
-        "confidence": 1
-      },
-      "flavor": "You keep your head down. Your teammates respect the quiet confidence."
-    },
-    {
-      "text": "Confront him at school",
-      "effects": {
-        "confidence": 2,
-        "discipline": -5,
-        "popularity": 3
-      },
-      "flavor": "Things get heated in the hallway. You almost get suspended."
-    }
-  ]
+	"id": "rival_trash_talk_pregame",
+	"title": "Rival Runs His Mouth",
+	"description": "Your biggest rival just posted about how he is going to shut you down this Friday.",
+	"phase": "high_school",
+	"tags": ["rival", "social", "confidence"],
+	"weight": 5,
+	"is_big_decision": false,
+	"conditions": {
+		"min_week": 3,
+		"positions": [],
+		"min_stats": {},
+		"max_stats": {}
+	},
+	"choices": [
+		{
+			"text": "Fire back on social media",
+			"effects": {
+				"confidence": 3,
+				"popularity": 5,
+				"discipline": -2
+			},
+			"flavor": "Your clap-back goes viral at school. Coach is not thrilled, but the team loves it."
+		},
+		{
+			"text": "Let your play do the talking",
+			"effects": {
+				"discipline": 3,
+				"confidence": 1
+			},
+			"flavor": "You keep your head down. Your teammates respect the quiet confidence."
+		},
+		{
+			"text": "Confront him at school",
+			"effects": {
+				"confidence": 2,
+				"discipline": -5,
+				"popularity": 3
+			},
+			"flavor": "Things get heated in the hallway. You almost get suspended."
+		}
+	]
 }
 ```
 
 ### Event fields
 
-| Field | Purpose |
-| --- | --- |
-| id | Unique identifier |
-| title | Card headline |
-| description | Situation text (story-first) |
-| phase | Which career phase (childhood, youth, high_school, college, nfl) |
-| tags | Filtering: position, category, theme |
-| weight | Rarity (higher = more common) |
-| is_big_decision | Flag for major career-altering choices |
-| conditions | When event can fire (week, position, stat thresholds) |
-| choices | Array of options with effects and flavor text |
+| Field           | Purpose                                                          |
+| --------------- | ---------------------------------------------------------------- |
+| id              | Unique identifier                                                |
+| title           | Card headline                                                    |
+| description     | Situation text (story-first)                                     |
+| phase           | Which career phase (childhood, youth, high_school, college, nfl) |
+| tags            | Filtering: position, category, theme                             |
+| weight          | Rarity (higher = more common)                                    |
+| is_big_decision | Flag for major career-altering choices                           |
+| conditions      | When event can fire (week, position, stat thresholds)            |
+| choices         | Array of options with effects and flavor text                    |
 
 ### Follow-up events and persistent flags
 
 Some storylines span multiple weeks or seasons (rivalries, injuries, recruiting).
 Support this through:
+
 - `sets_flag`: event sets a named flag on the player state (e.g., "rival_feud_active")
 - `requires_flag`: event only fires if a flag is set
 - `clears_flag`: event resolves a storyline and removes the flag
 
 This allows multi-step stories like:
+
 1. Rival trash talks you (sets "rival_feud_active")
 2. Next week: rival outperforms you (requires "rival_feud_active")
 3. Big game showdown (requires "rival_feud_active", clears flag)
 
 ### Event content priorities (first build: 30-40 events)
 
-| Category | Count | Priority |
-| --- | --- | --- |
-| Rival drama | ~10 | HIGH - most fun per co-designer |
-| Injury scenarios | ~8 | HIGH - play through pain, recovery choices |
-| Recruiting moments | ~8 | HIGH - college scout visits, offer letters |
-| Coach/team | ~5 | MEDIUM - benching, praise, conflict |
-| Academic/social | ~4 | MEDIUM - eligibility, parties, grades |
-| Big decisions | ~5 | HIGH - position switch, transfer, commit |
+| Category           | Count | Priority                                   |
+| ------------------ | ----- | ------------------------------------------ |
+| Rival drama        | ~10   | HIGH - most fun per co-designer            |
+| Injury scenarios   | ~8    | HIGH - play through pain, recovery choices |
+| Recruiting moments | ~8    | HIGH - college scout visits, offer letters |
+| Coach/team         | ~5    | MEDIUM - benching, praise, conflict        |
+| Academic/social    | ~4    | MEDIUM - eligibility, parties, grades      |
+| Big decisions      | ~5    | HIGH - position switch, transfer, commit   |
 
 Deprioritize generic life filler. Every event should have football stakes.
 
@@ -436,12 +450,12 @@ Deprioritize generic life filler. Every event should have football stakes.
 
 All stat changes should be accompanied by narrative text:
 
-| Instead of | Write |
-| --- | --- |
-| "+3 Technique" | "Your footwork is getting sharper every practice." |
-| "-5 Health" | "That hit in the third quarter is still bothering you." |
-| "+5 Popularity" | "The local paper ran a feature on you this week." |
-| "-3 Confidence" | "After that interception, the doubt is creeping in." |
+| Instead of      | Write                                                   |
+| --------------- | ------------------------------------------------------- |
+| "+3 Technique"  | "Your footwork is getting sharper every practice."      |
+| "-5 Health"     | "That hit in the third quarter is still bothering you." |
+| "+5 Popularity" | "The local paper ran a feature on you this week."       |
+| "-3 Confidence" | "After that interception, the doubt is creeping in."    |
 
 ## Performance simulation (week_sim.ts)
 
@@ -535,18 +549,18 @@ Player can play well in a loss and badly in a win. These are separate.
 
 ### Screen types
 
-| Screen | When |
-| --- | --- |
-| Birth / character creation | Game start |
-| Year summary | Childhood, offseason |
-| Position discovery | Early high school |
-| Weekly focus choice | Each week during season |
-| Event card (modal) | Random events and big decisions |
-| Game result | After each game |
-| Season summary | End of season |
-| Recruiting / draft | HS junior/senior, college |
-| Milestone | Awards, records, promotions |
-| Legacy / retirement | Career end |
+| Screen                     | When                            |
+| -------------------------- | ------------------------------- |
+| Birth / character creation | Game start                      |
+| Year summary               | Childhood, offseason            |
+| Position discovery         | Early high school               |
+| Weekly focus choice        | Each week during season         |
+| Event card (modal)         | Random events and big decisions |
+| Game result                | After each game                 |
+| Season summary             | End of season                   |
+| Recruiting / draft         | HS junior/senior, college       |
+| Milestone                  | Awards, records, promotions     |
+| Legacy / retirement        | Career end                      |
 
 ## Save system
 

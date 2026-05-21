@@ -24,19 +24,19 @@ import type { Activity } from '../activities.js';
 
 export interface AgeHook {
 	id: string;
-	age?: number;                     // exact age to fire at
-	ageRange?: [number, number];      // [minAge, maxAge] inclusive range
+	age?: number; // exact age to fire at
+	ageRange?: [number, number]; // [minAge, maxAge] inclusive range
 	condition?(player: Player): boolean; // optional predicate
-	once?: boolean;                   // default true; if false, fires every time condition met
-	priority?: number;                // deterministic ordering when multiple fire same age
+	once?: boolean; // default true; if false, fires every time condition met
+	priority?: number; // deterministic ordering when multiple fire same age
 	fire(player: Player, ctx: GameContext): void;
 }
 
 export interface PhaseStartHook {
 	id: string;
-	phase: CareerPhase;               // e.g., 'nfl' for draft-day hooks
+	phase: CareerPhase; // e.g., 'nfl' for draft-day hooks
 	condition?(player: Player): boolean; // optional predicate
-	priority?: number;                // deterministic ordering when multiple fire same phase
+	priority?: number; // deterministic ordering when multiple fire same phase
 	fire(player: Player, ctx: GameContext): void;
 }
 
@@ -44,7 +44,7 @@ export interface CareerEndHook {
 	id: string;
 	trigger: 'retirement' | 'hof_eligibility' | 'forced_retirement';
 	condition?(player: Player): boolean; // optional predicate
-	priority?: number;                // deterministic ordering
+	priority?: number; // deterministic ordering
 	fire(player: Player, ctx: GameContext): void;
 }
 
@@ -188,7 +188,7 @@ export interface PluginHost {
 // at app boot (in src/plugins/register_plugins.ts).
 
 export interface GamePlugin {
-	name: string;           // unique id; duplicate registration throws
-	version?: string;       // optional semver for diagnostics
+	name: string; // unique id; duplicate registration throws
+	version?: string; // optional semver for diagnostics
 	register(host: PluginHost): void;
 }

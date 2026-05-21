@@ -169,4 +169,3 @@ function updateMiniBar(statName: string, value: number): void {
 		bar.classList.add('stat-low');
 	}
 }
-

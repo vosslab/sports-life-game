@@ -66,7 +66,7 @@ function estimateLikes(player: Player, kind: FotomagicPost['kind']): number {
 // Returns the reason if notable, or null if routine.
 export function isNotableGame(
 	result: GameResult,
-	context: { isPlayoff: boolean; isFirstWin: boolean; isFirstStart: boolean },
+	context: { isPlayoff: boolean; isFirstWin: boolean; isFirstStart: boolean }
 ): string | null {
 	if (context.isPlayoff) {
 		return 'playoff game';
@@ -120,11 +120,7 @@ function numStat(stats: StatLine, key: string): number {
 
 //============================================
 // Build a default caption for a game post based on result + reason.
-export function buildGameCaption(
-	result: GameResult,
-	opponentName: string,
-	reason: string,
-): string {
+export function buildGameCaption(result: GameResult, opponentName: string, reason: string): string {
 	const wl = result.result === 'win' ? 'W' : 'L';
 	return wl + ' vs ' + opponentName + '. ' + reason + '. #fotomagic';
 }
@@ -160,10 +156,7 @@ export function buildStatSnippet(statLine: StatLine): string {
 //============================================
 // Apply popularity gain from posting. Routine notable: +1, milestone: +3.
 // Caps weekly gain so spamming the manual button doesn't break the curve.
-export function applyPostPopularity(
-	player: Player,
-	kind: FotomagicPost['kind'],
-): void {
+export function applyPostPopularity(player: Player, kind: FotomagicPost['kind']): void {
 	let delta = 1;
 	if (kind === 'milestone') {
 		delta = 3;
@@ -172,7 +165,7 @@ export function applyPostPopularity(
 	}
 	// Diminishing returns: if player already posted 3+ times this week, no gain
 	const thisWeekCount = (player.fotomagicFeed || []).filter(
-		p => p.week === player.currentWeek && p.age === player.age,
+		(p) => p.week === player.currentWeek && p.age === player.age
 	).length;
 	if (thisWeekCount >= 3) {
 		delta = 0;
@@ -188,7 +181,7 @@ export function buildGamePost(
 	result: GameResult,
 	opponentName: string,
 	reason: string,
-	kind: 'game' | 'milestone',
+	kind: 'game' | 'milestone'
 ): FotomagicPost {
 	const post: FotomagicPost = {
 		id: nextPostId(),
@@ -227,11 +220,10 @@ export function maybePromptShareAfterGame(
 	result: GameResult,
 	opponentName: string,
 	context: { isPlayoff: boolean; isFirstWin: boolean; isFirstStart: boolean },
-	onContinue: () => void,
+	onContinue: () => void
 ): void {
 	// Only available from high school onward
-	if (player.phase !== 'high_school' && player.phase !== 'college'
-		&& player.phase !== 'nfl') {
+	if (player.phase !== 'high_school' && player.phase !== 'college' && player.phase !== 'nfl') {
 		onContinue();
 		return;
 	}
@@ -246,10 +238,13 @@ export function maybePromptShareAfterGame(
 		return;
 	}
 	// Pick post kind: milestone for firsts/playoffs, otherwise game
-	const kind: 'game' | 'milestone' = (
-		context.isPlayoff || context.isFirstWin || context.isFirstStart
-			|| result.playerRating === 'elite'
-	) ? 'milestone' : 'game';
+	const kind: 'game' | 'milestone' =
+		context.isPlayoff ||
+		context.isFirstWin ||
+		context.isFirstStart ||
+		result.playerRating === 'elite'
+			? 'milestone'
+			: 'game';
 
 	const draftPost = buildGamePost(player, result, opponentName, reason, kind);
 
@@ -283,7 +278,7 @@ export function maybePromptShareAfterGame(
 			},
 		],
 		'Share to Fotomagic? ' + draftPost.caption,
-		'narrative',
+		'narrative'
 	);
 }
 
@@ -292,8 +287,13 @@ export function maybePromptShareAfterGame(
 console.assert(FEED_RENDER_LIMIT === 25, 'feed cap is 25');
 const _testPlayer = { fotomagicFeed: [] as FotomagicPost[] } as unknown as Player;
 addPost(_testPlayer, {
-	id: 't1', week: 1, age: 14, phase: 'high_school',
-	kind: 'manual', caption: 'hi', likes: 1,
+	id: 't1',
+	week: 1,
+	age: 14,
+	phase: 'high_school',
+	kind: 'manual',
+	caption: 'hi',
+	likes: 1,
 });
 console.assert(_testPlayer.fotomagicFeed!.length === 1, 'addPost grows feed');
 console.assert(recentPosts(_testPlayer, 5).length === 1, 'recentPosts returns 1');

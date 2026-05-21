@@ -22,7 +22,7 @@ export class SeasonGame {
 		week: number,
 		homeTeamId: TeamId,
 		awayTeamId: TeamId,
-		isConferenceGame: boolean = false,
+		isConferenceGame: boolean = false
 	) {
 		this.id = id;
 		this.week = week;
@@ -143,7 +143,10 @@ console.assert(testGame.status === 'final', 'Played game should be final');
 console.assert(testGame.getWinner() === 'home', 'Home team won 28-14');
 console.assert(testGame.getLoser() === 'away', 'Away team lost 28-14');
 console.assert(testGame.getTeamScore('home') === 28, 'Home score should be 28');
-console.assert(testGame.getOpponentScore('home') === 14, 'Opponent score from home perspective should be 14');
+console.assert(
+	testGame.getOpponentScore('home') === 14,
+	'Opponent score from home perspective should be 14'
+);
 
 // Tie game test
 const tieGame = new SeasonGame('g2', 2, 'a', 'b');

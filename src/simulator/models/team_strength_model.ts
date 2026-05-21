@@ -18,39 +18,39 @@ import { rand } from '../../core/rng.js';
 // Team identity and base ratings (0-100 scale).
 export interface TeamProfile {
 	name: string;
-	overall: number;       // 0-100 composite strength
-	offense: number;       // 0-100 offensive power
-	defense: number;       // 0-100 defensive power
-	runOffense: number;    // 0-100 rushing attack
-	passOffense: number;   // 0-100 passing attack
-	runDefense: number;    // 0-100 rush defense
-	passDefense: number;   // 0-100 pass defense
-	specialTeams: number;  // 0-100 special teams quality
-	discipline: number;    // 0-100 turnover/penalty control
+	overall: number; // 0-100 composite strength
+	offense: number; // 0-100 offensive power
+	defense: number; // 0-100 defensive power
+	runOffense: number; // 0-100 rushing attack
+	passOffense: number; // 0-100 passing attack
+	runDefense: number; // 0-100 rush defense
+	passDefense: number; // 0-100 pass defense
+	specialTeams: number; // 0-100 special teams quality
+	discipline: number; // 0-100 turnover/penalty control
 	explosiveness: number; // 0-100 big-play tendency
-	consistency: number;   // 0-100 variance dampening
-	depth: number;         // 0-100 bench quality
-	ranking?: number;      // optional league ranking
+	consistency: number; // 0-100 variance dampening
+	depth: number; // 0-100 bench quality
+	ranking?: number; // optional league ranking
 }
 
 // Game-day context: profile plus situational modifiers.
 export interface GameTeamContext {
 	profile: TeamProfile;
-	momentum: number;          // -1 to 1 from recent results
-	fatigue: number;           // 0 to 1, higher = more tired
-	injuryAdjustment: number;  // negative modifier from key injuries
+	momentum: number; // -1 to 1 from recent results
+	fatigue: number; // 0 to 1, higher = more tired
+	injuryAdjustment: number; // negative modifier from key injuries
 	weatherAdjustment: number; // modifier for outdoor conditions
 }
 
 // Per-play multipliers derived from matchup.
 // Each >1 means advantage (more yards, higher completion, more sacks/ints).
 export interface MatchupAdjustment {
-	passYardMult: number;    // >1 = offense passes for more yards
-	rushYardMult: number;    // >1 = offense rushes for more yards
-	compRateMult: number;    // >1 = offense has higher completion rate
-	sackRateMult: number;    // >1 = offense suffers more sacks
-	intRateMult: number;     // >1 = offense throws more INTs
-	fumbleRateMult: number;  // >1 = offense fumbles more
+	passYardMult: number; // >1 = offense passes for more yards
+	rushYardMult: number; // >1 = offense rushes for more yards
+	compRateMult: number; // >1 = offense has higher completion rate
+	sackRateMult: number; // >1 = offense suffers more sacks
+	intRateMult: number; // >1 = offense throws more INTs
+	fumbleRateMult: number; // >1 = offense fumbles more
 }
 
 //============================================
@@ -61,7 +61,7 @@ export interface MatchupAdjustment {
 //============================================
 export function computeMatchupAdjustment(
 	offense: GameTeamContext,
-	defense: GameTeamContext,
+	defense: GameTeamContext
 ): MatchupAdjustment {
 	// Extract base multipliers from 0-100 stats
 	// stat 50 = 1.0 (average), 75 = 1.5 (50% better), 25 = 0.5 (50% worse)
@@ -104,21 +104,21 @@ export function computeMatchupAdjustment(
 	const fatigueOffFactor = 1.0 - offense.fatigue * 0.2;
 	const fatigueDefFactor = 1.0 - defense.fatigue * 0.1;
 
-	passYardMult *= momentumFactor * fatigueOffFactor / fatigueDefFactor;
-	rushYardMult *= momentumFactor * fatigueOffFactor / fatigueDefFactor;
-	compRateMult *= momentumFactor * fatigueOffFactor / fatigueDefFactor;
-	sackRateMult *= momentumFactor * fatigueDefFactor / fatigueOffFactor;
-	intRateMult *= momentumFactor * fatigueDefFactor / fatigueOffFactor;
-	fumbleRateMult *= momentumFactor * fatigueDefFactor / fatigueOffFactor;
+	passYardMult *= (momentumFactor * fatigueOffFactor) / fatigueDefFactor;
+	rushYardMult *= (momentumFactor * fatigueOffFactor) / fatigueDefFactor;
+	compRateMult *= (momentumFactor * fatigueOffFactor) / fatigueDefFactor;
+	sackRateMult *= (momentumFactor * fatigueDefFactor) / fatigueOffFactor;
+	intRateMult *= (momentumFactor * fatigueDefFactor) / fatigueOffFactor;
+	fumbleRateMult *= (momentumFactor * fatigueDefFactor) / fatigueOffFactor;
 
 	// Apply injury adjustments (injuries suppress offense)
-	passYardMult *= (1.0 + offense.injuryAdjustment);
-	rushYardMult *= (1.0 + offense.injuryAdjustment);
-	compRateMult *= (1.0 + offense.injuryAdjustment);
+	passYardMult *= 1.0 + offense.injuryAdjustment;
+	rushYardMult *= 1.0 + offense.injuryAdjustment;
+	compRateMult *= 1.0 + offense.injuryAdjustment;
 
 	// Apply weather adjustments
-	passYardMult *= (1.0 + offense.weatherAdjustment);
-	rushYardMult *= (1.0 + offense.weatherAdjustment);
+	passYardMult *= 1.0 + offense.weatherAdjustment;
+	rushYardMult *= 1.0 + offense.weatherAdjustment;
 
 	// Dampen toward 1.0 (strength 0.3) to prevent extreme outcomes
 	// Strong dampening keeps multipliers from straying too far from reality
@@ -146,10 +146,7 @@ export function computeMatchupAdjustment(
 // Fills in sub-stats with slight random variation (+/-5) to avoid
 // teams with identical sub-ratings. All values clamped to 0-100.
 //============================================
-export function createDefaultTeamProfile(
-	name: string,
-	overall: number,
-): TeamProfile {
+export function createDefaultTeamProfile(name: string, overall: number): TeamProfile {
 	// Clamp overall to valid range
 	const clampedOverall = Math.max(0, Math.min(100, overall));
 

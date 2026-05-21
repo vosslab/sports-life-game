@@ -7,13 +7,18 @@
 // phase-specific behavior (which game to play, which events to show).
 
 import { Player, CareerPhase, randomInRange } from './player.js';
-import {
-	GameEvent, filterEvents, selectEvent, applyEventChoice,
-} from './events.js';
+import { GameEvent, filterEvents, selectEvent, applyEventChoice } from './events.js';
 import { WeeklyFocus, applySeasonGoal, applyWeeklyFocus } from './week_sim/index.js';
 import {
-	Activity, WeekState, createWeekState, canDoActivity,
-	getActivitiesForPhase, isActivityUnlocked, applyActivity, getEffectPreview, formatActivityResult,
+	Activity,
+	WeekState,
+	createWeekState,
+	canDoActivity,
+	getActivitiesForPhase,
+	isActivityUnlocked,
+	applyActivity,
+	getEffectPreview,
+	formatActivityResult,
 } from './activities.js';
 import { switchTab, hideTabBar, showTabBar } from './tabs.js';
 import * as ui from './ui/index.js';
@@ -69,7 +74,7 @@ export function getWeekState(): WeekState {
 // Show the 5 weekly focus options. College gets "Social / NIL" label.
 export function showWeeklyFocusUI(
 	phase: CareerPhase,
-	onFocusSelected: (focus: WeeklyFocus) => void,
+	onFocusSelected: (focus: WeeklyFocus) => void
 ): void {
 	// Social label varies by phase
 	const socialLabel = phase === 'college' ? 'Social / NIL' : 'Social';
@@ -82,11 +87,15 @@ export function showWeeklyFocusUI(
 		{ text: 'Teamwork (+2-3 leadership)', key: 'teamwork' },
 	];
 
-	ui.waitForInteraction('Weekly Focus', focusOptions.map(opt => ({
-		text: opt.text,
-		primary: false,
-		action: () => onFocusSelected(opt.key),
-	})), 'What do you want to focus on this week?');
+	ui.waitForInteraction(
+		'Weekly Focus',
+		focusOptions.map((opt) => ({
+			text: opt.text,
+			primary: false,
+			action: () => onFocusSelected(opt.key),
+		})),
+		'What do you want to focus on this week?'
+	);
 }
 
 //============================================
@@ -100,7 +109,7 @@ export function handleWeeklyFocus(
 	phase: CareerPhase,
 	focus: WeeklyFocus,
 	onGameDay: () => void,
-	extraLogic?: () => void,
+	extraLogic?: () => void
 ): void {
 	if (!ctx) {
 		return;
@@ -128,7 +137,7 @@ export function handleWeeklyFocus(
 export function applyGoalAndProceed(
 	phase: CareerPhase,
 	onGameDay: () => void,
-	extraLogic?: () => void,
+	extraLogic?: () => void
 ): void {
 	handleWeeklyFocus(phase, 'train', onGameDay, extraLogic);
 }
@@ -138,44 +147,42 @@ export function applyGoalAndProceed(
 //============================================
 
 // Show activities prompt: player can visit Activities tab or skip to game day
-function showActivitiesPrompt(
-	phase: CareerPhase,
-	onGameDay: () => void,
-): void {
+function showActivitiesPrompt(phase: CareerPhase, onGameDay: () => void): void {
 	if (!ctx) {
 		return;
 	}
 
 	currentOnGameDay = onGameDay;
 
-	ui.waitForInteraction('Free Time', [
-		{
-			text: 'Activities',
-			primary: false,
-			action: () => {
-				// Switch to Activities tab and refresh its content
-				refreshActivitiesTab(phase, onGameDay);
-				switchTab('activities');
+	ui.waitForInteraction(
+		'Free Time',
+		[
+			{
+				text: 'Activities',
+				primary: false,
+				action: () => {
+					// Switch to Activities tab and refresh its content
+					refreshActivitiesTab(phase, onGameDay);
+					switchTab('activities');
+				},
 			},
-		},
-		{
-			text: 'Skip to Game Day',
-			primary: true,
-			action: () => {
-				// Skip activities, proceed to event check
-				currentWeekState.phase = 'activity_done';
-				proceedToEventCheck(phase, onGameDay);
+			{
+				text: 'Skip to Game Day',
+				primary: true,
+				action: () => {
+					// Skip activities, proceed to event check
+					currentWeekState.phase = 'activity_done';
+					proceedToEventCheck(phase, onGameDay);
+				},
 			},
-		},
-	], 'You have some free time this week.');
+		],
+		'You have some free time this week.'
+	);
 }
 
 //============================================
 // Refresh the Activities tab with current data
-function refreshActivitiesTab(
-	phase: CareerPhase,
-	onGameDay: () => void,
-): void {
+function refreshActivitiesTab(phase: CareerPhase, onGameDay: () => void): void {
 	if (!ctx) {
 		return;
 	}
@@ -189,7 +196,7 @@ function refreshActivitiesTab(
 		currentWeekState,
 		(activity: Activity) => isActivityUnlocked(activity, player),
 		(activity: Activity) => getEffectPreview(activity),
-		(activity: Activity) => handleActivitySelection(activity, phase, onGameDay),
+		(activity: Activity) => handleActivitySelection(activity, phase, onGameDay)
 	);
 }
 
@@ -198,7 +205,7 @@ function refreshActivitiesTab(
 function handleActivitySelection(
 	activity: Activity,
 	phase: CareerPhase,
-	onGameDay: () => void,
+	onGameDay: () => void
 ): void {
 	if (!ctx) {
 		return;
@@ -233,10 +240,7 @@ function handleActivitySelection(
 //============================================
 
 // Proceed to random event check, then game day
-export function proceedToEventCheck(
-	phase: CareerPhase,
-	onGameDay: () => void,
-): void {
+export function proceedToEventCheck(phase: CareerPhase, onGameDay: () => void): void {
 	if (!ctx) {
 		return;
 	}
@@ -261,11 +265,15 @@ export function proceedToEventCheck(
 		};
 
 		// Try phase-specific events only (do not fall back to other phases)
-			let eligible = filterEvents(
-				allEvents, phase,
-				player.currentWeek, player.position,
-				player.storyFlags, statsRecord, player.collegeYear,
-			);
+		let eligible = filterEvents(
+			allEvents,
+			phase,
+			player.currentWeek,
+			player.position,
+			player.storyFlags,
+			statsRecord,
+			player.collegeYear
+		);
 
 		const event = selectEvent(eligible);
 		if (event) {
@@ -284,10 +292,7 @@ export function proceedToEventCheck(
 //============================================
 
 // Show event modal. After choice, proceeds to game day via callback.
-function showEventCard(
-	event: GameEvent,
-	onGameDay: () => void,
-): void {
+function showEventCard(event: GameEvent, onGameDay: () => void): void {
 	if (!ctx) {
 		return;
 	}
@@ -296,7 +301,7 @@ function showEventCard(
 	// Hide tab bar during event modal
 	hideTabBar();
 
-	const choiceActions = event.choices.map(choice => ({
+	const choiceActions = event.choices.map((choice) => ({
 		text: choice.text,
 		action: () => {
 			// Apply choice effects
@@ -310,9 +315,7 @@ function showEventCard(
 			ctx!.save();
 
 			// Continue to game day - this is a simple navigation, keep inline
-			ui.showChoices([
-				{ text: 'Game Day', primary: true, action: onGameDay },
-			]);
+			ui.showChoices([{ text: 'Game Day', primary: true, action: onGameDay }]);
 		},
 	}));
 
@@ -363,19 +366,27 @@ export function simulateWeekSilently(): SilentWeekResult {
 			confidence: player.core.confidence,
 		};
 
-			let eligible = filterEvents(
-				allEvents, player.phase,
-				player.currentWeek, player.position,
-				player.storyFlags, statsRecord, player.collegeYear,
-			);
+		let eligible = filterEvents(
+			allEvents,
+			player.phase,
+			player.currentWeek,
+			player.position,
+			player.storyFlags,
+			statsRecord,
+			player.collegeYear
+		);
 
 		if (eligible.length === 0 && (player.phase === 'nfl' || player.phase === 'college')) {
-				eligible = filterEvents(
-					allEvents, 'high_school',
-					player.currentWeek, player.position,
-					player.storyFlags, statsRecord, player.collegeYear,
-				);
-			}
+			eligible = filterEvents(
+				allEvents,
+				'high_school',
+				player.currentWeek,
+				player.position,
+				player.storyFlags,
+				statsRecord,
+				player.collegeYear
+			);
+		}
 
 		const event = selectEvent(eligible);
 		if (event && event.choices.length > 0) {
@@ -444,6 +455,6 @@ export function refreshActivitiesTabForCurrentPhase(): void {
 				return;
 			}
 			handleActivitySelection(activity, player.phase, currentOnGameDay);
-		},
+		}
 	);
 }

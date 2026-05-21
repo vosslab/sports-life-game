@@ -14,12 +14,12 @@
 
 ## File structure
 
-| File | Purpose |
-| --- | --- |
-| Create: `tools/extract_avataaars.py` | Python script to parse AvataaarsJs and output TypeScript parts module |
-| Create: `src/data/avatar_parts.ts` | Generated TypeScript module with SVG path strings by category |
-| Create: `src/avatar.ts` | Portrait generation: `AvatarConfig` type, `generatePortraitSVG()`, `randomAvatarConfig()` |
-| Create: `avatar_test.html` | Standalone browser test page for previewing generated portraits |
+| File                                 | Purpose                                                                                   |
+| ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| Create: `tools/extract_avataaars.py` | Python script to parse AvataaarsJs and output TypeScript parts module                     |
+| Create: `src/data/avatar_parts.ts`   | Generated TypeScript module with SVG path strings by category                             |
+| Create: `src/avatar.ts`              | Portrait generation: `AvatarConfig` type, `generatePortraitSVG()`, `randomAvatarConfig()` |
+| Create: `avatar_test.html`           | Standalone browser test page for previewing generated portraits                           |
 
 No existing files are modified.
 
@@ -28,6 +28,7 @@ No existing files are modified.
 ### Task 1: Download AvataaarsJs source
 
 **Files:**
+
 - Download: `tools/avataaars_source/avataaars.js` (from GitHub, not committed)
 
 - [ ] **Step 1: Create tools directory and download source**
@@ -68,6 +69,7 @@ Expected: multiple matches.
 ### Task 2: Write the Python extraction script
 
 **Files:**
+
 - Create: `tools/extract_avataaars.py`
 
 The script reads the AvataaarsJs file, extracts SVG path data for each category,
@@ -96,6 +98,7 @@ paths: {
 ```
 
 Key details:
+
 - Parts are arrow functions returning template literal SVG strings
 - `top` (hair) functions take `(hatColor, hairColor)` parameters
 - `skin` section has color hex values: `{ tanned: '#FD9841', pale: '#FFDBB4', ... }`
@@ -232,11 +235,12 @@ export const ACCESSORIES: Record<string, string> = {
 ```
 
 The script must handle:
+
 - Template literals with `${hairColor}` replaced by `HAIR_PLACEHOLDER`
 - Template literals with `${hatColor}` replaced by `HAT_PLACEHOLDER` (or ignored for headshots)
 - Hardcoded skin hex values (from the skin palette) replaced with `SKIN_PLACEHOLDER`
 - SVG strings that may span multiple lines
-- Arrow function syntax: `name: (params) => \`...\`` or `name: () => \`...\``
+- Arrow function syntax: `name: (params) => \`...\``or`name: () => \`...\``
 
 Use tabs for indentation in the generated TypeScript to match project style.
 
@@ -259,6 +263,7 @@ Expected: no type errors. If there are errors, fix the extraction script and re-
 - [ ] **Step 4: Spot-check the output**
 
 Read `src/data/avatar_parts.ts` and verify:
+
 - `SKIN_TONES` has 7 entries
 - `HAIR_COLORS` has 10 entries
 - `EYES` has 6 entries (the allowed set)
@@ -279,6 +284,7 @@ git commit -m "feat: add avatar extraction script and generated parts module"
 ### Task 3: Write the avatar TypeScript module
 
 **Files:**
+
 - Create: `src/avatar.ts`
 
 This module exports the `AvatarConfig` interface, `generatePortraitSVG()`, and
@@ -291,9 +297,17 @@ This module exports the `AvatarConfig` interface, `generatePortraitSVG()`, and
 // Assembles face portraits from extracted Avataaars parts
 
 import {
-	SKIN_TONES, HAIR_COLORS, LAYER_POSITIONS,
-	FACE_SHAPES, EYES, EYEBROWS, NOSES, MOUTHS,
-	HAIR_STYLES, FACIAL_HAIR, ACCESSORIES,
+	SKIN_TONES,
+	HAIR_COLORS,
+	LAYER_POSITIONS,
+	FACE_SHAPES,
+	EYES,
+	EYEBROWS,
+	NOSES,
+	MOUTHS,
+	HAIR_STYLES,
+	FACIAL_HAIR,
+	ACCESSORIES,
 } from './data/avatar_parts.js';
 
 //============================================
@@ -316,12 +330,12 @@ export interface AvatarConfig {
 // Simple seeded PRNG (mulberry32)
 // Deterministic random from a 32-bit seed
 function mulberry32(seed: number): () => number {
-	return function(): number {
+	return function (): number {
 		seed |= 0;
-		seed = seed + 0x6D2B79F5 | 0;
-		let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-		t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-		return ((t ^ t >>> 14) >>> 0) / 4294967296;
+		seed = (seed + 0x6d2b79f5) | 0;
+		let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 	};
 }
 
@@ -331,7 +345,7 @@ function hashString(str: string): number {
 	let hash = 0;
 	for (let i = 0; i < str.length; i++) {
 		const char = str.charCodeAt(i);
-		hash = ((hash << 5) - hash) + char;
+		hash = (hash << 5) - hash + char;
 		hash |= 0;
 	}
 	return hash;
@@ -435,7 +449,7 @@ export function generatePortraitSVG(config: AvatarConfig): string {
 	const skinColor = SKIN_TONES[config.skinTone] || SKIN_TONES[defaultKey(SKIN_TONES)];
 	const hairColor = HAIR_COLORS[config.hairColor] || HAIR_COLORS[defaultKey(HAIR_COLORS)];
 	const facialHairColor = config.facialHairColor
-		? (HAIR_COLORS[config.facialHairColor] || hairColor)
+		? HAIR_COLORS[config.facialHairColor] || hairColor
 		: hairColor;
 
 	// Build layers back to front
@@ -560,6 +574,7 @@ git commit -m "feat: add portrait generation module with seeded PRNG"
 ### Task 4: Write the test page
 
 **Files:**
+
 - Create: `avatar_test.html`
 
 Standalone HTML page that imports the compiled avatar module and shows a grid of
@@ -570,129 +585,180 @@ generated portraits with controls.
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portrait System Test</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #1a1a2e;
-    color: #e0e0e0;
-    padding: 20px;
-  }
-  h1 { text-align: center; margin-bottom: 20px; font-size: 1.4em; }
-  .controls {
-    display: flex; gap: 10px; justify-content: center;
-    flex-wrap: wrap; margin-bottom: 20px;
-  }
-  .controls button {
-    background: #16213e; color: #e0e0e0; border: 1px solid #444;
-    padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9em;
-  }
-  .controls button:hover { background: #1a1a4e; }
-  .controls input {
-    background: #16213e; color: #e0e0e0; border: 1px solid #444;
-    padding: 8px 12px; border-radius: 4px; font-size: 0.9em; width: 200px;
-  }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 16px; max-width: 900px; margin: 0 auto;
-  }
-  .portrait-card {
-    background: #16213e; border-radius: 8px; padding: 12px;
-    text-align: center;
-  }
-  .portrait-card svg { width: 120px; height: 120px; }
-  .portrait-card .label {
-    font-size: 0.75em; color: #888; margin-top: 6px;
-    word-break: break-all;
-  }
-  .seed-test {
-    max-width: 900px; margin: 20px auto; padding: 16px;
-    background: #16213e; border-radius: 8px;
-  }
-  .seed-test h2 { font-size: 1.1em; margin-bottom: 10px; }
-  .seed-row { display: flex; gap: 20px; align-items: center; justify-content: center; }
-  .seed-row .portrait-card { background: #1a1a2e; }
-</style>
-</head>
-<body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Portrait System Test</title>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+				background: #1a1a2e;
+				color: #e0e0e0;
+				padding: 20px;
+			}
+			h1 {
+				text-align: center;
+				margin-bottom: 20px;
+				font-size: 1.4em;
+			}
+			.controls {
+				display: flex;
+				gap: 10px;
+				justify-content: center;
+				flex-wrap: wrap;
+				margin-bottom: 20px;
+			}
+			.controls button {
+				background: #16213e;
+				color: #e0e0e0;
+				border: 1px solid #444;
+				padding: 8px 16px;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 0.9em;
+			}
+			.controls button:hover {
+				background: #1a1a4e;
+			}
+			.controls input {
+				background: #16213e;
+				color: #e0e0e0;
+				border: 1px solid #444;
+				padding: 8px 12px;
+				border-radius: 4px;
+				font-size: 0.9em;
+				width: 200px;
+			}
+			.grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+				gap: 16px;
+				max-width: 900px;
+				margin: 0 auto;
+			}
+			.portrait-card {
+				background: #16213e;
+				border-radius: 8px;
+				padding: 12px;
+				text-align: center;
+			}
+			.portrait-card svg {
+				width: 120px;
+				height: 120px;
+			}
+			.portrait-card .label {
+				font-size: 0.75em;
+				color: #888;
+				margin-top: 6px;
+				word-break: break-all;
+			}
+			.seed-test {
+				max-width: 900px;
+				margin: 20px auto;
+				padding: 16px;
+				background: #16213e;
+				border-radius: 8px;
+			}
+			.seed-test h2 {
+				font-size: 1.1em;
+				margin-bottom: 10px;
+			}
+			.seed-row {
+				display: flex;
+				gap: 20px;
+				align-items: center;
+				justify-content: center;
+			}
+			.seed-row .portrait-card {
+				background: #1a1a2e;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>SVG Portrait System Test</h1>
 
-<h1>SVG Portrait System Test</h1>
+		<div class="controls">
+			<button id="btn-randomize">Randomize All</button>
+			<input type="text" id="seed-input" placeholder="Enter seed for repeatability" />
+			<button id="btn-seed">Generate from Seed</button>
+		</div>
 
-<div class="controls">
-  <button id="btn-randomize">Randomize All</button>
-  <input type="text" id="seed-input" placeholder="Enter seed for repeatability">
-  <button id="btn-seed">Generate from Seed</button>
-</div>
+		<div class="seed-test" id="seed-test" style="display:none">
+			<h2>Seed Repeatability Check</h2>
+			<div class="seed-row" id="seed-row"></div>
+		</div>
 
-<div class="seed-test" id="seed-test" style="display:none">
-  <h2>Seed Repeatability Check</h2>
-  <div class="seed-row" id="seed-row"></div>
-</div>
+		<div class="grid" id="grid"></div>
 
-<div class="grid" id="grid"></div>
+		<script type="module">
+			import { generatePortraitSVG, randomAvatarConfig } from './dist/avatar.js';
 
-<script type="module">
-import { generatePortraitSVG, randomAvatarConfig } from './dist/avatar.js';
+			const grid = document.getElementById('grid');
+			const seedTest = document.getElementById('seed-test');
+			const seedRow = document.getElementById('seed-row');
+			const seedInput = document.getElementById('seed-input');
 
-const grid = document.getElementById('grid');
-const seedTest = document.getElementById('seed-test');
-const seedRow = document.getElementById('seed-row');
-const seedInput = document.getElementById('seed-input');
+			// Generate a grid of random portraits
+			function fillGrid(count) {
+				grid.innerHTML = '';
+				const seeds = [
+					'Coach Williams',
+					'rival_marcus_jones',
+					'QB_Tom_age22',
+					'recruiter_sarah',
+					'LB_Mike_age30',
+					'WR_James_age19',
+					'coach_old_veteran',
+					'draft_scout_01',
+					'teammate_kyle',
+					'rival_defense_captain',
+					'agent_smith',
+					'fan_favorite',
+				];
+				for (let i = 0; i < count; i++) {
+					const seed = i < seeds.length ? seeds[i] : 'random_' + i + '_' + Date.now();
+					const age = 18 + Math.floor(Math.random() * 40);
+					const config = randomAvatarConfig(seed, { age: age });
+					const svg = generatePortraitSVG(config);
+					const card = document.createElement('div');
+					card.className = 'portrait-card';
+					card.innerHTML = svg + '<div class="label">' + seed + ' (age ' + age + ')</div>';
+					grid.appendChild(card);
+				}
+			}
 
-// Generate a grid of random portraits
-function fillGrid(count) {
-  grid.innerHTML = '';
-  const seeds = [
-    'Coach Williams', 'rival_marcus_jones', 'QB_Tom_age22',
-    'recruiter_sarah', 'LB_Mike_age30', 'WR_James_age19',
-    'coach_old_veteran', 'draft_scout_01', 'teammate_kyle',
-    'rival_defense_captain', 'agent_smith', 'fan_favorite',
-  ];
-  for (let i = 0; i < count; i++) {
-    const seed = (i < seeds.length) ? seeds[i] : 'random_' + i + '_' + Date.now();
-    const age = 18 + Math.floor(Math.random() * 40);
-    const config = randomAvatarConfig(seed, { age: age });
-    const svg = generatePortraitSVG(config);
-    const card = document.createElement('div');
-    card.className = 'portrait-card';
-    card.innerHTML = svg + '<div class="label">' + seed + ' (age ' + age + ')</div>';
-    grid.appendChild(card);
-  }
-}
+			// Seed repeatability test: generate same seed twice, show side by side
+			function testSeed(seed) {
+				seedTest.style.display = 'block';
+				seedRow.innerHTML = '';
+				// Generate twice with same seed
+				for (let i = 0; i < 2; i++) {
+					const config = randomAvatarConfig(seed, { age: 25 });
+					const svg = generatePortraitSVG(config);
+					const card = document.createElement('div');
+					card.className = 'portrait-card';
+					card.innerHTML = svg + '<div class="label">Render ' + (i + 1) + ': "' + seed + '"</div>';
+					seedRow.appendChild(card);
+				}
+			}
 
-// Seed repeatability test: generate same seed twice, show side by side
-function testSeed(seed) {
-  seedTest.style.display = 'block';
-  seedRow.innerHTML = '';
-  // Generate twice with same seed
-  for (let i = 0; i < 2; i++) {
-    const config = randomAvatarConfig(seed, { age: 25 });
-    const svg = generatePortraitSVG(config);
-    const card = document.createElement('div');
-    card.className = 'portrait-card';
-    card.innerHTML = svg + '<div class="label">Render ' + (i + 1) + ': "' + seed + '"</div>';
-    seedRow.appendChild(card);
-  }
-}
+			document.getElementById('btn-randomize').addEventListener('click', () => fillGrid(12));
+			document.getElementById('btn-seed').addEventListener('click', () => {
+				const seed = seedInput.value.trim();
+				if (seed) {
+					testSeed(seed);
+				}
+			});
 
-document.getElementById('btn-randomize').addEventListener('click', () => fillGrid(12));
-document.getElementById('btn-seed').addEventListener('click', () => {
-  const seed = seedInput.value.trim();
-  if (seed) {
-    testSeed(seed);
-  }
-});
-
-// Initial render
-fillGrid(12);
-</script>
-
-</body>
+			// Initial render
+			fillGrid(12);
+		</script>
+	</body>
 </html>
 ```
 
@@ -711,6 +777,7 @@ python3 -m http.server 8080
 Open `http://localhost:8080/avatar_test.html` in browser.
 
 Expected:
+
 - Grid of 12 portrait headshots displays
 - Each portrait shows face, hair, eyes, mouth, etc. layered correctly
 - "Randomize All" button regenerates the grid
@@ -719,6 +786,7 @@ Expected:
 - [ ] **Step 3: Verify multiple-portrait SVG ID collisions**
 
 With 12 portraits on the page, open browser dev tools and check:
+
 - No console errors about duplicate SVG IDs
 - Each portrait's internal IDs are prefixed uniquely (e.g., `av1_`, `av2_`, etc.)
 
@@ -734,6 +802,7 @@ git commit -m "feat: add portrait system test page with grid and seed check"
 ### Task 5: Validate and polish
 
 **Files:**
+
 - Modify: `src/avatar.ts` (if needed)
 - Modify: `tools/extract_avataaars.py` (if needed)
 - Modify: `src/data/avatar_parts.ts` (regenerated if script changes)
@@ -741,6 +810,7 @@ git commit -m "feat: add portrait system test page with grid and seed check"
 - [ ] **Step 1: Visual review of all part combinations**
 
 Open `avatar_test.html` and click "Randomize All" at least 10 times. Check for:
+
 - Parts layering correctly (hair on top of face, not behind)
 - Skin tone fills applying to face and collar
 - Hair color fills applying to hair and facial hair
@@ -751,6 +821,7 @@ Open `avatar_test.html` and click "Randomize All" at least 10 times. Check for:
 - [ ] **Step 2: Fix any extraction or rendering issues**
 
 If parts are misaligned, colors are wrong, or layers are in the wrong order:
+
 1. Fix the extraction script or avatar module as needed
 2. Re-run extraction: `python3 tools/extract_avataaars.py`
 3. Rebuild: `npm run build`
@@ -797,12 +868,12 @@ git commit -m "feat: complete modular SVG portrait system (standalone, no game i
 
 ## Summary
 
-| Task | What it produces | Dependencies |
-| --- | --- | --- |
-| 1 | AvataaarsJs source downloaded | None |
-| 2 | Extraction script + generated parts module | Task 1 |
-| 3 | Avatar TypeScript module (types, generator, PRNG) | Task 2 |
-| 4 | Test HTML page | Task 3 |
-| 5 | Validation, polish, changelog | Task 4 |
+| Task | What it produces                                  | Dependencies |
+| ---- | ------------------------------------------------- | ------------ |
+| 1    | AvataaarsJs source downloaded                     | None         |
+| 2    | Extraction script + generated parts module        | Task 1       |
+| 3    | Avatar TypeScript module (types, generator, PRNG) | Task 2       |
+| 4    | Test HTML page                                    | Task 3       |
+| 5    | Validation, polish, changelog                     | Task 4       |
 
 Total: 5 tasks, linear dependency chain. No existing game files are modified.

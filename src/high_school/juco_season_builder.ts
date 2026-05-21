@@ -9,7 +9,9 @@ import { SeasonTeam } from '../season/team_model.js';
 import { SeasonGame } from '../season/game_model.js';
 import { LeagueSeason } from '../season/season_model.js';
 import {
-	resetGameIdCounter, nextGameId, generateRoundRobinRounds,
+	resetGameIdCounter,
+	nextGameId,
+	generateRoundRobinRounds,
 	validateSchedule,
 } from '../season/season_builder.js';
 import { randomInRange } from '../player.js';
@@ -18,17 +20,41 @@ import { CoachPersonality } from '../team.js';
 //============================================
 // JUCO team name prefixes
 const JUCO_PREFIXES = [
-	'Central', 'Western', 'Eastern', 'Northern', 'Southern',
-	'Coastal', 'Valley', 'Mountain', 'Lakeside', 'Riverside',
-	'Pinewood', 'Oakdale', 'Highland', 'Midlands', 'Prairie',
+	'Central',
+	'Western',
+	'Eastern',
+	'Northern',
+	'Southern',
+	'Coastal',
+	'Valley',
+	'Mountain',
+	'Lakeside',
+	'Riverside',
+	'Pinewood',
+	'Oakdale',
+	'Highland',
+	'Midlands',
+	'Prairie',
 ];
 
 //============================================
 // JUCO team mascots
 const JUCO_MASCOTS = [
-	'Cougars', 'Hawks', 'Wildcats', 'Bears', 'Eagles',
-	'Wolves', 'Panthers', 'Mustangs', 'Bulldogs', 'Falcons',
-	'Chargers', 'Pioneers', 'Lancers', 'Raiders', 'Knights',
+	'Cougars',
+	'Hawks',
+	'Wildcats',
+	'Bears',
+	'Eagles',
+	'Wolves',
+	'Panthers',
+	'Mustangs',
+	'Bulldogs',
+	'Falcons',
+	'Chargers',
+	'Pioneers',
+	'Lancers',
+	'Raiders',
+	'Knights',
 ];
 
 //============================================
@@ -51,7 +77,7 @@ export function buildJucoSeason(playerStrength: number): LeagueSeason {
 		'Cougars',
 		playerStrength,
 		randomCoachPersonality(),
-		'juco_conference',
+		'juco_conference'
 	);
 
 	// Generate 7 conference opponents
@@ -79,7 +105,7 @@ export function buildJucoSeason(playerStrength: number): LeagueSeason {
 			mascot,
 			strength,
 			randomCoachPersonality(),
-			'juco_conference',
+			'juco_conference'
 		);
 
 		teams.set(opponentId, opponent);
@@ -100,7 +126,7 @@ export function buildJucoSeason(playerStrength: number): LeagueSeason {
 				week,
 				homeId,
 				awayId,
-				true, // conference game
+				true // conference game
 			);
 			games.push(game);
 		}

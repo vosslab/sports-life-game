@@ -29,16 +29,16 @@ export interface CoreStats {
 //============================================
 // Career stats
 export interface CareerStats {
-	popularity: number;  // 0-100
-	money: number;       // dollar amount
+	popularity: number; // 0-100
+	money: number; // dollar amount
 }
 
 //============================================
 // Hidden stats
 export interface HiddenStats {
-	size: number;        // 1-5 body frame (1=small, 5=large)
-	leadership: number;  // 0-100
-	durability: number;  // 0-100
+	size: number; // 1-5 body frame (1=small, 5=large)
+	leadership: number; // 0-100
+	durability: number; // 0-100
 }
 
 //============================================
@@ -46,19 +46,9 @@ export interface HiddenStats {
 // PlayerIdentity slice. Re-export them here so existing legacy importers of
 // `./player.js` continue to compile while new code imports from
 // `./player/index.js` directly.
-export type {
-	Position,
-	PositionBucket,
-	CareerPhase,
-	DepthChartStatus,
-} from './player/identity.js';
+export type { Position, PositionBucket, CareerPhase, DepthChartStatus } from './player/identity.js';
 export type { SeasonGoal } from './player/season_state.js';
-import type {
-	Position,
-	PositionBucket,
-	CareerPhase,
-	DepthChartStatus,
-} from './player/identity.js';
+import type { Position, PositionBucket, CareerPhase, DepthChartStatus } from './player/identity.js';
 
 //============================================
 // Weekly game performance rating
@@ -136,7 +126,7 @@ export function createEmptySeasonStats(): SeasonStatTotals {
 // Accumulate a game's stat line into player's season stats
 export function accumulateGameStats(
 	player: Player,
-	statLine: Record<string, number | string>,
+	statLine: Record<string, number | string>
 ): void {
 	const seasonStats = player.seasonStats;
 	seasonStats.gamesPlayed += 1;
@@ -193,11 +183,7 @@ export interface StoryFlags {
 // PlayerStatsBundle, PlayerCareer, PlayerSeasonState) rather than the wide
 // composed type. The wide type is preserved here only as a convenience for
 // save/load and the still-uncleaved legacy importers.
-export type Player =
-	& PlayerIdentity
-	& PlayerStatsBundle
-	& PlayerCareer
-	& PlayerSeasonState;
+export type Player = PlayerIdentity & PlayerStatsBundle & PlayerCareer & PlayerSeasonState;
 
 //============================================
 // Random integer in range [min, max] inclusive
@@ -284,9 +270,9 @@ export function createPlayer(firstName: string, lastName: string): Player {
 		scheduledCrises: [],
 		crisisTriggeredThisSeason: false,
 		relationships: {
-			'Mom': randomInRange(60, 90),
-			'Dad': randomInRange(50, 85),
-			'Coach': 50,
+			Mom: randomInRange(60, 90),
+			Dad: randomInRange(50, 85),
+			Coach: 50,
 		},
 
 		recruitingStars: 0,
@@ -317,10 +303,7 @@ export function createPlayer(firstName: string, lastName: string): Player {
 		teamPalette: null,
 
 		// Generate a deterministic portrait from the player name
-		avatarConfig: randomAvatarConfig(
-			`${firstName} ${lastName}`,
-			{ archetype: 'player', age: 0 },
-		),
+		avatarConfig: randomAvatarConfig(`${firstName} ${lastName}`, { archetype: 'player', age: 0 }),
 
 		// Initialize milestone tracking
 		milestones: {},
@@ -393,11 +376,7 @@ export function getAcademicStanding(gpa: number): string {
 
 //============================================
 // Modify relationship score with clamping (0-100)
-export function modifyRelationship(
-	player: Player,
-	name: string,
-	delta: number
-): void {
+export function modifyRelationship(player: Player, name: string, delta: number): void {
 	let currentScore = player.relationships[name];
 	if (currentScore === undefined) {
 		currentScore = 50;
@@ -423,4 +402,3 @@ export function getRelationshipLevel(score: number): string {
 	}
 	return 'Hostile';
 }
-

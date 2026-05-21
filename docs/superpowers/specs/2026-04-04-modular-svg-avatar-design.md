@@ -15,16 +15,16 @@ no arms, no poses, no detailed clothing system.
 
 ## Decisions
 
-| Decision | Choice | Rationale |
-| --- | --- | --- |
-| Art source | Avataaars (MIT) adapted | Professional parts, proven compatibility, replaceable over time |
-| Extraction | AvataaarsJs vanilla repo | Single JS file with all SVG paths, no React dependency |
-| Extraction tooling | Python script | Automates parsing AvataaarsJs into TypeScript module |
-| Part storage | TypeScript module (`src/data/avatar_parts.ts`) | No async loading, works with existing `tsc` build |
-| Data model | `AvatarConfig` type (standalone for now) | Will move onto `Player` interface during integration phase |
-| Scope | Headshots only, player + key NPCs | Portraits for player profile, feed events, and key NPC cards |
-| Integration | Standalone first, integrate later | Zero changes to existing game files in phase 1 |
-| Coordinate system | `viewBox="0 0 280 280"` | Native Avataaars coordinates, no rescaling needed |
+| Decision           | Choice                                         | Rationale                                                       |
+| ------------------ | ---------------------------------------------- | --------------------------------------------------------------- |
+| Art source         | Avataaars (MIT) adapted                        | Professional parts, proven compatibility, replaceable over time |
+| Extraction         | AvataaarsJs vanilla repo                       | Single JS file with all SVG paths, no React dependency          |
+| Extraction tooling | Python script                                  | Automates parsing AvataaarsJs into TypeScript module            |
+| Part storage       | TypeScript module (`src/data/avatar_parts.ts`) | No async loading, works with existing `tsc` build               |
+| Data model         | `AvatarConfig` type (standalone for now)       | Will move onto `Player` interface during integration phase      |
+| Scope              | Headshots only, player + key NPCs              | Portraits for player profile, feed events, and key NPC cards    |
+| Integration        | Standalone first, integrate later              | Zero changes to existing game files in phase 1                  |
+| Coordinate system  | `viewBox="0 0 280 280"`                        | Native Avataaars coordinates, no rescaling needed               |
 
 ## Architecture
 
@@ -43,17 +43,17 @@ No existing files are modified.
 
 ```typescript
 export interface AvatarConfig {
-  skinTone: string;         // key into skin tone palette
-  hairColor: string;        // key into hair color palette
-  facialHairColor?: string; // defaults to hairColor if omitted
-  faceShape: string;        // base face geometry key
-  hair: string;             // hair style key
-  eyes: string;             // eye expression key
-  eyebrows: string;         // eyebrow style key
-  nose: string;             // nose key
-  mouth: string;            // mouth expression key
-  facialHair?: string;      // optional facial hair key
-  accessory?: string;       // optional glasses/accessory key
+	skinTone: string; // key into skin tone palette
+	hairColor: string; // key into hair color palette
+	facialHairColor?: string; // defaults to hairColor if omitted
+	faceShape: string; // base face geometry key
+	hair: string; // hair style key
+	eyes: string; // eye expression key
+	eyebrows: string; // eyebrow style key
+	nose: string; // nose key
+	mouth: string; // mouth expression key
+	facialHair?: string; // optional facial hair key
+	accessory?: string; // optional glasses/accessory key
 }
 ```
 
@@ -83,18 +83,18 @@ renderPortrait(el: HTMLElement, config: AvatarConfig): void
 Curated from the full Avataaars library. Only headshot-relevant parts, filtering
 out anything that does not fit a sports game context.
 
-| Category | Starter count | Source |
-| --- | --- | --- |
-| Skin tones | 7 | Avataaars skin palette |
-| Hair colors | 10 | Avataaars hair palette |
-| Base face variants | 1-3 (if source supports clean variation) | Avataaars face/head base |
-| Hair styles | 6-10 curated | Avataaars top/hair |
-| Eyes | 6 curated | Avataaars eyes (skip dizzy, cry, hearts) |
-| Eyebrows | 5 curated | Avataaars eyebrows |
-| Noses | 1 (Avataaars default) | Avataaars nose |
-| Mouths | 5 curated | Avataaars mouth (skip vomit, scream) |
-| Facial hair | 2-4 | Avataaars facial hair |
-| Accessories | 2-3 | Avataaars accessories (glasses) |
+| Category           | Starter count                            | Source                                   |
+| ------------------ | ---------------------------------------- | ---------------------------------------- |
+| Skin tones         | 7                                        | Avataaars skin palette                   |
+| Hair colors        | 10                                       | Avataaars hair palette                   |
+| Base face variants | 1-3 (if source supports clean variation) | Avataaars face/head base                 |
+| Hair styles        | 6-10 curated                             | Avataaars top/hair                       |
+| Eyes               | 6 curated                                | Avataaars eyes (skip dizzy, cry, hearts) |
+| Eyebrows           | 5 curated                                | Avataaars eyebrows                       |
+| Noses              | 1 (Avataaars default)                    | Avataaars nose                           |
+| Mouths             | 5 curated                                | Avataaars mouth (skip vomit, scream)     |
+| Facial hair        | 2-4                                      | Avataaars facial hair                    |
+| Accessories        | 2-3                                      | Avataaars accessories (glasses)          |
 
 Total: ~40-50 curated parts. Enough for high combinatorial variety with headshots.
 

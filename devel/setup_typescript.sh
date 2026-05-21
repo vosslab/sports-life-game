@@ -18,6 +18,6 @@ echo "Building initial dist/..."
 ./build_github_pages.sh
 
 echo "Setup complete."
-echo "  ./run_web_server.sh  - start the dev server"
-echo "  ./check_codebase.sh  - type-check src/, tools/, tests/ and run unit tests"
-echo "  ./setup_playwright.sh - install Playwright + chromium (one-time, optional)"
+echo "  bash run_web_server.sh         - start the dev server"
+echo "  bash check_codebase.sh         - lint gate"
+echo "  bash devel/setup_playwright.sh - install Playwright + chromium (one-time, optional)"

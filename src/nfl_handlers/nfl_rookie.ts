@@ -40,17 +40,18 @@ export const nflRookieHandler: YearHandler = {
 		const draftResult = getNFLDraftResult(player);
 		player.teamName = draftResult.team;
 
-		const draftLabel = draftResult.round === 0
-			? `Signed by ${draftResult.team} as undrafted free agent`
-			: `Drafted by ${draftResult.team} - Round ${draftResult.round}, Pick ${draftResult.pick}`;
+		const draftLabel =
+			draftResult.round === 0
+				? `Signed by ${draftResult.team} as undrafted free agent`
+				: `Drafted by ${draftResult.team} - Round ${draftResult.round}, Pick ${draftResult.pick}`;
 		player.bigDecisions.push(draftLabel);
 
 		ctx.addText(draftResult.storyText);
 		ctx.addResult(`Selected by ${draftResult.team}`);
 		if (draftResult.round > 0) {
 			ctx.addResult(
-				`Round ${draftResult.round} `
-				+ `(${draftResult.pick}${getOrdinalSuffix(draftResult.pick)} overall)`
+				`Round ${draftResult.round} ` +
+					`(${draftResult.pick}${getOrdinalSuffix(draftResult.pick)} overall)`
 			);
 		} else {
 			ctx.addResult('Undrafted free agent signing');
@@ -73,15 +74,15 @@ export const nflRookieHandler: YearHandler = {
 		ctx.addHeadline('Age 22 - NFL Rookie Season');
 		ctx.addText(`${player.firstName} begins NFL career with the ${player.teamName}.`);
 
-		ctx.waitForInteraction('NFL Rookie Year', [{
-			text: 'Start Season',
-			primary: true,
-			action: () => {
-				startSeason(player, ctx, SEASON_CONFIG, season,
-					() => handleSeasonEnd(player, ctx),
-				);
+		ctx.waitForInteraction('NFL Rookie Year', [
+			{
+				text: 'Start Season',
+				primary: true,
+				action: () => {
+					startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
+				},
 			},
-		}]);
+		]);
 	},
 
 	getSeasonConfig(): SeasonConfig {
@@ -131,9 +132,9 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 				ctx.updateStats(player);
 				advanceToNextYear(player, ctx);
 			},
-			},
-		]);
-	}
+		},
+	]);
+}
 
 //============================================
 function generateCombineNarrative(player: Player): string {

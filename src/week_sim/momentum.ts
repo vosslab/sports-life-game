@@ -8,9 +8,7 @@ import { PerformanceRating } from '../player.js';
 //============================================
 // Update momentum based on game performance.
 // Momentum is a -10..+10 scalar that decays toward 0 each week.
-export function updateMomentum(
-	currentMomentum: number, rating: PerformanceRating,
-): number {
+export function updateMomentum(currentMomentum: number, rating: PerformanceRating): number {
 	let newMomentum = currentMomentum;
 
 	// Apply momentum changes based on performance rating

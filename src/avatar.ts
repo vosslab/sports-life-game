@@ -4,9 +4,16 @@
 //     aggressive age filtering, distinct archetype pools
 
 import {
-	SKIN_TONES, HAIR_COLORS,
-	FACE_SHAPES, EYES, EYEBROWS, NOSES, MOUTHS,
-	HAIR_STYLES, FACIAL_HAIR, ACCESSORIES,
+	SKIN_TONES,
+	HAIR_COLORS,
+	FACE_SHAPES,
+	EYES,
+	EYEBROWS,
+	NOSES,
+	MOUTHS,
+	HAIR_STYLES,
+	FACIAL_HAIR,
+	ACCESSORIES,
 } from './data/avatar_parts.js';
 
 //============================================
@@ -33,27 +40,53 @@ export type Archetype = 'player' | 'rival' | 'coach' | 'recruiter' | 'scout' | '
 // Expression presets: coherent eye + eyebrow + mouth combinations
 type ExpressionPreset = 'neutral' | 'confident' | 'stern' | 'friendly' | 'intense';
 
-const EXPRESSION_PRESETS: Record<ExpressionPreset, { eyes: string; eyebrows: string; mouth: string }> = {
-	neutral:   { eyes: 'default',   eyebrows: 'default',        mouth: 'default' },
-	confident: { eyes: 'default',   eyebrows: 'defaultNatural', mouth: 'smile' },
-	stern:     { eyes: 'squint',    eyebrows: 'flatNatural',    mouth: 'serious' },
-	friendly:  { eyes: 'happy',     eyebrows: 'defaultNatural', mouth: 'smile' },
-	intense:   { eyes: 'squint',    eyebrows: 'raisedExcited',  mouth: 'serious' },
+const EXPRESSION_PRESETS: Record<
+	ExpressionPreset,
+	{ eyes: string; eyebrows: string; mouth: string }
+> = {
+	neutral: { eyes: 'default', eyebrows: 'default', mouth: 'default' },
+	confident: { eyes: 'default', eyebrows: 'defaultNatural', mouth: 'smile' },
+	stern: { eyes: 'squint', eyebrows: 'flatNatural', mouth: 'serious' },
+	friendly: { eyes: 'happy', eyebrows: 'defaultNatural', mouth: 'smile' },
+	intense: { eyes: 'squint', eyebrows: 'raisedExcited', mouth: 'serious' },
 };
 
 //============================================
 // Compatible alternates per expression preset
 // When varying a feature, only pick from these subpools to maintain coherence
-const EXPRESSION_COMPATIBLE: Record<ExpressionPreset, {
-	eyes: string[];
-	eyebrows: string[];
-	mouth: string[];
-}> = {
-	neutral:   { eyes: ['default', 'side'],              eyebrows: ['default', 'defaultNatural'],       mouth: ['default', 'twinkle'] },
-	confident: { eyes: ['default', 'side', 'wink'],      eyebrows: ['defaultNatural', 'default'],       mouth: ['smile', 'twinkle'] },
-	stern:     { eyes: ['squint', 'default'],             eyebrows: ['flatNatural', 'default'],          mouth: ['serious', 'default'] },
-	friendly:  { eyes: ['happy', 'default', 'wink'],      eyebrows: ['defaultNatural', 'default'],       mouth: ['smile', 'twinkle'] },
-	intense:   { eyes: ['squint', 'surprised'],            eyebrows: ['raisedExcited', 'unibrowNatural'], mouth: ['serious', 'sad'] },
+const EXPRESSION_COMPATIBLE: Record<
+	ExpressionPreset,
+	{
+		eyes: string[];
+		eyebrows: string[];
+		mouth: string[];
+	}
+> = {
+	neutral: {
+		eyes: ['default', 'side'],
+		eyebrows: ['default', 'defaultNatural'],
+		mouth: ['default', 'twinkle'],
+	},
+	confident: {
+		eyes: ['default', 'side', 'wink'],
+		eyebrows: ['defaultNatural', 'default'],
+		mouth: ['smile', 'twinkle'],
+	},
+	stern: {
+		eyes: ['squint', 'default'],
+		eyebrows: ['flatNatural', 'default'],
+		mouth: ['serious', 'default'],
+	},
+	friendly: {
+		eyes: ['happy', 'default', 'wink'],
+		eyebrows: ['defaultNatural', 'default'],
+		mouth: ['smile', 'twinkle'],
+	},
+	intense: {
+		eyes: ['squint', 'surprised'],
+		eyebrows: ['raisedExcited', 'unibrowNatural'],
+		mouth: ['serious', 'sad'],
+	},
 };
 
 //============================================
@@ -65,40 +98,40 @@ type WeightedEntry<T> = { value: T; weight: number };
 const ARCHETYPE_EXPRESSIONS: Record<Archetype, WeightedEntry<ExpressionPreset>[]> = {
 	player: [
 		{ value: 'confident', weight: 45 },
-		{ value: 'friendly',  weight: 25 },
-		{ value: 'neutral',   weight: 20 },
-		{ value: 'intense',   weight: 10 },
+		{ value: 'friendly', weight: 25 },
+		{ value: 'neutral', weight: 20 },
+		{ value: 'intense', weight: 10 },
 	],
 	rival: [
-		{ value: 'intense',   weight: 50 },
+		{ value: 'intense', weight: 50 },
 		{ value: 'confident', weight: 25 },
-		{ value: 'stern',     weight: 15 },
-		{ value: 'neutral',   weight: 10 },
+		{ value: 'stern', weight: 15 },
+		{ value: 'neutral', weight: 10 },
 	],
 	coach: [
-		{ value: 'stern',     weight: 50 },
-		{ value: 'neutral',   weight: 30 },
+		{ value: 'stern', weight: 50 },
+		{ value: 'neutral', weight: 30 },
 		{ value: 'confident', weight: 20 },
 	],
 	recruiter: [
-		{ value: 'friendly',  weight: 35 },
-		{ value: 'neutral',   weight: 35 },
+		{ value: 'friendly', weight: 35 },
+		{ value: 'neutral', weight: 35 },
 		{ value: 'confident', weight: 25 },
-		{ value: 'stern',     weight: 5 },
+		{ value: 'stern', weight: 5 },
 	],
 	// Scout: same as recruiter (intentionally shared adult-professional profile)
 	scout: [
-		{ value: 'friendly',  weight: 35 },
-		{ value: 'neutral',   weight: 35 },
+		{ value: 'friendly', weight: 35 },
+		{ value: 'neutral', weight: 35 },
 		{ value: 'confident', weight: 25 },
-		{ value: 'stern',     weight: 5 },
+		{ value: 'stern', weight: 5 },
 	],
 	generic: [
-		{ value: 'neutral',   weight: 20 },
+		{ value: 'neutral', weight: 20 },
 		{ value: 'confident', weight: 20 },
-		{ value: 'stern',     weight: 20 },
-		{ value: 'friendly',  weight: 20 },
-		{ value: 'intense',   weight: 20 },
+		{ value: 'stern', weight: 20 },
+		{ value: 'friendly', weight: 20 },
+		{ value: 'intense', weight: 20 },
 	],
 };
 
@@ -129,31 +162,31 @@ const HAIR_FAMILY_POOLS: Record<HairFamily, string[]> = {
 // Identity seed picks the family; variation seed picks the exact style
 const ARCHETYPE_HAIR_FAMILIES: Record<Archetype, WeightedEntry<HairFamily>[]> = {
 	player: [
-		{ value: 'athletic',    weight: 50 },
-		{ value: 'adult_safe',  weight: 30 },
+		{ value: 'athletic', weight: 50 },
+		{ value: 'adult_safe', weight: 30 },
 		{ value: 'distinctive', weight: 20 },
 	],
 	rival: [
 		{ value: 'distinctive', weight: 40 },
-		{ value: 'adult_safe',  weight: 35 },
-		{ value: 'athletic',    weight: 25 },
+		{ value: 'adult_safe', weight: 35 },
+		{ value: 'athletic', weight: 25 },
 	],
 	coach: [
 		{ value: 'conservative', weight: 70 },
-		{ value: 'adult_safe',   weight: 30 },
+		{ value: 'adult_safe', weight: 30 },
 	],
 	recruiter: [
 		{ value: 'conservative', weight: 60 },
-		{ value: 'adult_safe',   weight: 40 },
+		{ value: 'adult_safe', weight: 40 },
 	],
 	scout: [
 		{ value: 'conservative', weight: 60 },
-		{ value: 'adult_safe',   weight: 40 },
+		{ value: 'adult_safe', weight: 40 },
 	],
 	generic: [
-		{ value: 'adult_safe',   weight: 40 },
-		{ value: 'distinctive',  weight: 30 },
-		{ value: 'athletic',     weight: 30 },
+		{ value: 'adult_safe', weight: 40 },
+		{ value: 'distinctive', weight: 30 },
+		{ value: 'athletic', weight: 30 },
 	],
 };
 
@@ -167,9 +200,9 @@ const UNCOMMON_HAIR_COLORS = ['blondeGolden', 'red', 'platinum'];
 const ARCHETYPE_GLASSES_CHANCE: Record<Archetype, number> = {
 	player: 0.05,
 	rival: 0.05,
-	coach: 0.30,
+	coach: 0.3,
 	recruiter: 0.35,
-	scout: 0.40, // slightly higher than recruiter for differentiation
+	scout: 0.4, // slightly higher than recruiter for differentiation
 	generic: 0.15,
 };
 
@@ -186,10 +219,10 @@ let SVG_ID_COUNTER = 0;
 function mulberry32(seed: number): () => number {
 	return function (): number {
 		seed |= 0;
-		seed = seed + 0x6D2B79F5 | 0;
-		let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-		t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-		return ((t ^ t >>> 14) >>> 0) / 4294967296;
+		seed = (seed + 0x6d2b79f5) | 0;
+		let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 	};
 }
 
@@ -198,7 +231,7 @@ function mulberry32(seed: number): () => number {
 function hashString(str: string): number {
 	let hash = 5381;
 	for (let i = 0; i < str.length; i++) {
-		hash = ((hash << 5) + hash) + str.charCodeAt(i);
+		hash = (hash << 5) + hash + str.charCodeAt(i);
 		hash = hash & hash;
 	}
 	return Math.abs(hash);
@@ -312,7 +345,7 @@ export function generatePortraitSVG(config: AvatarConfig): string {
 	const facialHairColor = getHairColor(config.facialHairColor || config.hairColor);
 
 	// Derive shirt color deterministically from stable identity fields
-	const shirtIdx = (hashString(config.skinTone + config.hair) % SHIRT_COLORS.length);
+	const shirtIdx = hashString(config.skinTone + config.hair) % SHIRT_COLORS.length;
 	const shirtColor = SHIRT_COLORS[shirtIdx];
 
 	// Fetch SVG parts
@@ -328,7 +361,9 @@ export function generatePortraitSVG(config: AvatarConfig): string {
 	// Apply colors
 	const faceWithColor = applyColors(faceSvg, skinColor, hairColor);
 	const hairWithColor = applyColors(hairSvg, skinColor, hairColor);
-	const facialHairWithColor = facialHairSvg ? applyColors(facialHairSvg, skinColor, facialHairColor) : null;
+	const facialHairWithColor = facialHairSvg
+		? applyColors(facialHairSvg, skinColor, facialHairColor)
+		: null;
 
 	// Prefix IDs for multi-portrait collision safety
 	const facePrefixed = prefixIds(faceWithColor, idPrefix);
@@ -410,9 +445,10 @@ function adjustExpressionWeightsByAge(
 	ageBand: AgeBand
 ): WeightedEntry<ExpressionPreset>[] {
 	// Copy the weights so we can modify
-	const adjusted: WeightedEntry<ExpressionPreset>[] = baseWeights.map(
-		(e) => ({ value: e.value, weight: e.weight })
-	);
+	const adjusted: WeightedEntry<ExpressionPreset>[] = baseWeights.map((e) => ({
+		value: e.value,
+		weight: e.weight,
+	}));
 
 	if (ageBand === 'teen') {
 		// Suppress stern and intense for teens
@@ -483,9 +519,7 @@ function getAgeFilteredHairPool(family: HairFamily, ageBand: AgeBand): string[] 
 		// 80-90% conservative, but allow some family influence
 		// Merge conservative with a few adult-safe styles from the family
 		const conservativeSet = new Set(CONSERVATIVE_HAIR);
-		const adultSafe = basePool.filter(
-			(h) => !new Set(['bigHair', 'shaggyMullet', 'curly']).has(h)
-		);
+		const adultSafe = basePool.filter((h) => !new Set(['bigHair', 'shaggyMullet', 'curly']).has(h));
 		// Combine conservative + filtered family styles (deduped)
 		const combined = [...CONSERVATIVE_HAIR];
 		for (const h of adultSafe) {
@@ -502,13 +536,9 @@ function getAgeFilteredHairPool(family: HairFamily, ageBand: AgeBand): string[] 
 
 //============================================
 // Pick hair color with age-based gray forcing and archetype rarity rules
-function pickHairColor(
-	archetype: Archetype,
-	ageBand: AgeBand,
-	rand: () => number
-): string {
+function pickHairColor(archetype: Archetype, ageBand: AgeBand, rand: () => number): string {
 	// Forced gray check for older characters (before any tier selection)
-	if (ageBand === 'senior' && rand() < 0.60) {
+	if (ageBand === 'senior' && rand() < 0.6) {
 		return 'silverGray';
 	}
 	if (ageBand === 'middle_aged' && rand() < 0.25) {
@@ -580,14 +610,14 @@ function getFacialHairChance(ageBand: AgeBand, archetype: Archetype): number {
 		base = 0.65;
 	} else {
 		// senior
-		base = 0.80;
+		base = 0.8;
 	}
 
 	// Archetype modifier
 	if (archetype === 'coach') {
 		base += 0.15;
 	} else if (archetype === 'player') {
-		base -= 0.10;
+		base -= 0.1;
 	}
 
 	// Clamp to 0-1
@@ -599,9 +629,15 @@ function getFacialHairChance(ageBand: AgeBand, archetype: Archetype): number {
 function getGlassesChance(archetype: Archetype, ageBand: AgeBand): number {
 	let base = ARCHETYPE_GLASSES_CHANCE[archetype];
 	// Older professionals get more glasses
-	if (ageBand === 'senior' && (archetype === 'coach' || archetype === 'recruiter' || archetype === 'scout')) {
+	if (
+		ageBand === 'senior' &&
+		(archetype === 'coach' || archetype === 'recruiter' || archetype === 'scout')
+	) {
 		base += 0.15;
-	} else if (ageBand === 'middle_aged' && (archetype === 'coach' || archetype === 'recruiter' || archetype === 'scout')) {
+	} else if (
+		ageBand === 'middle_aged' &&
+		(archetype === 'coach' || archetype === 'recruiter' || archetype === 'scout')
+	) {
 		base += 0.08;
 	}
 	return Math.min(1, base);
@@ -609,7 +645,11 @@ function getGlassesChance(archetype: Archetype, ageBand: AgeBand): number {
 
 //============================================
 // Validate expression preset keys exist; fallback to neutral if missing
-function resolveExpression(preset: ExpressionPreset): { eyes: string; eyebrows: string; mouth: string } {
+function resolveExpression(preset: ExpressionPreset): {
+	eyes: string;
+	eyebrows: string;
+	mouth: string;
+} {
 	const expr = EXPRESSION_PRESETS[preset];
 	const eyesOk = expr.eyes in EYES;
 	const browsOk = expr.eyebrows in EYEBROWS;
@@ -671,13 +711,13 @@ export function randomAvatarConfig(
 	let mouth = baseExpression.mouth;
 
 	const compatPool = EXPRESSION_COMPATIBLE[expressionPreset];
-	if (variationRand() < 0.30) {
+	if (variationRand() < 0.3) {
 		eyes = pickFromArray(compatPool.eyes, variationRand);
 	}
 	if (variationRand() < 0.25) {
 		eyebrows = pickFromArray(compatPool.eyebrows, variationRand);
 	}
-	if (variationRand() < 0.20) {
+	if (variationRand() < 0.2) {
 		mouth = pickFromArray(compatPool.mouth, variationRand);
 	}
 
@@ -687,7 +727,7 @@ export function randomAvatarConfig(
 
 	// Hair color: start from identity base, age can force gray
 	let hairColor = baseHairColor;
-	if (ageBand === 'senior' && variationRand() < 0.60) {
+	if (ageBand === 'senior' && variationRand() < 0.6) {
 		hairColor = 'silverGray';
 	} else if (ageBand === 'middle_aged' && variationRand() < 0.25) {
 		hairColor = 'silverGray';

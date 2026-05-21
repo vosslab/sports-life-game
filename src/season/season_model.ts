@@ -38,7 +38,7 @@ export class LeagueSeason {
 		games: SeasonGame[],
 		seasonLength: number,
 		playerTeamId: TeamId,
-		phase: CareerPhase,
+		phase: CareerPhase
 	) {
 		this.teams = teams;
 		this.games = games;
@@ -51,7 +51,7 @@ export class LeagueSeason {
 	//============================================
 	// MUTATION: Record a game result by game id
 	recordGameResult(gameId: GameId, homeScore: number, awayScore: number): void {
-		const game = this.games.find(g => g.id === gameId);
+		const game = this.games.find((g) => g.id === gameId);
 		if (!game) {
 			throw new Error(`Game not found: ${gameId}`);
 		}
@@ -68,8 +68,7 @@ export class LeagueSeason {
 	advanceWeek(): boolean {
 		// Check that all current week games are finalized (skip week 0 which is pre-season)
 		if (this.currentWeek > 0) {
-			const unfinished = this.getGamesForWeek(this.currentWeek)
-				.filter(g => g.status !== 'final');
+			const unfinished = this.getGamesForWeek(this.currentWeek).filter((g) => g.status !== 'final');
 			if (unfinished.length > 0) {
 				throw new Error(
 					`Cannot advance: ${unfinished.length} unfinished game(s) in week ${this.currentWeek}`
@@ -86,7 +85,7 @@ export class LeagueSeason {
 	//============================================
 	// QUERY: Get all games for a specific week
 	getGamesForWeek(week: number): SeasonGame[] {
-		return this.games.filter(g => g.week === week);
+		return this.games.filter((g) => g.week === week);
 	}
 
 	//============================================
@@ -129,9 +128,7 @@ export class LeagueSeason {
 	//============================================
 	// QUERY: Get the game for a team in the current week
 	getNextOpponent(teamId: TeamId): SeasonGame | undefined {
-		return this.games.find(
-			g => g.week === this.currentWeek && g.involvesTeam(teamId)
-		);
+		return this.games.find((g) => g.week === this.currentWeek && g.involvesTeam(teamId));
 	}
 
 	//============================================
@@ -145,10 +142,10 @@ export class LeagueSeason {
 	getScheduleDisplay(teamId: TeamId): ScheduleDisplayRow[] {
 		// Get all games for this team, sorted by week
 		const teamGames = this.games
-			.filter(g => g.involvesTeam(teamId))
+			.filter((g) => g.involvesTeam(teamId))
 			.sort((a, b) => a.week - b.week);
 
-		return teamGames.map(game => {
+		return teamGames.map((game) => {
 			const opponentId = game.getOpponentId(teamId);
 			const opponent = opponentId ? this.teams.get(opponentId) : undefined;
 			const opponentName = opponent ? opponent.getDisplayName() : 'Unknown';

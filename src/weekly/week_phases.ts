@@ -5,16 +5,28 @@
 import { Player } from '../player.js';
 import { CareerContext } from '../core/year_handler.js';
 import { SeasonGoal } from '../player.js';
-import { applySeasonGoal, getGoalsForPhase, getPreferredActivitiesForGoal } from '../week_sim/index.js';
+import {
+	applySeasonGoal,
+	getGoalsForPhase,
+	getPreferredActivitiesForGoal,
+} from '../week_sim/index.js';
 import { ArcPhase, getArcPhase } from '../season_arc.js';
 import { getWeeklyChoices, resolveChoice, WeeklyChoice, ChoiceResult } from './choices.js';
 import {
-	scheduleCrises, startCrisis, getCrisisResponses, resolveCrisisResponse,
+	scheduleCrises,
+	startCrisis,
+	getCrisisResponses,
+	resolveCrisisResponse,
 	advanceCrisis,
 } from '../crisis.js';
 import {
-	Activity, createWeekState, getActivitiesForPhase,
-	isActivityUnlocked, applyActivity, getEffectPreview, formatActivityResult,
+	Activity,
+	createWeekState,
+	getActivitiesForPhase,
+	isActivityUnlocked,
+	applyActivity,
+	getEffectPreview,
+	formatActivityResult,
 } from '../activities.js';
 import { GameEvent, filterEvents, selectEvent, applyEventChoice } from '../events.js';
 import { randomInRange } from '../player.js';
@@ -24,12 +36,15 @@ import * as gameHandler from './game_handler.js';
 //============================================
 // Show goal selection modal (used at season start and every 5 games)
 export function showGoalSelection(
-	player: Player, ctx: CareerContext, title: string, onDone: () => void,
+	player: Player,
+	ctx: CareerContext,
+	title: string,
+	onDone: () => void
 ): void {
 	const goals = getGoalsForPhase(player.phase);
 
 	// Build choice buttons from available goals
-	const choices = goals.map(goal => ({
+	const choices = goals.map((goal) => ({
 		text: `${goal.name} (${goal.effectHint})`,
 		description: goal.description,
 		primary: goal.key === player.seasonGoal,
@@ -43,7 +58,7 @@ export function showGoalSelection(
 
 	// Add "keep current" option when re-prompting (not first selection)
 	if (player.currentWeek > 0) {
-		const currentGoal = goals.find(g => g.key === player.seasonGoal);
+		const currentGoal = goals.find((g) => g.key === player.seasonGoal);
 		const currentName = currentGoal ? currentGoal.name : player.seasonGoal;
 		choices.unshift({
 			text: `Keep: ${currentName}`,
@@ -115,8 +130,11 @@ export function showWeeklyChoices(player: Player, ctx: CareerContext, arcPhase: 
 
 	const record = activeEngine.season.getPlayerRecord();
 	const choices = getWeeklyChoices(
-		player, arcPhase, record.wins, record.losses,
-		player.activeCrisis !== null,
+		player,
+		arcPhase,
+		record.wins,
+		record.losses,
+		player.activeCrisis !== null
 	);
 
 	if (choices.length === 0) {
@@ -126,7 +144,7 @@ export function showWeeklyChoices(player: Player, ctx: CareerContext, arcPhase: 
 		return;
 	}
 
-	const choiceOptions = choices.map(choice => ({
+	const choiceOptions = choices.map((choice) => ({
 		text: choice.text,
 		description: `${choice.description} (${choice.risk})`,
 		action: () => {
@@ -162,7 +180,7 @@ export function showCrisisResponse(player: Player, ctx: CareerContext): void {
 		return;
 	}
 
-	const responseOptions = responses.map(response => ({
+	const responseOptions = responses.map((response) => ({
 		text: response.text,
 		description: response.risk,
 		action: () => {
@@ -175,7 +193,7 @@ export function showCrisisResponse(player: Player, ctx: CareerContext): void {
 			if (player.activeCrisis) {
 				const crisisOver = advanceCrisis(player.activeCrisis);
 				if (crisisOver) {
-					ctx.addText("The crisis has passed. Back to football.");
+					ctx.addText('The crisis has passed. Back to football.');
 					player.activeCrisis = null;
 				}
 			}
@@ -187,7 +205,12 @@ export function showCrisisResponse(player: Player, ctx: CareerContext): void {
 		},
 	}));
 
-	ctx.waitForInteraction('Crisis: ' + player.activeCrisis.name, responseOptions, undefined, 'narrative');
+	ctx.waitForInteraction(
+		'Crisis: ' + player.activeCrisis.name,
+		responseOptions,
+		undefined,
+		'narrative'
+	);
 }
 
 //============================================
@@ -197,16 +220,19 @@ export function showActivities(player: Player, ctx: CareerContext): void {
 
 	// Build goal info for the sidebar dropdown
 	const goals = getGoalsForPhase(player.phase);
-	const goalInfoParam = goals.length > 0 ? {
-		goals,
-		currentGoal: player.seasonGoal,
-		onGoalChange: (newGoal: SeasonGoal) => {
-			player.seasonGoal = newGoal;
-			ctx.save();
-			// Re-render to update the goal description
-			showActivities(player, ctx);
-		},
-	} : undefined;
+	const goalInfoParam =
+		goals.length > 0
+			? {
+					goals,
+					currentGoal: player.seasonGoal,
+					onGoalChange: (newGoal: SeasonGoal) => {
+						player.seasonGoal = newGoal;
+						ctx.save();
+						// Re-render to update the goal description
+						showActivities(player, ctx);
+					},
+				}
+			: undefined;
 
 	ctx.renderActivitiesTab({
 		activities,
@@ -221,7 +247,9 @@ export function showActivities(player: Player, ctx: CareerContext): void {
 //============================================
 // Handle activity selection
 export function handleActivitySelected(
-	player: Player, ctx: CareerContext, activity: Activity,
+	player: Player,
+	ctx: CareerContext,
+	activity: Activity
 ): void {
 	const result = applyActivity(activity, player);
 
@@ -245,11 +273,10 @@ export function handleActivitySelected(
 
 //============================================
 // Apply a lightweight background activity that matches the season goal.
-export function applyBackgroundActivityFromGoal(
-	player: Player, ctx: CareerContext,
-): void {
-	const unlockedActivities = getActivitiesForPhase(player.phase, player)
-		.filter(a => isActivityUnlocked(a, player));
+export function applyBackgroundActivityFromGoal(player: Player, ctx: CareerContext): void {
+	const unlockedActivities = getActivitiesForPhase(player.phase, player).filter((a) =>
+		isActivityUnlocked(a, player)
+	);
 	if (unlockedActivities.length === 0) {
 		return;
 	}
@@ -259,7 +286,7 @@ export function applyBackgroundActivityFromGoal(
 
 	let chosenActivity = unlockedActivities[0];
 	for (const activityId of preferredIds) {
-		const match = unlockedActivities.find(activity => activity.id === activityId);
+		const match = unlockedActivities.find((activity) => activity.id === activityId);
 		if (match) {
 			chosenActivity = match;
 			break;
@@ -304,22 +331,30 @@ export function proceedToEventCheck(player: Player, ctx: CareerContext): void {
 
 		// Filter events for current phase
 		let eligible = filterEvents(
-			ctx.events, player.phase,
-			player.currentWeek, player.position,
-			player.storyFlags, statsRecord, player.collegeYear,
+			ctx.events,
+			player.phase,
+			player.currentWeek,
+			player.position,
+			player.storyFlags,
+			statsRecord,
+			player.collegeYear
 		);
 
 		// Fall back to HS events for NFL/college
 		if (eligible.length === 0 && (player.phase === 'nfl' || player.phase === 'college')) {
 			eligible = filterEvents(
-				ctx.events, 'high_school',
-				player.currentWeek, player.position,
-				player.storyFlags, statsRecord, player.collegeYear,
+				ctx.events,
+				'high_school',
+				player.currentWeek,
+				player.position,
+				player.storyFlags,
+				statsRecord,
+				player.collegeYear
 			);
 		}
 
 		// Filter out events already seen this season
-		const unseen = eligible.filter(e => !player.seenEventIds[e.id]);
+		const unseen = eligible.filter((e) => !player.seenEventIds[e.id]);
 		const event = selectEvent(unseen.length > 0 ? unseen : eligible);
 		if (event) {
 			player.seenEventIds[event.id] = true;
@@ -334,12 +369,10 @@ export function proceedToEventCheck(player: Player, ctx: CareerContext): void {
 
 //============================================
 // Show event modal, then proceed to game
-export function showEventCard(
-	player: Player, ctx: CareerContext, event: GameEvent,
-): void {
+export function showEventCard(player: Player, ctx: CareerContext, event: GameEvent): void {
 	ctx.hideTabBar();
 
-	const choiceActions = event.choices.map(choice => ({
+	const choiceActions = event.choices.map((choice) => ({
 		text: choice.text,
 		action: () => {
 			const flavor = applyEventChoice(player, choice);

@@ -61,9 +61,7 @@ export function clearChoices(): void {
 
 //============================================
 // Display weekly focus options as choice buttons
-export function showWeeklyFocusChoices(
-	onChoice: (focus: string) => void,
-): void {
+export function showWeeklyFocusChoices(onChoice: (focus: string) => void): void {
 	const focusOptions: ChoiceOption[] = [
 		{
 			text: 'Train (+2-4 TEC)',
@@ -92,11 +90,7 @@ export function showWeeklyFocusChoices(
 
 //============================================
 // Display game day result with player line, team result, and story
-export function showGameResult(
-	playerLine: string,
-	teamResult: string,
-	storyText: string,
-): void {
+export function showGameResult(playerLine: string, teamResult: string, storyText: string): void {
 	addHeadline('Game Day');
 	addText(storyText);
 	addResult(playerLine);

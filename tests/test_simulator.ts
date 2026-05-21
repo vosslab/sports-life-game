@@ -15,16 +15,9 @@ import assert from 'node:assert/strict';
 import { seedDefaultRng } from '../src/core/rng.js';
 import { accumulateGameStats, createPlayer } from '../src/player.js';
 import { Team } from '../src/team.js';
-import {
-	calculateLetterGrade,
-	simulateGame,
-} from '../src/week_sim/index.js';
+import { calculateLetterGrade, simulateGame } from '../src/week_sim/index.js';
 import { calculatePerformanceRating } from '../src/shared/game_utils.js';
-import {
-	ClutchGameContext,
-	buildClutchMoment,
-	resolveClutchMoment,
-} from '../src/clutch/index.js';
+import { ClutchGameContext, buildClutchMoment, resolveClutchMoment } from '../src/clutch/index.js';
 
 //============================================
 // Build a deterministic player + team for the simulator harness.
@@ -59,12 +52,12 @@ function makeTeam(strength: number): Team {
 
 //============================================
 function testSimulateGameDeterministic(): void {
-	seedDefaultRng(0xCAFEBABE);
+	seedDefaultRng(0xcafebabe);
 	const player1 = makeStarterRb();
 	const team1 = makeTeam(70);
 	const result1 = simulateGame(player1, team1, 50, false);
 
-	seedDefaultRng(0xCAFEBABE);
+	seedDefaultRng(0xcafebabe);
 	const player2 = makeStarterRb();
 	const team2 = makeTeam(70);
 	const result2 = simulateGame(player2, team2, 50, false);
@@ -111,7 +104,11 @@ function testAccumulateGameStats(): void {
 	assert.equal(player.seasonStats.rushTds, 1, 'rushTds should sum');
 	assert.equal(player.seasonStats.fumbles, 1, 'fumbles should sum');
 	assert.equal(player.seasonStats.totalYards, 150, 'totalYards = passYards + rushYards + recYards');
-	assert.equal(player.seasonStats.totalTouchdowns, 1, 'totalTouchdowns = passTds + rushTds + recTds');
+	assert.equal(
+		player.seasonStats.totalTouchdowns,
+		1,
+		'totalTouchdowns = passTds + rushTds + recTds'
+	);
 	console.log('  ok: accumulateGameStats sums correctly across calls');
 }
 
@@ -150,7 +147,7 @@ function testBuildAndResolveClutch(): void {
 		positionBucket: 'runner_receiver',
 	};
 
-	seedDefaultRng(0xC0FFEE);
+	seedDefaultRng(0xc0ffee);
 	const moment = buildClutchMoment(player, ctx);
 	assert.ok(moment, 'eligible playoff context should produce a clutch moment');
 	if (moment === null) {
@@ -160,7 +157,10 @@ function testBuildAndResolveClutch(): void {
 	assert.ok(moment.choices.length > 0, 'choices array should be non-empty');
 	for (const choice of moment.choices) {
 		assert.ok(typeof choice.id === 'string' && choice.id.length > 0, 'choice id non-empty');
-		assert.ok(typeof choice.label === 'string' && choice.label.length > 0, 'choice label non-empty');
+		assert.ok(
+			typeof choice.label === 'string' && choice.label.length > 0,
+			'choice label non-empty'
+		);
 		assert.ok(['safe', 'balanced', 'heroic'].includes(choice.risk), 'risk is a known tier');
 	}
 

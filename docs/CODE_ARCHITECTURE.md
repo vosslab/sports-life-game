@@ -3,12 +3,13 @@
 ## Overview
 
 Gridiron Life is a BitLife-style single-page browser game built in TypeScript and
-compiled to ES2020. The player lives through a complete American football career:
-childhood, high school, college, and NFL. The codebase uses a year-handler
-registry pattern where each age band has its own handler module. Football phases
-share a weekly engine that guarantees week advancement; per-game simulation runs
-through a play-by-play simulator under [src/simulator/](../src/simulator/), and all
-rendering flows through a pull-model render layer over focused UI widgets.
+bundled to ES2020 with esbuild. The player lives through a complete American
+football career: childhood, high school, college, and NFL. The codebase uses a
+year-handler registry pattern where each age band has its own handler module.
+Football phases share a weekly engine that guarantees week advancement;
+per-game simulation runs through a play-by-play simulator under
+[src/simulator/](../src/simulator/), and all rendering flows through a
+pull-model render layer over focused UI widgets.
 
 The architecture is layered:
 
@@ -107,7 +108,8 @@ Two simulation paths coexist:
   [output/story_summary.ts](../src/simulator/output/story_summary.ts).
 - **Formula path** ([src/week_sim/](../src/week_sim/)): the older formula-based
   `simulateGame`, still used by the legacy code paths and the standalone
-  simulation tools under `tools/`.
+  simulation tools under [tools/](../tools/) (sim_player_season,
+  sim_conference_season, sim_positions).
 
 ### Clutch moments
 
@@ -149,8 +151,15 @@ Two simulation paths coexist:
   [src/childhood/travel_years.ts](../src/childhood/travel_years.ts) (11-13).
 - **High school**: [src/high_school/hs_frosh_soph.ts](../src/high_school/hs_frosh_soph.ts)
   (14-15), [src/high_school/hs_varsity.ts](../src/high_school/hs_varsity.ts)
-  (16-17). Recruiting-event hooks live in
-  [src/high_school/recruiting_events.ts](../src/high_school/recruiting_events.ts).
+  (16-17), [src/high_school/hs_postgrad.ts](../src/high_school/hs_postgrad.ts)
+  (optional post-grad path). Recruiting flow lives in
+  [src/high_school/hs_recruiting.ts](../src/high_school/hs_recruiting.ts),
+  [src/high_school/recruiting_events.ts](../src/high_school/recruiting_events.ts),
+  [src/high_school/recruiting_helpers.ts](../src/high_school/recruiting_helpers.ts),
+  and [src/high_school/recruiting_offers.ts](../src/high_school/recruiting_offers.ts).
+  Alternate-path schedule builders:
+  [src/high_school/hs_season_builder.ts](../src/high_school/hs_season_builder.ts)
+  and [src/high_school/juco_season_builder.ts](../src/high_school/juco_season_builder.ts).
 - **College**: [src/college/college_entry.ts](../src/college/college_entry.ts) (18),
   [src/college/college_core.ts](../src/college/college_core.ts) (19-20),
   [src/college/college_senior.ts](../src/college/college_senior.ts) (21).
@@ -192,8 +201,9 @@ Two simulation paths coexist:
 - [src/avatar.ts](../src/avatar.ts) plus
   [src/data/avatar_parts.ts](../src/data/avatar_parts.ts): SVG portrait generator.
 - [src/styles/](../src/styles/): CSS modules loaded directly by
-  [index.html](../index.html) (base, layout, buttons, modals, tabs, stats, story,
-  activities, phases, social).
+  [src/index.html](../src/index.html) (base, layout, buttons, modals, tabs,
+  stats, story, activities, phases, social). The build copies this tree
+  into `dist/styles/` and rewrites the link hrefs to relative paths.
 - [src/popup.ts](../src/popup.ts), [src/dom_utils.ts](../src/dom_utils.ts),
   [src/stat_info.ts](../src/stat_info.ts), [src/team_emoji.ts](../src/team_emoji.ts):
   small UI helpers shared across widgets.
@@ -252,10 +262,47 @@ childhood (1-13)
   -> legacy
 ```
 
+## Build
+
+The build is owned by esbuild via [build_github_pages.sh](../build_github_pages.sh)
+(also reachable as `npm run build`). The pipeline:
+
+1. Type-check the project with `npx tsc --noEmit -p tsconfig.json` (esbuild
+   does not type-check; tsc owns that).
+2. Bundle the entry point:
+   `npx esbuild src/main.ts --bundle --format=esm --target=es2020 --minify
+--sourcemap --loader:.csv=text --loader:.json=json
+--outfile=dist/main.js`. The result is a single ES module of around
+   520KB minified.
+3. Copy `src/index.html` -> `dist/index.html` and rewrite its absolute
+   `/dist/main.js` and `/src/styles/...` references to relative paths so
+   the dist artifact is self-contained.
+4. Copy `src/styles/` -> `dist/styles/` (10 CSS files; not bundled, served
+   as static assets).
+5. Write `dist/.nojekyll` so GitHub Pages does not pre-process the artifact.
+
+All plugin JSON (childhood, high_school, college, nfl activities and events,
+the high_school example data pack), weekly choice JSON in
+`src/data/choices/`, and the CSV name and team pools in `src/data/` are
+resolved as esbuild build-time imports rather than runtime `fetch()` calls.
+The `.json` loader inlines the value as a JSON-typed import; the `.csv`
+loader inlines the raw text and existing parsers split it. The runtime
+makes no network requests for game data: everything ships in
+`dist/main.js`.
+
+`dist/` is the self-contained Pages artifact; the same directory is served
+locally by [run_web_server.sh](../run_web_server.sh) via
+`python3 -m http.server --directory dist` on a random port.
+
 ## Testing and verification
 
-- [check_codebase.sh](../check_codebase.sh): runs `tsc -p tsconfig.lint.json
-  --noEmit` and the TS test runner [tests/run.ts](../tests/run.ts).
+- [check_codebase.sh](../check_codebase.sh): smart orchestrator that wraps
+  the npm script graph. Validates the environment (node, npm, package.json,
+  node_modules/) and then runs typecheck, typecheck:lint, lint,
+  format:check, test:node, test:playwright (when available), and build,
+  failing fast on the first red square and emitting a final PASS/FAIL
+  summary. Flags: `--fast` (skip Playwright + build), `--skip-playwright`,
+  `--help`. Reachable as `npm run check`.
 - [tests/playwright/autoplay.mjs](../tests/playwright/autoplay.mjs) plus [tests/smoke.sh](../tests/smoke.sh):
   headless autoplay smoke through the full career.
 - TS unit tests under `tests/test_*.ts` (handler registry, player helpers,
@@ -269,6 +316,12 @@ childhood (1-13)
   simulation code does not import DOM APIs.
 - [tests/check_math_random_budget.ts](../tests/check_math_random_budget.ts)
   bounds `Math.random` usage to keep simulation reproducible.
+- [tests/check_plugin_boundaries.ts](../tests/check_plugin_boundaries.ts)
+  enforces plugin tree boundary rules (no cross-plugin imports).
+- [tests/fixtures/csv_loader.mjs](../tests/fixtures/csv_loader.mjs) is the
+  Node ESM loader hook that lets tsx-run tests import `.csv` files as
+  text; esbuild handles the same `--loader:.csv=text` mapping at build
+  time, while Node needs this hook at test time.
 
 ## Extension points
 

@@ -3,7 +3,7 @@
 // Adapted from nflsim's box_score.py
 //============================================
 
-import { PlayOutcome, PlayResult } from "../engine/state_machine.js";
+import { PlayOutcome, PlayResult } from '../engine/state_machine.js';
 
 //============================================
 // Team-level box score
@@ -69,16 +69,12 @@ export function createEmptyBoxScore(): TeamBoxScore {
 
 //============================================
 // Record a single play into the box score
-export function recordPlay(
-	box: TeamBoxScore,
-	outcome: PlayOutcome,
-	preDown: number,
-): void {
+export function recordPlay(box: TeamBoxScore, outcome: PlayOutcome, preDown: number): void {
 	// Increment total play count
 	box.totalPlays += 1;
 
 	// Pass play stats
-	if (outcome.play_type === "pass") {
+	if (outcome.play_type === 'pass') {
 		box.passAttempts += 1;
 		if (outcome.is_complete) {
 			box.passCompletions += 1;
@@ -97,7 +93,7 @@ export function recordPlay(
 	}
 
 	// Run play stats
-	if (outcome.play_type === "run") {
+	if (outcome.play_type === 'run') {
 		box.rushAttempts += 1;
 		box.rushYards += outcome.yards_gained;
 		if (outcome.touchdown) {
@@ -120,7 +116,7 @@ export function recordPlay(
 	}
 
 	// Field goal stats
-	if (outcome.play_type === "field_goal") {
+	if (outcome.play_type === 'field_goal') {
 		box.fgAttempts += 1;
 		if (outcome.result === PlayResult.FIELD_GOAL_MADE) {
 			box.fgMade += 1;
@@ -128,7 +124,7 @@ export function recordPlay(
 	}
 
 	// Extra point stats
-	if (outcome.play_type === "extra_point") {
+	if (outcome.play_type === 'extra_point') {
 		box.xpAttempts += 1;
 		if (outcome.result === PlayResult.TOUCHDOWN) {
 			box.xpMade += 1;
@@ -136,7 +132,7 @@ export function recordPlay(
 	}
 
 	// Punt stats
-	if (outcome.play_type === "punt") {
+	if (outcome.play_type === 'punt') {
 		box.punts += 1;
 	}
 

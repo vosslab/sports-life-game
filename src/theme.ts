@@ -3,10 +3,10 @@
 //============================================
 // Team color palette interface
 export interface TeamPalette {
-	primary: string;      // main background color (hex)
-	secondary: string;    // secondary/card background (hex)
-	accent: string;       // highlights, buttons, stat bars (hex)
-	text: string;         // main text color (hex)
+	primary: string; // main background color (hex)
+	secondary: string; // secondary/card background (hex)
+	accent: string; // highlights, buttons, stat bars (hex)
+	text: string; // main text color (hex)
 	textSecondary: string; // dimmer text (hex)
 }
 
@@ -333,10 +333,18 @@ function blendHexColors(color1: string, color2: string, weight2: number): string
 	const { r: r1, g: g1, b: b1 } = hexToRgb(color1);
 	const { r: r2, g: g2, b: b2 } = hexToRgb(color2);
 
-	return '#'
-		+ Math.round(r1 * weight1 + r2 * weight2).toString(16).padStart(2, '0')
-		+ Math.round(g1 * weight1 + g2 * weight2).toString(16).padStart(2, '0')
-		+ Math.round(b1 * weight1 + b2 * weight2).toString(16).padStart(2, '0');
+	return (
+		'#' +
+		Math.round(r1 * weight1 + r2 * weight2)
+			.toString(16)
+			.padStart(2, '0') +
+		Math.round(g1 * weight1 + g2 * weight2)
+			.toString(16)
+			.padStart(2, '0') +
+		Math.round(b1 * weight1 + b2 * weight2)
+			.toString(16)
+			.padStart(2, '0')
+	);
 }
 
 //============================================

@@ -24,10 +24,10 @@ export interface EnhancedTeamRecord {
 	conferenceLosses: number;
 	divisionWins: number;
 	divisionLosses: number;
-	streak: number;           // positive = win streak, negative = loss streak, 0 = no games
-	last5: string;            // e.g. "WWLWL" (most recent first on left)
+	streak: number; // positive = win streak, negative = loss streak, 0 = no games
+	last5: string; // e.g. "WWLWL" (most recent first on left)
 	strengthOfSchedule: number; // opponent win% (0.0 to 1.0)
-	ranking?: number;         // playoff seeding rank
+	ranking?: number; // playoff seeding rank
 }
 
 //============================================
@@ -40,10 +40,7 @@ export interface LeagueStandings {
 
 //============================================
 // Create an empty team record
-export function createEmptyRecord(
-	teamId: string,
-	teamName: string,
-): EnhancedTeamRecord {
+export function createEmptyRecord(teamId: string, teamName: string): EnhancedTeamRecord {
 	return {
 		teamId,
 		teamName,
@@ -70,7 +67,7 @@ export function recordGameOutcome(
 	pointsFor: number,
 	pointsAgainst: number,
 	isConference: boolean,
-	isDivision: boolean,
+	isDivision: boolean
 ): void {
 	// Determine outcome
 	const isWin = pointsFor > pointsAgainst;
@@ -132,9 +129,7 @@ export function recordGameOutcome(
 // Secondary: conference win percentage
 // Tertiary: point differential
 // Returns a NEW sorted array (does not mutate input)
-export function sortStandings(
-	records: EnhancedTeamRecord[],
-): EnhancedTeamRecord[] {
+export function sortStandings(records: EnhancedTeamRecord[]): EnhancedTeamRecord[] {
 	const sorted = [...records].sort((a, b) => {
 		// Total games played
 		const gamesA = a.wins + a.losses + a.ties;
@@ -152,12 +147,8 @@ export function sortStandings(
 		const confGamesA = a.conferenceWins + a.conferenceLosses;
 		const confGamesB = b.conferenceWins + b.conferenceLosses;
 
-		const confWinPctA = confGamesA > 0
-			? (a.conferenceWins + 0.5 * 0) / confGamesA
-			: 0;
-		const confWinPctB = confGamesB > 0
-			? (b.conferenceWins + 0.5 * 0) / confGamesB
-			: 0;
+		const confWinPctA = confGamesA > 0 ? (a.conferenceWins + 0.5 * 0) / confGamesA : 0;
+		const confWinPctB = confGamesB > 0 ? (b.conferenceWins + 0.5 * 0) / confGamesB : 0;
 
 		if (Math.abs(confWinPctB - confWinPctA) > 0.0001) {
 			return confWinPctB - confWinPctA; // Descending
@@ -182,7 +173,7 @@ export function sortStandings(
 // Returns opponent average win percentage (0.0 to 1.0)
 export function computeStrengthOfSchedule(
 	records: EnhancedTeamRecord[],
-	schedule: string[], // Array of opponent teamIds
+	schedule: string[] // Array of opponent teamIds
 ): number {
 	if (schedule.length === 0) {
 		return 0;
@@ -217,10 +208,7 @@ export function computeStrengthOfSchedule(
 //============================================
 // Get playoff seeds from sorted standings
 // Returns top N team IDs ordered by seeding rank
-export function getPlayoffSeeds(
-	standings: LeagueStandings,
-	numSeeds: number,
-): string[] {
+export function getPlayoffSeeds(standings: LeagueStandings, numSeeds: number): string[] {
 	const seeds: string[] = [];
 	const limit = Math.min(numSeeds, standings.records.length);
 
@@ -235,19 +223,12 @@ export function getPlayoffSeeds(
 // Format standings as a readable text table
 // Highlights the player's team with a leading '>' marker
 // Columns: Rank, Team, W-L-T, PF-PA, Diff, Streak, Last 5
-export function formatStandingsTable(
-	standings: LeagueStandings,
-	playerTeamId: string,
-): string {
+export function formatStandingsTable(standings: LeagueStandings, playerTeamId: string): string {
 	const lines: string[] = [];
 
 	// Header
-	lines.push(
-		'Rank  Team                  Record       PF-PA   Diff  Streak  Last5',
-	);
-	lines.push(
-		'----  --------------------  ----------  -------  ----  ------  -----',
-	);
+	lines.push('Rank  Team                  Record       PF-PA   Diff  Streak  Last5');
+	lines.push('----  --------------------  ----------  -------  ----  ------  -----');
 
 	// Body
 	for (const record of standings.records) {
@@ -259,22 +240,21 @@ export function formatStandingsTable(
 		const teamStr = marker + record.teamName.substring(0, 19).padEnd(19);
 
 		// Record
-		const recordStr = `${record.wins}-${record.losses}-${record.ties}`
-			.padEnd(10);
+		const recordStr = `${record.wins}-${record.losses}-${record.ties}`.padEnd(10);
 
 		// Points for and against
-		const pfpaStr = `${record.pointsFor}-${record.pointsAgainst}`
-			.padStart(7);
+		const pfpaStr = `${record.pointsFor}-${record.pointsAgainst}`.padStart(7);
 
 		// Point differential
 		const diffStr = record.pointDifferential.toString().padStart(4);
 
 		// Streak
-		const streakDisplay = record.streak === 0
-			? '--'
-			: record.streak > 0
-			? `W${record.streak}`
-			: `L${Math.abs(record.streak)}`;
+		const streakDisplay =
+			record.streak === 0
+				? '--'
+				: record.streak > 0
+					? `W${record.streak}`
+					: `L${Math.abs(record.streak)}`;
 		const streakStr = streakDisplay.padStart(6);
 
 		// Last 5

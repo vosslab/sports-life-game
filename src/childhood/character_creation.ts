@@ -84,14 +84,10 @@ export function startNewGameFlow(ctx: CharacterCreationContext): void {
 
 		const athleticism = newPlayer.core.athleticism;
 		if (athleticism >= 65) {
-			ctx.addStoryText(
-				'You came into this world with a strong cry and even ' +
-				'stronger legs.',
-			);
+			ctx.addStoryText('You came into this world with a strong cry and even ' + 'stronger legs.');
 		} else if (athleticism >= 40) {
 			ctx.addStoryText(
-				'You arrived healthy and curious, already grabbing at ' +
-				'everything in reach.',
+				'You arrived healthy and curious, already grabbing at ' + 'everything in reach.'
 			);
 		} else {
 			ctx.addStoryText('You were a quiet baby, observant and calm.');

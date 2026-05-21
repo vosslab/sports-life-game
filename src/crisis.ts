@@ -50,16 +50,13 @@ export function loadCrisisDefinitions(data: CrisisDefinition[]): void {
 // Decide whether to trigger a crisis this season.
 // Called once at start of midseason arc phase.
 // Returns 0, 1, or 2 crisis IDs to schedule.
-export function scheduleCrises(
-	player: Player,
-	recentLosses: number,
-): string[] {
+export function scheduleCrises(player: Player, recentLosses: number): string[] {
 	// 70% chance of 1 crisis, 20% chance of 2, 10% chance of 0
 	const roll = Math.random();
 	let count = 0;
-	if (roll < 0.10) {
+	if (roll < 0.1) {
 		count = 0;
-	} else if (roll < 0.80) {
+	} else if (roll < 0.8) {
 		count = 1;
 	} else {
 		count = 2;
@@ -70,15 +67,17 @@ export function scheduleCrises(
 	}
 
 	// Weight crises by context
-	const weighted = crisisDefinitions.map(def => {
+	const weighted = crisisDefinitions.map((def) => {
 		let weight = def.triggerWeight.base ?? 1.0;
 		// Injury more likely when health is low
 		if (def.triggerWeight.healthBelow50Bonus && player.core.health < 50) {
 			weight += def.triggerWeight.healthBelow50Bonus;
 		}
 		// Depth chart shakeup more likely for bench/backup
-		if (def.triggerWeight.benchBackupBonus
-			&& (player.depthChart === 'bench' || player.depthChart === 'backup')) {
+		if (
+			def.triggerWeight.benchBackupBonus &&
+			(player.depthChart === 'bench' || player.depthChart === 'backup')
+		) {
 			weight += def.triggerWeight.benchBackupBonus;
 		}
 		// Locker room conflict more likely on losing streak
@@ -114,7 +113,7 @@ export function scheduleCrises(
 //============================================
 // Start a crisis for the player
 export function startCrisis(crisisId: string): ActiveCrisis | null {
-	const def = crisisDefinitions.find(d => d.id === crisisId);
+	const def = crisisDefinitions.find((d) => d.id === crisisId);
 	if (!def) {
 		return null;
 	}
@@ -133,7 +132,7 @@ export function startCrisis(crisisId: string): ActiveCrisis | null {
 //============================================
 // Get crisis response options for display
 export function getCrisisResponses(crisisId: string): CrisisResponse[] {
-	const def = crisisDefinitions.find(d => d.id === crisisId);
+	const def = crisisDefinitions.find((d) => d.id === crisisId);
 	if (!def) {
 		return [];
 	}
@@ -145,22 +144,28 @@ export function getCrisisResponses(crisisId: string): CrisisResponse[] {
 export function resolveCrisisResponse(
 	player: Player,
 	crisis: ActiveCrisis,
-	responseId: string,
+	responseId: string
 ): string {
-	const def = crisisDefinitions.find(d => d.id === crisis.crisisId);
+	const def = crisisDefinitions.find((d) => d.id === crisis.crisisId);
 	if (!def) {
-		return "Crisis resolved.";
+		return 'Crisis resolved.';
 	}
 
-	const response = def.responses.find(r => r.id === responseId);
+	const response = def.responses.find((r) => r.id === responseId);
 	if (!response) {
-		return "Crisis resolved.";
+		return 'Crisis resolved.';
 	}
 
 	// Apply effects
 	for (const [stat, delta] of Object.entries(response.effects)) {
-		if (stat === 'health' || stat === 'confidence' || stat === 'technique'
-			|| stat === 'athleticism' || stat === 'footballIq' || stat === 'discipline') {
+		if (
+			stat === 'health' ||
+			stat === 'confidence' ||
+			stat === 'technique' ||
+			stat === 'athleticism' ||
+			stat === 'footballIq' ||
+			stat === 'discipline'
+		) {
 			modifyStat(player, stat as keyof typeof player.core, delta);
 		}
 	}

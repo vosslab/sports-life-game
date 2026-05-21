@@ -48,14 +48,9 @@ function getYearLabel(player: Player): string {
 	return `Age ${player.age}`;
 }
 
-
 //============================================
 // Update the current-week card with player context
-export function updateWeekCard(
-	player: Player,
-	opponent: string,
-	pressure: string,
-): void {
+export function updateWeekCard(player: Player, opponent: string, pressure: string): void {
 	const card = document.getElementById('current-week-card');
 	if (!card) {
 		return;
@@ -129,7 +124,7 @@ export function hideWeekCard(): void {
 export function updateThisWeekPanel(
 	weekState: WeekState | null,
 	opponent: string,
-	focusLabel: string,
+	focusLabel: string
 ): void {
 	const section = document.getElementById('sidebar-this-week');
 	const checklist = document.getElementById('week-checklist');
@@ -173,7 +168,11 @@ export function updateThisWeekPanel(
 	const gameDone = weekState.phase === 'results';
 	if (opponent) {
 		const opponentWithEmoji = formatTeamWithEmoji(opponent);
-		addChecklistItem(checklist, gameDone, gameDone ? `Game: vs ${opponentWithEmoji}` : `Game Day: vs ${opponentWithEmoji}`);
+		addChecklistItem(
+			checklist,
+			gameDone,
+			gameDone ? `Game: vs ${opponentWithEmoji}` : `Game Day: vs ${opponentWithEmoji}`
+		);
 	} else {
 		addChecklistItem(checklist, false, 'Game Day');
 	}

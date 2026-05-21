@@ -121,48 +121,60 @@ export function deriveSituation(context: ClutchGameContext): ClutchSituation {
 
 //============================================
 // Situation-specific scene text generators
-type SceneBuilder = (
-	ctx: ClutchGameContext, time: string, fieldPos: string,
-) => string;
+type SceneBuilder = (ctx: ClutchGameContext, time: string, fieldPos: string) => string;
 
 const SITUATION_SCENES: Record<ClutchSituation, SceneBuilder> = {
 	comeback_drive: (ctx, time, fieldPos) => {
 		const deficit = ctx.opponentScore - ctx.teamScore;
-		return `Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. `
-			+ `${time} left in the 4th. Ball on ${fieldPos}. `
-			+ `Down ${deficit}. You need this drive.`;
+		return (
+			`Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. ` +
+			`${time} left in the 4th. Ball on ${fieldPos}. ` +
+			`Down ${deficit}. You need this drive.`
+		);
 	},
 	hold_lead: (ctx, time, fieldPos) => {
 		const lead = ctx.teamScore - ctx.opponentScore;
-		return `Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. `
-			+ `${time} left in the 4th. Ball on ${fieldPos}. `
-			+ `Up ${lead}. One more first down could seal this.`;
+		return (
+			`Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. ` +
+			`${time} left in the 4th. Ball on ${fieldPos}. ` +
+			`Up ${lead}. One more first down could seal this.`
+		);
 	},
 	tie_game: (ctx, time, fieldPos) => {
-		return `Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. `
-			+ `${time} left in the 4th. Ball on ${fieldPos}. `
-			+ `All tied up. Next score probably wins it.`;
+		return (
+			`Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. ` +
+			`${time} left in the 4th. Ball on ${fieldPos}. ` +
+			`All tied up. Next score probably wins it.`
+		);
 	},
 	red_zone: (ctx, time, _fieldPos) => {
-		return `Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. `
-			+ `${time} left in the 4th. Ball on the opponent's ${randomInRange(5, 15)}. `
-			+ `Red zone. This is your chance.`;
+		return (
+			`Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. ` +
+			`${time} left in the 4th. Ball on the opponent's ${randomInRange(5, 15)}. ` +
+			`Red zone. This is your chance.`
+		);
 	},
 	backed_up: (ctx, time, _fieldPos) => {
-		return `Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. `
-			+ `${time} left in the 4th. Ball on your own ${randomInRange(3, 12)}. `
-			+ `Backed up deep. A mistake here is catastrophic.`;
+		return (
+			`Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. ` +
+			`${time} left in the 4th. Ball on your own ${randomInRange(3, 12)}. ` +
+			`Backed up deep. A mistake here is catastrophic.`
+		);
 	},
 	must_have_stop: (ctx, time, fieldPos) => {
-		return `Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. `
-			+ `${time} left in the 4th. Opponent has the ball on ${fieldPos}. `
-			+ `You need a stop here. Everything rides on this play.`;
+		return (
+			`Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. ` +
+			`${time} left in the 4th. Opponent has the ball on ${fieldPos}. ` +
+			`You need a stop here. Everything rides on this play.`
+		);
 	},
 	ice_game: (ctx, time, fieldPos) => {
 		const lead = ctx.teamScore - ctx.opponentScore;
-		return `Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. `
-			+ `${time} left in the 4th. Ball on ${fieldPos}. `
-			+ `Up ${lead}. Time to put them away for good.`;
+		return (
+			`Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. ` +
+			`${time} left in the 4th. Ball on ${fieldPos}. ` +
+			`Up ${lead}. Time to put them away for good.`
+		);
 	},
 	final_play: (ctx, _time, fieldPos) => {
 		const margin = ctx.teamScore - ctx.opponentScore;
@@ -174,9 +186,11 @@ const SITUATION_SCENES: Record<ClutchSituation, SceneBuilder> = {
 		} else {
 			stakeStr = 'Tied. One play left. Someone becomes the hero.';
 		}
-		return `Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. `
-			+ `0:00 on the clock. Ball on ${fieldPos}. `
-			+ `${stakeStr}`;
+		return (
+			`Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. ` +
+			`0:00 on the clock. Ball on ${fieldPos}. ` +
+			`${stakeStr}`
+		);
 	},
 };
 
@@ -255,10 +269,7 @@ function getAtmosphere(situation: ClutchSituation, context: ClutchGameContext): 
 
 //============================================
 // Generate the scene text with situation-specific framing
-export function generateScene(
-	context: ClutchGameContext,
-	situation: ClutchSituation,
-): string {
+export function generateScene(context: ClutchGameContext, situation: ClutchSituation): string {
 	const minutes = randomInRange(1, 4);
 	const seconds = randomInRange(0, 59);
 	const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -266,11 +277,11 @@ export function generateScene(
 	// Field position varies by situation
 	let yardLine: number;
 	if (situation === 'red_zone') {
-		yardLine = randomInRange(55, 90);  // near opponent end zone
+		yardLine = randomInRange(55, 90); // near opponent end zone
 	} else if (situation === 'backed_up') {
-		yardLine = randomInRange(3, 12);   // near own end zone
+		yardLine = randomInRange(3, 12); // near own end zone
 	} else {
-		yardLine = randomInRange(20, 60);  // midfield area
+		yardLine = randomInRange(20, 60); // midfield area
 	}
 
 	let fieldPosStr: string;

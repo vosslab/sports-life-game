@@ -153,7 +153,7 @@ const MILESTONES: Milestone[] = [
 export function checkMilestones(
 	player: Player,
 	seasonWins: number,
-	seasonLosses: number,
+	seasonLosses: number
 ): Milestone[] {
 	const triggered: Milestone[] = [];
 

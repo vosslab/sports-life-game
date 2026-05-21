@@ -57,8 +57,8 @@ export function simulateGameBetweenTeams(season: LeagueSeason, game: SeasonGame)
 	if (homeScore === awayScore) {
 		// Simulate overtime
 		const strengthDiff = homeTeam.strength - awayTeam.strength;
-		const winProb = 0.5 + (strengthDiff / 200);
-			const overtimePoints = rollOvertimePoints();
+		const winProb = 0.5 + strengthDiff / 200;
+		const overtimePoints = rollOvertimePoints();
 
 		if (rand() < winProb) {
 			season.recordGameResult(game.id, homeScore + overtimePoints, awayScore);
@@ -75,10 +75,7 @@ export function simulateGameBetweenTeams(season: LeagueSeason, game: SeasonGame)
 // Record the player's game result into the season.
 // Takes the GameResult from week_sim.ts simulateGame() and maps it
 // to the correct SeasonGame for this week.
-export function recordPlayerGameResult(
-	season: LeagueSeason,
-	gameResult: GameResult,
-): void {
+export function recordPlayerGameResult(season: LeagueSeason, gameResult: GameResult): void {
 	const playerGame = season.getPlayerGame();
 	if (!playerGame) {
 		return;
@@ -87,17 +84,9 @@ export function recordPlayerGameResult(
 	// Map scores to home/away based on which side the player is on
 	const playerTeamId = season.playerTeamId;
 	if (playerGame.homeTeamId === playerTeamId) {
-		season.recordGameResult(
-			playerGame.id,
-			gameResult.teamScore,
-			gameResult.opponentScore,
-		);
+		season.recordGameResult(playerGame.id, gameResult.teamScore, gameResult.opponentScore);
 	} else {
-		season.recordGameResult(
-			playerGame.id,
-			gameResult.opponentScore,
-			gameResult.teamScore,
-		);
+		season.recordGameResult(playerGame.id, gameResult.opponentScore, gameResult.teamScore);
 	}
 }
 

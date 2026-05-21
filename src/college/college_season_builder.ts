@@ -9,8 +9,12 @@ import { SeasonTeam } from '../season/team_model.js';
 import { LeagueSeason } from '../season/season_model.js';
 import { SeasonGame } from '../season/game_model.js';
 import {
-	resetGameIdCounter, nextGameId, generateRoundRobinRounds,
-	generateBipartiteRotation, shuffleArray, validateSchedule,
+	resetGameIdCounter,
+	nextGameId,
+	generateRoundRobinRounds,
+	generateBipartiteRotation,
+	shuffleArray,
+	validateSchedule,
 } from '../season/season_builder.js';
 import { NCAASchool, formatSchoolName, getConferenceSchools } from '../ncaa.js';
 import { randomInRange } from '../player.js';
@@ -30,7 +34,7 @@ const POWER_CONFERENCES = [
 // Build a complete college season
 export function buildCollegeSeason(
 	playerSchool: NCAASchool,
-	allSchools: NCAASchool[],
+	allSchools: NCAASchool[]
 ): LeagueSeason {
 	resetGameIdCounter();
 
@@ -47,14 +51,15 @@ export function buildCollegeSeason(
 		playerSchool.nickname,
 		playerStrength,
 		randomCoachPersonality(),
-		'player_conference',
+		'player_conference'
 	);
 	teams.set(playerTeamId, playerTeam);
 	conferenceTeamIds.push(playerTeamId);
 
 	// Get conference opponents from real NCAA data
-	const confSchools = getConferenceSchools(allSchools, playerSchool.conference)
-		.filter(s => s.commonName !== playerSchool.commonName);
+	const confSchools = getConferenceSchools(allSchools, playerSchool.conference).filter(
+		(s) => s.commonName !== playerSchool.commonName
+	);
 
 	// Shuffle and take up to 7 conference opponents (for 8-team conference)
 	const shuffledConf = [...confSchools];
@@ -67,14 +72,17 @@ export function buildCollegeSeason(
 		const teamId = `conf_${i}`;
 		const strength = getSchoolStrength(school);
 
-		teams.set(teamId, new SeasonTeam(
+		teams.set(
 			teamId,
-			school.commonName,
-			school.nickname,
-			strength,
-			randomCoachPersonality(),
-			'player_conference',
-		));
+			new SeasonTeam(
+				teamId,
+				school.commonName,
+				school.nickname,
+				strength,
+				randomCoachPersonality(),
+				'player_conference'
+			)
+		);
 		conferenceTeamIds.push(teamId);
 	}
 
@@ -82,15 +90,16 @@ export function buildCollegeSeason(
 	// Pool size equals conference size so every conf team can be paired with a
 	// distinct non-conf opponent each non-conf week.
 	const nonConfSchools = allSchools.filter(
-		s => s.conference !== playerSchool.conference
-			&& s.commonName !== playerSchool.commonName
+		(s) => s.conference !== playerSchool.conference && s.commonName !== playerSchool.commonName
 	);
 	shuffleArray(nonConfSchools);
 	const NUM_NONCONF_TEAMS = conferenceTeamIds.length;
 	if (nonConfSchools.length < NUM_NONCONF_TEAMS) {
 		throw new Error(
-			'College season builder: only ' + nonConfSchools.length
-			+ ' out-of-conference schools available, need ' + NUM_NONCONF_TEAMS,
+			'College season builder: only ' +
+				nonConfSchools.length +
+				' out-of-conference schools available, need ' +
+				NUM_NONCONF_TEAMS
 		);
 	}
 	const ncOpponents = nonConfSchools.slice(0, NUM_NONCONF_TEAMS);
@@ -100,13 +109,10 @@ export function buildCollegeSeason(
 		const teamId = `nonconf_${i}`;
 		const strength = getSchoolStrength(school);
 
-		teams.set(teamId, new SeasonTeam(
+		teams.set(
 			teamId,
-			school.commonName,
-			school.nickname,
-			strength,
-			randomCoachPersonality(),
-		));
+			new SeasonTeam(teamId, school.commonName, school.nickname, strength, randomCoachPersonality())
+		);
 		nonConfTeamIds.push(teamId);
 	}
 
@@ -131,7 +137,7 @@ export function buildCollegeSeason(
 function buildCollegeSchedule(
 	playerTeamId: TeamId,
 	conferenceTeamIds: TeamId[],
-	nonConfTeamIds: TeamId[],
+	nonConfTeamIds: TeamId[]
 ): SeasonGame[] {
 	// Generate conflict-free round-robin rounds
 	const rounds = generateRoundRobinRounds(conferenceTeamIds);

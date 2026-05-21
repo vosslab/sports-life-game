@@ -1,34 +1,15 @@
 // activities_loader.ts - Load college activities from JSON
 //
-// Activities are fetched at module load time (when imported) so that
-// register() can use them synchronously. This ensures the plugin
-// can register activities without requiring async registration.
+// Activities are imported at bundle time by esbuild (resolveJsonModule),
+// so the data is available synchronously without any preload step.
 
 import type { Activity } from '../../activities.js';
+import activitiesData from './activities.json';
 
-let loadedActivities: Activity[] | null = null;
+// Cast through unknown: inferred JSON literal types are too narrow for Activity[].
+const collegeActivities = activitiesData as unknown as Activity[];
 
-export async function fetchCollegeActivities(): Promise<Activity[]> {
-	const url = '/src/plugins/college/activities.json';
-	const response = await fetch(url);
-	if (!response.ok) {
-		throw new Error(`Failed to load college activities from ${url}: ${response.status}`);
-	}
-	const collegeActivities = (await response.json()) as Activity[];
-	return collegeActivities;
-}
-
-// Synchronous getter; activities are pre-loaded at plugin init time
+// Synchronous getter; data is resolved at import time
 export function loadCollegeActivities(): Activity[] {
-	if (!loadedActivities) {
-		throw new Error(
-			'College activities not yet loaded. Call preloadCollegeActivities() during bootstrap.'
-		);
-	}
-	return loadedActivities;
-}
-
-// Called during async bootstrap to pre-load activities
-export async function preloadCollegeActivities(): Promise<void> {
-	loadedActivities = await fetchCollegeActivities();
+	return collegeActivities;
 }

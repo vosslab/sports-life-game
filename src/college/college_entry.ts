@@ -63,14 +63,16 @@ export const collegeEntryHandler: YearHandler = {
 			modifyStat(player, 'footballIq', 3);
 			ctx.updateStats(player);
 
-			ctx.waitForInteraction('Redshirt Year', [{
-				text: 'Continue to Sophomore Year',
-				primary: true,
-				action: () => {
-					player.eligibilityYears = 5; // extra year from redshirt
-					advanceToNextYear(player, ctx);
+			ctx.waitForInteraction('Redshirt Year', [
+				{
+					text: 'Continue to Sophomore Year',
+					primary: true,
+					action: () => {
+						player.eligibilityYears = 5; // extra year from redshirt
+						advanceToNextYear(player, ctx);
+					},
 				},
-			}]);
+			]);
 		} else {
 			ctx.addText(`Playing as a ${player.depthChart}.`);
 
@@ -79,23 +81,23 @@ export const collegeEntryHandler: YearHandler = {
 			if (allSchools.length === 0) {
 				throw new Error('No NCAA schools loaded');
 			}
-			const playerSchool = allSchools.find(s => formatSchoolName(s) === player.teamName)
-				|| allSchools[0];
+			const playerSchool =
+				allSchools.find((s) => formatSchoolName(s) === player.teamName) || allSchools[0];
 			const season = buildCollegeSeason(playerSchool, allSchools);
 			const playerTeam = season.getPlayerTeam();
 			if (playerTeam) {
 				player.teamStrength = playerTeam.strength;
 			}
 
-			ctx.waitForInteraction('Freshman Year', [{
-				text: 'Start Season',
-				primary: true,
-				action: () => {
-					startSeason(player, ctx, SEASON_CONFIG, season,
-						() => handleSeasonEnd(player, ctx),
-					);
+			ctx.waitForInteraction('Freshman Year', [
+				{
+					text: 'Start Season',
+					primary: true,
+					action: () => {
+						startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
+					},
 				},
-			}]);
+			]);
 		}
 	},
 
@@ -138,14 +140,15 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 
 					// Set depth chart: most transfers start as backup
 					// 25% chance to be starter if they have strong stats
-					const immediateStarterChance = player.core.technique >= 70
-						&& player.core.footballIq >= 65
-						&& randomInRange(1, 100) <= 25;
+					const immediateStarterChance =
+						player.core.technique >= 70 &&
+						player.core.footballIq >= 65 &&
+						randomInRange(1, 100) <= 25;
 					player.depthChart = immediateStarterChance ? 'starter' : 'backup';
 
 					ctx.addText(
-						`${player.firstName} lands at ${player.teamName}. `
-						+ 'New coaches. New locker room. New chance.'
+						`${player.firstName} lands at ${player.teamName}. ` +
+							'New coaches. New locker room. New chance.'
 					);
 					if (player.depthChart === 'starter') {
 						ctx.addText(
@@ -153,8 +156,8 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 						);
 					} else {
 						ctx.addText(
-							'The new staff likes your talent, but they are not handing you a starting role. '
-							+ 'You will have to earn it.'
+							'The new staff likes your talent, but they are not handing you a starting role. ' +
+								'You will have to earn it.'
 						);
 					}
 
@@ -170,7 +173,9 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 			action: () => {
 				modifyStat(player, 'discipline', 3);
 				modifyStat(player, 'technique', 2);
-				ctx.addText(`${player.firstName} commits to the program and works to win the starting job.`);
+				ctx.addText(
+					`${player.firstName} commits to the program and works to win the starting job.`
+				);
 				ctx.updateStats(player);
 				advanceToNextYear(player, ctx);
 			},

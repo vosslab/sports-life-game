@@ -35,7 +35,8 @@ export const peeweeHandler: YearHandler = {
 		// Clear previous year's content so the log stays manageable
 		ctx.clearStory();
 
-		const gradeLabel = player.age === 8 ? '3rd grade' : player.age === 9 ? '4th grade' : '5th grade';
+		const gradeLabel =
+			player.age === 8 ? '3rd grade' : player.age === 9 ? '4th grade' : '5th grade';
 		ctx.addHeadline(`Age ${player.age} - Peewee Football (${gradeLabel})`);
 		ctx.addText(`${player.firstName} plays for the ${player.teamName}.`);
 		if (player.position) {
@@ -53,12 +54,18 @@ export const peeweeHandler: YearHandler = {
 		};
 
 		const eligible = filterEvents(
-			ctx.events, 'childhood', 0, player.position,
-			player.storyFlags, statsRecord, undefined, player.age,
+			ctx.events,
+			'childhood',
+			0,
+			player.position,
+			player.storyFlags,
+			statsRecord,
+			undefined,
+			player.age
 		);
 
 		// Filter out events that already fired or whose family already fired
-		const fresh = eligible.filter(e => {
+		const fresh = eligible.filter((e) => {
 			if (player.seenEventIds[e.id]) {
 				return false;
 			}
@@ -99,13 +106,11 @@ export const peeweeHandler: YearHandler = {
 
 //============================================
 // Present one event, then show Continue
-function presentEventThenContinue(
-	player: Player, ctx: CareerContext, event: GameEvent,
-): void {
+function presentEventThenContinue(player: Player, ctx: CareerContext, event: GameEvent): void {
 	ctx.addHeadline(event.title);
 	ctx.addText(event.description);
 
-	const choiceButtons = event.choices.map(choice => ({
+	const choiceButtons = event.choices.map((choice) => ({
 		text: choice.text,
 		primary: false,
 		action: () => {
@@ -125,27 +130,61 @@ function presentEventThenContinue(
 //============================================
 // Show the continue button
 function showContinue(player: Player, ctx: CareerContext): void {
-	ctx.waitForInteraction('Peewee Football', [{
-		text: 'Continue to Next Year',
-		primary: true,
-		action: () => advanceToNextYear(player, ctx),
-	}]);
+	ctx.waitForInteraction('Peewee Football', [
+		{
+			text: 'Continue to Next Year',
+			primary: true,
+			action: () => advanceToNextYear(player, ctx),
+		},
+	]);
 }
 
 //============================================
 // Generate a town name and mascot from curated lists
 function generateTownIdentity(player: Player): void {
 	const towns = [
-		'Riverside', 'Oakdale', 'Fairview', 'Springfield', 'Greenville',
-		'Lakewood', 'Maplewood', 'Hillcrest', 'Cedarville', 'Brookfield',
-		'Pinewood', 'Sunnydale', 'Clearwater', 'Stonebridge', 'Meadowbrook',
-		'Hawthorne', 'Ridgemont', 'Ashford', 'Willowdale', 'Crestwood',
+		'Riverside',
+		'Oakdale',
+		'Fairview',
+		'Springfield',
+		'Greenville',
+		'Lakewood',
+		'Maplewood',
+		'Hillcrest',
+		'Cedarville',
+		'Brookfield',
+		'Pinewood',
+		'Sunnydale',
+		'Clearwater',
+		'Stonebridge',
+		'Meadowbrook',
+		'Hawthorne',
+		'Ridgemont',
+		'Ashford',
+		'Willowdale',
+		'Crestwood',
 	];
 	const mascots = [
-		'Eagles', 'Bulldogs', 'Warriors', 'Wildcats', 'Panthers',
-		'Tigers', 'Bears', 'Falcons', 'Hawks', 'Lions',
-		'Mustangs', 'Cobras', 'Wolves', 'Rams', 'Sharks',
-		'Cougars', 'Stallions', 'Jaguars', 'Vipers', 'Thunderbolts',
+		'Eagles',
+		'Bulldogs',
+		'Warriors',
+		'Wildcats',
+		'Panthers',
+		'Tigers',
+		'Bears',
+		'Falcons',
+		'Hawks',
+		'Lions',
+		'Mustangs',
+		'Cobras',
+		'Wolves',
+		'Rams',
+		'Sharks',
+		'Cougars',
+		'Stallions',
+		'Jaguars',
+		'Vipers',
+		'Thunderbolts',
 	];
 
 	const townIdx = Math.floor(Math.random() * towns.length);

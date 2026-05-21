@@ -6,6 +6,11 @@
 import { Player, modifyStat, clampStat, randomInRange } from '../player.js';
 import { ArcPhase } from '../season_arc.js';
 import { rand } from '../core/rng.js';
+import preseasonData from '../data/choices/preseason.json';
+import openingData from '../data/choices/opening.json';
+import midseasonData from '../data/choices/midseason.json';
+import stretchData from '../data/choices/stretch.json';
+import postseasonData from '../data/choices/postseason.json';
 
 //============================================
 // Choice data loaded from JSON
@@ -48,22 +53,28 @@ const choicePools: Record<ArcPhase, WeeklyChoice[]> = {
 };
 
 //============================================
-// Load choice pools from JSON files at runtime
+// Bundled choice data imports (esbuild + resolveJsonModule).
+// loadChoicePools() copies these into the mutable choicePools record so the
+// existing async API and downstream code paths stay unchanged.
+// JSON imports come back as the literal-narrowed type esbuild/tsc infers from
+// the file contents (specific keys, narrow string literals). That is too
+// specific to assign directly to WeeklyChoice (which uses
+// `Record<string, number>` for effects), so we cast through `unknown`.
+const CHOICE_DATA_BY_PHASE: Record<ArcPhase, WeeklyChoice[]> = {
+	preseason: preseasonData as unknown as WeeklyChoice[],
+	opening: openingData as unknown as WeeklyChoice[],
+	midseason: midseasonData as unknown as WeeklyChoice[],
+	stretch: stretchData as unknown as WeeklyChoice[],
+	postseason: postseasonData as unknown as WeeklyChoice[],
+};
+
+//============================================
+// Load choice pools from bundled JSON imports
 export async function loadChoicePools(): Promise<void> {
 	const phases: ArcPhase[] = ['preseason', 'opening', 'midseason', 'stretch', 'postseason'];
-
-	// Use relative path that resolves from page root
-	const fetchPromises = phases.map(async (phase) => {
-		const url = `/src/data/choices/${phase}.json`;
-		const response = await fetch(url);
-		if (!response.ok) {
-			throw new Error(`Failed to load choices for ${phase}: ${response.status}`);
-		}
-		const data = await response.json() as WeeklyChoice[];
-		choicePools[phase] = data;
-	});
-
-	await Promise.all(fetchPromises);
+	for (const phase of phases) {
+		choicePools[phase] = CHOICE_DATA_BY_PHASE[phase];
+	}
 }
 
 //============================================
@@ -73,7 +84,7 @@ export function getWeeklyChoices(
 	arcPhase: ArcPhase,
 	recentWins: number,
 	recentLosses: number,
-	hasCrisis: boolean,
+	hasCrisis: boolean
 ): WeeklyChoice[] {
 	// During a crisis, choices come from the crisis system, not here
 	if (hasCrisis) {
@@ -86,7 +97,7 @@ export function getWeeklyChoices(
 	}
 
 	// Filter by conditions
-	const eligible = pool.filter(choice => meetsConditions(choice, player));
+	const eligible = pool.filter((choice) => meetsConditions(choice, player));
 
 	// Pick 3 choices (or fewer if pool is small): aim for variety in category
 	const selected: WeeklyChoice[] = [];
@@ -141,10 +152,7 @@ function meetsConditions(choice: WeeklyChoice, player: Player): boolean {
 
 //============================================
 // Resolve a player's choice: roll success/failure and apply effects
-export function resolveChoice(
-	player: Player,
-	choice: WeeklyChoice,
-): ChoiceResult {
+export function resolveChoice(player: Player, choice: WeeklyChoice): ChoiceResult {
 	const roll = rand();
 	const succeeded = roll < choice.outcomes.success.probability;
 
@@ -152,8 +160,14 @@ export function resolveChoice(
 
 	// Apply stat effects
 	for (const [stat, delta] of Object.entries(outcome.effects)) {
-		if (stat === 'health' || stat === 'confidence' || stat === 'technique'
-			|| stat === 'athleticism' || stat === 'footballIq' || stat === 'discipline') {
+		if (
+			stat === 'health' ||
+			stat === 'confidence' ||
+			stat === 'technique' ||
+			stat === 'athleticism' ||
+			stat === 'footballIq' ||
+			stat === 'discipline'
+		) {
 			modifyStat(player, stat as keyof typeof player.core, delta);
 		}
 	}

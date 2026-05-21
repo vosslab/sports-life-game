@@ -17,9 +17,7 @@ const events = new Map<string, GameEvent>();
 class EventRegistryImpl implements EventRegistry {
 	register(event: GameEvent): void {
 		if (events.has(event.id)) {
-			throw new Error(
-				`Duplicate event id: "${event.id}" already registered in EventRegistry`
-			);
+			throw new Error(`Duplicate event id: "${event.id}" already registered in EventRegistry`);
 		}
 		events.set(event.id, event);
 	}

@@ -7,21 +7,22 @@
 // Usage:
 //   node tests/autoplay.mjs [--headed] [--slow]
 //
-// Requires: python3 -m http.server 8000 running in the repo root
-// Requires: npx tsc to have been run first (compiles src/ to dist/)
+// Requires: python3 -m http.server 8000 --directory dist
+// Requires: npm run build to have produced dist/ first
+// (tests/playwright/run_autoplay.sh wraps both steps automatically)
 
-import { chromium } from "playwright";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { chromium } from 'playwright';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = path.resolve(__dirname, "..");
-const SCREENSHOT_DIR = path.join(REPO_ROOT, "game_screenshots", "autoplay");
+const REPO_ROOT = path.resolve(__dirname, '..');
+const SCREENSHOT_DIR = path.join(REPO_ROOT, 'game_screenshots', 'autoplay');
 
 // Parse CLI flags
 const args = process.argv.slice(2);
-const headed = args.includes("--headed");
-const slow = args.includes("--slow");
+const headed = args.includes('--headed');
+const slow = args.includes('--slow');
 
 // How long to wait for any single UI action (ms)
 const ACTION_TIMEOUT = 3000;
@@ -54,14 +55,10 @@ function printAgeSummary() {
 	// Sort ages numerically
 	const ages = [...ageStats.keys()].sort((a, b) => a - b);
 
-	console.log("");
-	console.log("Per-age click summary:");
-	console.log(
-		"  Age  | Total | Choices | Activities | Next/Continue | Age Up | Stale"
-	);
-	console.log(
-		"  -----|-------|---------|------------|---------------|--------|------"
-	);
+	console.log('');
+	console.log('Per-age click summary:');
+	console.log('  Age  | Total | Choices | Activities | Next/Continue | Age Up | Stale');
+	console.log('  -----|-------|---------|------------|---------------|--------|------');
 
 	let grandTotal = 0;
 	let grandChoices = 0;
@@ -81,9 +78,7 @@ function printAgeSummary() {
 		);
 	}
 
-	console.log(
-		"  -----|-------|---------|------------|---------------|--------|------"
-	);
+	console.log('  -----|-------|---------|------------|---------------|--------|------');
 	console.log(`  Total clicks: ${grandTotal}, Total modal choices: ${grandChoices}`);
 }
 
@@ -98,15 +93,13 @@ async function screenshot(page, name) {
 //============================================
 // Helper: check if the modal is visible and has clickable buttons
 async function isModalVisible(page) {
-	const modal = page.locator("#game-modal");
-	const hasHidden = await modal.evaluate(
-		(el) => el.classList.contains("hidden")
-	);
+	const modal = page.locator('#game-modal');
+	const hasHidden = await modal.evaluate((el) => el.classList.contains('hidden'));
 	if (hasHidden) {
 		return false;
 	}
 	// Modal overlay exists but may have no buttons (stale state)
-	const buttons = page.locator("#modal-options .choice-button");
+	const buttons = page.locator('#modal-options .choice-button');
 	const count = await buttons.count();
 	return count > 0;
 }
@@ -114,18 +107,16 @@ async function isModalVisible(page) {
 //============================================
 // Helper: dismiss modal overlay if it has no buttons (stale modal)
 async function dismissStaleModal(page) {
-	const modal = page.locator("#game-modal");
-	const hasHidden = await modal.evaluate(
-		(el) => el.classList.contains("hidden")
-	);
+	const modal = page.locator('#game-modal');
+	const hasHidden = await modal.evaluate((el) => el.classList.contains('hidden'));
 	if (hasHidden) {
 		return false;
 	}
-	const buttons = page.locator("#modal-options .choice-button");
+	const buttons = page.locator('#modal-options .choice-button');
 	const count = await buttons.count();
 	if (count === 0) {
 		// Force-hide the stale modal overlay
-		await modal.evaluate((el) => el.classList.add("hidden"));
+		await modal.evaluate((el) => el.classList.add('hidden'));
 		return true;
 	}
 	return false;
@@ -134,7 +125,7 @@ async function dismissStaleModal(page) {
 //============================================
 // Helper: click the first button in the modal options
 async function clickModalButton(page) {
-	const buttons = page.locator("#modal-options .choice-button");
+	const buttons = page.locator('#modal-options .choice-button');
 	const count = await buttons.count();
 	if (count > 0) {
 		const text = await buttons.first().textContent();
@@ -149,13 +140,13 @@ async function clickModalButton(page) {
 async function clickChoiceButton(page) {
 	try {
 		// Prefer primary buttons, fall back to any choice button
-		const primary = page.locator("#choices-panel .choice-button.primary");
+		const primary = page.locator('#choices-panel .choice-button.primary');
 		if ((await primary.count()) > 0) {
 			const text = await primary.first().textContent();
 			await primary.first().click({ timeout: 2000 });
 			return text;
 		}
-		const any = page.locator("#choices-panel .choice-button");
+		const any = page.locator('#choices-panel .choice-button');
 		if ((await any.count()) > 0) {
 			const text = await any.first().textContent();
 			await any.first().click({ timeout: 2000 });
@@ -170,7 +161,7 @@ async function clickChoiceButton(page) {
 //============================================
 // Helper: click #btn-next-week if enabled
 async function clickNextWeek(page) {
-	const btn = page.locator("#btn-next-week");
+	const btn = page.locator('#btn-next-week');
 	const visible = await btn.isVisible();
 	if (!visible) {
 		return false;
@@ -192,7 +183,7 @@ async function clickNextWeek(page) {
 //============================================
 // Helper: click #btn-age-up if visible and enabled
 async function clickAgeUp(page) {
-	const btn = page.locator("#btn-age-up");
+	const btn = page.locator('#btn-age-up');
 	const visible = await btn.isVisible();
 	if (!visible) {
 		return false;
@@ -212,7 +203,7 @@ async function clickAgeUp(page) {
 //============================================
 // Helper: get current player age from header
 async function getPlayerAge(page) {
-	const ageEl = page.locator("#player-age");
+	const ageEl = page.locator('#player-age');
 	const text = await ageEl.textContent();
 	if (!text) {
 		return -1;
@@ -225,11 +216,11 @@ async function getPlayerAge(page) {
 //============================================
 // Helper: get player phase from page context
 async function getPlayerPhase(page) {
-	const nameEl = page.locator("#player-name");
+	const nameEl = page.locator('#player-name');
 	const text = await nameEl.textContent();
-	const posEl = page.locator("#player-position");
+	const posEl = page.locator('#player-position');
 	const pos = await posEl.textContent();
-	const teamEl = page.locator("#player-team");
+	const teamEl = page.locator('#player-team');
 	const team = await teamEl.textContent();
 	return { name: text, position: pos, team: team };
 }
@@ -244,11 +235,9 @@ async function settle(page) {
 //============================================
 // Helper: get a fingerprint of current page state for stuck detection
 async function getPageFingerprint(page) {
-	const age = await page.locator("#player-age").textContent();
-	const week = await page.locator("#player-week").textContent();
-	const storyLen = await page.locator("#story-log").evaluate(
-		(el) => el.textContent.length
-	);
+	const age = await page.locator('#player-age').textContent();
+	const week = await page.locator('#player-week').textContent();
+	const storyLen = await page.locator('#story-log').evaluate((el) => el.textContent.length);
 	return `${age}|${week}|${storyLen}`;
 }
 
@@ -256,10 +245,10 @@ async function getPageFingerprint(page) {
 // MAIN
 //============================================
 async function main() {
-	console.log("Gridiron Life Autoplay Script");
+	console.log('Gridiron Life Autoplay Script');
 	console.log(`  headed: ${headed}, slow: ${slow}`);
 	console.log(`  screenshots: ${SCREENSHOT_DIR}`);
-	console.log("");
+	console.log('');
 
 	const browser = await chromium.launch({ headless: !headed });
 	const context = await browser.newContext({
@@ -269,16 +258,16 @@ async function main() {
 	const page = await context.newPage();
 
 	// Clear localStorage to start fresh
-	await page.goto("http://localhost:8000/index.html");
+	await page.goto('http://localhost:8000/index.html');
 	await page.evaluate(() => localStorage.clear());
 	await page.reload();
-	await page.waitForLoadState("networkidle");
-	console.log("Game loaded.");
+	await page.waitForLoadState('networkidle');
+	console.log('Game loaded.');
 
 	// Capture console errors
 	let consoleErrorCount = 0;
-	page.on("console", (msg) => {
-		if (msg.type() === "error") {
+	page.on('console', (msg) => {
+		if (msg.type() === 'error') {
 			consoleErrorCount++;
 			// Only log first occurrence of each unique error
 			if (consoleErrorCount <= 5) {
@@ -286,18 +275,18 @@ async function main() {
 			}
 		}
 	});
-	page.on("pageerror", (err) => {
+	page.on('pageerror', (err) => {
 		console.log(`  [PAGE ERROR] ${err.message}`);
 	});
 
-	await screenshot(page, "00_start");
+	await screenshot(page, '00_start');
 
 	const startTime = Date.now();
 	let lastAge = -1;
-	let lastPhaseLog = "";
+	let lastPhaseLog = '';
 	let stepCount = 0;
 	let stuckCount = 0;
-	let lastFingerprint = "";
+	let lastFingerprint = '';
 	let sameStateCount = 0;
 	let currentAge = -1;
 
@@ -307,15 +296,15 @@ async function main() {
 
 		// Safety: detect stuck state
 		if (stuckCount > 20) {
-			console.log("ERROR: Stuck for 20 iterations, taking debug screenshot.");
-			await screenshot(page, "stuck_debug");
+			console.log('ERROR: Stuck for 20 iterations, taking debug screenshot.');
+			await screenshot(page, 'stuck_debug');
 			break;
 		}
 
 		// Check for end conditions
 		const age = await getPlayerAge(page);
 		currentAge = age;
-		const storyText = await page.locator("#story-log").textContent();
+		const storyText = await page.locator('#story-log').textContent();
 
 		// Log phase transitions
 		if (age !== lastAge && age >= 0) {
@@ -326,7 +315,7 @@ async function main() {
 				lastPhaseLog = phaseLog;
 				// Screenshot at key ages
 				if ([0, 4, 14, 18, 22, 30, 35].includes(age)) {
-					await screenshot(page, `age_${age.toString().padStart(2, "0")}`);
+					await screenshot(page, `age_${age.toString().padStart(2, '0')}`);
 				}
 			}
 			lastAge = age;
@@ -334,15 +323,15 @@ async function main() {
 
 		// End condition: legacy phase or very old
 		if (age > 45) {
-			console.log("Player age > 45, ending.");
+			console.log('Player age > 45, ending.');
 			break;
 		}
-		if (storyText && storyText.includes("Hall of Fame")) {
-			console.log("Hall of Fame detected, ending.");
+		if (storyText && storyText.includes('Hall of Fame')) {
+			console.log('Hall of Fame detected, ending.');
 			break;
 		}
-		if (storyText && storyText.includes("retired")) {
-			console.log("Retirement detected, ending.");
+		if (storyText && storyText.includes('retired')) {
+			console.log('Retirement detected, ending.');
 			break;
 		}
 
@@ -382,7 +371,7 @@ async function main() {
 				acted = true;
 				entry.staleModalDismissals++;
 				if (slow) {
-					console.log("    (dismissed stale modal overlay)");
+					console.log('    (dismissed stale modal overlay)');
 				}
 			}
 		}
@@ -409,7 +398,7 @@ async function main() {
 			if (stuckCount > 3) {
 				const ageUp = await clickAgeUp(page);
 				if (ageUp) {
-					console.log("    (used Age Up to unstick)");
+					console.log('    (used Age Up to unstick)');
 					entry.totalClicks++;
 					entry.ageUpClicks++;
 					stuckCount = 0;
@@ -434,7 +423,7 @@ async function main() {
 				// Wait longer for async game processing
 				await page.waitForTimeout(2000);
 				sameStateCount = 0;
-				console.log("    (waiting for state change...)");
+				console.log('    (waiting for state change...)');
 			}
 		} else {
 			sameStateCount = 0;
@@ -445,9 +434,9 @@ async function main() {
 	// Final screenshot and summary
 	const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 	const finalAge = await getPlayerAge(page);
-	await screenshot(page, "final");
+	await screenshot(page, 'final');
 
-	console.log("");
+	console.log('');
 	console.log(`Done. ${stepCount} steps in ${elapsed}s. Final age: ${finalAge}.`);
 	if (consoleErrorCount > 0) {
 		console.log(`Console errors: ${consoleErrorCount}`);
@@ -460,6 +449,6 @@ async function main() {
 }
 
 main().catch((err) => {
-	console.error("Autoplay failed:", err);
+	console.error('Autoplay failed:', err);
 	process.exit(1);
 });

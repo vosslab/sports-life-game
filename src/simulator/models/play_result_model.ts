@@ -3,9 +3,9 @@
 // Resolves individual plays into outcomes
 //============================================
 
-import { GameState, PlayOutcome, PlayResult, Situation } from "../engine/state_machine.js";
-import { LeagueTuning } from "../rules/league_tuning.js";
-import { MatchupAdjustment } from "./team_strength_model.js";
+import { GameState, PlayOutcome, PlayResult, Situation } from '../engine/state_machine.js';
+import { LeagueTuning } from '../rules/league_tuning.js';
+import { MatchupAdjustment } from './team_strength_model.js';
 import { rand } from '../../core/rng.js';
 import { randomNormal } from './math_utils.js';
 
@@ -51,11 +51,11 @@ function randomInRange(min: number, max: number): number {
 export function resolvePass(
 	state: GameState,
 	tuning: LeagueTuning,
-	matchup: MatchupAdjustment,
+	matchup: MatchupAdjustment
 ): PlayOutcome {
 	// Sack check (adjusted by matchup)
 	const sackRateBase = tuning.sackRate;
-	const sacked = rand() < (sackRateBase * matchup.sackRateMult);
+	const sacked = rand() < sackRateBase * matchup.sackRateMult;
 
 	if (sacked) {
 		const sackYards = randomInRange(-12, -3);
@@ -63,7 +63,7 @@ export function resolvePass(
 
 		if (rand() < fumbleRate) {
 			return {
-				play_type: "pass",
+				play_type: 'pass',
 				result: PlayResult.FUMBLE_LOST,
 				yards_gained: sackYards,
 				sack: true,
@@ -87,7 +87,7 @@ export function resolvePass(
 		}
 
 		return {
-			play_type: "pass",
+			play_type: 'pass',
 			result: PlayResult.SACK,
 			yards_gained: sackYards,
 			sack: true,
@@ -112,7 +112,7 @@ export function resolvePass(
 
 	// Completion check (adjusted by matchup)
 	const completionRateBase = tuning.completionRate;
-	const completed = rand() < (completionRateBase * matchup.compRateMult);
+	const completed = rand() < completionRateBase * matchup.compRateMult;
 
 	if (!completed) {
 		// Interception check (adjusted by matchup)
@@ -125,7 +125,7 @@ export function resolvePass(
 
 			if (isPickSix) {
 				return {
-					play_type: "pass",
+					play_type: 'pass',
 					result: PlayResult.INTERCEPTION,
 					yards_gained: 0,
 					turnover: true,
@@ -144,12 +144,12 @@ export function resolvePass(
 					fumble_lost: false,
 					air_yards: 0,
 					is_complete: false,
-					description: "INTERCEPTED! Returned for a TOUCHDOWN!",
+					description: 'INTERCEPTED! Returned for a TOUCHDOWN!',
 				};
 			}
 
 			return {
-				play_type: "pass",
+				play_type: 'pass',
 				result: PlayResult.INTERCEPTION,
 				yards_gained: 0,
 				turnover: true,
@@ -174,7 +174,7 @@ export function resolvePass(
 
 		// Incomplete pass
 		return {
-			play_type: "pass",
+			play_type: 'pass',
 			result: PlayResult.INCOMPLETE,
 			yards_gained: 0,
 			is_complete: false,
@@ -193,7 +193,7 @@ export function resolvePass(
 			sack: false,
 			air_yards: 0,
 			turnover_return_yards: 0,
-			description: "Pass incomplete.",
+			description: 'Pass incomplete.',
 		};
 	}
 
@@ -213,7 +213,7 @@ export function resolvePass(
 	const oppYL = state.opponent_yard_line;
 	if (totalYards >= oppYL) {
 		return {
-			play_type: "pass",
+			play_type: 'pass',
 			result: PlayResult.TOUCHDOWN,
 			yards_gained: oppYL,
 			air_yards: airYards,
@@ -243,7 +243,7 @@ export function resolvePass(
 	const catchFumbleRate = tuning.catchFumbleRate * matchup.fumbleRateMult;
 	if (rand() < catchFumbleRate) {
 		return {
-			play_type: "pass",
+			play_type: 'pass',
 			result: PlayResult.FUMBLE_LOST,
 			yards_gained: totalYards,
 			air_yards: airYards,
@@ -276,9 +276,9 @@ export function resolvePass(
 		result = PlayResult.FIRST_DOWN;
 	}
 
-	const oobStr = outOfBounds ? " (out of bounds)" : "";
+	const oobStr = outOfBounds ? ' (out of bounds)' : '';
 	return {
-		play_type: "pass",
+		play_type: 'pass',
 		result,
 		yards_gained: totalYards,
 		air_yards: airYards,
@@ -317,7 +317,7 @@ export function resolvePass(
 export function resolveRun(
 	state: GameState,
 	tuning: LeagueTuning,
-	matchup: MatchupAdjustment,
+	matchup: MatchupAdjustment
 ): PlayOutcome {
 	// Sample yards (adjusted by matchup)
 	let yards: number;
@@ -339,7 +339,7 @@ export function resolveRun(
 	const oppYL = state.opponent_yard_line;
 	if (yards >= oppYL) {
 		return {
-			play_type: "run",
+			play_type: 'run',
 			result: PlayResult.TOUCHDOWN,
 			yards_gained: oppYL,
 			touchdown: true,
@@ -365,7 +365,7 @@ export function resolveRun(
 	// Safety check (tackled in own endzone)
 	if (state.yard_line + yards <= 0) {
 		return {
-			play_type: "run",
+			play_type: 'run',
 			result: PlayResult.SAFETY,
 			yards_gained: yards,
 			penalty: false,
@@ -384,7 +384,7 @@ export function resolveRun(
 			air_yards: 0,
 			is_complete: false,
 			turnover_return_yards: 0,
-			description: "Tackled in the end zone, SAFETY!",
+			description: 'Tackled in the end zone, SAFETY!',
 		};
 	}
 
@@ -392,7 +392,7 @@ export function resolveRun(
 	const rushFumbleRate = tuning.rushFumbleRate * matchup.fumbleRateMult;
 	if (rand() < rushFumbleRate) {
 		return {
-			play_type: "run",
+			play_type: 'run',
 			result: PlayResult.FUMBLE_LOST,
 			yards_gained: yards,
 			turnover: true,
@@ -425,9 +425,9 @@ export function resolveRun(
 		result = PlayResult.FIRST_DOWN;
 	}
 
-	const oobStr = outOfBounds ? " (out of bounds)" : "";
+	const oobStr = outOfBounds ? ' (out of bounds)' : '';
 	return {
-		play_type: "run",
+		play_type: 'run',
 		result,
 		yards_gained: yards,
 		out_of_bounds: outOfBounds,
@@ -456,7 +456,7 @@ export function resolveRun(
  */
 export function resolveKneel(state: GameState): PlayOutcome {
 	return {
-		play_type: "kneel",
+		play_type: 'kneel',
 		result: PlayResult.KNEEL,
 		yards_gained: -1,
 		clock_running: true,
@@ -475,7 +475,7 @@ export function resolveKneel(state: GameState): PlayOutcome {
 		air_yards: 0,
 		is_complete: false,
 		turnover_return_yards: 0,
-		description: "QB kneel.",
+		description: 'QB kneel.',
 	};
 }
 
@@ -485,7 +485,7 @@ export function resolveKneel(state: GameState): PlayOutcome {
  */
 export function resolveSpike(state: GameState): PlayOutcome {
 	return {
-		play_type: "spike",
+		play_type: 'spike',
 		result: PlayResult.SPIKE,
 		yards_gained: 0,
 		clock_running: false,
@@ -504,6 +504,6 @@ export function resolveSpike(state: GameState): PlayOutcome {
 		air_yards: 0,
 		is_complete: false,
 		turnover_return_yards: 0,
-		description: "QB spikes the ball.",
+		description: 'QB spikes the ball.',
 	};
 }

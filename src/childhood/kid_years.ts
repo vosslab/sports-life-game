@@ -8,7 +8,13 @@ import { Player } from '../player.js';
 import { YearHandler, CareerContext } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
-import { filterEvents, selectEvent, selectEventByCategory, applyEventChoice, GameEvent } from '../events.js';
+import {
+	filterEvents,
+	selectEvent,
+	selectEventByCategory,
+	applyEventChoice,
+	GameEvent,
+} from '../events.js';
 
 //============================================
 // Age-appropriate headlines for flavor
@@ -55,12 +61,18 @@ export const kidYearsHandler: YearHandler = {
 		};
 
 		const eligible = filterEvents(
-			ctx.events, 'childhood', 0, player.position,
-			player.storyFlags, statsRecord, undefined, player.age,
+			ctx.events,
+			'childhood',
+			0,
+			player.position,
+			player.storyFlags,
+			statsRecord,
+			undefined,
+			player.age
 		);
 
 		// Filter out events that already fired, or whose family already fired
-		const fresh = eligible.filter(e => {
+		const fresh = eligible.filter((e) => {
 			if (player.seenEventIds[e.id]) {
 				return false;
 			}
@@ -72,7 +84,7 @@ export const kidYearsHandler: YearHandler = {
 
 		// Filter out events whose tags are over the lifetime cap (max 2 per tag)
 		const TAG_CAP = 2;
-		const notOverused = fresh.filter(e => {
+		const notOverused = fresh.filter((e) => {
 			for (const tag of e.tags) {
 				if ((player.eventTagCounts[tag] || 0) >= TAG_CAP) {
 					return false;
@@ -96,7 +108,7 @@ export const kidYearsHandler: YearHandler = {
 			}
 		} else {
 			// Ages 4-7: first check for big_decision (25% chance)
-			const bigDecisions = pool.filter(e => e.event_category === 'big_decision');
+			const bigDecisions = pool.filter((e) => e.event_category === 'big_decision');
 			const rollBig = bigDecisions.length > 0 && Math.random() < 0.25;
 
 			if (rollBig) {
@@ -117,10 +129,11 @@ export const kidYearsHandler: YearHandler = {
 				}
 			}
 			if (yearEvents.length < 2) {
-				const remaining = pool.filter(e => !usedIds.has(e.id));
-				const second = selectEventByCategory(remaining, 'social')
-					|| selectEventByCategory(remaining, 'identity')
-					|| selectEvent(remaining);
+				const remaining = pool.filter((e) => !usedIds.has(e.id));
+				const second =
+					selectEventByCategory(remaining, 'social') ||
+					selectEventByCategory(remaining, 'identity') ||
+					selectEvent(remaining);
 				if (second) {
 					yearEvents.push(second);
 					usedIds.add(second.id);
@@ -153,9 +166,11 @@ export const kidYearsHandler: YearHandler = {
 //============================================
 // Present one event, then chain to the next or show Continue
 function presentEvent(
-	player: Player, ctx: CareerContext,
-	events: GameEvent[], index: number,
-	statsBefore?: Record<string, number>,
+	player: Player,
+	ctx: CareerContext,
+	events: GameEvent[],
+	index: number,
+	statsBefore?: Record<string, number>
 ): void {
 	// Capture stats before first event for delta tracking
 	if (!statsBefore) {
@@ -177,7 +192,7 @@ function presentEvent(
 	ctx.addText(event.description);
 
 	// Build choice buttons
-	const choiceButtons = event.choices.map(choice => ({
+	const choiceButtons = event.choices.map((choice) => ({
 		text: choice.text,
 		primary: false,
 		action: () => {
@@ -214,11 +229,13 @@ function presentEvent(
 //============================================
 // Show the "Continue to Next Year" button
 function showContinue(player: Player, ctx: CareerContext): void {
-	ctx.waitForInteraction('Next Year', [{
-		text: 'Continue',
-		primary: true,
-		action: () => advanceToNextYear(player, ctx),
-	}]);
+	ctx.waitForInteraction('Next Year', [
+		{
+			text: 'Continue',
+			primary: true,
+			action: () => advanceToNextYear(player, ctx),
+		},
+	]);
 }
 
 //============================================
@@ -264,10 +281,16 @@ function generateChildhoodSummary(player: Player, statDeltas: Record<string, num
 
 	// Count how many personality flags are set (promoted, not counters)
 	const personalityFlags = [
-		'fearlessKid', 'poorLoser', 'selfStarter', 'naturalLeader',
-		'quietWorker', 'showoff', 'bookish', 'roughAndTumble',
+		'fearlessKid',
+		'poorLoser',
+		'selfStarter',
+		'naturalLeader',
+		'quietWorker',
+		'showoff',
+		'bookish',
+		'roughAndTumble',
 	];
-	const setFlags = personalityFlags.filter(f => flags[f]);
+	const setFlags = personalityFlags.filter((f) => flags[f]);
 
 	// Strong summaries require 2+ flags
 	if (setFlags.length >= 2) {

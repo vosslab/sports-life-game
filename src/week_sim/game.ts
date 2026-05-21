@@ -5,9 +5,7 @@
 // narrative text into a single `simulateGame` entry point used by the
 // season simulator and weekly engine.
 
-import {
-	Player, PerformanceRating, PositionBucket, clampStat, randomInRange,
-} from '../player.js';
+import { Player, PerformanceRating, PositionBucket, clampStat, randomInRange } from '../player.js';
 import { Team } from '../team.js';
 import { rand } from '../core/rng.js';
 import { calculateLetterGrade } from './momentum.js';
@@ -36,38 +34,40 @@ export interface GameResult {
 // Calculate player performance score (0-100)
 function calculatePlayerPerformance(player: Player): number {
 	const bucket = player.positionBucket;
-	let performanceScore = 50;  // baseline
+	let performanceScore = 50; // baseline
 
 	switch (bucket) {
 		case 'passer':
 			// QB: footballIq + technique + confidence
-			performanceScore = (player.core.footballIq * 0.4
-				+ player.core.technique * 0.4
-				+ player.core.confidence * 0.2) + randomInRange(-10, 10);
+			performanceScore =
+				player.core.footballIq * 0.4 +
+				player.core.technique * 0.4 +
+				player.core.confidence * 0.2 +
+				randomInRange(-10, 10);
 			break;
 
 		case 'runner_receiver':
 			// RB/WR/TE: athleticism + technique
-			performanceScore = (player.core.athleticism * 0.5
-				+ player.core.technique * 0.5) + randomInRange(-10, 10);
+			performanceScore =
+				player.core.athleticism * 0.5 + player.core.technique * 0.5 + randomInRange(-10, 10);
 			break;
 
 		case 'lineman':
 			// OL/DL: technique + discipline
-			performanceScore = (player.core.technique * 0.5
-				+ player.core.discipline * 0.5) + randomInRange(-10, 10);
+			performanceScore =
+				player.core.technique * 0.5 + player.core.discipline * 0.5 + randomInRange(-10, 10);
 			break;
 
 		case 'defender':
 			// LB/CB/S: athleticism + footballIq
-			performanceScore = (player.core.athleticism * 0.5
-				+ player.core.footballIq * 0.5) + randomInRange(-10, 10);
+			performanceScore =
+				player.core.athleticism * 0.5 + player.core.footballIq * 0.5 + randomInRange(-10, 10);
 			break;
 
 		case 'kicker':
 			// K/P: technique + confidence
-			performanceScore = (player.core.technique * 0.5
-				+ player.core.confidence * 0.5) + randomInRange(-10, 10);
+			performanceScore =
+				player.core.technique * 0.5 + player.core.confidence * 0.5 + randomInRange(-10, 10);
 			break;
 	}
 
@@ -86,10 +86,12 @@ function calculatePlayerPerformance(player: Player): number {
 // Calculate player contribution to team score.
 // Kept modest: one player among 22 on the field.
 function calculatePlayerContribution(
-	depthChartStatus: string, performanceScore: number, bucket: PositionBucket | null,
+	depthChartStatus: string,
+	performanceScore: number,
+	bucket: PositionBucket | null
 ): number {
 	// Base contribution from performance (scaled down -- one player out of 22)
-	let contribution = Math.floor((performanceScore - 50) * 0.10);
+	let contribution = Math.floor((performanceScore - 50) * 0.1);
 
 	// Depth chart multiplier
 	switch (depthChartStatus) {
@@ -125,16 +127,22 @@ function calculatePlayerContribution(
 //============================================
 // Generate narrative story text for the game
 function generateGameStory(
-	player: Player, performanceScore: number, result: 'win' | 'loss' | 'tie',
-	teamScore: number, opponentScore: number, statLine: StatLine,
-	regulationTieScore?: number,
+	player: Player,
+	performanceScore: number,
+	result: 'win' | 'loss' | 'tie',
+	teamScore: number,
+	opponentScore: number,
+	statLine: StatLine,
+	regulationTieScore?: number
 ): string {
 	const rating = calculatePerformanceRating(performanceScore);
 	const bucket = player.positionBucket;
 
 	if (player.depthChart === 'bench') {
-		return `You mostly watched from the sideline as the team `
-			+ `${result === 'win' ? 'won' : 'lost'} ${teamScore}-${opponentScore}.`;
+		return (
+			`You mostly watched from the sideline as the team ` +
+			`${result === 'win' ? 'won' : 'lost'} ${teamScore}-${opponentScore}.`
+		);
 	}
 
 	// Build stat summary text
@@ -190,8 +198,8 @@ function generateGameStory(
 
 	if (player.depthChart === 'backup') {
 		if (statSummary.length > 0) {
-			statSummary = 'In limited snaps, ' + statSummary.charAt(0).toLowerCase()
-				+ statSummary.slice(1);
+			statSummary =
+				'In limited snaps, ' + statSummary.charAt(0).toLowerCase() + statSummary.slice(1);
 		} else {
 			statSummary = 'You saw limited snaps off the bench. ';
 		}
@@ -205,8 +213,9 @@ function generateGameStory(
 	if (result === 'win') {
 		const margin = teamScore - opponentScore;
 		if (wentToOvertime && regulationTieScore !== undefined) {
-			resultText = ` Regulation ended tied ${regulationTieScore}-${regulationTieScore}. `
-				+ `After overtime, you won ${teamScore}-${opponentScore}!`;
+			resultText =
+				` Regulation ended tied ${regulationTieScore}-${regulationTieScore}. ` +
+				`After overtime, you won ${teamScore}-${opponentScore}!`;
 		} else if (margin >= 14) {
 			resultText = ` A commanding ${teamScore}-${opponentScore} victory!`;
 		} else if (margin >= 7) {
@@ -217,8 +226,9 @@ function generateGameStory(
 	} else if (result === 'loss') {
 		const margin = opponentScore - teamScore;
 		if (wentToOvertime && regulationTieScore !== undefined) {
-			resultText = ` Regulation ended tied ${regulationTieScore}-${regulationTieScore}. `
-				+ `After overtime, the team fell ${teamScore}-${opponentScore}.`;
+			resultText =
+				` Regulation ended tied ${regulationTieScore}-${regulationTieScore}. ` +
+				`After overtime, the team fell ${teamScore}-${opponentScore}.`;
 		} else if (rating === 'elite' || rating === 'great') {
 			resultText = ` Despite your solid performance, the team fell short ${teamScore}-${opponentScore}.`;
 		} else {
@@ -235,19 +245,22 @@ function generateGameStory(
 //============================================
 // Simulate a game with player and team stats
 export function simulateGame(
-	player: Player, team: Team, opponentStrength: number,
-	playoffIntensity: boolean = false,
+	player: Player,
+	team: Team,
+	opponentStrength: number,
+	playoffIntensity: boolean = false
 ): GameResult {
 	// Calculate player performance based on position and stats
 	let performanceScore = calculatePlayerPerformance(player);
 
 	// Apply controlled variance based on confidence
 	const baseVariance = randomInRange(-12, 12);
-	const confidenceModifier = player.core.confidence > 70
-		? 0.5  // High confidence dampens negative variance
-		: player.core.confidence < 30
-			? 1.5  // Low confidence amplifies negative variance
-			: 1.0;
+	const confidenceModifier =
+		player.core.confidence > 70
+			? 0.5 // High confidence dampens negative variance
+			: player.core.confidence < 30
+				? 1.5 // Low confidence amplifies negative variance
+				: 1.0;
 
 	// Scale variance by confidence, then clamp to safe range
 	const scaledVariance = baseVariance * confidenceModifier;
@@ -263,17 +276,24 @@ export function simulateGame(
 
 	// Generate position-specific stat line
 	let playerStatLine = generateStatLineForPosition(
-		player.positionBucket, player.position, performanceScore,
+		player.positionBucket,
+		player.position,
+		performanceScore
 	);
 	// Estimate score context for depth chart scaling
 	const strengthDiff = team.strength - opponentStrength;
 	playerStatLine = adjustStatLineForDepthChart(
-		playerStatLine, player.depthChart, player.positionBucket, strengthDiff,
+		playerStatLine,
+		player.depthChart,
+		player.positionBucket,
+		strengthDiff
 	);
 
 	// Calculate player contribution to team score
 	const playerContribution = calculatePlayerContribution(
-		player.depthChart, performanceScore, player.positionBucket,
+		player.depthChart,
+		performanceScore,
+		player.positionBucket
 	);
 
 	// Team score calculation: base from team strength + player contribution
@@ -284,22 +304,20 @@ export function simulateGame(
 	const effectiveOpponentStrength = playoffIntensity
 		? opponentStrength + randomInRange(5, 12)
 		: opponentStrength;
-	const opponentBaseScore = Math.floor((effectiveOpponentStrength / 100) * 28)
-		+ randomInRange(3, 17) + randomInRange(0, 3);
+	const opponentBaseScore =
+		Math.floor((effectiveOpponentStrength / 100) * 28) + randomInRange(3, 17) + randomInRange(0, 3);
 
 	// Opponent star player contribution (mirrors the player's advantage)
 	const opponentStarBoost = randomInRange(1, 6);
 	// "Any given Sunday" upset factor: weaker teams sometimes punch above weight
-	const upsetBonus = opponentStrength < team.strength
-		? randomInRange(0, 4)
-		: 0;
+	const upsetBonus = opponentStrength < team.strength ? randomInRange(0, 4) : 0;
 	let opponentScore = Math.max(
 		0,
-		opponentBaseScore + opponentStarBoost + upsetBonus + randomInRange(-5, 5),
+		opponentBaseScore + opponentStarBoost + upsetBonus + randomInRange(-5, 5)
 	);
 
 	// Determine winner using logistic curve (for overtime tiebreaker)
-	const teamDifferential = (team.strength + playerContribution) - effectiveOpponentStrength;
+	const teamDifferential = team.strength + playerContribution - effectiveOpponentStrength;
 	const winProbability = 1 / (1 + Math.exp(-0.07 * teamDifferential));
 
 	let result: 'win' | 'loss';
@@ -327,8 +345,13 @@ export function simulateGame(
 
 	// Generate story text
 	const storyText = generateGameStory(
-		player, performanceScore, result, teamScore, opponentScore, playerStatLine,
-		regulationTieScore,
+		player,
+		performanceScore,
+		result,
+		teamScore,
+		opponentScore,
+		playerStatLine,
+		regulationTieScore
 	);
 
 	const rating = calculatePerformanceRating(performanceScore);

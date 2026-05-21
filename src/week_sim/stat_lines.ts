@@ -4,9 +4,7 @@
 // position-specific subset of fields so accumulation in
 // `accumulateGameStats` lines up with `SeasonStatTotals`.
 
-import {
-	Position, PositionBucket, clampStat, randomInRange,
-} from '../player.js';
+import { Position, PositionBucket, clampStat, randomInRange } from '../player.js';
 
 //============================================
 // Game stat line (record of stat name to value)
@@ -212,8 +210,9 @@ function generateKickerStats(performanceScore: number): StatLine {
 //============================================
 // Generate stat line based on position bucket and specific position
 export function generateStatLineForPosition(
-	bucket: PositionBucket | null, position: Position | null,
-	performanceScore: number,
+	bucket: PositionBucket | null,
+	position: Position | null,
+	performanceScore: number
 ): StatLine {
 	switch (bucket) {
 		case 'passer':
@@ -282,7 +281,7 @@ export function adjustStatLineForDepthChart(
 	statLine: StatLine,
 	depthChartStatus: string,
 	bucket: PositionBucket | null,
-	strengthDiff: number,
+	strengthDiff: number
 ): StatLine {
 	if (depthChartStatus === 'starter') {
 		return statLine;
@@ -320,6 +319,6 @@ export function adjustStatLineForDepthChart(
 	}
 
 	// Backup: role-aware reduced volume
-	const backupScale = isBlowout ? 0.50 : 0.35;
+	const backupScale = isBlowout ? 0.5 : 0.35;
 	return scaleStat(statLine, backupScale);
 }

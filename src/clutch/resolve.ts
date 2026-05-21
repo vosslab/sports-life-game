@@ -9,8 +9,14 @@
 import { Player, Position, PositionBucket } from '../player.js';
 import { rand } from '../core/rng.js';
 import {
-	BASE_RATES, ChoiceTemplate, ClutchGameContext, ClutchResult, ClutchRisk,
-	ClutchSituation, MomentumTag, SCORING_MAPS,
+	BASE_RATES,
+	ChoiceTemplate,
+	ClutchGameContext,
+	ClutchResult,
+	ClutchRisk,
+	ClutchSituation,
+	MomentumTag,
+	SCORING_MAPS,
 } from './types.js';
 import { clamp, deriveSituation, pickRandom, shuffle } from './situation.js';
 import { QB_CHOICES } from './choices_qb.js';
@@ -24,7 +30,7 @@ import { KICKER_CHOICES } from './choices_kicker.js';
 // Map position buckets to their full choice pools
 export function getChoicePool(
 	positionBucket: PositionBucket | null,
-	position: Position | null,
+	position: Position | null
 ): ChoiceTemplate[] {
 	if (!positionBucket) {
 		return DEFENDER_CHOICES;
@@ -54,17 +60,17 @@ export function getChoicePool(
 // remaining eligible/all entries when a tier is empty.
 export function pickThreeWithRiskSpread(
 	pool: ChoiceTemplate[],
-	situation: ClutchSituation,
+	situation: ClutchSituation
 ): ChoiceTemplate[] {
 	// Filter to choices that match this situation (or have empty situations = all)
-	const eligible = pool.filter(c =>
-		c.situations.length === 0 || c.situations.includes(situation)
+	const eligible = pool.filter(
+		(c) => c.situations.length === 0 || c.situations.includes(situation)
 	);
 
 	// Separate by risk tier
-	const safes = shuffle(eligible.filter(c => c.risk === 'safe'));
-	const balanceds = shuffle(eligible.filter(c => c.risk === 'balanced'));
-	const heroics = shuffle(eligible.filter(c => c.risk === 'heroic'));
+	const safes = shuffle(eligible.filter((c) => c.risk === 'safe'));
+	const balanceds = shuffle(eligible.filter((c) => c.risk === 'balanced'));
+	const heroics = shuffle(eligible.filter((c) => c.risk === 'heroic'));
 
 	const picked: ChoiceTemplate[] = [];
 
@@ -81,8 +87,8 @@ export function pickThreeWithRiskSpread(
 
 	// If we still need more (some tier was empty), fill from leftover eligible
 	if (picked.length < 3) {
-		const pickedIds = new Set(picked.map(c => c.id));
-		const leftovers = shuffle(eligible.filter(c => !pickedIds.has(c.id)));
+		const pickedIds = new Set(picked.map((c) => c.id));
+		const leftovers = shuffle(eligible.filter((c) => !pickedIds.has(c.id)));
 		for (const leftover of leftovers) {
 			if (picked.length >= 3) {
 				break;
@@ -93,8 +99,8 @@ export function pickThreeWithRiskSpread(
 
 	// If we still don't have 3, pull from full pool ignoring situation filter
 	if (picked.length < 3) {
-		const pickedIds = new Set(picked.map(c => c.id));
-		const fallbacks = shuffle(pool.filter(c => !pickedIds.has(c.id)));
+		const pickedIds = new Set(picked.map((c) => c.id));
+		const fallbacks = shuffle(pool.filter((c) => !pickedIds.has(c.id)));
 		for (const fallback of fallbacks) {
 			if (picked.length >= 3) {
 				break;
@@ -153,7 +159,7 @@ export function generateLegacyTag(
 	risk: ClutchRisk,
 	success: boolean,
 	isBigSuccess: boolean,
-	isPlayoff: boolean,
+	isPlayoff: boolean
 ): string {
 	// Final play moments are always memorable on big success or disaster
 	if (situation === 'final_play') {
@@ -250,14 +256,14 @@ export function resolveChoice(
 	player: Player,
 	context: ClutchGameContext,
 	choiceId: string,
-	situationOverride?: ClutchSituation,
+	situationOverride?: ClutchSituation
 ): ClutchResult {
 	// Use the override if provided (preserves the situation from buildClutchMoment)
 	const situation = situationOverride ?? deriveSituation(context);
 
 	// Find the matching choice template from the full pool
 	const pool = getChoicePool(context.positionBucket, context.position);
-	const template = pool.find(t => t.id === choiceId);
+	const template = pool.find((t) => t.id === choiceId);
 	if (!template) {
 		return {
 			success: false,
@@ -274,7 +280,7 @@ export function resolveChoice(
 	const statValue = player.core[template.keyStat];
 	const baseRate = BASE_RATES[template.risk];
 	const statBonus = (statValue - 50) * 0.01;
-	const successChance = clamp(baseRate + statBonus, 0.10, 0.95);
+	const successChance = clamp(baseRate + statBonus, 0.1, 0.95);
 
 	// Get situation-specific scoring
 	const scoring = SCORING_MAPS[situation];
@@ -288,13 +294,9 @@ export function resolveChoice(
 			// Big success
 			const narrative = pickRandom(template.bigSuccessNarrative);
 			const spotlight = pickRandom(SPOTLIGHT_BIG_SUCCESS);
-			const legacyTag = generateLegacyTag(
-				situation, template.risk, true, true, context.isPlayoff,
-			);
+			const legacyTag = generateLegacyTag(situation, template.risk, true, true, context.isPlayoff);
 			const reputationLine = getReputationText(player, 'heroic');
-			const fullSpotlight = reputationLine
-				? `${spotlight} ${reputationLine}`
-				: spotlight;
+			const fullSpotlight = reputationLine ? `${spotlight} ${reputationLine}` : spotlight;
 			trackClutchOutcome(player, true);
 			return {
 				success: true,
@@ -322,16 +324,15 @@ export function resolveChoice(
 	}
 
 	// Failure zone
-	if (template.risk === 'heroic'
-		&& roll > successChance + 0.20
-		&& template.disasterNarrative.length > 0
+	if (
+		template.risk === 'heroic' &&
+		roll > successChance + 0.2 &&
+		template.disasterNarrative.length > 0
 	) {
 		// Disaster
 		const narrative = pickRandom(template.disasterNarrative);
 		const spotlight = pickRandom(SPOTLIGHT_DISASTER);
-		const legacyTag = generateLegacyTag(
-			situation, template.risk, false, false, context.isPlayoff,
-		);
+		const legacyTag = generateLegacyTag(situation, template.risk, false, false, context.isPlayoff);
 		trackClutchOutcome(player, false);
 		return {
 			success: false,

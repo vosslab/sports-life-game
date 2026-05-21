@@ -4,9 +4,8 @@
 // high school phase handlers (frosh/soph and varsity), activities,
 // events, tabs, and career panel with the PluginHost.
 //
-// Note: activities and events are pre-loaded via preloadHsActivities() and
-// preloadHsEvents() during async bootstrap (src/main.ts before registerAllPlugins),
-// so register() can use them synchronously.
+// Activities and events are bundled at build time (esbuild resolveJsonModule),
+// so register() reads them synchronously with no preload step.
 
 import type { GamePlugin, PluginHost } from '../plugin_host.js';
 import { registerPhaseHandlers } from './phase_handler.js';

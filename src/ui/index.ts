@@ -26,10 +26,7 @@ export {
 } from './choice_widget.js';
 
 // Re-export header widget functions
-export {
-	updateHeader,
-	updateLifeStatus,
-} from './header_widget.js';
+export { updateHeader, updateLifeStatus } from './header_widget.js';
 
 // Re-export stats widget functions
 export {
@@ -50,36 +47,19 @@ export {
 } from './story_widget.js';
 
 // Re-export team widget functions
-export {
-	updateTeamTab,
-} from './team_widget.js';
+export { updateTeamTab } from './team_widget.js';
 
 // Re-export activities widget functions
-export {
-	renderActivitiesTab,
-} from './activities_widget.js';
+export { renderActivitiesTab } from './activities_widget.js';
 
 // Re-export career widget functions
-export {
-	updateCareerTab,
-	updateSeasonCareer,
-} from './career_widget.js';
+export { updateCareerTab, updateSeasonCareer } from './career_widget.js';
 
 // Re-export week card widget functions
-export {
-	updateWeekCard,
-	hideWeekCard,
-	updateThisWeekPanel,
-} from './week_card_widget.js';
+export { updateWeekCard, hideWeekCard, updateThisWeekPanel } from './week_card_widget.js';
 
 // Re-export sidebar widget functions
-export {
-	updateSidebar,
-	showMilestoneCard,
-} from './sidebar_widget.js';
+export { updateSidebar, showMilestoneCard } from './sidebar_widget.js';
 
 // Re-export format helpers
-export {
-	formatStatKey,
-	formatStatLine,
-} from './format_helpers.js';
+export { formatStatKey, formatStatLine } from './format_helpers.js';

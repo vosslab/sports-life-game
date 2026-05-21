@@ -38,9 +38,9 @@ export function runJucoYear(player: Player, ctx: CareerContext): void {
 
 	ctx.addHeadline('Age 18 - JUCO Year');
 	ctx.addText(
-		'You arrive at a junior college determined to prove yourself.'
-		+ ' The competition is real, and coaches from four-year schools'
-		+ ' are watching these games too.'
+		'You arrive at a junior college determined to prove yourself.' +
+			' The competition is real, and coaches from four-year schools' +
+			' are watching these games too.'
 	);
 
 	// Build JUCO season with generated teams
@@ -56,16 +56,17 @@ export function runJucoYear(player: Player, ctx: CareerContext): void {
 		player.teamName = 'Central CC Cougars';
 	}
 
-	ctx.waitForInteraction('JUCO Season', [{
-		text: 'Start Season',
-		primary: true,
-		action: () => {
-			startSeason(
-				player, ctx, JUCO_SEASON_CONFIG, season,
-				() => handleJucoSeasonEnd(player, ctx),
-			);
+	ctx.waitForInteraction('JUCO Season', [
+		{
+			text: 'Start Season',
+			primary: true,
+			action: () => {
+				startSeason(player, ctx, JUCO_SEASON_CONFIG, season, () =>
+					handleJucoSeasonEnd(player, ctx)
+				);
+			},
 		},
-	}]);
+	]);
 }
 
 //============================================
@@ -75,9 +76,9 @@ export function runPrepYear(player: Player, ctx: CareerContext): void {
 
 	ctx.addHeadline('Age 18 - Prep School Year');
 	ctx.addText(
-		'You enroll at a football prep school. Better coaching,'
-		+ ' better competition, better facilities.'
-		+ ' This is your year to transform.'
+		'You enroll at a football prep school. Better coaching,' +
+			' better competition, better facilities.' +
+			' This is your year to transform.'
 	);
 
 	// Stat growth from prep year
@@ -87,9 +88,9 @@ export function runPrepYear(player: Player, ctx: CareerContext): void {
 	ctx.updateStats(player);
 
 	ctx.addText(
-		'The coaching staff pushes you harder than anyone ever has.'
-		+ ' Your technique is sharper, your football IQ is higher,'
-		+ ' and your body is stronger.'
+		'The coaching staff pushes you harder than anyone ever has.' +
+			' Your technique is sharper, your football IQ is higher,' +
+			' and your body is stronger.'
 	);
 
 	// Update recruiting
@@ -152,12 +153,12 @@ function showPostgradOffers(player: Player, ctx: CareerContext): void {
 	const displayOffers = offers.slice(0, 4);
 	ctx.addText(`You have ${offers.length} offer(s) on the table.`);
 
-	const choices = displayOffers.map(school => {
+	const choices = displayOffers.map((school) => {
 		const schoolData = getSchoolById(school.schoolId, ctx.ncaaSchools);
 		const schoolName = schoolData ? formatSchoolName(schoolData) : school.schoolId;
 		const divLabel = schoolData ? schoolData.subdivision : 'Unknown';
-		const scholarshipLabel = school.scholarshipType !== 'none'
-			? ` - ${school.scholarshipType}` : '';
+		const scholarshipLabel =
+			school.scholarshipType !== 'none' ? ` - ${school.scholarshipType}` : '';
 
 		return {
 			text: `${schoolName} (${divLabel}${scholarshipLabel})`,
@@ -173,8 +174,8 @@ function showPostgradOffers(player: Player, ctx: CareerContext): void {
 				profile.isPrepSchool = false;
 				ctx.addResult(`${player.firstName} signs with ${schoolName}!`);
 				ctx.addText(
-					'After the long road through post-grad football,'
-					+ ` you have earned your spot at ${schoolName}.`
+					'After the long road through post-grad football,' +
+						` you have earned your spot at ${schoolName}.`
 				);
 				ctx.updateStats(player);
 				ctx.save();

@@ -78,8 +78,8 @@ export interface ChoiceTemplate {
 // Base success rates by risk tier
 export const BASE_RATES: Record<ClutchRisk, number> = {
 	safe: 0.75,
-	balanced: 0.50,
-	heroic: 0.30,
+	balanced: 0.5,
+	heroic: 0.3,
 };
 
 //============================================
@@ -93,11 +93,11 @@ export interface ScoringMap {
 
 export const SCORING_MAPS: Record<ClutchSituation, ScoringMap> = {
 	comeback_drive: { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -3 },
-	hold_lead:      { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -7 },
-	tie_game:       { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -3 },
-	red_zone:       { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -3 },
-	backed_up:      { bigSuccess: 3, partialSuccess: 0, failure: -3, disaster: -7 },
+	hold_lead: { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -7 },
+	tie_game: { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -3 },
+	red_zone: { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -3 },
+	backed_up: { bigSuccess: 3, partialSuccess: 0, failure: -3, disaster: -7 },
 	must_have_stop: { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -7 },
-	ice_game:       { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -3 },
-	final_play:     { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -7 },
+	ice_game: { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -3 },
+	final_play: { bigSuccess: 7, partialSuccess: 3, failure: 0, disaster: -7 },
 };

@@ -6,12 +6,12 @@ import { Player, randomInRange, modifyStat, accumulateGameStats } from '../playe
 import { CareerContext } from '../core/year_handler.js';
 import { simulateWeeklyGame as simulateGame } from '../simulator/adapter.js';
 import { Team } from '../team.js';
+import { ClutchGameContext, buildClutchMoment, resolveClutchMoment } from '../clutch/index.js';
 import {
-	ClutchGameContext, buildClutchMoment, resolveClutchMoment,
-} from '../clutch/index.js';
-import {
-	simulateNonPlayerGames, recordPlayerGameResult,
-	getPlayerOpponentStrength, getPlayerOpponentName,
+	simulateNonPlayerGames,
+	recordPlayerGameResult,
+	getPlayerOpponentStrength,
+	getPlayerOpponentName,
 } from '../season/season_simulator.js';
 import { evaluateDepthChartUpdate } from '../week_sim/index.js';
 import { checkMilestones } from '../milestones.js';
@@ -58,8 +58,7 @@ export function proceedToGame(player: Player, ctx: CareerContext): void {
 	// Key game: undefeated or late in the season (last 3 weeks)
 	const preGameRecord = activeEngine.season.getPlayerRecord();
 	const isUndefeated = preGameRecord.losses === 0 && preGameRecord.wins >= 3;
-	const isLateSeason = activeEngine.season.getCurrentWeek()
-		>= activeEngine.config.seasonLength - 2;
+	const isLateSeason = activeEngine.season.getCurrentWeek() >= activeEngine.config.seasonLength - 2;
 	const isKeyGame = isUndefeated || isLateSeason;
 
 	const clutchContext: ClutchGameContext = {
@@ -78,12 +77,17 @@ export function proceedToGame(player: Player, ctx: CareerContext): void {
 
 	if (clutchMoment) {
 		// Show the clutch moment popup before the game result
-		const clutchOptions = clutchMoment.choices.map(choice => ({
+		const clutchOptions = clutchMoment.choices.map((choice) => ({
 			text: choice.label,
 			description: choice.description,
 			action: () => {
 				// Resolve the clutch moment and adjust score
-				const resolution = resolveClutchMoment(player, clutchContext, choice.id, clutchMoment.situationType);
+				const resolution = resolveClutchMoment(
+					player,
+					clutchContext,
+					choice.id,
+					clutchMoment.situationType
+				);
 				gameResult.teamScore = Math.max(0, gameResult.teamScore + resolution.points);
 				// Recalculate win/loss after adjustment (handle ties via overtime coin flip)
 				if (gameResult.teamScore > gameResult.opponentScore) {
@@ -114,7 +118,12 @@ export function proceedToGame(player: Player, ctx: CareerContext): void {
 				showRegularSeasonPostGame(player, ctx, gameResult, opponentName);
 			},
 		}));
-		ctx.waitForInteraction('4th Quarter - Clutch Moment', clutchOptions, clutchMoment.scene, 'clutch');
+		ctx.waitForInteraction(
+			'4th Quarter - Clutch Moment',
+			clutchOptions,
+			clutchMoment.scene,
+			'clutch'
+		);
 		return;
 	}
 
@@ -128,7 +137,7 @@ export function showRegularSeasonPostGame(
 	player: Player,
 	ctx: CareerContext,
 	gameResult: ReturnType<typeof simulateGame>,
-	opponentName: string,
+	opponentName: string
 ): void {
 	if (!activeEngine) {
 		return;
@@ -169,8 +178,7 @@ export function showRegularSeasonPostGame(
 
 	// Show game story
 	ctx.addHeadline(
-		`${player.teamName} ${gameResult.teamScore} - `
-		+ `${opponentName} ${gameResult.opponentScore}`
+		`${player.teamName} ${gameResult.teamScore} - ` + `${opponentName} ${gameResult.opponentScore}`
 	);
 	ctx.addText(gameResult.storyText);
 	if (depthUpdate.changed) {
@@ -192,7 +200,7 @@ export function showRegularSeasonPostGame(
 		`Record: ${updatedRecord.wins}-${updatedRecord.losses}`,
 		player.currentWeek < activeEngine.config.seasonLength
 			? `Week ${player.currentWeek + 1}`
-			: 'End of Season',
+			: 'End of Season'
 	);
 
 	ctx.save();
@@ -215,8 +223,7 @@ export function showRegularSeasonPostGame(
 	);
 
 	// Show "Next Week" button via the main action bar
-	const isLastWeek = activeEngine.season.getCurrentWeek()
-		>= activeEngine.config.seasonLength;
+	const isLastWeek = activeEngine.season.getCurrentWeek() >= activeEngine.config.seasonLength;
 	ctx.configureMainButtons({
 		nextLabel: isLastWeek ? 'End of Season' : 'Next Week',
 		nextAction: () => seasonLifecycle.advanceToNextWeek(player, ctx),

@@ -64,13 +64,20 @@ function getProjection(stock: number): DraftProjection {
 // Human-readable projection label
 function getProjectionLabel(proj: DraftProjection): string {
 	switch (proj) {
-		case 'top_five': return 'Projected Top 5 Pick';
-		case 'top_ten': return 'Projected Top 10 Pick';
-		case 'first_round': return 'Projected 1st Round';
-		case 'day_two': return 'Projected Day 2 (Rounds 2-3)';
-		case 'mid_round': return 'Projected Mid-Round Pick';
-		case 'late_round': return 'Late Round / Priority Free Agent';
-		case 'undrafted': return 'Unlikely to be Drafted';
+		case 'top_five':
+			return 'Projected Top 5 Pick';
+		case 'top_ten':
+			return 'Projected Top 10 Pick';
+		case 'first_round':
+			return 'Projected 1st Round';
+		case 'day_two':
+			return 'Projected Day 2 (Rounds 2-3)';
+		case 'mid_round':
+			return 'Projected Mid-Round Pick';
+		case 'late_round':
+			return 'Late Round / Priority Free Agent';
+		case 'undrafted':
+			return 'Unlikely to be Drafted';
 	}
 }
 
@@ -82,9 +89,15 @@ function generateNotes(player: Player): ScoutNote[] {
 
 	// Strengths (stats >= 70)
 	if (core.athleticism >= 75) {
-		notes.push({ category: 'strength', text: 'Elite athletic tools. Tested off the charts in combine projections.' });
+		notes.push({
+			category: 'strength',
+			text: 'Elite athletic tools. Tested off the charts in combine projections.',
+		});
 	} else if (core.athleticism >= 65) {
-		notes.push({ category: 'strength', text: 'Good athlete. Can compete at the next level physically.' });
+		notes.push({
+			category: 'strength',
+			text: 'Good athlete. Can compete at the next level physically.',
+		});
 	}
 
 	if (core.technique >= 75) {
@@ -100,71 +113,122 @@ function generateNotes(player: Player): ScoutNote[] {
 	}
 
 	if (core.discipline >= 75) {
-		notes.push({ category: 'strength', text: 'Great character. Team-first mentality. Zero off-field concerns.' });
+		notes.push({
+			category: 'strength',
+			text: 'Great character. Team-first mentality. Zero off-field concerns.',
+		});
 	}
 
 	// Weaknesses (stats < 45)
 	if (core.athleticism < 40) {
-		notes.push({ category: 'weakness', text: 'Limited athletic upside. May struggle against NFL speed.' });
+		notes.push({
+			category: 'weakness',
+			text: 'Limited athletic upside. May struggle against NFL speed.',
+		});
 	} else if (core.athleticism < 50) {
-		notes.push({ category: 'weakness', text: 'Average athlete. Needs to compensate with technique.' });
+		notes.push({
+			category: 'weakness',
+			text: 'Average athlete. Needs to compensate with technique.',
+		});
 	}
 
 	if (core.technique < 40) {
-		notes.push({ category: 'weakness', text: 'Raw technique. Needs significant development at the next level.' });
+		notes.push({
+			category: 'weakness',
+			text: 'Raw technique. Needs significant development at the next level.',
+		});
 	} else if (core.technique < 50) {
-		notes.push({ category: 'weakness', text: 'Technique is inconsistent. Flashes ability but disappears at times.' });
+		notes.push({
+			category: 'weakness',
+			text: 'Technique is inconsistent. Flashes ability but disappears at times.',
+		});
 	}
 
 	if (core.footballIq < 40) {
-		notes.push({ category: 'weakness', text: 'Questionable processing speed. Gets confused by complex schemes.' });
+		notes.push({
+			category: 'weakness',
+			text: 'Questionable processing speed. Gets confused by complex schemes.',
+		});
 	}
 
 	if (core.discipline < 40) {
-		notes.push({ category: 'concern', text: 'Character concerns. Teams are doing extra homework on this player.' });
+		notes.push({
+			category: 'concern',
+			text: 'Character concerns. Teams are doing extra homework on this player.',
+		});
 	} else if (core.discipline < 50) {
-		notes.push({ category: 'concern', text: 'Some maturity questions. Needs the right coaching staff.' });
+		notes.push({
+			category: 'concern',
+			text: 'Some maturity questions. Needs the right coaching staff.',
+		});
 	}
 
 	if (core.health < 50) {
-		notes.push({ category: 'concern', text: 'Injury history is a red flag. Durability concerns at the next level.' });
+		notes.push({
+			category: 'concern',
+			text: 'Injury history is a red flag. Durability concerns at the next level.',
+		});
 	}
 
 	if (core.confidence < 40) {
-		notes.push({ category: 'concern', text: 'Seems to shrink in big moments. Mental toughness is a question mark.' });
+		notes.push({
+			category: 'concern',
+			text: 'Seems to shrink in big moments. Mental toughness is a question mark.',
+		});
 	}
 
 	// Buzz notes (based on hidden stats and career)
 	if (player.hidden.leadership >= 70) {
-		notes.push({ category: 'buzz', text: 'Teammates rave about his leadership. Captains love him.' });
+		notes.push({
+			category: 'buzz',
+			text: 'Teammates rave about his leadership. Captains love him.',
+		});
 	}
 
 	if (player.career.popularity >= 70) {
-		notes.push({ category: 'buzz', text: 'Big media presence. Marketing teams are already interested.' });
+		notes.push({
+			category: 'buzz',
+			text: 'Big media presence. Marketing teams are already interested.',
+		});
 	}
 
 	if (player.careerGamesPlayed >= 40) {
-		notes.push({ category: 'strength', text: 'Experienced. Has started in big games and high-pressure situations.' });
+		notes.push({
+			category: 'strength',
+			text: 'Experienced. Has started in big games and high-pressure situations.',
+		});
 	}
 
 	// Position-specific notes
 	if (player.positionBucket === 'passer') {
 		if (core.technique >= 70 && core.footballIq >= 65) {
-			notes.push({ category: 'buzz', text: 'Franchise QB potential. Teams are moving up boards to get him.' });
+			notes.push({
+				category: 'buzz',
+				text: 'Franchise QB potential. Teams are moving up boards to get him.',
+			});
 		} else if (core.athleticism >= 70 && core.technique < 55) {
-			notes.push({ category: 'buzz', text: 'Dual-threat upside but needs work in the pocket. Developmental pick.' });
+			notes.push({
+				category: 'buzz',
+				text: 'Dual-threat upside but needs work in the pocket. Developmental pick.',
+			});
 		}
 	}
 
 	if (player.positionBucket === 'runner_receiver') {
 		if (core.athleticism >= 75) {
-			notes.push({ category: 'buzz', text: 'Explosive playmaker. Could be a game-changer on day one.' });
+			notes.push({
+				category: 'buzz',
+				text: 'Explosive playmaker. Could be a game-changer on day one.',
+			});
 		}
 	}
 
 	if (player.positionBucket === 'defender') {
 		if (core.athleticism >= 70 && core.footballIq >= 65) {
-			notes.push({ category: 'buzz', text: 'Instinctive defender. Ball hawk who creates turnovers.' });
+			notes.push({
+				category: 'buzz',
+				text: 'Instinctive defender. Ball hawk who creates turnovers.',
+			});
 		}
 	}
 
@@ -176,7 +240,7 @@ function generateNotes(player: Player): ScoutNote[] {
 // Generate the full scout report
 export function generateScoutReport(
 	player: Player,
-	previousDraftStock: number | null,
+	previousDraftStock: number | null
 ): ScoutReport {
 	const stock = player.draftStock;
 	const projection = getProjection(stock);
@@ -230,10 +294,10 @@ export function formatScoutReport(report: ScoutReport): string {
 	output += report.summary + '\n';
 
 	// Group notes by category
-	const strengths = report.notes.filter(n => n.category === 'strength');
-	const weaknesses = report.notes.filter(n => n.category === 'weakness');
-	const concerns = report.notes.filter(n => n.category === 'concern');
-	const buzz = report.notes.filter(n => n.category === 'buzz');
+	const strengths = report.notes.filter((n) => n.category === 'strength');
+	const weaknesses = report.notes.filter((n) => n.category === 'weakness');
+	const concerns = report.notes.filter((n) => n.category === 'concern');
+	const buzz = report.notes.filter((n) => n.category === 'buzz');
 
 	if (strengths.length > 0) {
 		output += '\nStrengths:\n';

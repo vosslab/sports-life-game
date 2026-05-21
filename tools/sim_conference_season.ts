@@ -44,15 +44,22 @@ import { generateOpponentName } from '../src/team.js';
 
 import type { SimConfig, AggregateStats } from './sim_conf/types.js';
 import {
-	printStandings, printAggregateSummary, printAggregatePlayerStats,
-	printPlayerTeamSchedule, printBoxScores, printPowerRanking, printAwards,
+	printStandings,
+	printAggregateSummary,
+	printAggregatePlayerStats,
+	printPlayerTeamSchedule,
+	printBoxScores,
+	printPowerRanking,
+	printAwards,
 } from './sim_conf/display.js';
 import {
-	aggregateWinners, aggregatePlayerTeamStats, buildJsonOutput,
+	aggregateWinners,
+	aggregatePlayerTeamStats,
+	buildJsonOutput,
 } from './sim_conf/aggregators.js';
 
 // Default seed is the current time so back-to-back runs differ.
-const DEFAULT_SEED: number = (Date.now() & 0xFFFFFFFF) >>> 0;
+const DEFAULT_SEED: number = (Date.now() & 0xffffffff) >>> 0;
 
 const DEFAULT_CONFIG: SimConfig = {
 	seed: DEFAULT_SEED,
@@ -148,8 +155,8 @@ function parseArgs(argv: readonly string[]): SimConfig {
 	const maxGames = (cfg.conferenceTeams - 1) * 2;
 	if (cfg.gamesPerTeam > maxGames) {
 		console.error(
-			`--games-per-team ${cfg.gamesPerTeam} exceeds max for ${cfg.conferenceTeams} teams `
-			+ `(double round-robin: ${maxGames})`,
+			`--games-per-team ${cfg.gamesPerTeam} exceeds max for ${cfg.conferenceTeams} teams ` +
+				`(double round-robin: ${maxGames})`
 		);
 		process.exit(2);
 	}
@@ -190,7 +197,9 @@ function printUsage(): void {
 	console.log('  --runs N                   Run N seasons; aggregate stats if N > 1 (default 1)');
 	console.log('  --conference-teams N       Conference size (4-32, even only, default 8)');
 	console.log('  --games-per-team N         Games per team (default 10)');
-	console.log('  --nonconference-teams N    Non-conf opponent pool (default same as conference-teams)');
+	console.log(
+		'  --nonconference-teams N    Non-conf opponent pool (default same as conference-teams)'
+	);
 	console.log('  --quiet                    Skip per-season standings table');
 	console.log('  --details                  Print player team schedule with results');
 	console.log('  --box-scores               Print all conference games in detail');
@@ -250,9 +259,9 @@ function main(): void {
 
 	if (!cfg.json) {
 		console.log(
-			`sim_conference_season: seed=${cfg.seed}, runs=${cfg.runs}, `
-			+ `conf-teams=${cfg.conferenceTeams}, games=${cfg.gamesPerTeam}, `
-			+ `player=${cfg.playerName} ${cfg.playerMascot} (str ${cfg.playerStrength})`,
+			`sim_conference_season: seed=${cfg.seed}, runs=${cfg.runs}, ` +
+				`conf-teams=${cfg.conferenceTeams}, games=${cfg.gamesPerTeam}, ` +
+				`player=${cfg.playerName} ${cfg.playerMascot} (str ${cfg.playerStrength})`
 		);
 	}
 

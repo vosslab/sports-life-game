@@ -14,9 +14,11 @@ export const collegeEntryHook: PhaseStartHook = {
 	fire(player: Player, ctx: GameContext): void {
 		ctx.addHeadline('Welcome to College Football');
 		ctx.addText(
-			'You\'ve committed to ' + player.teamName + '. The next four years will test ' +
-			'your resilience, athleticism, and mental toughness. Every week, every game, ' +
-			'shapes your path to the pros.'
+			"You've committed to " +
+				player.teamName +
+				'. The next four years will test ' +
+				'your resilience, athleticism, and mental toughness. Every week, every game, ' +
+				'shapes your path to the pros.'
 		);
 	},
 };

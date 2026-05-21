@@ -1,11 +1,11 @@
-import type { LeagueRules } from "./league_rules.js";
-import type { LeagueTuning } from "./league_tuning.js";
+import type { LeagueRules } from './league_rules.js';
+import type { LeagueTuning } from './league_tuning.js';
 
 /** NFL-specific rules - standard 15-minute quarters with NFL overtime format */
 export const NFL_RULES: LeagueRules = {
-	id: "nfl",
+	id: 'nfl',
 	quarterLengthMin: 15,
-	overtimeType: "nfl",
+	overtimeType: 'nfl',
 	fieldGoalMaxRange: 58,
 	patSuccessRate: 0.94,
 	twoPointRate: 0.48,
@@ -46,5 +46,5 @@ export const NFL_TUNING: LeagueTuning = {
 
 	// Special teams
 	kickoffTouchbackRate: 0.55,
-	puntFairCatchRate: 0.40,
+	puntFairCatchRate: 0.4,
 };

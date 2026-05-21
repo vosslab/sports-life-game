@@ -13,6 +13,7 @@
 ### File map
 
 **New files:**
+
 - `src/season_arc.ts` - arc phase enum, phase transitions, phase detection from week number
 - `src/weekly_choices.ts` - adaptive choice generation, context evaluation, outcome resolution
 - `src/crisis.ts` - crisis types, weighting, scheduling, multi-week tracking, resolution
@@ -24,10 +25,12 @@
 - `src/data/crises.json` - crisis definitions with responses and resolutions
 
 **Modified files:**
+
 - `src/weekly/weekly_engine.ts` - replace `applyGoalAndAdvance` flow with arc-aware choice flow
 - `src/player.ts` - add `activeCrisis` and `arcPhase` fields to Player state
 
 **Unchanged:**
+
 - `src/week_sim.ts` - `applySeasonGoal()` stays (background goals kept)
 - `src/activities.ts` - kept for reference but no longer called from weekly engine
 - `src/simulator/` - no changes
@@ -38,6 +41,7 @@
 ### Task 1: Season arc phase module
 
 **Files:**
+
 - Create: `src/season_arc.ts`
 
 - [ ] **Step 1: Create the arc phase types and detection logic**
@@ -74,11 +78,16 @@ export function getArcPhase(currentWeek: number, seasonLength: number): ArcPhase
 // Get display name for the arc phase (for UI headers)
 export function getArcPhaseLabel(phase: ArcPhase): string {
 	switch (phase) {
-		case 'preseason': return 'Preseason';
-		case 'opening': return 'Early Season';
-		case 'midseason': return 'Midseason';
-		case 'stretch': return 'Stretch Run';
-		case 'postseason': return 'Postseason';
+		case 'preseason':
+			return 'Preseason';
+		case 'opening':
+			return 'Early Season';
+		case 'midseason':
+			return 'Midseason';
+		case 'stretch':
+			return 'Stretch Run';
+		case 'postseason':
+			return 'Postseason';
 	}
 }
 
@@ -86,11 +95,16 @@ export function getArcPhaseLabel(phase: ArcPhase): string {
 // Get narrative flavor for the phase transition
 export function getPhaseTransitionText(phase: ArcPhase): string {
 	switch (phase) {
-		case 'preseason': return 'A new season begins. Time to set the tone.';
-		case 'opening': return 'The season is underway. Every game matters.';
-		case 'midseason': return 'Deep into the season now. The grind is real.';
-		case 'stretch': return 'The final stretch. Everything is on the line.';
-		case 'postseason': return 'The season is over. Time to reflect and decide.';
+		case 'preseason':
+			return 'A new season begins. Time to set the tone.';
+		case 'opening':
+			return 'The season is underway. Every game matters.';
+		case 'midseason':
+			return 'Deep into the season now. The grind is real.';
+		case 'stretch':
+			return 'The final stretch. Everything is on the line.';
+		case 'postseason':
+			return 'The season is over. Time to reflect and decide.';
 	}
 }
 ```
@@ -107,6 +121,7 @@ Expected: no errors
 ### Task 2: Weekly choices data files
 
 **Files:**
+
 - Create: `src/data/choices/preseason.json`
 - Create: `src/data/choices/opening.json`
 - Create: `src/data/choices/midseason.json`
@@ -121,54 +136,86 @@ Run: `mkdir -p src/data/choices`
 
 ```json
 [
-  {
-    "id": "preseason_compete",
-    "category": "compete",
-    "text": "Challenge for the starting spot",
-    "description": "Go all-out in practice to prove you deserve to start.",
-    "risk": "Could impress coaches or look desperate.",
-    "conditions": { "depthChart": ["backup", "bench"] },
-    "outcomes": {
-      "success": { "probability": 0.4, "effects": { "confidence": 3, "technique": 2 }, "narrative": "Coaches noticed your intensity. You moved up on the depth chart discussion." },
-      "failure": { "probability": 0.6, "effects": { "confidence": -2, "health": -1 }, "narrative": "You pushed too hard and pulled something. Coaches told you to dial it back." }
-    }
-  },
-  {
-    "id": "preseason_bond",
-    "category": "social",
-    "text": "Build chemistry with teammates",
-    "description": "Spend extra time in the locker room and at team dinners.",
-    "risk": "Good for morale but won't improve your game directly.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.8, "effects": { "confidence": 2 }, "narrative": "The team feels closer. Guys have your back." },
-      "failure": { "probability": 0.2, "effects": { "confidence": -1 }, "narrative": "You tried but some veterans don't take to newcomers easily." }
-    }
-  },
-  {
-    "id": "preseason_study",
-    "category": "train",
-    "text": "Study the playbook hard",
-    "description": "Lock yourself in with the playbook every night.",
-    "risk": "Great prep, but burns energy before the season starts.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.7, "effects": { "footballIq": 3, "technique": 1, "health": -1 }, "narrative": "You know the playbook cold. Coaches trust you with more complex packages." },
-      "failure": { "probability": 0.3, "effects": { "footballIq": 1, "health": -2 }, "narrative": "You overdid it. Mentally sharp but physically drained heading into week 1." }
-    }
-  },
-  {
-    "id": "preseason_rest",
-    "category": "train",
-    "text": "Take it easy, stay fresh",
-    "description": "Light workouts, good sleep, mental prep.",
-    "risk": "Safe but you won't stand out.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.9, "effects": { "health": 3, "confidence": 1 }, "narrative": "You feel rested and ready. No nagging pains heading into the season." },
-      "failure": { "probability": 0.1, "effects": { "health": 1, "discipline": -1 }, "narrative": "Maybe too relaxed. Coaches wonder if you're taking this seriously." }
-    }
-  }
+	{
+		"id": "preseason_compete",
+		"category": "compete",
+		"text": "Challenge for the starting spot",
+		"description": "Go all-out in practice to prove you deserve to start.",
+		"risk": "Could impress coaches or look desperate.",
+		"conditions": { "depthChart": ["backup", "bench"] },
+		"outcomes": {
+			"success": {
+				"probability": 0.4,
+				"effects": { "confidence": 3, "technique": 2 },
+				"narrative": "Coaches noticed your intensity. You moved up on the depth chart discussion."
+			},
+			"failure": {
+				"probability": 0.6,
+				"effects": { "confidence": -2, "health": -1 },
+				"narrative": "You pushed too hard and pulled something. Coaches told you to dial it back."
+			}
+		}
+	},
+	{
+		"id": "preseason_bond",
+		"category": "social",
+		"text": "Build chemistry with teammates",
+		"description": "Spend extra time in the locker room and at team dinners.",
+		"risk": "Good for morale but won't improve your game directly.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.8,
+				"effects": { "confidence": 2 },
+				"narrative": "The team feels closer. Guys have your back."
+			},
+			"failure": {
+				"probability": 0.2,
+				"effects": { "confidence": -1 },
+				"narrative": "You tried but some veterans don't take to newcomers easily."
+			}
+		}
+	},
+	{
+		"id": "preseason_study",
+		"category": "train",
+		"text": "Study the playbook hard",
+		"description": "Lock yourself in with the playbook every night.",
+		"risk": "Great prep, but burns energy before the season starts.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.7,
+				"effects": { "footballIq": 3, "technique": 1, "health": -1 },
+				"narrative": "You know the playbook cold. Coaches trust you with more complex packages."
+			},
+			"failure": {
+				"probability": 0.3,
+				"effects": { "footballIq": 1, "health": -2 },
+				"narrative": "You overdid it. Mentally sharp but physically drained heading into week 1."
+			}
+		}
+	},
+	{
+		"id": "preseason_rest",
+		"category": "train",
+		"text": "Take it easy, stay fresh",
+		"description": "Light workouts, good sleep, mental prep.",
+		"risk": "Safe but you won't stand out.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.9,
+				"effects": { "health": 3, "confidence": 1 },
+				"narrative": "You feel rested and ready. No nagging pains heading into the season."
+			},
+			"failure": {
+				"probability": 0.1,
+				"effects": { "health": 1, "discipline": -1 },
+				"narrative": "Maybe too relaxed. Coaches wonder if you're taking this seriously."
+			}
+		}
+	}
 ]
 ```
 
@@ -176,54 +223,86 @@ Run: `mkdir -p src/data/choices`
 
 ```json
 [
-  {
-    "id": "opening_push",
-    "category": "train",
-    "text": "Push through the pain",
-    "description": "Your body hurts from the early games. Train anyway.",
-    "risk": "Could make you tougher or break you down.",
-    "conditions": { "healthBelow": 60 },
-    "outcomes": {
-      "success": { "probability": 0.5, "effects": { "technique": 2, "athleticism": 1, "health": -2 }, "narrative": "You pushed through and came out stronger. Teammates respect the toughness." },
-      "failure": { "probability": 0.5, "effects": { "health": -5, "confidence": -1 }, "narrative": "Your body gave out. Trainer says you need to take it easy or risk a real injury." }
-    }
-  },
-  {
-    "id": "opening_film",
-    "category": "train",
-    "text": "Extra film study on next opponent",
-    "description": "Watch tape of the upcoming opponent's tendencies.",
-    "risk": "Time well spent, but skipping recovery.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.75, "effects": { "footballIq": 2, "technique": 1 }, "narrative": "You spotted a tendency in their defense. Shared it with the coaches." },
-      "failure": { "probability": 0.25, "effects": { "footballIq": 1, "health": -1 }, "narrative": "Watched film until 2am. Smart move, but you are dragging today." }
-    }
-  },
-  {
-    "id": "opening_mentor",
-    "category": "social",
-    "text": "Help a younger teammate",
-    "description": "A freshman is struggling. Spend time showing them the ropes.",
-    "risk": "Great for team culture. Costs your own development time.",
-    "conditions": { "depthChart": ["starter"] },
-    "outcomes": {
-      "success": { "probability": 0.8, "effects": { "confidence": 2, "discipline": 1 }, "narrative": "The kid looked up to you. Coaches noticed your leadership." },
-      "failure": { "probability": 0.2, "effects": { "confidence": -1 }, "narrative": "You tried but the kid wasn't receptive. Frustrating." }
-    }
-  },
-  {
-    "id": "opening_recovery",
-    "category": "train",
-    "text": "Full recovery day",
-    "description": "Ice baths, stretching, sleep. Let your body heal.",
-    "risk": "No skill growth this week.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.9, "effects": { "health": 4 }, "narrative": "Body feels great. Ready to go for the next game." },
-      "failure": { "probability": 0.1, "effects": { "health": 2, "confidence": -1 }, "narrative": "Recovery day felt lazy. Hope you are not losing your edge." }
-    }
-  }
+	{
+		"id": "opening_push",
+		"category": "train",
+		"text": "Push through the pain",
+		"description": "Your body hurts from the early games. Train anyway.",
+		"risk": "Could make you tougher or break you down.",
+		"conditions": { "healthBelow": 60 },
+		"outcomes": {
+			"success": {
+				"probability": 0.5,
+				"effects": { "technique": 2, "athleticism": 1, "health": -2 },
+				"narrative": "You pushed through and came out stronger. Teammates respect the toughness."
+			},
+			"failure": {
+				"probability": 0.5,
+				"effects": { "health": -5, "confidence": -1 },
+				"narrative": "Your body gave out. Trainer says you need to take it easy or risk a real injury."
+			}
+		}
+	},
+	{
+		"id": "opening_film",
+		"category": "train",
+		"text": "Extra film study on next opponent",
+		"description": "Watch tape of the upcoming opponent's tendencies.",
+		"risk": "Time well spent, but skipping recovery.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.75,
+				"effects": { "footballIq": 2, "technique": 1 },
+				"narrative": "You spotted a tendency in their defense. Shared it with the coaches."
+			},
+			"failure": {
+				"probability": 0.25,
+				"effects": { "footballIq": 1, "health": -1 },
+				"narrative": "Watched film until 2am. Smart move, but you are dragging today."
+			}
+		}
+	},
+	{
+		"id": "opening_mentor",
+		"category": "social",
+		"text": "Help a younger teammate",
+		"description": "A freshman is struggling. Spend time showing them the ropes.",
+		"risk": "Great for team culture. Costs your own development time.",
+		"conditions": { "depthChart": ["starter"] },
+		"outcomes": {
+			"success": {
+				"probability": 0.8,
+				"effects": { "confidence": 2, "discipline": 1 },
+				"narrative": "The kid looked up to you. Coaches noticed your leadership."
+			},
+			"failure": {
+				"probability": 0.2,
+				"effects": { "confidence": -1 },
+				"narrative": "You tried but the kid wasn't receptive. Frustrating."
+			}
+		}
+	},
+	{
+		"id": "opening_recovery",
+		"category": "train",
+		"text": "Full recovery day",
+		"description": "Ice baths, stretching, sleep. Let your body heal.",
+		"risk": "No skill growth this week.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.9,
+				"effects": { "health": 4 },
+				"narrative": "Body feels great. Ready to go for the next game."
+			},
+			"failure": {
+				"probability": 0.1,
+				"effects": { "health": 2, "confidence": -1 },
+				"narrative": "Recovery day felt lazy. Hope you are not losing your edge."
+			}
+		}
+	}
 ]
 ```
 
@@ -231,54 +310,86 @@ Run: `mkdir -p src/data/choices`
 
 ```json
 [
-  {
-    "id": "mid_intensity",
-    "category": "train",
-    "text": "Crank up the intensity",
-    "description": "Go harder than everyone else in practice.",
-    "risk": "High reward, high injury risk.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.45, "effects": { "technique": 3, "athleticism": 1, "health": -1 }, "narrative": "You were the best player on the practice field. Everyone noticed." },
-      "failure": { "probability": 0.55, "effects": { "health": -4, "confidence": -1 }, "narrative": "You went too hard and tweaked something. Trainer is concerned." }
-    }
-  },
-  {
-    "id": "mid_confront",
-    "category": "social",
-    "text": "Confront a teammate about effort",
-    "description": "Someone has been slacking. Call them out.",
-    "risk": "Could rally the team or create a rift.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.5, "effects": { "confidence": 3, "discipline": 1 }, "narrative": "They took it well. The whole unit picked up their effort." },
-      "failure": { "probability": 0.5, "effects": { "confidence": -2, "discipline": -1 }, "narrative": "It got heated. Now there is tension in the locker room." }
-    }
-  },
-  {
-    "id": "mid_position",
-    "category": "risk",
-    "text": "Ask to try a new position",
-    "description": "You think you could contribute more somewhere else.",
-    "risk": "Bold move. Could open doors or close them.",
-    "conditions": { "depthChart": ["backup", "bench"] },
-    "outcomes": {
-      "success": { "probability": 0.35, "effects": { "technique": 2, "confidence": 3 }, "narrative": "Coach liked the initiative. You are getting reps at the new spot." },
-      "failure": { "probability": 0.65, "effects": { "confidence": -3 }, "narrative": "Coach shut it down. 'Know your role.' Ouch." }
-    }
-  },
-  {
-    "id": "mid_steady",
-    "category": "train",
-    "text": "Stay the course",
-    "description": "Keep doing what you have been doing. Consistent effort.",
-    "risk": "Safe. Won't wow anyone but won't hurt either.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.85, "effects": { "technique": 1, "discipline": 1 }, "narrative": "Quiet week. Solid work. Coaches appreciate the reliability." },
-      "failure": { "probability": 0.15, "effects": { "confidence": -1 }, "narrative": "Nothing went wrong, but nothing stood out either. Are you coasting?" }
-    }
-  }
+	{
+		"id": "mid_intensity",
+		"category": "train",
+		"text": "Crank up the intensity",
+		"description": "Go harder than everyone else in practice.",
+		"risk": "High reward, high injury risk.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.45,
+				"effects": { "technique": 3, "athleticism": 1, "health": -1 },
+				"narrative": "You were the best player on the practice field. Everyone noticed."
+			},
+			"failure": {
+				"probability": 0.55,
+				"effects": { "health": -4, "confidence": -1 },
+				"narrative": "You went too hard and tweaked something. Trainer is concerned."
+			}
+		}
+	},
+	{
+		"id": "mid_confront",
+		"category": "social",
+		"text": "Confront a teammate about effort",
+		"description": "Someone has been slacking. Call them out.",
+		"risk": "Could rally the team or create a rift.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.5,
+				"effects": { "confidence": 3, "discipline": 1 },
+				"narrative": "They took it well. The whole unit picked up their effort."
+			},
+			"failure": {
+				"probability": 0.5,
+				"effects": { "confidence": -2, "discipline": -1 },
+				"narrative": "It got heated. Now there is tension in the locker room."
+			}
+		}
+	},
+	{
+		"id": "mid_position",
+		"category": "risk",
+		"text": "Ask to try a new position",
+		"description": "You think you could contribute more somewhere else.",
+		"risk": "Bold move. Could open doors or close them.",
+		"conditions": { "depthChart": ["backup", "bench"] },
+		"outcomes": {
+			"success": {
+				"probability": 0.35,
+				"effects": { "technique": 2, "confidence": 3 },
+				"narrative": "Coach liked the initiative. You are getting reps at the new spot."
+			},
+			"failure": {
+				"probability": 0.65,
+				"effects": { "confidence": -3 },
+				"narrative": "Coach shut it down. 'Know your role.' Ouch."
+			}
+		}
+	},
+	{
+		"id": "mid_steady",
+		"category": "train",
+		"text": "Stay the course",
+		"description": "Keep doing what you have been doing. Consistent effort.",
+		"risk": "Safe. Won't wow anyone but won't hurt either.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.85,
+				"effects": { "technique": 1, "discipline": 1 },
+				"narrative": "Quiet week. Solid work. Coaches appreciate the reliability."
+			},
+			"failure": {
+				"probability": 0.15,
+				"effects": { "confidence": -1 },
+				"narrative": "Nothing went wrong, but nothing stood out either. Are you coasting?"
+			}
+		}
+	}
 ]
 ```
 
@@ -286,54 +397,86 @@ Run: `mkdir -p src/data/choices`
 
 ```json
 [
-  {
-    "id": "stretch_film_rival",
-    "category": "prepare",
-    "text": "Study film on this week's opponent",
-    "description": "Break down their tendencies for the big game.",
-    "risk": "Smart prep at the cost of rest.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.8, "effects": { "footballIq": 2, "technique": 1 }, "narrative": "You found a weakness in their scheme. Shared it with coaches." },
-      "failure": { "probability": 0.2, "effects": { "footballIq": 1, "health": -1 }, "narrative": "Good film work but you stayed up too late. Feeling it in your legs." }
-    }
-  },
-  {
-    "id": "stretch_trash_talk",
-    "category": "risk",
-    "text": "Talk trash to the media",
-    "description": "Tell reporters exactly what you think about the opponent.",
-    "risk": "Fire up your team or give them bulletin board material.",
-    "conditions": { "depthChart": ["starter"] },
-    "outcomes": {
-      "success": { "probability": 0.4, "effects": { "confidence": 4 }, "narrative": "Your teammates loved it. The locker room is fired up." },
-      "failure": { "probability": 0.6, "effects": { "confidence": -2, "discipline": -2 }, "narrative": "Your words are posted in the opponent's locker room. Coach is not happy." }
-    }
-  },
-  {
-    "id": "stretch_rest_big",
-    "category": "prepare",
-    "text": "Rest and get your body right",
-    "description": "Big game coming. Make sure you are 100%.",
-    "risk": "No growth but maximum availability.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.9, "effects": { "health": 4, "confidence": 1 }, "narrative": "Fresh legs, clear head. Ready for the biggest game of the year." },
-      "failure": { "probability": 0.1, "effects": { "health": 2 }, "narrative": "Rested but restless. Hard to sit still when the game is this big." }
-    }
-  },
-  {
-    "id": "stretch_rally",
-    "category": "social",
-    "text": "Rally the team",
-    "description": "Give a speech in the locker room. Set the tone.",
-    "risk": "Inspire them or fall flat.",
-    "conditions": { "depthChart": ["starter"] },
-    "outcomes": {
-      "success": { "probability": 0.6, "effects": { "confidence": 3, "discipline": 1 }, "narrative": "The room went silent. Then they erupted. This team is ready." },
-      "failure": { "probability": 0.4, "effects": { "confidence": -2 }, "narrative": "Awkward silence. Veterans don't take speeches from everyone." }
-    }
-  }
+	{
+		"id": "stretch_film_rival",
+		"category": "prepare",
+		"text": "Study film on this week's opponent",
+		"description": "Break down their tendencies for the big game.",
+		"risk": "Smart prep at the cost of rest.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.8,
+				"effects": { "footballIq": 2, "technique": 1 },
+				"narrative": "You found a weakness in their scheme. Shared it with coaches."
+			},
+			"failure": {
+				"probability": 0.2,
+				"effects": { "footballIq": 1, "health": -1 },
+				"narrative": "Good film work but you stayed up too late. Feeling it in your legs."
+			}
+		}
+	},
+	{
+		"id": "stretch_trash_talk",
+		"category": "risk",
+		"text": "Talk trash to the media",
+		"description": "Tell reporters exactly what you think about the opponent.",
+		"risk": "Fire up your team or give them bulletin board material.",
+		"conditions": { "depthChart": ["starter"] },
+		"outcomes": {
+			"success": {
+				"probability": 0.4,
+				"effects": { "confidence": 4 },
+				"narrative": "Your teammates loved it. The locker room is fired up."
+			},
+			"failure": {
+				"probability": 0.6,
+				"effects": { "confidence": -2, "discipline": -2 },
+				"narrative": "Your words are posted in the opponent's locker room. Coach is not happy."
+			}
+		}
+	},
+	{
+		"id": "stretch_rest_big",
+		"category": "prepare",
+		"text": "Rest and get your body right",
+		"description": "Big game coming. Make sure you are 100%.",
+		"risk": "No growth but maximum availability.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.9,
+				"effects": { "health": 4, "confidence": 1 },
+				"narrative": "Fresh legs, clear head. Ready for the biggest game of the year."
+			},
+			"failure": {
+				"probability": 0.1,
+				"effects": { "health": 2 },
+				"narrative": "Rested but restless. Hard to sit still when the game is this big."
+			}
+		}
+	},
+	{
+		"id": "stretch_rally",
+		"category": "social",
+		"text": "Rally the team",
+		"description": "Give a speech in the locker room. Set the tone.",
+		"risk": "Inspire them or fall flat.",
+		"conditions": { "depthChart": ["starter"] },
+		"outcomes": {
+			"success": {
+				"probability": 0.6,
+				"effects": { "confidence": 3, "discipline": 1 },
+				"narrative": "The room went silent. Then they erupted. This team is ready."
+			},
+			"failure": {
+				"probability": 0.4,
+				"effects": { "confidence": -2 },
+				"narrative": "Awkward silence. Veterans don't take speeches from everyone."
+			}
+		}
+	}
 ]
 ```
 
@@ -341,42 +484,62 @@ Run: `mkdir -p src/data/choices`
 
 ```json
 [
-  {
-    "id": "post_reflect",
-    "category": "reflect",
-    "text": "Reflect on the season",
-    "description": "Think about what went right and what went wrong.",
-    "risk": "No risk. Just honest self-assessment.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 1.0, "effects": { "footballIq": 2, "discipline": 1 }, "narrative": "You know exactly what you need to work on. Clear eyes for next year." },
-      "failure": { "probability": 0.0, "effects": {}, "narrative": "" }
-    }
-  },
-  {
-    "id": "post_train_hard",
-    "category": "train",
-    "text": "Hit the offseason workouts hard",
-    "description": "No breaks. Start building for next season immediately.",
-    "risk": "Great for growth but risk burnout.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.6, "effects": { "athleticism": 3, "technique": 2, "health": -2 }, "narrative": "You came back from the offseason visibly stronger and faster." },
-      "failure": { "probability": 0.4, "effects": { "athleticism": 1, "health": -3, "confidence": -1 }, "narrative": "Pushed too hard over the break. Starting next season already banged up." }
-    }
-  },
-  {
-    "id": "post_enjoy",
-    "category": "social",
-    "text": "Take a break and enjoy life",
-    "description": "Hang out, travel, recharge mentally.",
-    "risk": "Great for mental health. Could lose your edge.",
-    "conditions": {},
-    "outcomes": {
-      "success": { "probability": 0.8, "effects": { "health": 4, "confidence": 2 }, "narrative": "Best offseason ever. Recharged and motivated." },
-      "failure": { "probability": 0.2, "effects": { "health": 2, "discipline": -2 }, "narrative": "Maybe too much fun. Took a while to get back into football shape." }
-    }
-  }
+	{
+		"id": "post_reflect",
+		"category": "reflect",
+		"text": "Reflect on the season",
+		"description": "Think about what went right and what went wrong.",
+		"risk": "No risk. Just honest self-assessment.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 1.0,
+				"effects": { "footballIq": 2, "discipline": 1 },
+				"narrative": "You know exactly what you need to work on. Clear eyes for next year."
+			},
+			"failure": { "probability": 0.0, "effects": {}, "narrative": "" }
+		}
+	},
+	{
+		"id": "post_train_hard",
+		"category": "train",
+		"text": "Hit the offseason workouts hard",
+		"description": "No breaks. Start building for next season immediately.",
+		"risk": "Great for growth but risk burnout.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.6,
+				"effects": { "athleticism": 3, "technique": 2, "health": -2 },
+				"narrative": "You came back from the offseason visibly stronger and faster."
+			},
+			"failure": {
+				"probability": 0.4,
+				"effects": { "athleticism": 1, "health": -3, "confidence": -1 },
+				"narrative": "Pushed too hard over the break. Starting next season already banged up."
+			}
+		}
+	},
+	{
+		"id": "post_enjoy",
+		"category": "social",
+		"text": "Take a break and enjoy life",
+		"description": "Hang out, travel, recharge mentally.",
+		"risk": "Great for mental health. Could lose your edge.",
+		"conditions": {},
+		"outcomes": {
+			"success": {
+				"probability": 0.8,
+				"effects": { "health": 4, "confidence": 2 },
+				"narrative": "Best offseason ever. Recharged and motivated."
+			},
+			"failure": {
+				"probability": 0.2,
+				"effects": { "health": 2, "discipline": -2 },
+				"narrative": "Maybe too much fun. Took a while to get back into football shape."
+			}
+		}
+	}
 ]
 ```
 
@@ -387,6 +550,7 @@ Run: `mkdir -p src/data/choices`
 ### Task 3: Weekly choices module
 
 **Files:**
+
 - Create: `src/weekly_choices.ts`
 
 - [ ] **Step 1: Create the choice loading and selection logic**
@@ -455,7 +619,7 @@ export function getWeeklyChoices(
 	arcPhase: ArcPhase,
 	recentWins: number,
 	recentLosses: number,
-	hasCrisis: boolean,
+	hasCrisis: boolean
 ): WeeklyChoice[] {
 	// During a crisis, choices come from the crisis system, not here
 	if (hasCrisis) {
@@ -468,7 +632,7 @@ export function getWeeklyChoices(
 	}
 
 	// Filter by conditions
-	const eligible = pool.filter(choice => meetsConditions(choice, player));
+	const eligible = pool.filter((choice) => meetsConditions(choice, player));
 
 	// Pick 3 choices (or fewer if pool is small): aim for variety in category
 	const selected: WeeklyChoice[] = [];
@@ -523,10 +687,7 @@ function meetsConditions(choice: WeeklyChoice, player: Player): boolean {
 
 //============================================
 // Resolve a player's choice: roll success/failure and apply effects
-export function resolveChoice(
-	player: Player,
-	choice: WeeklyChoice,
-): ChoiceResult {
+export function resolveChoice(player: Player, choice: WeeklyChoice): ChoiceResult {
 	const roll = Math.random();
 	const succeeded = roll < choice.outcomes.success.probability;
 
@@ -534,8 +695,14 @@ export function resolveChoice(
 
 	// Apply stat effects
 	for (const [stat, delta] of Object.entries(outcome.effects)) {
-		if (stat === 'health' || stat === 'confidence' || stat === 'technique'
-			|| stat === 'athleticism' || stat === 'footballIq' || stat === 'discipline') {
+		if (
+			stat === 'health' ||
+			stat === 'confidence' ||
+			stat === 'technique' ||
+			stat === 'athleticism' ||
+			stat === 'footballIq' ||
+			stat === 'discipline'
+		) {
 			modifyStat(player, stat as keyof typeof player.core, delta);
 		}
 	}
@@ -561,6 +728,7 @@ Expected: no errors
 ### Task 4: Crisis system module
 
 **Files:**
+
 - Create: `src/crisis.ts`
 - Create: `src/data/crises.json`
 
@@ -568,186 +736,186 @@ Expected: no errors
 
 ```json
 [
-  {
-    "id": "injury_setback",
-    "name": "Injury Setback",
-    "description": "You felt something pop during practice. The trainer wants to talk.",
-    "duration": 2,
-    "triggerWeight": { "base": 1.0, "healthBelow50Bonus": 1.5 },
-    "responses": [
-      {
-        "id": "rest_full",
-        "text": "Shut it down and recover fully",
-        "risk": "Miss 2 games but come back 100%.",
-        "effects": { "health": 8, "confidence": -2 },
-        "narrative": "You sat out and watched. Frustrating but smart. Body feels great now.",
-        "depthChartChange": null,
-        "missGames": 2
-      },
-      {
-        "id": "play_through",
-        "text": "Play through it",
-        "risk": "Keep your stats going but risk making it worse.",
-        "effects": { "health": -4, "confidence": 2 },
-        "narrative": "You gutted it out. Teammates respect the toughness, but you are limping.",
-        "depthChartChange": null,
-        "missGames": 0
-      },
-      {
-        "id": "rehab_hard",
-        "text": "Aggressive rehab, miss one game",
-        "risk": "Faster recovery but not full rest.",
-        "effects": { "health": 3, "technique": 1 },
-        "narrative": "Rehab went well. Not 100% but functional. One game missed.",
-        "depthChartChange": null,
-        "missGames": 1
-      }
-    ]
-  },
-  {
-    "id": "depth_chart_shakeup",
-    "name": "Depth Chart Shake-Up",
-    "description": "Coach pulled you aside after practice. Your spot is not guaranteed anymore.",
-    "duration": 2,
-    "triggerWeight": { "base": 0.5, "benchBackupBonus": 1.5 },
-    "responses": [
-      {
-        "id": "earn_back",
-        "text": "Earn it back in practice",
-        "risk": "Show them what you've got. Or embarrass yourself trying.",
-        "effects": { "technique": 2, "confidence": 1 },
-        "narrative": "You went harder than anyone all week. Coaches took notice.",
-        "depthChartChange": "promote",
-        "missGames": 0
-      },
-      {
-        "id": "confront_coach",
-        "text": "Talk to the coach about it",
-        "risk": "Could get answers or get shut down.",
-        "effects": { "confidence": -1, "discipline": 1 },
-        "narrative": "Coach was honest. You know what you need to fix. No shortcuts.",
-        "depthChartChange": null,
-        "missGames": 0
-      },
-      {
-        "id": "accept_role",
-        "text": "Accept the new role and be a team player",
-        "risk": "Shows maturity but might cement you as a backup.",
-        "effects": { "discipline": 2, "confidence": -2 },
-        "narrative": "You handled it with class. Teammates respect that. But you are still on the bench.",
-        "depthChartChange": null,
-        "missGames": 0
-      }
-    ]
-  },
-  {
-    "id": "locker_room_conflict",
-    "name": "Locker Room Conflict",
-    "description": "Two teammates got into it after practice. The whole team feels the tension.",
-    "duration": 1,
-    "triggerWeight": { "base": 1.0, "losingStreakBonus": 1.0 },
-    "responses": [
-      {
-        "id": "mediate",
-        "text": "Step in and mediate",
-        "risk": "Could defuse things or make you a target.",
-        "effects": { "confidence": 2, "discipline": 1 },
-        "narrative": "You pulled them apart and said the right things. Team feels unified again.",
-        "depthChartChange": null,
-        "missGames": 0
-      },
-      {
-        "id": "take_sides",
-        "text": "Back one of them",
-        "risk": "Pick a side. Win an ally, make an enemy.",
-        "effects": { "confidence": 1, "discipline": -1 },
-        "narrative": "You made your choice. Half the team agrees with you. The other half does not.",
-        "depthChartChange": null,
-        "missGames": 0
-      },
-      {
-        "id": "stay_out",
-        "text": "Stay out of it",
-        "risk": "Safe but leadership opportunity missed.",
-        "effects": { "discipline": 1, "confidence": -1 },
-        "narrative": "You kept your head down. Drama passed eventually. No one saw you step up though.",
-        "depthChartChange": null,
-        "missGames": 0
-      }
-    ]
-  },
-  {
-    "id": "personal_crisis",
-    "name": "Personal Crisis",
-    "description": "Something happened at home. It is weighing on you.",
-    "duration": 2,
-    "triggerWeight": { "base": 0.8 },
-    "responses": [
-      {
-        "id": "handle_private",
-        "text": "Handle it privately",
-        "risk": "Keep it together. Nobody needs to know.",
-        "effects": { "discipline": 2, "confidence": -1 },
-        "narrative": "You dealt with it on your own. Tough week but you got through it.",
-        "depthChartChange": null,
-        "missGames": 0
-      },
-      {
-        "id": "lean_on_team",
-        "text": "Lean on your teammates for support",
-        "risk": "Vulnerable but builds real bonds.",
-        "effects": { "confidence": 3 },
-        "narrative": "The guys rallied around you. This team is more than football.",
-        "depthChartChange": null,
-        "missGames": 0
-      },
-      {
-        "id": "ignore_play",
-        "text": "Ignore it and focus on football",
-        "risk": "Might work. Might blow up later.",
-        "effects": { "technique": 1, "health": -2 },
-        "narrative": "You buried yourself in football. It helped on the field but the stress is still there.",
-        "depthChartChange": null,
-        "missGames": 0
-      }
-    ]
-  },
-  {
-    "id": "rival_emergence",
-    "name": "Rival Emergence",
-    "description": "One player on the other side of the ball has been running his mouth about you all week.",
-    "duration": 2,
-    "triggerWeight": { "base": 0.7, "starterWinningBonus": 1.0 },
-    "responses": [
-      {
-        "id": "train_for_rival",
-        "text": "Train specifically to beat them",
-        "risk": "Focused prep. Could pay off big on game day.",
-        "effects": { "technique": 2, "footballIq": 2 },
-        "narrative": "You watched every snap of their film. You know exactly how to attack.",
-        "depthChartChange": null,
-        "missGames": 0
-      },
-      {
-        "id": "trash_back",
-        "text": "Fire back in the media",
-        "risk": "Fun but dangerous. Bulletin board material.",
-        "effects": { "confidence": 3, "discipline": -2 },
-        "narrative": "Social media is exploding. Your teammates are hyped. Your coaches are not.",
-        "depthChartChange": null,
-        "missGames": 0
-      },
-      {
-        "id": "let_play_talk",
-        "text": "Let your play do the talking",
-        "risk": "Classy. But no fun.",
-        "effects": { "discipline": 2, "confidence": 1 },
-        "narrative": "You said nothing. Then went out and dominated. That is the best answer.",
-        "depthChartChange": null,
-        "missGames": 0
-      }
-    ]
-  }
+	{
+		"id": "injury_setback",
+		"name": "Injury Setback",
+		"description": "You felt something pop during practice. The trainer wants to talk.",
+		"duration": 2,
+		"triggerWeight": { "base": 1.0, "healthBelow50Bonus": 1.5 },
+		"responses": [
+			{
+				"id": "rest_full",
+				"text": "Shut it down and recover fully",
+				"risk": "Miss 2 games but come back 100%.",
+				"effects": { "health": 8, "confidence": -2 },
+				"narrative": "You sat out and watched. Frustrating but smart. Body feels great now.",
+				"depthChartChange": null,
+				"missGames": 2
+			},
+			{
+				"id": "play_through",
+				"text": "Play through it",
+				"risk": "Keep your stats going but risk making it worse.",
+				"effects": { "health": -4, "confidence": 2 },
+				"narrative": "You gutted it out. Teammates respect the toughness, but you are limping.",
+				"depthChartChange": null,
+				"missGames": 0
+			},
+			{
+				"id": "rehab_hard",
+				"text": "Aggressive rehab, miss one game",
+				"risk": "Faster recovery but not full rest.",
+				"effects": { "health": 3, "technique": 1 },
+				"narrative": "Rehab went well. Not 100% but functional. One game missed.",
+				"depthChartChange": null,
+				"missGames": 1
+			}
+		]
+	},
+	{
+		"id": "depth_chart_shakeup",
+		"name": "Depth Chart Shake-Up",
+		"description": "Coach pulled you aside after practice. Your spot is not guaranteed anymore.",
+		"duration": 2,
+		"triggerWeight": { "base": 0.5, "benchBackupBonus": 1.5 },
+		"responses": [
+			{
+				"id": "earn_back",
+				"text": "Earn it back in practice",
+				"risk": "Show them what you've got. Or embarrass yourself trying.",
+				"effects": { "technique": 2, "confidence": 1 },
+				"narrative": "You went harder than anyone all week. Coaches took notice.",
+				"depthChartChange": "promote",
+				"missGames": 0
+			},
+			{
+				"id": "confront_coach",
+				"text": "Talk to the coach about it",
+				"risk": "Could get answers or get shut down.",
+				"effects": { "confidence": -1, "discipline": 1 },
+				"narrative": "Coach was honest. You know what you need to fix. No shortcuts.",
+				"depthChartChange": null,
+				"missGames": 0
+			},
+			{
+				"id": "accept_role",
+				"text": "Accept the new role and be a team player",
+				"risk": "Shows maturity but might cement you as a backup.",
+				"effects": { "discipline": 2, "confidence": -2 },
+				"narrative": "You handled it with class. Teammates respect that. But you are still on the bench.",
+				"depthChartChange": null,
+				"missGames": 0
+			}
+		]
+	},
+	{
+		"id": "locker_room_conflict",
+		"name": "Locker Room Conflict",
+		"description": "Two teammates got into it after practice. The whole team feels the tension.",
+		"duration": 1,
+		"triggerWeight": { "base": 1.0, "losingStreakBonus": 1.0 },
+		"responses": [
+			{
+				"id": "mediate",
+				"text": "Step in and mediate",
+				"risk": "Could defuse things or make you a target.",
+				"effects": { "confidence": 2, "discipline": 1 },
+				"narrative": "You pulled them apart and said the right things. Team feels unified again.",
+				"depthChartChange": null,
+				"missGames": 0
+			},
+			{
+				"id": "take_sides",
+				"text": "Back one of them",
+				"risk": "Pick a side. Win an ally, make an enemy.",
+				"effects": { "confidence": 1, "discipline": -1 },
+				"narrative": "You made your choice. Half the team agrees with you. The other half does not.",
+				"depthChartChange": null,
+				"missGames": 0
+			},
+			{
+				"id": "stay_out",
+				"text": "Stay out of it",
+				"risk": "Safe but leadership opportunity missed.",
+				"effects": { "discipline": 1, "confidence": -1 },
+				"narrative": "You kept your head down. Drama passed eventually. No one saw you step up though.",
+				"depthChartChange": null,
+				"missGames": 0
+			}
+		]
+	},
+	{
+		"id": "personal_crisis",
+		"name": "Personal Crisis",
+		"description": "Something happened at home. It is weighing on you.",
+		"duration": 2,
+		"triggerWeight": { "base": 0.8 },
+		"responses": [
+			{
+				"id": "handle_private",
+				"text": "Handle it privately",
+				"risk": "Keep it together. Nobody needs to know.",
+				"effects": { "discipline": 2, "confidence": -1 },
+				"narrative": "You dealt with it on your own. Tough week but you got through it.",
+				"depthChartChange": null,
+				"missGames": 0
+			},
+			{
+				"id": "lean_on_team",
+				"text": "Lean on your teammates for support",
+				"risk": "Vulnerable but builds real bonds.",
+				"effects": { "confidence": 3 },
+				"narrative": "The guys rallied around you. This team is more than football.",
+				"depthChartChange": null,
+				"missGames": 0
+			},
+			{
+				"id": "ignore_play",
+				"text": "Ignore it and focus on football",
+				"risk": "Might work. Might blow up later.",
+				"effects": { "technique": 1, "health": -2 },
+				"narrative": "You buried yourself in football. It helped on the field but the stress is still there.",
+				"depthChartChange": null,
+				"missGames": 0
+			}
+		]
+	},
+	{
+		"id": "rival_emergence",
+		"name": "Rival Emergence",
+		"description": "One player on the other side of the ball has been running his mouth about you all week.",
+		"duration": 2,
+		"triggerWeight": { "base": 0.7, "starterWinningBonus": 1.0 },
+		"responses": [
+			{
+				"id": "train_for_rival",
+				"text": "Train specifically to beat them",
+				"risk": "Focused prep. Could pay off big on game day.",
+				"effects": { "technique": 2, "footballIq": 2 },
+				"narrative": "You watched every snap of their film. You know exactly how to attack.",
+				"depthChartChange": null,
+				"missGames": 0
+			},
+			{
+				"id": "trash_back",
+				"text": "Fire back in the media",
+				"risk": "Fun but dangerous. Bulletin board material.",
+				"effects": { "confidence": 3, "discipline": -2 },
+				"narrative": "Social media is exploding. Your teammates are hyped. Your coaches are not.",
+				"depthChartChange": null,
+				"missGames": 0
+			},
+			{
+				"id": "let_play_talk",
+				"text": "Let your play do the talking",
+				"risk": "Classy. But no fun.",
+				"effects": { "discipline": 2, "confidence": 1 },
+				"narrative": "You said nothing. Then went out and dominated. That is the best answer.",
+				"depthChartChange": null,
+				"missGames": 0
+			}
+		]
+	}
 ]
 ```
 
@@ -806,16 +974,13 @@ export function loadCrisisDefinitions(data: CrisisDefinition[]): void {
 // Decide whether to trigger a crisis this season.
 // Called once at start of midseason arc phase.
 // Returns 0, 1, or 2 crisis IDs to schedule.
-export function scheduleCrises(
-	player: Player,
-	recentLosses: number,
-): string[] {
+export function scheduleCrises(player: Player, recentLosses: number): string[] {
 	// 70% chance of 1 crisis, 20% chance of 2, 10% chance of 0
 	const roll = Math.random();
 	let count = 0;
-	if (roll < 0.10) {
+	if (roll < 0.1) {
 		count = 0;
-	} else if (roll < 0.80) {
+	} else if (roll < 0.8) {
 		count = 1;
 	} else {
 		count = 2;
@@ -826,15 +991,17 @@ export function scheduleCrises(
 	}
 
 	// Weight crises by context
-	const weighted = crisisDefinitions.map(def => {
+	const weighted = crisisDefinitions.map((def) => {
 		let weight = def.triggerWeight.base ?? 1.0;
 		// Injury more likely when health is low
 		if (def.triggerWeight.healthBelow50Bonus && player.core.health < 50) {
 			weight += def.triggerWeight.healthBelow50Bonus;
 		}
 		// Depth chart shakeup more likely for bench/backup
-		if (def.triggerWeight.benchBackupBonus
-			&& (player.depthChart === 'bench' || player.depthChart === 'backup')) {
+		if (
+			def.triggerWeight.benchBackupBonus &&
+			(player.depthChart === 'bench' || player.depthChart === 'backup')
+		) {
 			weight += def.triggerWeight.benchBackupBonus;
 		}
 		// Locker room conflict more likely on losing streak
@@ -870,7 +1037,7 @@ export function scheduleCrises(
 //============================================
 // Start a crisis for the player
 export function startCrisis(crisisId: string): ActiveCrisis | null {
-	const def = crisisDefinitions.find(d => d.id === crisisId);
+	const def = crisisDefinitions.find((d) => d.id === crisisId);
 	if (!def) {
 		return null;
 	}
@@ -889,7 +1056,7 @@ export function startCrisis(crisisId: string): ActiveCrisis | null {
 //============================================
 // Get crisis response options for display
 export function getCrisisResponses(crisisId: string): CrisisResponse[] {
-	const def = crisisDefinitions.find(d => d.id === crisisId);
+	const def = crisisDefinitions.find((d) => d.id === crisisId);
 	if (!def) {
 		return [];
 	}
@@ -901,22 +1068,28 @@ export function getCrisisResponses(crisisId: string): CrisisResponse[] {
 export function resolveCrisisResponse(
 	player: Player,
 	crisis: ActiveCrisis,
-	responseId: string,
+	responseId: string
 ): string {
-	const def = crisisDefinitions.find(d => d.id === crisis.crisisId);
+	const def = crisisDefinitions.find((d) => d.id === crisis.crisisId);
 	if (!def) {
-		return "Crisis resolved.";
+		return 'Crisis resolved.';
 	}
 
-	const response = def.responses.find(r => r.id === responseId);
+	const response = def.responses.find((r) => r.id === responseId);
 	if (!response) {
-		return "Crisis resolved.";
+		return 'Crisis resolved.';
 	}
 
 	// Apply effects
 	for (const [stat, delta] of Object.entries(response.effects)) {
-		if (stat === 'health' || stat === 'confidence' || stat === 'technique'
-			|| stat === 'athleticism' || stat === 'footballIq' || stat === 'discipline') {
+		if (
+			stat === 'health' ||
+			stat === 'confidence' ||
+			stat === 'technique' ||
+			stat === 'athleticism' ||
+			stat === 'footballIq' ||
+			stat === 'discipline'
+		) {
 			modifyStat(player, stat as keyof typeof player.core, delta);
 		}
 	}
@@ -962,6 +1135,7 @@ Expected: no errors
 ### Task 5: Add player state fields
 
 **Files:**
+
 - Modify: `src/player.ts`
 
 - [ ] **Step 1: Add activeCrisis and scheduledCrises fields to Player**
@@ -980,6 +1154,7 @@ Import `ActiveCrisis` from `'./crisis.js'`.
 - [ ] **Step 2: Initialize the new fields in createPlayer or wherever Player is constructed**
 
 Set defaults:
+
 ```typescript
 activeCrisis: null,
 scheduledCrises: [],
@@ -989,6 +1164,7 @@ crisisTriggeredThisSeason: false,
 - [ ] **Step 3: Reset the fields in the season reset logic**
 
 Find where `player.seasonStats` is reset (in `weekly_engine.ts` `startSeason`) and add:
+
 ```typescript
 player.activeCrisis = null;
 player.scheduledCrises = [];
@@ -1007,6 +1183,7 @@ Expected: no errors
 ### Task 6: Wire into weekly engine
 
 **Files:**
+
 - Modify: `src/weekly/weekly_engine.ts`
 
 This is the core integration. Replace the `applyGoalAndAdvance` flow with arc-aware choice flow.
@@ -1014,18 +1191,30 @@ This is the core integration. Replace the `applyGoalAndAdvance` flow with arc-aw
 - [ ] **Step 1: Add imports**
 
 At the top of weekly_engine.ts, add:
+
 ```typescript
 import { getArcPhase, ArcPhase, getPhaseTransitionText } from '../season_arc.js';
-import { getWeeklyChoices, resolveChoice, WeeklyChoice, loadChoicePools } from '../weekly_choices.js';
 import {
-	scheduleCrises, startCrisis, getCrisisResponses, resolveCrisisResponse,
-	advanceCrisis, loadCrisisDefinitions, ActiveCrisis,
+	getWeeklyChoices,
+	resolveChoice,
+	WeeklyChoice,
+	loadChoicePools,
+} from '../weekly_choices.js';
+import {
+	scheduleCrises,
+	startCrisis,
+	getCrisisResponses,
+	resolveCrisisResponse,
+	advanceCrisis,
+	loadCrisisDefinitions,
+	ActiveCrisis,
 } from '../crisis.js';
 ```
 
 - [ ] **Step 2: Load data at module level**
 
 Add data loading after imports. Because this is a browser ES module, use static imports for JSON:
+
 ```typescript
 import preseasonChoices from '../data/choices/preseason.json';
 import openingChoices from '../data/choices/opening.json';
@@ -1052,9 +1241,10 @@ In `advanceToNextWeek`, after the headline `Week ${player.currentWeek}`, add arc
 ```typescript
 // Detect arc phase and show transition text if phase changed
 const arcPhase = getArcPhase(player.currentWeek, activeEngine.config.seasonLength);
-const prevArcPhase = player.currentWeek > 1
-	? getArcPhase(player.currentWeek - 1, activeEngine.config.seasonLength)
-	: 'preseason';
+const prevArcPhase =
+	player.currentWeek > 1
+		? getArcPhase(player.currentWeek - 1, activeEngine.config.seasonLength)
+		: 'preseason';
 if (arcPhase !== prevArcPhase) {
 	ctx.addText(getPhaseTransitionText(arcPhase));
 }
@@ -1120,8 +1310,11 @@ function showWeeklyChoices(player: Player, ctx: CareerContext, arcPhase: ArcPhas
 
 	const record = activeEngine.season.getPlayerRecord();
 	const choices = getWeeklyChoices(
-		player, arcPhase, record.wins, record.losses,
-		player.activeCrisis !== null,
+		player,
+		arcPhase,
+		record.wins,
+		record.losses,
+		player.activeCrisis !== null
 	);
 
 	if (choices.length === 0) {
@@ -1131,7 +1324,7 @@ function showWeeklyChoices(player: Player, ctx: CareerContext, arcPhase: ArcPhas
 		return;
 	}
 
-	const choiceOptions = choices.map(choice => ({
+	const choiceOptions = choices.map((choice) => ({
 		text: choice.text,
 		description: `${choice.description} (${choice.risk})`,
 		action: () => {
@@ -1170,7 +1363,7 @@ function showCrisisResponse(player: Player, ctx: CareerContext): void {
 		return;
 	}
 
-	const responseOptions = responses.map(response => ({
+	const responseOptions = responses.map((response) => ({
 		text: response.text,
 		description: response.risk,
 		action: () => {
@@ -1183,7 +1376,7 @@ function showCrisisResponse(player: Player, ctx: CareerContext): void {
 			if (player.activeCrisis) {
 				const crisisOver = advanceCrisis(player.activeCrisis);
 				if (crisisOver) {
-					ctx.addText("The crisis has passed. Back to football.");
+					ctx.addText('The crisis has passed. Back to football.');
 					player.activeCrisis = null;
 				}
 			}
@@ -1195,7 +1388,12 @@ function showCrisisResponse(player: Player, ctx: CareerContext): void {
 		},
 	}));
 
-	ctx.waitForInteraction('Crisis: ' + player.activeCrisis.name, responseOptions, undefined, 'narrative');
+	ctx.waitForInteraction(
+		'Crisis: ' + player.activeCrisis.name,
+		responseOptions,
+		undefined,
+		'narrative'
+	);
 }
 ```
 
@@ -1211,11 +1409,13 @@ Expected: no errors
 ### Task 7: Update changelog and verify
 
 **Files:**
+
 - Modify: `docs/CHANGELOG.md`
 
 - [ ] **Step 1: Add changelog entries**
 
 Under `### Additions and New Features`:
+
 ```markdown
 - **Season arc phases and adaptive weekly choices** (`src/season_arc.ts`,
   `src/weekly_choices.ts`, `src/weekly/weekly_engine.ts`): Seasons now progress

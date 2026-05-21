@@ -38,9 +38,8 @@ export const collegeSeniorHandler: YearHandler = {
 		ctx.updateHeader(player);
 
 		// Check if player has 5th year eligibility (redshirt + haven't used it yet)
-		const hasFifthYearOption = player.isRedshirt
-			&& player.eligibilityYears >= 5
-			&& player.collegeYear === 4;
+		const hasFifthYearOption =
+			player.isRedshirt && player.eligibilityYears >= 5 && player.collegeYear === 4;
 
 		if (hasFifthYearOption) {
 			ctx.addHeadline('Age 21 - Senior Year');
@@ -89,23 +88,23 @@ function startNormalSeniorYear(player: Player, ctx: CareerContext): void {
 	if (allSchools.length === 0) {
 		throw new Error('No NCAA schools loaded');
 	}
-	const playerSchool = allSchools.find(s => formatSchoolName(s) === player.teamName)
-		|| allSchools[0];
+	const playerSchool =
+		allSchools.find((s) => formatSchoolName(s) === player.teamName) || allSchools[0];
 	const season = buildCollegeSeason(playerSchool, allSchools);
 	const playerTeam = season.getPlayerTeam();
 	if (playerTeam) {
 		player.teamStrength = playerTeam.strength;
 	}
 
-	ctx.waitForInteraction('Senior Year', [{
-		text: 'Start Season',
-		primary: true,
-		action: () => {
-			startSeason(player, ctx, SEASON_CONFIG, season,
-				() => handleSeasonEnd(player, ctx),
-			);
+	ctx.waitForInteraction('Senior Year', [
+		{
+			text: 'Start Season',
+			primary: true,
+			action: () => {
+				startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
+			},
 		},
-	}]);
+	]);
 }
 
 //============================================

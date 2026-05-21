@@ -59,9 +59,7 @@ export class PlayoffBracket {
 		}
 
 		// Populate only the first round with initial matchups
-		const sortedTeamIds = [...this.seeds]
-			.sort((a, b) => a.seed - b.seed)
-			.map(s => s.teamId);
+		const sortedTeamIds = [...this.seeds].sort((a, b) => a.seed - b.seed).map((s) => s.teamId);
 
 		let lo = 0;
 		let hi = sortedTeamIds.length - 1;
@@ -72,7 +70,7 @@ export class PlayoffBracket {
 				0, // week 0 = playoff
 				sortedTeamIds[lo],
 				sortedTeamIds[hi],
-				false,
+				false
 			);
 			this.rounds[0].games.push(game);
 			lo += 1;
@@ -97,14 +95,14 @@ export class PlayoffBracket {
 		if (!round) {
 			return undefined;
 		}
-		return round.games.find(g => g.involvesTeam(this.playerTeamId));
+		return round.games.find((g) => g.involvesTeam(this.playerTeamId));
 	}
 
 	//============================================
 	// Record a playoff game result
 	recordResult(gameId: GameId, homeScore: number, awayScore: number): void {
 		for (const round of this.rounds) {
-			const game = round.games.find(g => g.id === gameId);
+			const game = round.games.find((g) => g.id === gameId);
 			if (game) {
 				game.recordResult(homeScore, awayScore);
 				return;
@@ -119,7 +117,7 @@ export class PlayoffBracket {
 		if (!round) {
 			return true;
 		}
-		return round.games.every(g => g.status === 'final');
+		return round.games.every((g) => g.status === 'final');
 	}
 
 	//============================================
@@ -167,13 +165,9 @@ export class PlayoffBracket {
 			let lo = 0;
 			let hi = winners.length - 1;
 			while (lo < hi) {
-				nextRound.games.push(new SeasonGame(
-					nextPlayoffGameId(),
-					0,
-					winners[lo],
-					winners[hi],
-					false,
-				));
+				nextRound.games.push(
+					new SeasonGame(nextPlayoffGameId(), 0, winners[lo], winners[hi], false)
+				);
 				lo += 1;
 				hi -= 1;
 			}
@@ -222,16 +216,12 @@ export class PlayoffBracket {
 			return true;
 		}
 		const finalRound = this.rounds[this.rounds.length - 1];
-		return finalRound.games.every(g => g.status === 'final');
+		return finalRound.games.every((g) => g.status === 'final');
 	}
 
 	//============================================
 	// Simulate a non-player playoff game using team strengths
-	simulatePlayoffGame(
-		game: SeasonGame,
-		homeStrength: number,
-		awayStrength: number,
-	): void {
+	simulatePlayoffGame(game: SeasonGame, homeStrength: number, awayStrength: number): void {
 		// Playoff games use tighter margins than regular season
 		const homeBase = Math.floor((homeStrength / 100) * 28) + randomInRange(3, 14);
 		const awayBase = Math.floor((awayStrength / 100) * 28) + randomInRange(3, 14);
@@ -242,8 +232,8 @@ export class PlayoffBracket {
 
 		// No ties in playoffs: overtime if needed
 		if (homeScore === awayScore) {
-				const overtimePoints = rollOvertimePoints();
-			const winProb = 0.5 + ((homeStrength - awayStrength) / 200);
+			const overtimePoints = rollOvertimePoints();
+			const winProb = 0.5 + (homeStrength - awayStrength) / 200;
 			if (rand() < winProb) {
 				homeScore += overtimePoints;
 			} else {
@@ -257,10 +247,7 @@ export class PlayoffBracket {
 
 //============================================
 // Create an HS playoff bracket (top 4 from conference)
-export function createHSPlayoffBracket(
-	seeds: PlayoffSeed[],
-	playerTeamId: TeamId,
-): PlayoffBracket {
+export function createHSPlayoffBracket(seeds: PlayoffSeed[], playerTeamId: TeamId): PlayoffBracket {
 	const bracket = new PlayoffBracket(seeds.slice(0, 4), playerTeamId);
 	// Build 2-round bracket with pre-created rounds
 	bracket.rounds = [
@@ -273,12 +260,12 @@ export function createHSPlayoffBracket(
 		console.warn(`HS playoff bracket needs 4 seeds, got ${sorted.length}`);
 	}
 	if (sorted.length >= 4) {
-		bracket.rounds[0].games.push(new SeasonGame(
-			nextPlayoffGameId(), 0, sorted[0].teamId, sorted[3].teamId, true,
-		));
-		bracket.rounds[0].games.push(new SeasonGame(
-			nextPlayoffGameId(), 0, sorted[1].teamId, sorted[2].teamId, true,
-		));
+		bracket.rounds[0].games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, sorted[0].teamId, sorted[3].teamId, true)
+		);
+		bracket.rounds[0].games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, sorted[1].teamId, sorted[2].teamId, true)
+		);
 	}
 	return bracket;
 }
@@ -287,7 +274,7 @@ export function createHSPlayoffBracket(
 // Create a college playoff bracket (conference championship + 4-team CFP)
 export function createCollegePlayoffBracket(
 	seeds: PlayoffSeed[],
-	playerTeamId: TeamId,
+	playerTeamId: TeamId
 ): PlayoffBracket {
 	const bracket = new PlayoffBracket(seeds.slice(0, 4), playerTeamId);
 	bracket.rounds = [
@@ -299,12 +286,12 @@ export function createCollegePlayoffBracket(
 		console.warn(`College playoff bracket needs 4 seeds, got ${sorted.length}`);
 	}
 	if (sorted.length >= 4) {
-		bracket.rounds[0].games.push(new SeasonGame(
-			nextPlayoffGameId(), 0, sorted[0].teamId, sorted[3].teamId, false,
-		));
-		bracket.rounds[0].games.push(new SeasonGame(
-			nextPlayoffGameId(), 0, sorted[1].teamId, sorted[2].teamId, false,
-		));
+		bracket.rounds[0].games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, sorted[0].teamId, sorted[3].teamId, false)
+		);
+		bracket.rounds[0].games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, sorted[1].teamId, sorted[2].teamId, false)
+		);
 	}
 	return bracket;
 }
@@ -314,7 +301,7 @@ export function createCollegePlayoffBracket(
 // 1-seed gets bye in wild card round
 export function createNFLPlayoffBracket(
 	seeds: PlayoffSeed[],
-	playerTeamId: TeamId,
+	playerTeamId: TeamId
 ): PlayoffBracket {
 	const bracket = new PlayoffBracket(seeds.slice(0, 7), playerTeamId);
 	bracket.rounds = [
@@ -330,15 +317,15 @@ export function createNFLPlayoffBracket(
 		console.warn(`NFL playoff bracket needs 7 seeds, got ${sorted.length}`);
 	}
 	if (sorted.length >= 7) {
-		bracket.rounds[0].games.push(new SeasonGame(
-			nextPlayoffGameId(), 0, sorted[1].teamId, sorted[6].teamId, true,
-		));
-		bracket.rounds[0].games.push(new SeasonGame(
-			nextPlayoffGameId(), 0, sorted[2].teamId, sorted[5].teamId, true,
-		));
-		bracket.rounds[0].games.push(new SeasonGame(
-			nextPlayoffGameId(), 0, sorted[3].teamId, sorted[4].teamId, true,
-		));
+		bracket.rounds[0].games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, sorted[1].teamId, sorted[6].teamId, true)
+		);
+		bracket.rounds[0].games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, sorted[2].teamId, sorted[5].teamId, true)
+		);
+		bracket.rounds[0].games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, sorted[3].teamId, sorted[4].teamId, true)
+		);
 	}
 
 	return bracket;

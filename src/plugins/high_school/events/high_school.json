@@ -4,11 +4,7 @@
 		"title": "Rival Runs His Mouth",
 		"description": "Your biggest rival just posted about how he's going to shut you down this Friday.",
 		"phase": "high_school",
-		"tags": [
-			"rival",
-			"confidence",
-			"social"
-		],
+		"tags": ["rival", "confidence", "social"],
 		"weight": 8,
 		"is_big_decision": false,
 		"conditions": {
@@ -49,11 +45,7 @@
 		"title": "Rival on Opposite Team This Week",
 		"description": "You just found out you're facing your biggest rival this Friday. He's been waiting for this matchup.",
 		"phase": "high_school",
-		"tags": [
-			"rival",
-			"athleticism",
-			"big_decision"
-		],
+		"tags": ["rival", "athleticism", "big_decision"],
 		"weight": 7,
 		"is_big_decision": false,
 		"conditions": {
@@ -94,11 +86,7 @@
 		"title": "Rival Spreads a Rumor About You",
 		"description": "Your rival started a false rumor at school about your recruiting interest. It's spreading.",
 		"phase": "high_school",
-		"tags": [
-			"rival",
-			"popularity",
-			"social"
-		],
+		"tags": ["rival", "popularity", "social"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
@@ -139,11 +127,7 @@
 		"title": "Your Rival Got Injured",
 		"description": "The rival who's been getting under your skin just suffered a season-ending injury.",
 		"phase": "high_school",
-		"tags": [
-			"rival",
-			"discipline",
-			"leadership"
-		],
+		"tags": ["rival", "discipline", "leadership"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -185,11 +169,7 @@
 		"title": "Your Rival Gets Promoted to Varsity",
 		"description": "The freshman you've been competing with just made varsity. Now you're finally going head-to-head for real.",
 		"phase": "high_school",
-		"tags": [
-			"rival",
-			"confidence",
-			"athleticism"
-		],
+		"tags": ["rival", "confidence", "athleticism"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -231,11 +211,7 @@
 		"title": "You Sprain Your Ankle Bad",
 		"description": "During practice, you roll your ankle hard. The trainer says it's a bad sprain. You're not sure you can play Friday.",
 		"phase": "high_school",
-		"tags": [
-			"injury",
-			"health",
-			"leadership"
-		],
+		"tags": ["injury", "health", "leadership"],
 		"weight": 7,
 		"is_big_decision": false,
 		"conditions": {
@@ -277,11 +253,7 @@
 		"title": "Hard Hit Leaves You Seeing Stars",
 		"description": "You take a brutal shot to the head in practice. Everything spins for a moment. The trainer pulls you out to check for concussion.",
 		"phase": "high_school",
-		"tags": [
-			"injury",
-			"health",
-			"discipline"
-		],
+		"tags": ["injury", "health", "discipline"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
@@ -323,11 +295,7 @@
 		"title": "Your ACL Just Went",
 		"description": "Non-contact injury during a drill. You heard the pop. You know it's bad. The trainer's face confirms it.",
 		"phase": "high_school",
-		"tags": [
-			"injury",
-			"health",
-			"big_decision"
-		],
+		"tags": ["injury", "health", "big_decision"],
 		"weight": 3,
 		"is_big_decision": false,
 		"conditions": {
@@ -368,11 +336,7 @@
 		"title": "Your Shoulder Has Been Aching",
 		"description": "That shoulder injury from last season never fully healed. It's nagging you every game. Should you get it looked at?",
 		"phase": "high_school",
-		"tags": [
-			"injury",
-			"health",
-			"discipline"
-		],
+		"tags": ["injury", "health", "discipline"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -414,11 +378,7 @@
 		"title": "College Scout Watching Practice",
 		"description": "You notice a coach with a clipboard on the sideline. He's taking notes on you. This is real.",
 		"phase": "high_school",
-		"tags": [
-			"recruiting",
-			"confidence",
-			"popularity"
-		],
+		"tags": ["recruiting", "confidence", "popularity"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
@@ -460,11 +420,7 @@
 		"title": "Your Dream School Offers You",
 		"description": "The mail finally came. That envelope from your dream school is right there. Your hands are shaking.",
 		"phase": "high_school",
-		"tags": [
-			"recruiting",
-			"confidence",
-			"big_decision"
-		],
+		"tags": ["recruiting", "confidence", "big_decision"],
 		"weight": 4,
 		"is_big_decision": true,
 		"conditions": {
@@ -510,11 +466,7 @@
 		"title": "Visit Campus Visit Weekend",
 		"description": "Your top school invited you for an official visit. You're flying out Friday to see the campus and meet coaches.",
 		"phase": "high_school",
-		"tags": [
-			"recruiting",
-			"popularity",
-			"confidence"
-		],
+		"tags": ["recruiting", "popularity", "confidence"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -559,11 +511,7 @@
 		"title": "Top Program Stops Recruiting You",
 		"description": "The school you thought was your lock just told your coach they're moving on. They found someone bigger.",
 		"phase": "high_school",
-		"tags": [
-			"recruiting",
-			"discipline",
-			"confidence"
-		],
+		"tags": ["recruiting", "discipline", "confidence"],
 		"weight": 4,
 		"is_big_decision": false,
 		"conditions": {
@@ -607,11 +555,7 @@
 		"title": "Coach Wants You to Switch Positions",
 		"description": "Coach pulled you aside. He thinks you'd be better at a different position. It's an opportunity, but it's scary.",
 		"phase": "high_school",
-		"tags": [
-			"big_decision",
-			"discipline",
-			"footballIq"
-		],
+		"tags": ["big_decision", "discipline", "footballIq"],
 		"weight": 2,
 		"is_big_decision": true,
 		"conditions": {
@@ -653,11 +597,7 @@
 		"title": "Better Program Wants You to Transfer",
 		"description": "A powerhouse school reached out. They want to take you as a transfer. This is a once-in-a-lifetime opportunity.",
 		"phase": "high_school",
-		"tags": [
-			"big_decision",
-			"confidence",
-			"leadership"
-		],
+		"tags": ["big_decision", "confidence", "leadership"],
 		"weight": 2,
 		"is_big_decision": true,
 		"conditions": {
@@ -705,11 +645,7 @@
 		"title": "Coach Threatens to Bench You",
 		"description": "Coach called you out in front of the team. Said if you don't fix your attitude, you're coming off the field.",
 		"phase": "high_school",
-		"tags": [
-			"coach",
-			"discipline",
-			"confidence"
-		],
+		"tags": ["coach", "discipline", "confidence"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -751,11 +687,7 @@
 		"title": "Coach Praises Your Film in Front of Team",
 		"description": "Coach shows your highlights to the whole team. He's using you as the example of how to play the position right.",
 		"phase": "high_school",
-		"tags": [
-			"coach",
-			"confidence",
-			"leadership"
-		],
+		"tags": ["coach", "confidence", "leadership"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
@@ -800,11 +732,7 @@
 		"title": "Your Rival Just Broke Your School Record",
 		"description": "The guy you've been competing with all season just posted the best stats in school history. And he did it in a game you sat out with injury.",
 		"phase": "high_school",
-		"tags": [
-			"rival",
-			"confidence",
-			"motivation"
-		],
+		"tags": ["rival", "confidence", "motivation"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
@@ -846,11 +774,7 @@
 		"title": "Your Rival Got a Scholarship Offer First",
 		"description": "You just heard through the grapevine that your rival committed to a big program. They haven't offered you yet.",
 		"phase": "high_school",
-		"tags": [
-			"rival",
-			"recruiting",
-			"confidence"
-		],
+		"tags": ["rival", "recruiting", "confidence"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
@@ -894,11 +818,7 @@
 		"title": "Your Rival Texts You Before the Big Game",
 		"description": "He wants to grab food with you the night before the rival game. Says he wants to 'squash the beef' before Friday.",
 		"phase": "high_school",
-		"tags": [
-			"rival",
-			"social",
-			"leadership"
-		],
+		"tags": ["rival", "social", "leadership"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -939,11 +859,7 @@
 		"title": "Rival's Coach Disrespects Your Program",
 		"description": "You overhear your rival's coach in the hallway talking trash about your team's defense. His words are designed to reach you.",
 		"phase": "high_school",
-		"tags": [
-			"rival",
-			"coach",
-			"leadership"
-		],
+		"tags": ["rival", "coach", "leadership"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -985,11 +901,7 @@
 		"title": "Your Best Teammate Got Seriously Injured",
 		"description": "Your guy went down hard in practice. ACL, torn ACL. He's out for the season. You watched it happen.",
 		"phase": "high_school",
-		"tags": [
-			"injury",
-			"leadership",
-			"discipline"
-		],
+		"tags": ["injury", "leadership", "discipline"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -1031,11 +943,7 @@
 		"title": "Cleared to Play But Still Hurting",
 		"description": "The trainer says you're good to go. Medically cleared. But that shoulder still aches. It's not injured, it's just... sore.",
 		"phase": "high_school",
-		"tags": [
-			"injury",
-			"health",
-			"discipline"
-		],
+		"tags": ["injury", "health", "discipline"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -1077,11 +985,7 @@
 		"title": "You Twisted Your Ankle Just Walking to School",
 		"description": "Of all the ways to get hurt, you twisted your ankle on the sidewalk. Going to school. Not even at football.",
 		"phase": "high_school",
-		"tags": [
-			"injury",
-			"health",
-			"discipline"
-		],
+		"tags": ["injury", "health", "discipline"],
 		"weight": 4,
 		"is_big_decision": false,
 		"conditions": {
@@ -1122,11 +1026,7 @@
 		"title": "Small School Offers Full Ride, Dream School Silent",
 		"description": "A smaller D1 program offered you a full scholarship. Your dream school? Still no offer, but you're on their radar.",
 		"phase": "high_school",
-		"tags": [
-			"recruiting",
-			"big_decision",
-			"confidence"
-		],
+		"tags": ["recruiting", "big_decision", "confidence"],
 		"weight": 3,
 		"is_big_decision": true,
 		"conditions": {
@@ -1173,11 +1073,7 @@
 		"title": "Your Recruiting Ranking Dropped After Bad Game",
 		"description": "You had a rough game. Real rough. Now recruiting sites dropped your ranking. A star became three stars.",
 		"phase": "high_school",
-		"tags": [
-			"recruiting",
-			"confidence",
-			"discipline"
-		],
+		"tags": ["recruiting", "confidence", "discipline"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -1221,11 +1117,7 @@
 		"title": "Your Parents Can't Agree on Which College",
 		"description": "You have three offers. Mom wants the academic school. Dad wants the best football program. You're caught in the middle.",
 		"phase": "high_school",
-		"tags": [
-			"recruiting",
-			"big_decision",
-			"discipline"
-		],
+		"tags": ["recruiting", "big_decision", "discipline"],
 		"weight": 4,
 		"is_big_decision": true,
 		"conditions": {
@@ -1271,11 +1163,7 @@
 		"title": "National Signing Day-You're Not Signed Yet",
 		"description": "It's signing day. Every other top recruit is posting their announcements. You don't have an offer locked in yet.",
 		"phase": "high_school",
-		"tags": [
-			"recruiting",
-			"confidence",
-			"pressure"
-		],
+		"tags": ["recruiting", "confidence", "pressure"],
 		"weight": 4,
 		"is_big_decision": false,
 		"conditions": {
@@ -1320,11 +1208,7 @@
 		"title": "New Head Coach Just Got Hired Mid-Season",
 		"description": "Your head coach was fired. New guy just walked in Tuesday. Completely different system, different culture.",
 		"phase": "high_school",
-		"tags": [
-			"coach",
-			"discipline",
-			"leadership"
-		],
+		"tags": ["coach", "discipline", "leadership"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
@@ -1366,11 +1250,7 @@
 		"title": "Coach Just Named You Team Captain",
 		"description": "Coach pulled you aside before practice. He's giving you the captain's armband. This is yours now.",
 		"phase": "high_school",
-		"tags": [
-			"coach",
-			"leadership",
-			"big_decision"
-		],
+		"tags": ["coach", "leadership", "big_decision"],
 		"weight": 3,
 		"is_big_decision": true,
 		"conditions": {
@@ -1418,11 +1298,7 @@
 		"title": "Teammate Jealous You're Getting More Reps",
 		"description": "You're getting more playing time. Your teammate who used to start has been cold toward you. He feels passed over.",
 		"phase": "high_school",
-		"tags": [
-			"coach",
-			"leadership",
-			"social"
-		],
+		"tags": ["coach", "leadership", "social"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -1463,11 +1339,7 @@
 		"title": "Team Chemistry Is Falling Apart-You Need to Lead",
 		"description": "Cliques forming. Players bickering. Coach is losing control. The locker room feels divided right before playoffs.",
 		"phase": "high_school",
-		"tags": [
-			"coach",
-			"leadership",
-			"discipline"
-		],
+		"tags": ["coach", "leadership", "discipline"],
 		"weight": 6,
 		"is_big_decision": true,
 		"conditions": {
@@ -1514,11 +1386,7 @@
 		"title": "Your Grades Are Falling-Eligibility Risk",
 		"description": "Coach called you in. Your GPA just dropped below 2.5. You're at risk of losing eligibility. College scouts care about this too.",
 		"phase": "high_school",
-		"tags": [
-			"social",
-			"discipline",
-			"academic"
-		],
+		"tags": ["social", "discipline", "academic"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -1559,11 +1427,7 @@
 		"title": "Prom Night vs. Big Game Prep",
 		"description": "Prom is this Saturday. The biggest game of the season is Friday night. Your girlfriend wants you there. Coach expects you at the extra practice.",
 		"phase": "high_school",
-		"tags": [
-			"social",
-			"discipline",
-			"relationship"
-		],
+		"tags": ["social", "discipline", "relationship"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -1605,11 +1469,7 @@
 		"title": "Local Sports Journalist Wants to Interview You",
 		"description": "The local newspaper reached out. They want to do a feature on your recruiting journey and rise as a player. Could be great exposure.",
 		"phase": "high_school",
-		"tags": [
-			"social",
-			"popularity",
-			"confidence"
-		],
+		"tags": ["social", "popularity", "confidence"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -1653,11 +1513,7 @@
 		"title": "Your Highlight Reel Goes Viral",
 		"description": "Someone posted one of your plays on social media. It blew up. Thousands of shares, comments from Division 1 coaches.",
 		"phase": "high_school",
-		"tags": [
-			"social",
-			"confidence",
-			"recruiting"
-		],
+		"tags": ["social", "confidence", "recruiting"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -1702,11 +1558,7 @@
 		"title": "An Old Post of Yours Just Went Viral-Bad Way",
 		"description": "Something dumb you posted two years ago is circulating. Out of context. Recruiters are seeing it.",
 		"phase": "high_school",
-		"tags": [
-			"social",
-			"discipline",
-			"confidence"
-		],
+		"tags": ["social", "discipline", "confidence"],
 		"weight": 4,
 		"is_big_decision": false,
 		"conditions": {
@@ -1748,11 +1600,7 @@
 		"title": "Opportunity to Declare for Early Graduation",
 		"description": "A college program is offering you a slot if you graduate early this spring. It's a guaranteed path to a DI school.",
 		"phase": "high_school",
-		"tags": [
-			"big_decision",
-			"recruiting",
-			"confidence"
-		],
+		"tags": ["big_decision", "recruiting", "confidence"],
 		"weight": 2,
 		"is_big_decision": true,
 		"conditions": {
@@ -1799,11 +1647,7 @@
 		"title": "It's Down to Two Rival Schools",
 		"description": "Two great programs want you. They're conference rivals. One is flashy and famous. One is stable and traditional. You have to choose.",
 		"phase": "high_school",
-		"tags": [
-			"big_decision",
-			"recruiting",
-			"confidence"
-		],
+		"tags": ["big_decision", "recruiting", "confidence"],
 		"weight": 2,
 		"is_big_decision": true,
 		"conditions": {
@@ -1851,9 +1695,7 @@
 		"title": "Big Test Tomorrow",
 		"description": "You've got a major test coming up tomorrow. Do you study hard or skip to get extra practice in?",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {},
@@ -1881,9 +1723,7 @@
 		"title": "Teacher Offers Tutoring",
 		"description": "Your English teacher pulls you aside and offers to tutor you. She's noticed you struggling in her class.",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {},
@@ -1911,9 +1751,7 @@
 		"title": "Report Cards Are Out",
 		"description": "Your report card came in the mail today. Time to face the music with your parents.",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {},
@@ -1941,9 +1779,7 @@
 		"title": "You Made the Honor Roll",
 		"description": "Congratulations! Your grades earned you a spot on the honor roll. There's an assembly to celebrate.",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 4,
 		"is_big_decision": false,
 		"conditions": {
@@ -1974,9 +1810,7 @@
 		"title": "Homework Is Piling Up",
 		"description": "Between practice, games, and film study, homework is stacking up fast. What do you do?",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {},
@@ -2012,9 +1846,7 @@
 		"title": "Group Project Partner is Slacking",
 		"description": "Your partner on a group project isn't doing their share. The due date is in three days.",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {},
@@ -2050,9 +1882,7 @@
 		"title": "Coach Warns About Grades",
 		"description": "Coach pulls you aside: your grades are slipping. One more bad grade and you sit out. This is serious.",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 4,
 		"is_big_decision": false,
 		"conditions": {
@@ -2093,9 +1923,7 @@
 		"title": "Buddy Wants to Skip Class",
 		"description": "Your best friend suggests skipping class to get extra field time. \"Coach will love us for it,\" he says.",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {},
@@ -2132,9 +1960,7 @@
 		"title": "Prom vs. Big Practice",
 		"description": "Prom is the same night as the critical playoff practice. Two weeks before the big games. What's your priority?",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 3,
 		"is_big_decision": false,
 		"conditions": {
@@ -2175,9 +2001,7 @@
 		"title": "School Paper Wants Your Story",
 		"description": "The school newspaper wants to interview you about football, college dreams, and balancing school.",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 4,
 		"is_big_decision": false,
 		"conditions": {},
@@ -2205,9 +2029,7 @@
 		"title": "You Got Detention",
 		"description": "You got detention for being late to class again. This is getting ridiculous.",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {},
@@ -2242,9 +2064,7 @@
 		"title": "Time for Your Driver's License",
 		"description": "You're old enough to go for your driver's license now. Are you ready?",
 		"phase": "high_school",
-		"tags": [
-			"academic"
-		],
+		"tags": ["academic"],
 		"weight": 8,
 		"is_big_decision": true,
 		"conditions": {
@@ -2280,17 +2100,11 @@
 		"title": "Blitz Package Brings Heat",
 		"description": "The defense is sending extra pass rushers every play. Your line is struggling to keep them off you.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"pressure",
-			"athleticism"
-		],
+		"tags": ["game", "pressure", "athleticism"],
 		"weight": 7,
 		"is_big_decision": false,
 		"conditions": {
-			"positions": [
-				"QB"
-			],
+			"positions": ["QB"],
 			"min_week": 2,
 			"max_week": 14
 		},
@@ -2328,17 +2142,11 @@
 		"title": "The Red Sea Opens",
 		"description": "Your offensive line just created a huge hole. You've got open field ahead and a choice to make.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"athleticism",
-			"confidence"
-		],
+		"tags": ["game", "athleticism", "confidence"],
 		"weight": 7,
 		"is_big_decision": false,
 		"conditions": {
-			"positions": [
-				"RB"
-			],
+			"positions": ["RB"],
 			"min_week": 1,
 			"max_week": 14
 		},
@@ -2376,18 +2184,11 @@
 		"title": "The Ball Slips Through",
 		"description": "A perfectly thrown pass hits your hands and bounces away. Crowd is silent. This is on you.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"technique",
-			"discipline"
-		],
+		"tags": ["game", "technique", "discipline"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
-			"positions": [
-				"WR",
-				"TE"
-			],
+			"positions": ["WR", "TE"],
 			"min_week": 2,
 			"max_week": 14
 		},
@@ -2423,18 +2224,11 @@
 		"title": "Pancake Block of the Game",
 		"description": "You lock onto your man and drive him into the turf. Crowd goes wild. This is domination.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"athleticism",
-			"confidence"
-		],
+		"tags": ["game", "athleticism", "confidence"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
-			"positions": [
-				"OL",
-				"DL"
-			],
+			"positions": ["OL", "DL"],
 			"min_week": 1,
 			"max_week": 14
 		},
@@ -2471,17 +2265,11 @@
 		"title": "Kick to Win the Game",
 		"description": "Two seconds left. One timeout left. Your team down by 3. You're about to send everyone home happy or devastated.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"pressure",
-			"big_decision"
-		],
+		"tags": ["game", "pressure", "big_decision"],
 		"weight": 8,
 		"is_big_decision": true,
 		"conditions": {
-			"positions": [
-				"K"
-			],
+			"positions": ["K"],
 			"min_week": 3,
 			"max_week": 14
 		},
@@ -2519,11 +2307,7 @@
 		"title": "Homecoming Game - Full House",
 		"description": "Tonight's homecoming. The stadium is absolutely packed. Every eye in town is on you.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"big_game",
-			"popularity"
-		],
+		"tags": ["game", "big_game", "popularity"],
 		"weight": 7,
 		"is_big_decision": false,
 		"conditions": {
@@ -2564,11 +2348,7 @@
 		"title": "Senior Night Recognition",
 		"description": "You're being honored before the game. Your parents are on the field. This is emotional.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"big_decision",
-			"memories"
-		],
+		"tags": ["game", "big_decision", "memories"],
 		"weight": 6,
 		"is_big_decision": true,
 		"conditions": {
@@ -2610,11 +2390,7 @@
 		"title": "Win Gets You In the Playoffs",
 		"description": "This game is it. Win and you're in. The entire season comes down to these four quarters.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"big_decision",
-			"pressure"
-		],
+		"tags": ["game", "big_decision", "pressure"],
 		"weight": 8,
 		"is_big_decision": true,
 		"conditions": {
@@ -2655,11 +2431,7 @@
 		"title": "Prom Night vs. Game Day Practice",
 		"description": "Prom is this Saturday. But there's a mandatory team practice session that same day. Your date is waiting for an answer.",
 		"phase": "high_school",
-		"tags": [
-			"social",
-			"decision",
-			"discipline"
-		],
+		"tags": ["social", "decision", "discipline"],
 		"weight": 5,
 		"is_big_decision": true,
 		"conditions": {
@@ -2701,11 +2473,7 @@
 		"title": "School Play Audition Offer",
 		"description": "Drama teacher just asked if you'd audition for the spring play. Lead role. You're intrigued but football is your life.",
 		"phase": "high_school",
-		"tags": [
-			"social",
-			"decision",
-			"confidence"
-		],
+		"tags": ["social", "decision", "confidence"],
 		"weight": 4,
 		"is_big_decision": false,
 		"conditions": {
@@ -2745,10 +2513,7 @@
 		"title": "Part-Time Job Opportunity",
 		"description": "Local business just offered you weekend hours at good pay. Could help your family. But it cuts into training time.",
 		"phase": "high_school",
-		"tags": [
-			"decision",
-			"discipline"
-		],
+		"tags": ["decision", "discipline"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -2788,11 +2553,7 @@
 		"title": "Downpour on Game Day",
 		"description": "The rain is coming down hard. The field is soaked. Everything is slippery and weird. Adapt or die.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"weather",
-			"technique"
-		],
+		"tags": ["game", "weather", "technique"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
@@ -2831,11 +2592,7 @@
 		"title": "Snow Game - Historic Winter Storm",
 		"description": "A foot of snow just dumped overnight. Game is still on. This is old-school football weather.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"weather",
-			"athleticism"
-		],
+		"tags": ["game", "weather", "athleticism"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {
@@ -2875,11 +2632,7 @@
 		"title": "Extreme Heat and Humidity",
 		"description": "95 degrees, 90% humidity. The heat index is over 105. This is conditioning vs. skill today.",
 		"phase": "high_school",
-		"tags": [
-			"game",
-			"weather",
-			"athleticism"
-		],
+		"tags": ["game", "weather", "athleticism"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -2920,10 +2673,7 @@
 		"title": "Local Paper Front Page Feature",
 		"description": "The high school newspaper just published a big feature on you. Your popularity is officially through the roof.",
 		"phase": "high_school",
-		"tags": [
-			"popularity",
-			"social"
-		],
+		"tags": ["popularity", "social"],
 		"weight": 5,
 		"is_big_decision": false,
 		"conditions": {
@@ -2968,11 +2718,7 @@
 		"title": "Weird Pain During Practice",
 		"description": "You're feeling something in your knee or ankle that wasn't there before. Nothing major... yet. Report it or push through?",
 		"phase": "high_school",
-		"tags": [
-			"health",
-			"discipline",
-			"decision"
-		],
+		"tags": ["health", "discipline", "decision"],
 		"weight": 6,
 		"is_big_decision": false,
 		"conditions": {

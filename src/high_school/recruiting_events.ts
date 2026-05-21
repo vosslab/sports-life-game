@@ -18,10 +18,7 @@ import {
 	advanceSchoolInterestStates,
 	CollegeOffer,
 } from '../recruiting.js';
-import {
-	getSchoolsAtState,
-	countOffers,
-} from '../recruiting_profile.js';
+import { getSchoolsAtState, countOffers } from '../recruiting_profile.js';
 import {
 	resolveSchoolDisplayName,
 	getSchoolDivisionLabel,
@@ -33,17 +30,10 @@ import { showSigningDay, showWalkOnOptions } from './recruiting_offers.js';
 //============================================
 // Junior Pre-Season: "Summer Before Junior Year"
 // Camp, highlight reel, or training choice
-export function showJuniorPreseason(
-	player: Player,
-	ctx: CareerContext,
-	onDone: () => void,
-): void {
+export function showJuniorPreseason(player: Player, ctx: CareerContext, onDone: () => void): void {
 	// Initialize recruiting profile if needed
 	if (!player.recruitingProfile) {
-		player.recruitingProfile = initRecruitingProfile(
-			player,
-			ctx.ncaaSchools,
-		);
+		player.recruitingProfile = initRecruitingProfile(player, ctx.ncaaSchools);
 	}
 
 	// Set varsity flag for recruiting events
@@ -62,10 +52,10 @@ export function showJuniorPreseason(
 			action: () => {
 				// Camp performance roll
 				const campScore =
-					player.core.athleticism * 0.3
-					+ player.core.technique * 0.3
-					+ player.core.confidence * 0.2
-					+ randomInRange(-15, 15);
+					player.core.athleticism * 0.3 +
+					player.core.technique * 0.3 +
+					player.core.confidence * 0.2 +
+					randomInRange(-15, 15);
 
 				if (campScore >= 50) {
 					// Good camp
@@ -74,8 +64,8 @@ export function showJuniorPreseason(
 					modifyStat(player, 'technique', 2);
 					profile.campAttended = true;
 					ctx.addText(
-						'You crush it at the Elite Camp. Coaches are taking notice.'
-						+ ' Your forty time turns heads and your position drills are sharp.',
+						'You crush it at the Elite Camp. Coaches are taking notice.' +
+							' Your forty time turns heads and your position drills are sharp.'
 					);
 				} else {
 					// Disappointing camp
@@ -84,9 +74,9 @@ export function showJuniorPreseason(
 					modifyStat(player, 'confidence', -3);
 					profile.campAttended = true;
 					ctx.addText(
-						'The Elite Camp does not go as planned.'
-						+ ' Your forty time is disappointing and you struggle with'
-						+ ' the position drills. There is still time to recover.',
+						'The Elite Camp does not go as planned.' +
+							' Your forty time is disappointing and you struggle with' +
+							' the position drills. There is still time to recover.'
 					);
 				}
 
@@ -103,20 +93,20 @@ export function showJuniorPreseason(
 				if (profile.filmGrade === 'none') {
 					profile.filmGrade = 'serviceable';
 					ctx.addText(
-						'Your uncle helps edit your highlight reel for free.'
-						+ ' It is not perfect, but it shows your best plays.'
-						+ ' Coaches now have something to watch.',
+						'Your uncle helps edit your highlight reel for free.' +
+							' It is not perfect, but it shows your best plays.' +
+							' Coaches now have something to watch.'
 					);
 				} else if (profile.filmGrade === 'serviceable') {
 					profile.filmGrade = 'strong';
 					ctx.addText(
-						'Your coach helps you pick the strongest clips from sophomore'
-						+ ' and early junior footage. The reel is polished and shows real growth.',
+						'Your coach helps you pick the strongest clips from sophomore' +
+							' and early junior footage. The reel is polished and shows real growth.'
 					);
 				} else {
 					ctx.addText(
-						'You update your highlight reel with the latest footage.'
-						+ ' Every clip is carefully chosen to show your best work.',
+						'You update your highlight reel with the latest footage.' +
+							' Every clip is carefully chosen to show your best work.'
 					);
 				}
 				profile.buzz = Math.min(100, profile.buzz + 8);
@@ -134,9 +124,9 @@ export function showJuniorPreseason(
 				modifyStat(player, 'technique', 2);
 				modifyStat(player, 'footballIq', 1);
 				ctx.addText(
-					'You spend the summer in the weight room and on the practice field.'
-					+ ' No camps, no social media. Just grinding.'
-					+ ' Your body is stronger and your fundamentals are sharper.',
+					'You spend the summer in the weight room and on the practice field.' +
+						' No camps, no social media. Just grinding.' +
+						' Your body is stronger and your fundamentals are sharper.'
 				);
 				ctx.updateStats(player);
 				showJuniorPreseasonNarrative(player, ctx);
@@ -148,11 +138,7 @@ export function showJuniorPreseason(
 
 //============================================
 // Junior Post-Season: offer review, visit, verbal commit
-export function showJuniorPostseason(
-	player: Player,
-	ctx: CareerContext,
-	onDone: () => void,
-): void {
+export function showJuniorPostseason(player: Player, ctx: CareerContext, onDone: () => void): void {
 	const profile = player.recruitingProfile;
 	if (!profile) {
 		onDone();
@@ -190,8 +176,8 @@ export function showJuniorPostseason(
 	// Academic warning if at risk
 	if (profile.academicStanding === 'at_risk') {
 		ctx.addText(
-			'Your counselor warns that your core GPA is drifting toward the danger zone.'
-			+ ' Two schools have paused recruiting until your grades improve.',
+			'Your counselor warns that your core GPA is drifting toward the danger zone.' +
+				' Two schools have paused recruiting until your grades improve.'
 		);
 	}
 
@@ -207,11 +193,7 @@ export function showJuniorPostseason(
 				text: `Visit ${schoolName}`,
 				primary: false,
 				action: () => {
-					const impression = processVisit(
-						profile,
-						topOffer.schoolId,
-						'unofficial',
-					);
+					const impression = processVisit(profile, topOffer.schoolId, 'unofficial');
 					if (impression) {
 						ctx.addText(`You take an unofficial visit to ${schoolName}.`);
 						showVisitImpressionCard(ctx, impression, schoolName);
@@ -231,21 +213,16 @@ export function showJuniorPostseason(
 	const committableOffers = profile.schools.filter((s) => s.isCommittable);
 	if (committableOffers.length > 0) {
 		const topCommittable = committableOffers[0];
-		const commitSchoolName = resolveSchoolDisplayName(
-			topCommittable.schoolId,
-			ctx,
-		);
+		const commitSchoolName = resolveSchoolDisplayName(topCommittable.schoolId, ctx);
 		choices.push({
 			text: `Commit to ${commitSchoolName}`,
 			primary: false,
 			action: () => {
 				processCommitment(profile, topCommittable.schoolId);
-				ctx.addResult(
-					`${player.firstName} verbally commits to ${commitSchoolName}!`,
-				);
+				ctx.addResult(`${player.firstName} verbally commits to ${commitSchoolName}!`);
 				ctx.addText(
-					'The commitment is non-binding, but it is a major milestone.'
-					+ ' Coaches from other schools may back off now.',
+					'The commitment is non-binding, but it is a major milestone.' +
+						' Coaches from other schools may back off now.'
 				);
 				profile.eligibilityRegistered = true;
 				ctx.updateStats(player);
@@ -261,8 +238,8 @@ export function showJuniorPostseason(
 		primary: true,
 		action: () => {
 			ctx.addText(
-				'You decide to keep your options open heading into senior year.'
-				+ ' There is still time to build your profile and earn better offers.',
+				'You decide to keep your options open heading into senior year.' +
+					' There is still time to build your profile and earn better offers.'
 			);
 			profile.eligibilityRegistered = true;
 			ctx.updateStats(player);
@@ -276,11 +253,7 @@ export function showJuniorPostseason(
 
 //============================================
 // Senior Pre-Season: official visit, final reel, national showcase
-export function showSeniorPreseason(
-	player: Player,
-	ctx: CareerContext,
-	onDone: () => void,
-): void {
+export function showSeniorPreseason(player: Player, ctx: CareerContext, onDone: () => void): void {
 	const profile = player.recruitingProfile;
 	if (!profile) {
 		// Should not happen, but just advance
@@ -302,13 +275,13 @@ export function showSeniorPreseason(
 		if (affectedId) {
 			const schoolName = resolveSchoolDisplayName(affectedId, ctx);
 			ctx.addText(
-				`Breaking news: The head coach at ${schoolName} just took another job.`
-				+ ' Your relationship with that program resets to zero.',
+				`Breaking news: The head coach at ${schoolName} just took another job.` +
+					' Your relationship with that program resets to zero.'
 			);
 			if (profile.verbalCommit === affectedId) {
 				ctx.addText(
-					'You were committed there. The new staff has not confirmed your spot.'
-					+ ' Your commitment is in limbo.',
+					'You were committed there. The new staff has not confirmed your spot.' +
+						' Your commitment is in limbo.'
 				);
 			}
 		}
@@ -332,16 +305,12 @@ export function showSeniorPreseason(
 			text: `Official Visit: ${visitSchoolName}`,
 			primary: false,
 			action: () => {
-				const impression = processVisit(
-					profile,
-					topVisitSchool.schoolId,
-					'official',
-				);
+				const impression = processVisit(profile, topVisitSchool.schoolId, 'official');
 				if (impression) {
 					ctx.addText(
-						`You take an official visit to ${visitSchoolName}.`
-						+ ' The school flies you out, shows you the facilities, and rolls out'
-						+ ' the red carpet.',
+						`You take an official visit to ${visitSchoolName}.` +
+							' The school flies you out, shows you the facilities, and rolls out' +
+							' the red carpet.'
 					);
 					showVisitImpressionCard(ctx, impression, visitSchoolName);
 				}
@@ -363,8 +332,8 @@ export function showSeniorPreseason(
 			}
 			profile.buzz = Math.min(100, profile.buzz + 10);
 			ctx.addText(
-				'Your senior tape shows growth that coaches want to see.'
-				+ ` Film grade: ${profile.filmGrade}.`,
+				'Your senior tape shows growth that coaches want to see.' +
+					` Film grade: ${profile.filmGrade}.`
 			);
 			ctx.updateStats(player);
 			onDone();
@@ -378,10 +347,10 @@ export function showSeniorPreseason(
 		action: () => {
 			// High-variance camp event
 			const campScore =
-				player.core.athleticism * 0.3
-				+ player.core.technique * 0.3
-				+ player.core.confidence * 0.2
-				+ randomInRange(-20, 20);
+				player.core.athleticism * 0.3 +
+				player.core.technique * 0.3 +
+				player.core.confidence * 0.2 +
+				randomInRange(-20, 20);
 
 			if (campScore >= 55) {
 				profile.buzz = Math.min(100, profile.buzz + 15);
@@ -389,16 +358,16 @@ export function showSeniorPreseason(
 				// Generate new offers from schools not yet tracking
 				generateIncrementalOffers(profile, player, ctx.ncaaSchools, randomInRange(1, 2));
 				ctx.addText(
-					'You dominate the National Showcase. New schools are calling.'
-					+ ' Your stock is rising fast.',
+					'You dominate the National Showcase. New schools are calling.' +
+						' Your stock is rising fast.'
 				);
 			} else {
 				profile.buzz = Math.min(100, profile.buzz + 3);
 				profile.exposure = Math.min(100, profile.exposure + 5);
 				profile.showcaseAttended = true;
 				ctx.addText(
-					'The National Showcase is a mixed bag. You have some good reps'
-					+ ' but nothing that turns heads. The exposure still helps.',
+					'The National Showcase is a mixed bag. You have some good reps' +
+						' but nothing that turns heads. The exposure still helps.'
 				);
 			}
 			ctx.updateStats(player);
@@ -416,10 +385,7 @@ function showJuniorPreseasonNarrative(player: Player, ctx: CareerContext): void 
 	if (!profile) return;
 
 	const offerCount = countOffers(profile);
-	const narrativeOffers: CollegeOffer[] = getSchoolsAtState(
-		profile,
-		'soft_offer',
-	).map((s) => ({
+	const narrativeOffers: CollegeOffer[] = getSchoolsAtState(profile, 'soft_offer').map((s) => ({
 		collegeName: s.schoolId,
 		division: 'D1',
 		scholarshipType: s.scholarshipType,
@@ -429,6 +395,6 @@ function showJuniorPreseasonNarrative(player: Player, ctx: CareerContext): void 
 	const story = getRecruitingStory(player.recruitingStars, narrativeOffers);
 	ctx.addText(story);
 	ctx.addText(
-		`Schools watching: ${profile.schools.length} | Offers: ${offerCount} | Buzz: ${profile.buzz}`,
+		`Schools watching: ${profile.schools.length} | Offers: ${offerCount} | Buzz: ${profile.buzz}`
 	);
 }

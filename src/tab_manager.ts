@@ -16,9 +16,7 @@ import type { TabId } from './tabs.js';
 import type { WeekState } from './activities.js';
 import type { ScheduleEntry } from './team.js';
 import type { LeagueSeason } from './season/season_model.js';
-import {
-	updateTabBar, switchTab, setOnTabSwitch,
-} from './tabs.js';
+import { updateTabBar, switchTab, setOnTabSwitch } from './tabs.js';
 import * as ui from './ui/index.js';
 import { renderSocialTab } from './social/feed_render.js';
 
@@ -113,9 +111,7 @@ function refreshTabContent(tabId: TabId): void {
 		const playerTeam = activeSeason.getPlayerTeam();
 		if (playerTeam && playerTeam.conferenceId) {
 			const standings = activeSeason.getStandings(playerTeam.conferenceId);
-			const playerRow = standings.find(
-				r => r.teamId === activeSeason.playerTeamId
-			);
+			const playerRow = standings.find((r) => r.teamId === activeSeason.playerTeamId);
 			if (playerRow && (playerRow.conferenceWins > 0 || playerRow.conferenceLosses > 0)) {
 				lifeExtra = `Conference: ${playerRow.conferenceWins}-${playerRow.conferenceLosses}`;
 			}
@@ -194,7 +190,7 @@ function refreshTeamTab(player: Player, activeSeason: LeagueSeason | null): void
 	let week = player.currentWeek;
 	if (activeSeason) {
 		const seasonSchedule = activeSeason.getScheduleDisplay(activeSeason.playerTeamId);
-		schedule = seasonSchedule.map(row => ({
+		schedule = seasonSchedule.map((row) => ({
 			opponentName: row.opponentName,
 			opponentStrength: 0,
 			week: row.week,

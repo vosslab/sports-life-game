@@ -1,14 +1,15 @@
 // nfl.ts - NFL career phase with draft, seasons, and legacy
 
 import { Player, randomInRange, clampStat, modifyStat, createEmptySeasonStats } from './player.js';
+import nflTeamsCsv from './data/nfl_teams.csv';
 
 //============================================
 // NFL team data loaded from CSV
 export interface NFLTeamEntry {
-	name: string;       // "Arizona Cardinals"
-	mascot: string;     // "Cardinals"
-	city: string;       // "Phoenix"
-	division: string;   // "NFC West"
+	name: string; // "Arizona Cardinals"
+	mascot: string; // "Cardinals"
+	city: string; // "Phoenix"
+	division: string; // "NFC West"
 	conference: string; // "NFC"
 }
 
@@ -34,7 +35,7 @@ function parseNFLTeamLine(line: string): NFLTeamEntry | null {
 }
 
 //============================================
-// Load NFL teams from CSV file
+// Load NFL teams from bundled CSV import
 export async function loadNFLTeams(): Promise<NFLTeamEntry[]> {
 	// Return cached data if already loaded
 	if (cachedNFLTeams.length > 0) {
@@ -42,26 +43,17 @@ export async function loadNFLTeams(): Promise<NFLTeamEntry[]> {
 	}
 
 	const teams: NFLTeamEntry[] = [];
+	const lines = nflTeamsCsv.split('\n');
 
-	try {
-		const response = await fetch('src/data/nfl_teams.csv');
-		if (response.ok) {
-			const text = await response.text();
-			const lines = text.split('\n');
+	// Skip header line
+	for (let i = 1; i < lines.length; i++) {
+		const line = lines[i].trim();
+		if (line.length === 0) continue;
 
-			// Skip header line
-			for (let i = 1; i < lines.length; i++) {
-				const line = lines[i].trim();
-				if (line.length === 0) continue;
-
-				const team = parseNFLTeamLine(line);
-				if (team) {
-					teams.push(team);
-				}
-			}
+		const team = parseNFLTeamLine(line);
+		if (team) {
+			teams.push(team);
 		}
-	} catch (error) {
-		console.error('Failed to load NFL teams:', error);
 	}
 
 	cachedNFLTeams = teams;
@@ -124,17 +116,38 @@ export interface HallOfFameEligibility {
 //============================================
 // Fallback NFL team names (used only if CSV fails to load)
 const NFL_TEAMS_FALLBACK = [
-	'Arizona Cardinals', 'Atlanta Falcons', 'Baltimore Ravens',
-	'Buffalo Bills', 'Carolina Panthers', 'Chicago Bears',
-	'Cincinnati Bengals', 'Cleveland Browns', 'Dallas Cowboys',
-	'Denver Broncos', 'Detroit Lions', 'Green Bay Packers',
-	'Houston Texans', 'Indianapolis Colts', 'Jacksonville Jaguars',
-	'Kansas City Chiefs', 'Las Vegas Raiders', 'Los Angeles Chargers',
-	'Los Angeles Rams', 'Miami Dolphins', 'Minnesota Vikings',
-	'New England Patriots', 'New Orleans Saints', 'New York Giants',
-	'New York Jets', 'Philadelphia Eagles', 'Pittsburgh Steelers',
-	'San Francisco 49ers', 'Seattle Seahawks', 'Tampa Bay Buccaneers',
-	'Tennessee Titans', 'Washington Commanders'
+	'Arizona Cardinals',
+	'Atlanta Falcons',
+	'Baltimore Ravens',
+	'Buffalo Bills',
+	'Carolina Panthers',
+	'Chicago Bears',
+	'Cincinnati Bengals',
+	'Cleveland Browns',
+	'Dallas Cowboys',
+	'Denver Broncos',
+	'Detroit Lions',
+	'Green Bay Packers',
+	'Houston Texans',
+	'Indianapolis Colts',
+	'Jacksonville Jaguars',
+	'Kansas City Chiefs',
+	'Las Vegas Raiders',
+	'Los Angeles Chargers',
+	'Los Angeles Rams',
+	'Miami Dolphins',
+	'Minnesota Vikings',
+	'New England Patriots',
+	'New Orleans Saints',
+	'New York Giants',
+	'New York Jets',
+	'Philadelphia Eagles',
+	'Pittsburgh Steelers',
+	'San Francisco 49ers',
+	'Seattle Seahawks',
+	'Tampa Bay Buccaneers',
+	'Tennessee Titans',
+	'Washington Commanders',
 ];
 
 //============================================
@@ -142,7 +155,7 @@ const NFL_TEAMS_FALLBACK = [
 function getNFLTeamNames(): string[] {
 	const teams = getNFLTeams();
 	if (teams.length > 0) {
-		return teams.map(t => t.name);
+		return teams.map((t) => t.name);
 	}
 	return NFL_TEAMS_FALLBACK;
 }
@@ -160,57 +173,68 @@ export function getNFLDraftResult(player: Player): DraftResult {
 		// First round pick
 		round = 1;
 		pickRange = [1, 10];
-		narrative = 'Your name was called in the first round. The camera panned to you ' +
+		narrative =
+			'Your name was called in the first round. The camera panned to you ' +
 			'in the green room, emotions flooding your face. This was it.';
 	} else if (stock >= 70) {
 		// Early second round
 		round = Math.random() > 0.5 ? 1 : 2;
 		pickRange = round === 1 ? [20, 32] : [33, 50];
-		narrative = round === 1
-			? 'You heard your name in the first round. Not top 10, but still ' +
-				'early. The cameras caught you hugging your parents.'
-			: 'The second round started, and your name was called. Your moment ' +
-				'had finally arrived.';
+		narrative =
+			round === 1
+				? 'You heard your name in the first round. Not top 10, but still ' +
+					'early. The cameras caught you hugging your parents.'
+				: 'The second round started, and your name was called. Your moment ' +
+					'had finally arrived.';
 	} else if (stock >= 50) {
 		// Mid-round picks
 		round = 2 + Math.floor(Math.random() * 2);
 		const roundStart = round === 2 ? 33 : 97;
 		const roundEnd = round === 2 ? 96 : 160;
 		pickRange = [roundStart, Math.min(roundEnd, roundStart + 30)];
-		narrative = `You heard your name called in round ${round}. Not the headline ` +
+		narrative =
+			`You heard your name called in round ${round}. Not the headline ` +
 			`you wanted, but you were in. Now you had to prove it.`;
 	} else if (stock >= 30) {
 		// Late round
 		round = 4 + Math.floor(Math.random() * 3);
 		pickRange = [160 + (round - 4) * 70, 250];
-		narrative = 'The later rounds came and went. Your heart sank. Then, suddenly, ' +
-			'in round ' + round + ', your name was announced. Relief washed over you.';
+		narrative =
+			'The later rounds came and went. Your heart sank. Then, suddenly, ' +
+			'in round ' +
+			round +
+			', your name was announced. Relief washed over you.';
 	} else if (stock >= 10) {
 		// Undrafted free agent
 		round = 0;
 		pickRange = [1, 1];
-		narrative = 'Your name never got called. The rounds ended. You were undrafted. ' +
+		narrative =
+			'Your name never got called. The rounds ended. You were undrafted. ' +
 			'But teams immediately reached out with free agent deals. You had options.';
 	} else {
 		// Walk-on/training squad
 		round = 0;
 		pickRange = [1, 1];
-		narrative = 'Undrafted, undeterred. You signed with a team as an undrafted ' +
+		narrative =
+			'Undrafted, undeterred. You signed with a team as an undrafted ' +
 			'free agent. This was your last shot. You had to make it stick.';
 	}
 
-	const pick = round === 0 ? 0 :
-		randomInRange(pickRange[0], Math.min(pickRange[1], 260));
+	const pick = round === 0 ? 0 : randomInRange(pickRange[0], Math.min(pickRange[1], 260));
 
 	const teamNames = getNFLTeamNames();
 	const team = teamNames[randomInRange(0, teamNames.length - 1)];
 
 	let storyText = '';
 	if (round === 0) {
-		storyText = narrative + ` You signed with the ${team} as an undrafted ` +
+		storyText =
+			narrative +
+			` You signed with the ${team} as an undrafted ` +
 			`free agent. The training camp battle begins.`;
 	} else {
-		storyText = narrative + ` The ${team} selected you. The cameras flashed. ` +
+		storyText =
+			narrative +
+			` The ${team} selected you. The cameras flashed. ` +
 			`You put on the hat. Your NFL career had begun.`;
 	}
 
@@ -219,10 +243,7 @@ export function getNFLDraftResult(player: Player): DraftResult {
 
 //============================================
 // Simulate one NFL season
-export function simulateNFLSeason(
-	player: Player,
-	year: number
-): NFLSeasonResult {
+export function simulateNFLSeason(player: Player, year: number): NFLSeasonResult {
 	// Stat decline with age using peak-at-27 bell curve
 	// Produces ~1.0 for ages 24-30, declines outside that range
 	// age 22 = 0.75, age 27 = 1.0, age 32 = 0.75, age 37 = 0.0
@@ -243,9 +264,7 @@ export function simulateNFLSeason(
 		playerStats['passingYards'] = Math.floor(
 			4000 * performanceMultiplier + randomInRange(-500, 500)
 		);
-		playerStats['touchdowns'] = Math.floor(
-			25 * performanceMultiplier + randomInRange(-5, 5)
-		);
+		playerStats['touchdowns'] = Math.floor(25 * performanceMultiplier + randomInRange(-5, 5));
 		playerStats['interceptions'] = Math.floor(
 			12 * (1 - performanceMultiplier * 0.5) + randomInRange(-2, 2)
 		);
@@ -253,39 +272,21 @@ export function simulateNFLSeason(
 		playerStats['rushingYards'] = Math.floor(
 			1200 * performanceMultiplier + randomInRange(-200, 200)
 		);
-		playerStats['touchdowns'] = Math.floor(
-			8 * performanceMultiplier + randomInRange(-2, 3)
-		);
-		playerStats['receptions'] = Math.floor(
-			40 * performanceMultiplier + randomInRange(-10, 10)
-		);
+		playerStats['touchdowns'] = Math.floor(8 * performanceMultiplier + randomInRange(-2, 3));
+		playerStats['receptions'] = Math.floor(40 * performanceMultiplier + randomInRange(-10, 10));
 	} else if (['WR', 'TE'].includes(player.position || '')) {
-		playerStats['receptions'] = Math.floor(
-			60 * performanceMultiplier + randomInRange(-15, 15)
-		);
+		playerStats['receptions'] = Math.floor(60 * performanceMultiplier + randomInRange(-15, 15));
 		playerStats['receivingYards'] = Math.floor(
 			850 * performanceMultiplier + randomInRange(-150, 150)
 		);
-		playerStats['touchdowns'] = Math.floor(
-			6 * performanceMultiplier + randomInRange(-2, 3)
-		);
+		playerStats['touchdowns'] = Math.floor(6 * performanceMultiplier + randomInRange(-2, 3));
 	} else if (player.position === 'LB' || player.position === 'S') {
-		playerStats['tackles'] = Math.floor(
-			100 * performanceMultiplier + randomInRange(-20, 20)
-		);
-		playerStats['sacks'] = Math.floor(
-			6 * performanceMultiplier + randomInRange(-2, 3)
-		);
-		playerStats['interceptions'] = Math.floor(
-			2 * performanceMultiplier + randomInRange(-1, 2)
-		);
+		playerStats['tackles'] = Math.floor(100 * performanceMultiplier + randomInRange(-20, 20));
+		playerStats['sacks'] = Math.floor(6 * performanceMultiplier + randomInRange(-2, 3));
+		playerStats['interceptions'] = Math.floor(2 * performanceMultiplier + randomInRange(-1, 2));
 	} else if (player.position === 'DL') {
-		playerStats['tackles'] = Math.floor(
-			60 * performanceMultiplier + randomInRange(-15, 15)
-		);
-		playerStats['sacks'] = Math.floor(
-			10 * performanceMultiplier + randomInRange(-3, 3)
-		);
+		playerStats['tackles'] = Math.floor(60 * performanceMultiplier + randomInRange(-15, 15));
+		playerStats['sacks'] = Math.floor(10 * performanceMultiplier + randomInRange(-3, 3));
 	}
 
 	// Salary based on year and performance
@@ -297,15 +298,17 @@ export function simulateNFLSeason(
 	const perfGrade = performanceMultiplier * 100;
 
 	if (wins >= 12) {
-		storyText = `You and your ${player.teamName} had a breakthrough year. ` +
-			`Playoff berth locked up.`;
+		storyText =
+			`You and your ${player.teamName} had a breakthrough year. ` + `Playoff berth locked up.`;
 	} else if (wins >= 9) {
 		storyText = `Another solid season. Your team competed in a tough division.`;
 	} else if (wins >= 6) {
-		storyText = `It was a disappointing season. Injuries, chemistry issues, and ` +
+		storyText =
+			`It was a disappointing season. Injuries, chemistry issues, and ` +
 			`inconsistent play plagued the team.`;
 	} else {
-		storyText = `A rough year. Your team struggled from the opening game. The ` +
+		storyText =
+			`A rough year. Your team struggled from the opening game. The ` +
 			`pressure mounted as losses piled up.`;
 	}
 
@@ -315,8 +318,8 @@ export function simulateNFLSeason(
 	} else if (perfGrade >= 60) {
 		storyText += ` You played well when healthy. The scouts were still watching.`;
 	} else if (perfGrade >= 40) {
-		storyText += ` Injuries limited you, and it showed in the stats. ` +
-			`Next year has to be better.`;
+		storyText +=
+			` Injuries limited you, and it showed in the stats. ` + `Next year has to be better.`;
 	} else {
 		storyText += ` You struggled all season. Questions about your future loomed.`;
 	}
@@ -352,14 +355,12 @@ export function simulateNFLSeason(
 
 //============================================
 // Get a midseason event with choices
-export function getNFLMidseasonEvent(
-	player: Player,
-	year: number
-): NFLMidseasonEvent {
+export function getNFLMidseasonEvent(player: Player, year: number): NFLMidseasonEvent {
 	const eventPool: NFLMidseasonEvent[] = [
 		{
 			title: 'Contract Extension Offered',
-			description: 'The front office wants to extend your deal. Big money, ' +
+			description:
+				'The front office wants to extend your deal. Big money, ' +
 				'but it ties you to the team for years.',
 			choices: [
 				{
@@ -369,7 +370,8 @@ export function getNFLMidseasonEvent(
 						discipline: -5,
 						popularity: 10,
 					},
-					flavor: 'You\'re locked in financially. Security and respect. ' +
+					flavor:
+						"You're locked in financially. Security and respect. " +
 						'Now you just have to keep performing.',
 				},
 				{
@@ -379,7 +381,8 @@ export function getNFLMidseasonEvent(
 						confidence: -8,
 						athleticism: -3,
 					},
-					flavor: 'You push back. The team doesn\'t like it. Media chaos ' +
+					flavor:
+						"You push back. The team doesn't like it. Media chaos " +
 						'ensues. But eventually, they cave.',
 				},
 				{
@@ -389,15 +392,15 @@ export function getNFLMidseasonEvent(
 						popularity: 5,
 						athleticism: 3,
 					},
-					flavor: 'You want to test free agency. One more year, then ' +
-						'the open market. The team isn\'t happy.',
+					flavor:
+						'You want to test free agency. One more year, then ' +
+						"the open market. The team isn't happy.",
 				},
 			],
 		},
 		{
 			title: 'Playoff Push at Midseason',
-			description: 'Your team is in the thick of the playoff race. ' +
-				'Every game matters now.',
+			description: 'Your team is in the thick of the playoff race. ' + 'Every game matters now.',
 			choices: [
 				{
 					text: 'Play through injury for the team',
@@ -407,8 +410,9 @@ export function getNFLMidseasonEvent(
 						popularity: 15,
 						draftStock: 8,
 					},
-					flavor: 'You gut it out. The team rallies around your toughness. ' +
-						'That\'s what champions do.',
+					flavor:
+						'You gut it out. The team rallies around your toughness. ' +
+						"That's what champions do.",
 				},
 				{
 					text: 'Take care of your body and manage workload',
@@ -417,7 +421,8 @@ export function getNFLMidseasonEvent(
 						athleticism: 5,
 						leadership: -5,
 					},
-					flavor: 'You\'re smart about your workload. Long-term thinking. ' +
+					flavor:
+						"You're smart about your workload. Long-term thinking. " +
 						'The coaches respect your professionalism.',
 				},
 				{
@@ -427,15 +432,15 @@ export function getNFLMidseasonEvent(
 						confidence: 10,
 						money: 5000000,
 					},
-					flavor: 'Playoff bonuses are huge. You dig deeper than you ever ' +
+					flavor:
+						'Playoff bonuses are huge. You dig deeper than you ever ' +
 						'have. Your name will be on highlight reels.',
 				},
 			],
 		},
 		{
 			title: 'Trade Rumors Swirling',
-			description: 'ESPN is reporting that a contender wants you. ' +
-				'Your future is uncertain.',
+			description: 'ESPN is reporting that a contender wants you. ' + 'Your future is uncertain.',
 			choices: [
 				{
 					text: 'Request a trade to a contender',
@@ -444,8 +449,9 @@ export function getNFLMidseasonEvent(
 						athleticism: 5,
 						popularity: 8,
 					},
-					flavor: 'You go to a championship-ready team. Suddenly, ' +
-						'you\'re a piece of the puzzle for something bigger.',
+					flavor:
+						'You go to a championship-ready team. Suddenly, ' +
+						"you're a piece of the puzzle for something bigger.",
 				},
 				{
 					text: 'Demand the team trade you',
@@ -454,7 +460,8 @@ export function getNFLMidseasonEvent(
 						discipline: -15,
 						popularity: -10,
 					},
-					flavor: 'You create drama. The locker room fractionalizes. ' +
+					flavor:
+						'You create drama. The locker room fractionalizes. ' +
 						'It gets ugly, but you eventually get your way.',
 				},
 				{
@@ -464,15 +471,17 @@ export function getNFLMidseasonEvent(
 						discipline: 10,
 						athleticism: 8,
 					},
-					flavor: 'You use the trade rumors as motivation. ' +
-						'If they don\'t want you, everyone else will.',
+					flavor:
+						'You use the trade rumors as motivation. ' +
+						"If they don't want you, everyone else will.",
 				},
 			],
 		},
 		{
 			title: 'Young Star Looks Up to You',
-			description: 'A rookie on the team wants you as a mentor. ' +
-				'It could distract from your own prep, but it\'s meaningful.',
+			description:
+				'A rookie on the team wants you as a mentor. ' +
+				"It could distract from your own prep, but it's meaningful.",
 			choices: [
 				{
 					text: 'Become a mentor and leader',
@@ -482,7 +491,8 @@ export function getNFLMidseasonEvent(
 						athleticism: -2,
 						popularity: 12,
 					},
-					flavor: 'You take the rookie under your wing. Your leadership ' +
+					flavor:
+						'You take the rookie under your wing. Your leadership ' +
 						'elevates the whole team. Culture matters.',
 				},
 				{
@@ -492,8 +502,8 @@ export function getNFLMidseasonEvent(
 						confidence: 8,
 						leadership: -8,
 					},
-					flavor: 'You don\'t have time for babysitting. Every rep is ' +
-						'about perfecting your craft.',
+					flavor:
+						"You don't have time for babysitting. Every rep is " + 'about perfecting your craft.',
 				},
 				{
 					text: 'Do both: balance mentorship and performance',
@@ -502,15 +512,14 @@ export function getNFLMidseasonEvent(
 						athleticism: 5,
 						discipline: 5,
 					},
-					flavor: 'You find a way. A quick word here, leading by example there. ' +
-						'Both flourish.',
+					flavor:
+						'You find a way. A quick word here, leading by example there. ' + 'Both flourish.',
 				},
 			],
 		},
 		{
 			title: 'Media Scrutiny and Criticism',
-			description: 'The press is questioning your decline. ' +
-				'Social media is brutal.',
+			description: 'The press is questioning your decline. ' + 'Social media is brutal.',
 			choices: [
 				{
 					text: 'Embrace it as motivation',
@@ -519,8 +528,7 @@ export function getNFLMidseasonEvent(
 						athleticism: 8,
 						discipline: 10,
 					},
-					flavor: 'You use the noise as fuel. The haters will see you ' +
-						'in the playoffs.',
+					flavor: 'You use the noise as fuel. The haters will see you ' + 'in the playoffs.',
 				},
 				{
 					text: 'Ignore it and focus inward',
@@ -529,8 +537,7 @@ export function getNFLMidseasonEvent(
 						discipline: 12,
 						popularity: -5,
 					},
-					flavor: 'You tune it all out. Headphones in, film on. ' +
-						'Only your teammates matter.',
+					flavor: 'You tune it all out. Headphones in, film on. ' + 'Only your teammates matter.',
 				},
 				{
 					text: 'Respond publicly and defend yourself',
@@ -539,8 +546,7 @@ export function getNFLMidseasonEvent(
 						popularity: -8,
 						discipline: -10,
 					},
-					flavor: 'You clap back on social media. It escalates. ' +
-						'Not your best look.',
+					flavor: 'You clap back on social media. It escalates. ' + 'Not your best look.',
 				},
 			],
 		},
@@ -561,7 +567,8 @@ export function checkRetirement(player: Player): RetirementDecision {
 	if (age >= 40) {
 		return {
 			shouldRetire: true,
-			storyText: `At ${age}, your body is done. Father Time always wins. ` +
+			storyText:
+				`At ${age}, your body is done. Father Time always wins. ` +
 				`The time to hang it up has come.`,
 		};
 	}
@@ -569,7 +576,8 @@ export function checkRetirement(player: Player): RetirementDecision {
 	if (health <= 30) {
 		return {
 			shouldRetire: true,
-			storyText: `Your injuries are too severe. Doctors advise retirement. ` +
+			storyText:
+				`Your injuries are too severe. Doctors advise retirement. ` +
 				`You\'re lucky to have made it this far.`,
 		};
 	}
@@ -587,17 +595,17 @@ export function checkRetirement(player: Player): RetirementDecision {
 
 	if (age >= 35) {
 		if (money >= 50000000) {
-			storyText = `You\'re ${age} years old and worth over $50M. ` +
+			storyText =
+				`You\'re ${age} years old and worth over $50M. ` +
 				`You could retire comfortably and pursue other dreams.`;
 			retirementChoice = Math.random() > 0.4;
 		} else {
-			storyText = `You\'re getting older. A few more good years ` +
-				`could set you up for life.`;
+			storyText = `You\'re getting older. A few more good years ` + `could set you up for life.`;
 		}
 	} else if (age >= 32) {
 		if (athleticism < 40) {
-			storyText = `The decline is real. At ${age}, you could still play, ` +
-				`but retirement is calling.`;
+			storyText =
+				`The decline is real. At ${age}, you could still play, ` + `but retirement is calling.`;
 			retirementChoice = Math.random() > 0.6;
 		} else {
 			storyText = `You still have great years ahead. The end isn\'t yet.`;
@@ -610,19 +618,16 @@ export function checkRetirement(player: Player): RetirementDecision {
 //============================================
 // Generate legacy summary
 export function generateLegacySummary(player: Player): string {
-	const careerLength = player.careerHistory.filter(r => r.phase === 'nfl').length;
+	const careerLength = player.careerHistory.filter((r) => r.phase === 'nfl').length;
 	const totalWins = player.careerHistory
-		.filter(r => r.phase === 'nfl')
+		.filter((r) => r.phase === 'nfl')
 		.reduce((sum, r) => sum + r.wins, 0);
 
-	let legacy = `${player.firstName} ${player.lastName} played ` +
+	let legacy =
+		`${player.firstName} ${player.lastName} played ` +
 		`${careerLength} seasons in the NFL with the `;
 
-	const teams = new Set(
-		player.careerHistory
-			.filter(r => r.phase === 'nfl')
-			.map(r => r.team)
-	);
+	const teams = new Set(player.careerHistory.filter((r) => r.phase === 'nfl').map((r) => r.team));
 	legacy += Array.from(teams).join(', ') + '.';
 
 	if (totalWins >= 100) {
@@ -649,24 +654,22 @@ export function generateLegacySummary(player: Player): string {
 //============================================
 // Check Hall of Fame eligibility (very strict)
 export function checkHallOfFame(player: Player): HallOfFameEligibility {
-	const nflYears = player.careerHistory.filter(r => r.phase === 'nfl').length;
+	const nflYears = player.careerHistory.filter((r) => r.phase === 'nfl').length;
 	const totalWins = player.careerHistory
-		.filter(r => r.phase === 'nfl')
+		.filter((r) => r.phase === 'nfl')
 		.reduce((sum, r) => sum + r.wins, 0);
-	const seasonRecords = player.careerHistory.filter(r => r.phase === 'nfl');
+	const seasonRecords = player.careerHistory.filter((r) => r.phase === 'nfl');
 
 	const achievements: string[] = [];
 
 	// Multiple Pro Bowls
-	const proBowls = seasonRecords.filter(r =>
-		r.awards.includes('Pro Bowl')
-	).length;
+	const proBowls = seasonRecords.filter((r) => r.awards.includes('Pro Bowl')).length;
 	if (proBowls >= 4) {
 		achievements.push(`${proBowls} Pro Bowl selections`);
 	}
 
 	// Super Bowl win(s)
-	const superBowlWins = seasonRecords.filter(r =>
+	const superBowlWins = seasonRecords.filter((r) =>
 		r.awards.includes('Super Bowl Selection')
 	).length;
 	if (superBowlWins >= 1) {
@@ -674,9 +677,7 @@ export function checkHallOfFame(player: Player): HallOfFameEligibility {
 	}
 
 	// All-Pro selections
-	const allPro = seasonRecords.filter(r =>
-		r.awards.includes('All-Pro')
-	).length;
+	const allPro = seasonRecords.filter((r) => r.awards.includes('All-Pro')).length;
 	if (allPro >= 3) {
 		achievements.push(`${allPro} All-Pro selections`);
 	}
@@ -689,17 +690,20 @@ export function checkHallOfFame(player: Player): HallOfFameEligibility {
 	const eligible =
 		(proBowls >= 5 && winPercentage >= 0.55) ||
 		(superBowlWins >= 1 && allPro >= 4) ||
-		(nflYears >= 12 && totalWins >= 120 && winPercentage >= 0.60);
+		(nflYears >= 12 && totalWins >= 120 && winPercentage >= 0.6);
 
 	let storyText = '';
 	if (eligible) {
-		storyText = `Your resume speaks for itself. One day, a call from ` +
+		storyText =
+			`Your resume speaks for itself. One day, a call from ` +
 			`Canton might come. You\'ve earned consideration.`;
 	} else if (achievements.length > 0) {
-		storyText = `A great career, but perhaps not quite Hall of Fame caliber. ` +
+		storyText =
+			`A great career, but perhaps not quite Hall of Fame caliber. ` +
 			`You\'ll always have your accomplishments to be proud of.`;
 	} else {
-		storyText = `You had a solid NFL career, but Hall of Fame was never ` +
+		storyText =
+			`You had a solid NFL career, but Hall of Fame was never ` +
 			`in the cards. That\'s okay. You made it to the league.`;
 	}
 
@@ -708,21 +712,14 @@ export function checkHallOfFame(player: Player): HallOfFameEligibility {
 
 //============================================
 // Apply midseason event choice effects
-export function applyNFLEventChoice(
-	player: Player,
-	effects: Record<string, number>
-): void {
+export function applyNFLEventChoice(player: Player, effects: Record<string, number>): void {
 	for (const [key, value] of Object.entries(effects)) {
 		if (key === 'money') {
 			player.career.money += value;
 		} else if (key === 'popularity') {
-			player.career.popularity = clampStat(
-				player.career.popularity + value
-			);
+			player.career.popularity = clampStat(player.career.popularity + value);
 		} else if (key === 'leadership') {
-			player.hidden.leadership = clampStat(
-				player.hidden.leadership + value
-			);
+			player.hidden.leadership = clampStat(player.hidden.leadership + value);
 		} else if (key === 'draftStock') {
 			player.draftStock = clampStat(player.draftStock + value);
 		} else if (key in player.core) {
@@ -764,7 +761,7 @@ const testPlayer: Player = {
 	activeCrisis: null,
 	scheduledCrises: [],
 	crisisTriggeredThisSeason: false,
-	relationships: { 'Coach': 80 },
+	relationships: { Coach: 80 },
 	storyFlags: {},
 	storyLog: [],
 	careerHistory: [],
@@ -795,13 +792,7 @@ const testPlayer: Player = {
 };
 
 const draftResult = getNFLDraftResult(testPlayer);
-console.assert(
-	getNFLTeamNames().includes(draftResult.team),
-	'Draft should assign valid NFL team'
-);
+console.assert(getNFLTeamNames().includes(draftResult.team), 'Draft should assign valid NFL team');
 
 const seasonResult = simulateNFLSeason(testPlayer, 1);
-console.assert(
-	seasonResult.wins >= 0 && seasonResult.wins <= 17,
-	'Season wins should be 0-17'
-);
+console.assert(seasonResult.wins >= 0 && seasonResult.wins <= 17, 'Season wins should be 0-17');

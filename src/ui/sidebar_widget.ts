@@ -130,7 +130,7 @@ export function updateSidebar(
 	weekState: WeekState | null,
 	opponent: string,
 	focusLabel: string,
-	seasonRecord?: string,
+	seasonRecord?: string
 ): void {
 	if (!isSidebarVisible()) {
 		return;
@@ -144,11 +144,7 @@ export function updateSidebar(
 
 //============================================
 // Show a milestone card in the story timeline
-export function showMilestoneCard(
-	title: string,
-	description: string,
-	impact: string,
-): void {
+export function showMilestoneCard(title: string, description: string, impact: string): void {
 	const storyLog = getElement('story-log');
 
 	const card = document.createElement('div');

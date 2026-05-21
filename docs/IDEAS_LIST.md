@@ -25,6 +25,7 @@ just capturing them for future reference.
 ## From BitLife spec comparison
 
 ### UX patterns we should adopt
+
 - **Bottom tab navigation**: BitLife has persistent tabs (Life, Relationships,
   Activities, Assets, Career). We have no tabs - everything is sequential.
   Adding a tab bar is the single highest-impact UX improvement.
@@ -43,18 +44,20 @@ just capturing them for future reference.
 - **Fast restart**: immediate new life option after death with minimal setup.
 
 ### Design principles from BitLife
+
 - "Soft simulation": directional control + hidden randomness. Player feels in
   charge but outcomes stay unpredictable.
 - Core engagement = fast life-story generation through repeated meaningful choices
 - Replay value = short runs, many goals, hidden outcome variance
 - Player fantasy = test "what if" lives with low friction and high consequence
-- BitLife uses only 4 visible stats (Health, Happiness, Smarts, Looks). We show
-  7. Consider: are we showing too many stats? Or does football justify more?
+- BitLife uses only 4 visible stats (Health, Happiness, Smarts, Looks). We show 7. Consider: are we showing too many stats? Or does football justify more?
 - Passive stat drift each year (we do this in childhood but not consistently later)
 
 ### Stat simplification question
+
 BitLife: 4 stats. The Show: many attributes but grouped by category.
 Our game: 7 visible + 3 hidden. Options:
+
 - Keep 7 visible (football justifies the detail)
 - Reduce to 5 visible, hide the rest (simpler, more BitLife-like)
 - Group stats into categories with expandable detail
@@ -63,6 +66,7 @@ Our game: 7 visible + 3 hidden. Options:
 ## From The Show '25/'26 expanded spec
 
 ### Engagement model (why it stays fun)
+
 - "Consistency with variation": same rules/controls, but context always changes.
   We need this for weekly loop - same structure, different situations each week.
 - Short feedback cycles: action -> result in seconds. Our choices should resolve
@@ -75,6 +79,7 @@ Our game: 7 visible + 3 hidden. Options:
   career identity. Career summary should feel like a biography.
 
 ### Simulation realism from The Show
+
 - **Team rating formula**: avg player rating + chemistry modifier + coach modifier.
   We should add chemistry (from teamwork focus) and coach bonus to team strength.
 - **Scout visibility score**: make recruiting a visible growing number, not just
@@ -89,12 +94,14 @@ Our game: 7 visible + 3 hidden. Options:
   but game performance should also drive growth (good passing game = technique up).
 
 ### Awards system improvements
+
 - Player of the Week: probabilistic, not guaranteed (implemented)
 - Seasonal awards: MVP, All-Conference, All-American should use voter simulation
   with bias for market size, team success, and narrative moments
 - End-of-career awards: track career totals for Hall of Fame eligibility
 
 ### Dynamic story layer
+
 - Rivalries should be persistent named characters, not just events
 - Coach relationships should affect playing time and development speed
 - Media pressure should affect confidence (high popularity = more scrutiny)

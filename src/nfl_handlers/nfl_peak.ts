@@ -48,15 +48,15 @@ export const nflPeakHandler: YearHandler = {
 		ctx.addHeadline(`Age ${player.age} - NFL Season ${player.nflYear}`);
 		ctx.addText(`${player.firstName} is in prime form with the ${player.teamName}.`);
 
-		ctx.waitForInteraction('Prime Years', [{
-			text: 'Start Season',
-			primary: true,
-			action: () => {
-				startSeason(player, ctx, SEASON_CONFIG, season,
-					() => handleSeasonEnd(player, ctx),
-				);
+		ctx.waitForInteraction('Prime Years', [
+			{
+				text: 'Start Season',
+				primary: true,
+				action: () => {
+					startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
+				},
 			},
-		}]);
+		]);
 	},
 
 	getSeasonConfig(): SeasonConfig {
@@ -90,7 +90,9 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
 				player.career.money += 5000000;
 				player.career.popularity = clampStat(player.career.popularity + 5);
 				modifyStat(player, 'discipline', -2);
-				ctx.addText(`${player.firstName} signs a $5M endorsement deal and becomes a household name.`);
+				ctx.addText(
+					`${player.firstName} signs a $5M endorsement deal and becomes a household name.`
+				);
 				ctx.updateStats(player);
 				advanceToNextYear(player, ctx);
 			},

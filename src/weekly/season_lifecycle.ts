@@ -4,7 +4,12 @@
 import { Player, createEmptySeasonStats } from '../player.js';
 import { CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { LeagueSeason } from '../season/season_model.js';
-import { PlayoffBracket, createHSPlayoffBracket, createCollegePlayoffBracket, createNFLPlayoffBracket } from '../season/playoff_bracket.js';
+import {
+	PlayoffBracket,
+	createHSPlayoffBracket,
+	createCollegePlayoffBracket,
+	createNFLPlayoffBracket,
+} from '../season/playoff_bracket.js';
 import { PlayoffSeed } from '../season/season_types.js';
 import { getArcPhase, getPhaseTransitionText } from '../season_arc.js';
 import { getPlayerOpponentName, simulateNonPlayerGames } from '../season/season_simulator.js';
@@ -21,7 +26,7 @@ export function startSeason(
 	ctx: CareerContext,
 	config: SeasonConfig,
 	season: LeagueSeason,
-	onSeasonEnd: () => void,
+	onSeasonEnd: () => void
 ): void {
 	// Reset player season tracking
 	player.currentWeek = 0;
@@ -111,9 +116,10 @@ export function advanceToNextWeek(player: Player, ctx: CareerContext): void {
 
 	// Detect arc phase and show transition text if phase changed
 	const arcPhase = getArcPhase(player.currentWeek, activeEngine.config.seasonLength);
-	const prevArcPhase = player.currentWeek > 1
-		? getArcPhase(player.currentWeek - 1, activeEngine.config.seasonLength)
-		: 'preseason';
+	const prevArcPhase =
+		player.currentWeek > 1
+			? getArcPhase(player.currentWeek - 1, activeEngine.config.seasonLength)
+			: 'preseason';
 	if (arcPhase !== prevArcPhase) {
 		ctx.addText(getPhaseTransitionText(arcPhase));
 	}
@@ -175,7 +181,7 @@ export function endSeason(player: Player, ctx: CareerContext): void {
 		const playerTeamId = activeEngine.season.playerTeamId;
 
 		// Find player's rank in standings
-		const playerRank = standings.findIndex(row => row.teamId === playerTeamId);
+		const playerRank = standings.findIndex((row) => row.teamId === playerTeamId);
 
 		// Determine playoff bracket type and size based on phase
 		let playoffSize = 4;
@@ -217,7 +223,11 @@ export function endSeason(player: Player, ctx: CareerContext): void {
 
 //============================================
 // Finalize the season: save to career history and call handler callback
-export function finalizeSeason(player: Player, ctx: CareerContext, isChampion: boolean = false): void {
+export function finalizeSeason(
+	player: Player,
+	ctx: CareerContext,
+	isChampion: boolean = false
+): void {
 	if (!activeEngine) {
 		return;
 	}

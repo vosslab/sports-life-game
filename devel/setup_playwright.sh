@@ -5,7 +5,7 @@
 # between every batch. This script installs the @playwright/test package
 # locally and the chromium browser. Idempotent; safe to rerun.
 #
-# Kept separate from setup_game.sh because the chromium download is
+# Kept separate from devel/setup_typescript.sh because the chromium download is
 # heavier than the rest of npm install and may be skipped on machines
 # where Playwright is already installed system-wide.
 

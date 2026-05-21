@@ -41,13 +41,7 @@ function repoRoot(): string {
 //============================================
 // Load and parse JSON file
 function loadChoiceFile(phase: string): WeeklyChoice[] {
-	const filePath = path.join(
-		repoRoot(),
-		'src',
-		'data',
-		'choices',
-		`${phase}.json`,
-	);
+	const filePath = path.join(repoRoot(), 'src', 'data', 'choices', `${phase}.json`);
 	const content = fs.readFileSync(filePath, 'utf8');
 	const data = JSON.parse(content);
 	return data;
@@ -108,7 +102,7 @@ function validateChoice(choice: unknown, phase: string): void {
 	if (Math.abs(probSum - 1.0) > tolerance) {
 		throw new Error(
 			`Choice ${c.id} in ${phase} probabilities do not sum to 1.0: ` +
-			`${success.probability} + ${failure.probability} = ${probSum}`,
+				`${success.probability} + ${failure.probability} = ${probSum}`
 		);
 	}
 }
@@ -119,27 +113,23 @@ function validateOutcome(
 	outcome: Record<string, unknown>,
 	choiceId: string,
 	phase: string,
-	kind: 'success' | 'failure',
+	kind: 'success' | 'failure'
 ): void {
 	if (typeof outcome.probability !== 'number') {
 		throw new Error(
-			`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid probability`,
+			`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid probability`
 		);
 	}
 	if (outcome.probability < 0 || outcome.probability > 1) {
 		throw new Error(
-			`Choice ${choiceId} in ${phase} ${kind} outcome probability ${outcome.probability} not in [0, 1]`,
+			`Choice ${choiceId} in ${phase} ${kind} outcome probability ${outcome.probability} not in [0, 1]`
 		);
 	}
 	if (typeof outcome.effects !== 'object' || outcome.effects === null) {
-		throw new Error(
-			`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid effects`,
-		);
+		throw new Error(`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid effects`);
 	}
 	if (typeof outcome.narrative !== 'string') {
-		throw new Error(
-			`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid narrative`,
-		);
+		throw new Error(`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid narrative`);
 	}
 
 	// Validate effects are all numbers
@@ -147,7 +137,7 @@ function validateOutcome(
 	for (const [key, val] of Object.entries(effects)) {
 		if (typeof val !== 'number') {
 			throw new Error(
-				`Choice ${choiceId} in ${phase} ${kind} outcome effect ${key} is not a number`,
+				`Choice ${choiceId} in ${phase} ${kind} outcome effect ${key} is not a number`
 			);
 		}
 	}

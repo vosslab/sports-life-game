@@ -18,7 +18,7 @@ function showModal(
 	description: string,
 	options: { text: string; description?: string; primary?: boolean; action: () => void }[],
 	styleClass: string,
-	autoHideOnClick: boolean,
+	autoHideOnClick: boolean
 ): void {
 	const modal = getElement('game-modal');
 	const card = modal.querySelector('.modal-card') as HTMLElement;
@@ -32,8 +32,11 @@ function showModal(
 
 	// Apply style class (remove previous theme first)
 	card.classList.remove(
-		'decision-style', 'narrative-style', 'activity-style',
-		'goal-style', 'clutch-style',
+		'decision-style',
+		'narrative-style',
+		'activity-style',
+		'goal-style',
+		'clutch-style'
 	);
 	if (styleClass) {
 		card.classList.add(styleClass);
@@ -80,8 +83,11 @@ function hideModal(): void {
 	const card = modal.querySelector('.modal-card') as HTMLElement;
 	modal.classList.add('hidden');
 	card.classList.remove(
-		'decision-style', 'narrative-style', 'activity-style',
-		'goal-style', 'clutch-style',
+		'decision-style',
+		'narrative-style',
+		'activity-style',
+		'goal-style',
+		'clutch-style'
 	);
 }
 
@@ -99,7 +105,7 @@ export function waitForInteraction(
 	title: string,
 	options: ChoiceOption[],
 	description?: string,
-	style?: string,
+	style?: string
 ): void {
 	// Single option: render as the main bottom button, not a popup
 	if (options.length === 1) {
@@ -236,23 +242,27 @@ export function initMainActionBar(): void {
 	ageBtn.addEventListener('click', () => {
 		if (onAgeUpCallback && !ageBtn.disabled) {
 			// Show confirmation popup before age-up
-			waitForInteraction('Simulate Year', [
-				{
-					text: 'Simulate Year',
-					primary: true,
-					action: () => {
-						if (onAgeUpCallback) {
-							onAgeUpCallback();
-						}
+			waitForInteraction(
+				'Simulate Year',
+				[
+					{
+						text: 'Simulate Year',
+						primary: true,
+						action: () => {
+							if (onAgeUpCallback) {
+								onAgeUpCallback();
+							}
+						},
 					},
-				},
-				{
-					text: 'Cancel',
-					action: () => {
-						// Popup auto-closes via hideInteractionPopup
+					{
+						text: 'Cancel',
+						action: () => {
+							// Popup auto-closes via hideInteractionPopup
+						},
 					},
-				},
-			], 'Simulate the rest of the year? All weekly decisions will be auto-resolved.');
+				],
+				'Simulate the rest of the year? All weekly decisions will be auto-resolved.'
+			);
 		}
 	});
 

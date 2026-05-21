@@ -8,28 +8,20 @@
 
 import assert from 'node:assert/strict';
 
-import { setupFetchMock } from './fixtures/fetch_mock.js';
-import type { YearHandler, CareerContext } from '../src/core/year_handler.js';
+import type { YearHandler } from '../src/core/year_handler.js';
 import { clearHandlers } from '../src/core/year_registry.js';
 import { buildPluginHost } from '../src/plugins/build_host.js';
 import { registerAllPlugins } from '../src/plugins/register_plugins.js';
 import { highSchoolPlugin } from '../src/plugins/high_school/index.js';
-import { preloadChildhoodActivities } from '../src/plugins/childhood/activities_loader.js';
-import { preloadChildhoodEvents } from '../src/plugins/childhood/events_loader.js';
-import { preloadHsActivities } from '../src/plugins/high_school/activities_loader.js';
-import { preloadHsEvents } from '../src/plugins/high_school/events_loader.js';
-import { preloadCollegeActivities } from '../src/plugins/college/activities_loader.js';
-import { preloadCollegeEvents } from '../src/plugins/college/events_loader.js';
-import { preloadNflActivities } from '../src/plugins/nfl/activities_loader.js';
-import { preloadNflEvents } from '../src/plugins/nfl/events_loader.js';
-import { preloadExamplePack } from '../src/plugins/high_school/packs/example_pack_loader.js';
-
-// Set up fetch mock for disk-based JSON loading
-setupFetchMock();
 import type { WeeklyChoice } from '../src/weekly/choices.js';
 import type { GameEvent } from '../src/events.js';
 import type { Activity } from '../src/activities.js';
-import type { AgeHook, PhaseStartHook, CareerEndHook, DataPack } from '../src/plugins/plugin_host.js';
+import type {
+	AgeHook,
+	PhaseStartHook,
+	CareerEndHook,
+	DataPack,
+} from '../src/plugins/plugin_host.js';
 import * as phaseReg from '../src/plugins/registries/phase_registry.js';
 import * as eventReg from '../src/plugins/registries/event_registry.js';
 import * as choiceReg from '../src/plugins/registries/choice_registry.js';
@@ -452,9 +444,18 @@ function testLifecycleHookIndependence(): void {
 	const phaseHooks = host.lifecycle.getPhaseStartHooks();
 	const careerHooks = host.lifecycle.getCareerEndHooks();
 
-	assert.ok(ageHooks.some((h) => h.id === 'age_hook_1'), 'AgeHook not registered');
-	assert.ok(phaseHooks.some((h) => h.id === 'phase_hook_1'), 'PhaseStartHook not registered');
-	assert.ok(careerHooks.some((h) => h.id === 'career_hook_1'), 'CareerEndHook not registered');
+	assert.ok(
+		ageHooks.some((h) => h.id === 'age_hook_1'),
+		'AgeHook not registered'
+	);
+	assert.ok(
+		phaseHooks.some((h) => h.id === 'phase_hook_1'),
+		'PhaseStartHook not registered'
+	);
+	assert.ok(
+		careerHooks.some((h) => h.id === 'career_hook_1'),
+		'CareerEndHook not registered'
+	);
 }
 
 //============================================
@@ -542,7 +543,7 @@ function testLifecycleRegistryClear(): void {
 	host.lifecycle.clear();
 
 	const hooks = host.lifecycle.getAgeHooks();
-	assert.ok(!hooks.find(h => h.id === 'test_age'), 'lifecycle registry clear failed');
+	assert.ok(!hooks.find((h) => h.id === 'test_age'), 'lifecycle registry clear failed');
 }
 
 //============================================
@@ -609,19 +610,10 @@ function testDataPackRouting(): void {
 
 //============================================
 // Test: boot order assertion (M3: plugin-only handler registration)
-// Verify: clearHandlers() -> buildPluginHost() -> preload -> registerAllPlugins()
-async function testBootOrder(): Promise<void> {
+// Verify: clearHandlers() -> buildPluginHost() -> registerAllPlugins()
+function testBootOrder(): void {
 	clearAllRegistries();
 	const host = buildPluginHost();
-	await preloadChildhoodActivities();
-	await preloadChildhoodEvents();
-	await preloadHsActivities();
-	await preloadHsEvents();
-	await preloadExamplePack();
-	await preloadCollegeActivities();
-	await preloadCollegeEvents();
-	await preloadNflActivities();
-	await preloadNflEvents();
 	registerAllPlugins(host);
 }
 
@@ -696,7 +688,10 @@ function testUiRegistryTabs(): void {
 
 	host.ui.registerTab(testTab);
 	const allTabs = host.ui.getAllTabs();
-	assert.ok(allTabs.some((t) => t.tabId === 'test_tab'), 'tab registry register and lookup failed');
+	assert.ok(
+		allTabs.some((t) => t.tabId === 'test_tab'),
+		'tab registry register and lookup failed'
+	);
 
 	// Test duplicate rejection
 	const dupTab = {
@@ -717,7 +712,7 @@ function testUiRegistryTabs(): void {
 	// Test clear
 	host.ui.clear();
 	const afterClear = host.ui.getAllTabs();
-	assert.ok(!afterClear.find(t => t.tabId === 'test_tab'), 'UI tab registry clear failed');
+	assert.ok(!afterClear.find((t) => t.tabId === 'test_tab'), 'UI tab registry clear failed');
 }
 
 //============================================
@@ -735,7 +730,10 @@ function testUiRegistryPanels(): void {
 
 	host.ui.registerPanel(testPanel);
 	const allPanels = host.ui.getAllPanels();
-	assert.ok(allPanels.some((p) => p.panelId === 'test_panel'), 'panel registry register and lookup failed');
+	assert.ok(
+		allPanels.some((p) => p.panelId === 'test_panel'),
+		'panel registry register and lookup failed'
+	);
 
 	// Test duplicate rejection
 	const dupPanel = {
@@ -756,7 +754,7 @@ function testUiRegistryPanels(): void {
 	// Test clear
 	host.ui.clear();
 	const afterClear = host.ui.getAllPanels();
-	assert.ok(!afterClear.find(p => p.panelId === 'test_panel'), 'UI panel registry clear failed');
+	assert.ok(!afterClear.find((p) => p.panelId === 'test_panel'), 'UI panel registry clear failed');
 }
 
 //============================================
@@ -773,7 +771,10 @@ function testUiRegistryWidgets(): void {
 
 	host.ui.registerWidget(testWidget);
 	const allWidgets = host.ui.getAllWidgets();
-	assert.ok(allWidgets.some((w) => w.widgetId === 'test_widget'), 'widget registry register and lookup failed');
+	assert.ok(
+		allWidgets.some((w) => w.widgetId === 'test_widget'),
+		'widget registry register and lookup failed'
+	);
 
 	// Test duplicate rejection
 	const dupWidget = {
@@ -793,7 +794,10 @@ function testUiRegistryWidgets(): void {
 	// Test clear
 	host.ui.clear();
 	const afterClear = host.ui.getAllWidgets();
-	assert.ok(!afterClear.find(w => w.widgetId === 'test_widget'), 'UI widget registry clear failed');
+	assert.ok(
+		!afterClear.find((w) => w.widgetId === 'test_widget'),
+		'UI widget registry clear failed'
+	);
 }
 
 //============================================
@@ -835,39 +839,24 @@ function testDataPackRegistry(): void {
 //============================================
 // Test: boot order NEGATIVE - core handlers should not be registered in core registerAllHandlers
 // (M2+: HS, childhood, college, NFL handlers now register via plugins, not via registerAllHandlers)
-async function testBootOrderNegativeNoHandlers(): Promise<void> {
+function testBootOrderNegativeNoHandlers(): void {
 	clearAllRegistries();
-	// Preload all plugins before registering, to test that registerAllPlugins succeeds independently
+	// Test that registerAllPlugins succeeds independently
 	// (independent of registerAllHandlers being called first)
-	await preloadChildhoodActivities();
-	await preloadChildhoodEvents();
-	await preloadHsActivities();
-	await preloadHsEvents();
-	await preloadExamplePack();
-	await preloadCollegeActivities();
-	await preloadCollegeEvents();
-	await preloadNflActivities();
-	await preloadNflEvents();
-
 	const host = buildPluginHost();
 	registerAllPlugins(host);
 
 	// After M2+, all phase handlers register via plugins, so phases will NOT be empty.
 	// This test verifies that plugin registration succeeds without needing registerAllHandlers.
 	const phases = host.phases.getAll();
-	assert.ok(
-		phases.length > 0,
-		'Phase handlers should be registered via plugins'
-	);
+	assert.ok(phases.length > 0, 'Phase handlers should be registered via plugins');
 }
 
 //============================================
 // Test: single plugin registration (M3: plugin-only model)
-async function testSinglePluginRegistration(): Promise<void> {
+function testSinglePluginRegistration(): void {
 	clearAllRegistries();
 	const host = buildPluginHost();
-	await preloadHsActivities();
-	await preloadHsEvents();
 	// Register only HS plugin to test that plugin registration works independently
 	highSchoolPlugin.register(host);
 }
@@ -915,9 +904,9 @@ async function main(): Promise<void> {
 	testLifecycleRegistryClear();
 
 	// Boot order tests
-	await testBootOrder();
-	await testBootOrderNegativeNoHandlers();
-	await testSinglePluginRegistration();
+	testBootOrder();
+	testBootOrderNegativeNoHandlers();
+	testSinglePluginRegistration();
 
 	console.log('test_plugin_host.ts: all tests passed');
 }

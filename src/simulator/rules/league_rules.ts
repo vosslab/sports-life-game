@@ -2,16 +2,16 @@
 
 export interface LeagueRules {
 	/** Unique identifier for the league */
-	id: "ihsa" | "fcs" | "nfl";
+	id: 'ihsa' | 'fcs' | 'nfl';
 
 	/** Tier of play (high school only) */
-	tier?: "frosh_soph" | "varsity";
+	tier?: 'frosh_soph' | 'varsity';
 
 	/** Length of each quarter in minutes */
 	quarterLengthMin: number;
 
 	/** Type of overtime rules to apply */
-	overtimeType: "hs" | "college" | "nfl";
+	overtimeType: 'hs' | 'college' | 'nfl';
 
 	/** Maximum successful field goal range in yards */
 	fieldGoalMaxRange: number;

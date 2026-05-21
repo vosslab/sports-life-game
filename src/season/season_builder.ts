@@ -48,10 +48,7 @@ export function generateRoundRobin(teamIds: TeamId[]): [TeamId, TeamId][] {
 // Select a subset of pairs from a round-robin, ensuring each team
 // appears a roughly equal number of times.
 // Returns up to `count` pairs.
-export function selectPairs(
-	pairs: [TeamId, TeamId][],
-	count: number,
-): [TeamId, TeamId][] {
+export function selectPairs(pairs: [TeamId, TeamId][], count: number): [TeamId, TeamId][] {
 	// Shuffle the pairs first
 	const shuffled = [...pairs];
 	shuffleArray(shuffled);
@@ -75,7 +72,7 @@ export function selectPairs(
 		tentativeTeams.add(a);
 		tentativeTeams.add(b);
 		// Allow each team in at most ceil(count / teamCount * 2) games
-		const maxPerTeam = Math.ceil(count * 2 / tentativeTeams.size);
+		const maxPerTeam = Math.ceil((count * 2) / tentativeTeams.size);
 		if (countA < maxPerTeam && countB < maxPerTeam) {
 			selected.push(pair);
 			teamCounts.set(a, countA + 1);
@@ -97,7 +94,7 @@ export function assignWeeksToGames(
 	pairs: [TeamId, TeamId][],
 	startWeek: number,
 	endWeek: number,
-	isConference: boolean = true,
+	isConference: boolean = true
 ): SeasonGame[] {
 	const games: SeasonGame[] = [];
 	const totalWeeks = endWeek - startWeek + 1;
@@ -145,7 +142,7 @@ export function generateNonConferenceGames(
 	teamId: TeamId,
 	opponentPool: TeamId[],
 	count: number,
-	weeks: number[],
+	weeks: number[]
 ): SeasonGame[] {
 	const games: SeasonGame[] = [];
 	const available = [...opponentPool];
@@ -154,7 +151,11 @@ export function generateNonConferenceGames(
 	// Track which team pairs have been scheduled to avoid duplicates
 	const scheduledPairs = new Set<string>();
 
-	for (let i = 0; i < available.length && games.length < count && games.length < weeks.length; i++) {
+	for (
+		let i = 0;
+		i < available.length && games.length < count && games.length < weeks.length;
+		i++
+	) {
 		const opponentId = available[i];
 
 		// Create a canonical pair representation for deduplication
@@ -187,7 +188,7 @@ export function generateNonConferenceGames(
 export function generateBipartiteRotation(
 	groupA: TeamId[],
 	groupB: TeamId[],
-	weeks: number,
+	weeks: number
 ): [TeamId, TeamId][][] {
 	if (groupA.length !== groupB.length) {
 		throw new Error('generateBipartiteRotation requires equal-size groups');
@@ -224,7 +225,7 @@ export function generateBipartiteRotation(
 // and every team plays roughly the same number of games (max-min <= 1).
 export function validateSchedule(
 	games: SeasonGame[],
-	seasonLength: number,
+	seasonLength: number
 ): { valid: boolean; errors: string[] } {
 	const errors: string[] = [];
 
@@ -248,7 +249,7 @@ export function validateSchedule(
 
 	// Check that every week has at least one game
 	for (let week = 1; week <= seasonLength; week++) {
-		const weekGames = games.filter(g => g.week === week);
+		const weekGames = games.filter((g) => g.week === week);
 		if (weekGames.length === 0) {
 			errors.push(`Week ${week} has no scheduled games`);
 		}
@@ -274,7 +275,7 @@ export function validateSchedule(
 				}
 			}
 			errors.push(
-				`Schedule imbalance: max ${max} games vs min ${min} games (${detail.join(', ')})`,
+				`Schedule imbalance: max ${max} games vs min ${min} games (${detail.join(', ')})`
 			);
 		}
 	}
@@ -298,9 +299,7 @@ export function shuffleArray<T>(array: T[]): void {
 // For N teams (must be even), produces (N-1) rounds of N/2 games each.
 // Every team plays exactly once per round. No conflicts.
 // Returns an array of rounds, where each round is an array of [home, away] pairs.
-export function generateRoundRobinRounds(
-	teamIds: TeamId[],
-): [TeamId, TeamId][][] {
+export function generateRoundRobinRounds(teamIds: TeamId[]): [TeamId, TeamId][][] {
 	// Must have even number of teams
 	const ids = [...teamIds];
 	if (ids.length % 2 !== 0) {
@@ -386,7 +385,12 @@ for (const round of rrRounds) {
 const bpRounds = generateBipartiteRotation(['a', 'b', 'c', 'd'], ['x', 'y', 'z', 'w'], 3);
 console.assert(bpRounds.length === 3, 'Bipartite: 3 rounds');
 console.assert(bpRounds[0].length === 4, 'Bipartite: 4 pairs per round');
-const bpOpponents: Record<string, Set<string>> = { a: new Set(), b: new Set(), c: new Set(), d: new Set() };
+const bpOpponents: Record<string, Set<string>> = {
+	a: new Set(),
+	b: new Set(),
+	c: new Set(),
+	d: new Set(),
+};
 for (const round of bpRounds) {
 	for (const [home, away] of round) {
 		const aTeam = ['a', 'b', 'c', 'd'].includes(home) ? home : away;
@@ -395,5 +399,8 @@ for (const round of bpRounds) {
 	}
 }
 for (const t of ['a', 'b', 'c', 'd']) {
-	console.assert(bpOpponents[t].size === 3, `Bipartite: team ${t} should play 3 distinct opponents, got ${bpOpponents[t].size}`);
+	console.assert(
+		bpOpponents[t].size === 3,
+		`Bipartite: team ${t} should play 3 distinct opponents, got ${bpOpponents[t].size}`
+	);
 }

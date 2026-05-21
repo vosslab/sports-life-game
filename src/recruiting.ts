@@ -6,29 +6,36 @@
 import { Player, randomInRange } from './player.js';
 import { NCAASchool } from './ncaa.js';
 import {
-	RecruitingProfile, SchoolInterest, SchoolRecord, OfferState, VisitImpression,
-	createRecruitingProfile, advanceOfferState, getSchoolById,
-	AcademicStanding, CoreProgress,
+	RecruitingProfile,
+	SchoolInterest,
+	SchoolRecord,
+	OfferState,
+	VisitImpression,
+	createRecruitingProfile,
+	advanceOfferState,
+	getSchoolById,
+	AcademicStanding,
+	CoreProgress,
 } from './recruiting_profile.js';
 
 //============================================
 // College offer from a recruiting school
 export interface CollegeOffer {
 	collegeName: string;
-	division: string;        // 'D1 Power 5' | 'D1 Group of 5' | 'D2' | 'D3'
+	division: string; // 'D1 Power 5' | 'D1 Group of 5' | 'D2' | 'D3'
 	scholarshipType: string; // 'full' | 'partial' | 'walk-on'
-	prestige: number;        // 1-100
-	interest: number;        // 1-100, how much they want the player
+	prestige: number; // 1-100
+	interest: number; // 1-100, how much they want the player
 }
 
 //============================================
 // Complete recruiting state for a player
 export interface RecruitingState {
-	stars: number;           // 0-5 star rating
+	stars: number; // 0-5 star rating
 	offers: CollegeOffer[];
 	committed: boolean;
 	committedTo: string | null;
-	overallRanking: number;  // regional ranking 1-500
+	overallRanking: number; // regional ranking 1-500
 }
 
 //============================================
@@ -48,7 +55,7 @@ const POWER5_COLLEGES = [
 	'Texas A&M',
 	'Nebraska',
 	'Florida',
-	'Notre Dame'
+	'Notre Dame',
 ];
 
 //============================================
@@ -65,7 +72,7 @@ const GROUP_OF_5_COLLEGES = [
 	'Air Force',
 	'Colorado State',
 	'Tulane',
-	'Temple'
+	'Temple',
 ];
 
 //============================================
@@ -87,7 +94,7 @@ const D2_D3_COLLEGES = [
 	'Holy Cross',
 	'Colby',
 	'Bowdoin',
-	'Union College'
+	'Union College',
 ];
 
 //============================================
@@ -143,11 +150,7 @@ function getRandomCollege(division: string): string {
 // 3 stars: 2-4 offers, Group of 5 and D2, partial scholarships
 // 2 stars: 0-2 offers, D2 and D3, partial or walk-on
 // 1 star: 0-1 offers, D3 or walk-on
-export function generateOffers(
-	player: Player,
-	stars: number,
-	seasonWins: number
-): CollegeOffer[] {
+export function generateOffers(player: Player, stars: number, seasonWins: number): CollegeOffer[] {
 	const offers: CollegeOffer[] = [];
 	const usedColleges = new Set<string>();
 
@@ -168,7 +171,7 @@ export function generateOffers(
 			offerCount = randomInRange(3, 6);
 			divisionList = [
 				...Array(Math.ceil(offerCount * 0.6)).fill('D1 Power 5'),
-				...Array(Math.floor(offerCount * 0.4)).fill('D1 Group of 5')
+				...Array(Math.floor(offerCount * 0.4)).fill('D1 Group of 5'),
 			];
 			scholarshipWeights = { full: 0.8, partial: 0.2, walkOn: 0.0 };
 			break;
@@ -178,7 +181,7 @@ export function generateOffers(
 			offerCount = randomInRange(2, 4);
 			divisionList = [
 				...Array(Math.ceil(offerCount * 0.5)).fill('D1 Group of 5'),
-				...Array(Math.floor(offerCount * 0.5)).fill('D2')
+				...Array(Math.floor(offerCount * 0.5)).fill('D2'),
 			];
 			scholarshipWeights = { full: 0.4, partial: 0.6, walkOn: 0.0 };
 			break;
@@ -188,7 +191,7 @@ export function generateOffers(
 			offerCount = randomInRange(0, 2);
 			divisionList = [
 				...Array(Math.ceil(offerCount * 0.5)).fill('D2'),
-				...Array(Math.floor(offerCount * 0.5)).fill('D3')
+				...Array(Math.floor(offerCount * 0.5)).fill('D3'),
 			];
 			scholarshipWeights = { full: 0.1, partial: 0.7, walkOn: 0.2 };
 			break;
@@ -221,10 +224,7 @@ export function generateOffers(
 		let scholarshipType: string;
 		if (scholarshipRoll < scholarshipWeights.full) {
 			scholarshipType = 'full';
-		} else if (
-			scholarshipRoll <
-			scholarshipWeights.full + scholarshipWeights.partial
-		) {
+		} else if (scholarshipRoll < scholarshipWeights.full + scholarshipWeights.partial) {
 			scholarshipType = 'partial';
 		} else {
 			scholarshipType = 'walk-on';
@@ -244,17 +244,14 @@ export function generateOffers(
 
 		// Interest level: based on stars + season performance
 		const baseInterest = stars * 15 + seasonWins * 2;
-		const interest = Math.min(
-			100,
-			baseInterest + randomInRange(-5, 10)
-		);
+		const interest = Math.min(100, baseInterest + randomInRange(-5, 10));
 
 		offers.push({
 			collegeName,
 			division,
 			scholarshipType,
 			prestige,
-			interest
+			interest,
 		});
 	}
 
@@ -263,15 +260,12 @@ export function generateOffers(
 
 //============================================
 // Generate narrative text about recruiting status
-export function getRecruitingStory(
-	stars: number,
-	offers: CollegeOffer[]
-): string {
+export function getRecruitingStory(stars: number, offers: CollegeOffer[]): string {
 	let story = '';
 
 	if (stars === 5) {
 		story =
-			'Your phone won\'t stop ringing. Every Power 5 program in the ' +
+			"Your phone won't stop ringing. Every Power 5 program in the " +
 			'country wants a piece of you. Coaches are lining up to ' +
 			'visit, and the prestige schools are pulling out all the stops ' +
 			'to get your commitment.';
@@ -279,11 +273,11 @@ export function getRecruitingStory(
 		story =
 			'The recruiting buzz around you is real. Top programs are ' +
 			'actively pursuing you, and your mailbox is filling up with ' +
-			'official visit invitations. You\'re getting the attention ' +
+			"official visit invitations. You're getting the attention " +
 			'of the elite.';
 	} else if (stars === 3) {
 		story =
-			'You\'re starting to see serious recruiting interest. ' +
+			"You're starting to see serious recruiting interest. " +
 			'Multiple college programs see potential in you, and ' +
 			'coaches are beginning to make their pitches. This is your ' +
 			'moment to shine.';
@@ -295,7 +289,7 @@ export function getRecruitingStory(
 			'everything.';
 	} else if (stars === 1) {
 		story =
-			'The recruiting trail has been quiet. You\'re hoping to catch ' +
+			"The recruiting trail has been quiet. You're hoping to catch " +
 			'the eye of smaller programs or earn a walk-on opportunity. ' +
 			'Every game matters now.';
 	}
@@ -314,10 +308,7 @@ export function getRecruitingStory(
 //============================================
 // Player commits to a college offer
 // Returns dramatic story text about the decision
-export function commitToCollege(
-	player: Player,
-	offer: CollegeOffer
-): string {
+export function commitToCollege(player: Player, offer: CollegeOffer): string {
 	let story = '';
 
 	const prestige = offer.prestige;
@@ -364,7 +355,7 @@ export function commitToCollege(
 // Seeds initial school watchlist based on recruiting stars and position
 export function initRecruitingProfile(
 	player: Player,
-	ncaaSchools: { fbs: NCAASchool[]; fcs: NCAASchool[] },
+	ncaaSchools: { fbs: NCAASchool[]; fcs: NCAASchool[] }
 ): RecruitingProfile {
 	const profile = createRecruitingProfile();
 
@@ -397,7 +388,7 @@ export function initRecruitingProfile(
 function seedSchoolWatchlist(
 	profile: RecruitingProfile,
 	player: Player,
-	allSchools: NCAASchool[],
+	allSchools: NCAASchool[]
 ): void {
 	// Determine how many schools to seed (5-star gets more attention)
 	const stars = player.recruitingStars;
@@ -406,16 +397,16 @@ function seedSchoolWatchlist(
 	// Build candidate pool based on star tier
 	let candidates: NCAASchool[];
 	if (stars >= 4) {
-		candidates = allSchools.filter(s => s.subdivision === 'FBS');
+		candidates = allSchools.filter((s) => s.subdivision === 'FBS');
 	} else if (stars >= 3) {
 		candidates = allSchools;
 	} else if (stars >= 2) {
 		// Mostly FCS plus a few FBS
-		const fcsSchools = allSchools.filter(s => s.subdivision === 'FCS');
-		const fbsSlice = allSchools.filter(s => s.subdivision === 'FBS').slice(0, 5);
+		const fcsSchools = allSchools.filter((s) => s.subdivision === 'FCS');
+		const fbsSlice = allSchools.filter((s) => s.subdivision === 'FBS').slice(0, 5);
 		candidates = [...fcsSchools, ...fbsSlice];
 	} else {
-		candidates = allSchools.filter(s => s.subdivision === 'FCS');
+		candidates = allSchools.filter((s) => s.subdivision === 'FCS');
 	}
 
 	// Shuffle and pick
@@ -467,7 +458,7 @@ export function advanceSchoolInterestStates(
 	profile: RecruitingProfile,
 	player: Player,
 	seasonWins: number,
-	playoffAppearance: boolean,
+	playoffAppearance: boolean
 ): void {
 	// Boost buzz from season performance
 	profile.buzz = Math.min(100, profile.buzz + seasonWins * 3);
@@ -480,8 +471,11 @@ export function advanceSchoolInterestStates(
 
 	for (const school of profile.schools) {
 		// Skip terminal states
-		if (school.state === 'offer_pulled' || school.state === 'signed'
-			|| school.state === 'committed') {
+		if (
+			school.state === 'offer_pulled' ||
+			school.state === 'signed' ||
+			school.state === 'committed'
+		) {
 			continue;
 		}
 
@@ -489,9 +483,7 @@ export function advanceSchoolInterestStates(
 		const buzzBoost = profile.buzz * 0.3;
 		const relationshipBoost = school.coachRelationship * 0.2;
 		const seasonBoost = seasonWins * 2;
-		school.interest = Math.min(
-			100, school.interest + buzzBoost + relationshipBoost + seasonBoost
-		);
+		school.interest = Math.min(100, school.interest + buzzBoost + relationshipBoost + seasonBoost);
 
 		// Advance state if interest threshold met
 		if (school.state === 'watchlist' && school.interest >= 45) {
@@ -549,20 +541,20 @@ export function generateIncrementalOffers(
 	profile: RecruitingProfile,
 	player: Player,
 	ncaaSchools: { fbs: NCAASchool[]; fcs: NCAASchool[] },
-	maxCount: number,
+	maxCount: number
 ): number {
 	const allSchools = [...ncaaSchools.fbs, ...ncaaSchools.fcs];
-	const existingIds = new Set(profile.schools.map(s => s.schoolId));
+	const existingIds = new Set(profile.schools.map((s) => s.schoolId));
 
 	// Filter to schools not already tracking
-	let candidates = allSchools.filter(s => !existingIds.has(s.commonName));
+	let candidates = allSchools.filter((s) => !existingIds.has(s.commonName));
 
 	// Filter by star tier
 	const stars = player.recruitingStars;
 	if (stars >= 4) {
-		candidates = candidates.filter(s => s.subdivision === 'FBS');
+		candidates = candidates.filter((s) => s.subdivision === 'FBS');
 	} else if (stars <= 2) {
-		candidates = candidates.filter(s => s.subdivision === 'FCS');
+		candidates = candidates.filter((s) => s.subdivision === 'FCS');
 	}
 
 	// Shuffle and pick up to maxCount
@@ -603,9 +595,9 @@ export function generateIncrementalOffers(
 export function processVisit(
 	profile: RecruitingProfile,
 	schoolId: string,
-	visitType: 'unofficial' | 'official',
+	visitType: 'unofficial' | 'official'
 ): VisitImpression | undefined {
-	const school = profile.schools.find(s => s.schoolId === schoolId);
+	const school = profile.schools.find((s) => s.schoolId === schoolId);
 	if (!school) {
 		console.warn(`Cannot visit unknown school: ${schoolId}`);
 		return undefined;
@@ -688,16 +680,13 @@ function generateVisitImpression(school: SchoolInterest): VisitImpression {
 
 //============================================
 // Process a verbal commitment to a school
-export function processCommitment(
-	profile: RecruitingProfile,
-	schoolId: string,
-): boolean {
+export function processCommitment(profile: RecruitingProfile, schoolId: string): boolean {
 	if (profile.verbalCommit !== null) {
 		console.warn('Already committed, must decommit first');
 		return false;
 	}
 
-	const school = profile.schools.find(s => s.schoolId === schoolId);
+	const school = profile.schools.find((s) => s.schoolId === schoolId);
 	if (!school) {
 		console.warn(`Cannot commit to unknown school: ${schoolId}`);
 		return false;
@@ -722,7 +711,7 @@ export function processDecommitment(profile: RecruitingProfile): boolean {
 		return false;
 	}
 
-	const school = profile.schools.find(s => s.schoolId === profile.verbalCommit);
+	const school = profile.schools.find((s) => s.schoolId === profile.verbalCommit);
 	if (school && school.state === 'committed') {
 		// Intentional reverse transition: committed -> committable_offer
 		// This bypasses advanceOfferState() because the state machine is
@@ -745,7 +734,7 @@ export function processSigning(profile: RecruitingProfile): boolean {
 		return false;
 	}
 
-	const school = profile.schools.find(s => s.schoolId === profile.verbalCommit);
+	const school = profile.schools.find((s) => s.schoolId === profile.verbalCommit);
 	if (!school || school.state !== 'committed') {
 		console.warn('School not in committed state');
 		return false;
@@ -791,8 +780,7 @@ export function pruneSchoolList(profile: RecruitingProfile): void {
 // Returns the affected school ID, or null if no eligible school
 export function applyCoachingChange(profile: RecruitingProfile): string | null {
 	const eligible = profile.schools.filter(
-		s => s.state !== 'watchlist' && s.state !== 'offer_pulled'
-			&& s.state !== 'signed'
+		(s) => s.state !== 'watchlist' && s.state !== 'offer_pulled' && s.state !== 'signed'
 	);
 
 	if (eligible.length === 0) {
@@ -820,10 +808,7 @@ export function applyCoachingChange(profile: RecruitingProfile): string | null {
 //============================================
 // Generate a simulated school season record
 // Better schools (higher subdivision, more interest) tend to have better records
-export function generateSchoolRecord(
-	school: NCAASchool,
-	interest: number,
-): SchoolRecord {
+export function generateSchoolRecord(school: NCAASchool, interest: number): SchoolRecord {
 	// Base wins influenced by subdivision prestige
 	let baseWins: number;
 	if (school.subdivision === 'FBS') {
@@ -862,9 +847,7 @@ export function generateSchoolRecord(
 
 //============================================
 // Get the post-high-school route for handler dispatch
-export function getPostHighSchoolRoute(
-	player: Player,
-): 'college_entry' | 'juco' | 'prep' {
+export function getPostHighSchoolRoute(player: Player): 'college_entry' | 'juco' | 'prep' {
 	if (player.recruitingProfile?.isJuco) {
 		return 'juco';
 	}

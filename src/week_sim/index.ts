@@ -10,10 +10,7 @@ export { applySeasonGoal, applyWeeklyFocus } from './focus.js';
 export type { GoalInfo } from './goals.js';
 export { getGoalsForPhase, getPreferredActivitiesForGoal } from './goals.js';
 
-export {
-	updateMomentum,
-	calculateLetterGrade,
-} from './momentum.js';
+export { updateMomentum, calculateLetterGrade } from './momentum.js';
 
 export type { StatLine, GameResult } from './game.js';
 export { simulateGame } from './game.js';

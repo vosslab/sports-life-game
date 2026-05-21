@@ -32,11 +32,11 @@ randomAvatarConfig(
 ): AvatarConfig
 ```
 
-| Parameter | Default | Description |
-| --- | --- | --- |
-| `seed` | (required) | Any string. Same seed = same base identity. |
-| `opts.archetype` | `'generic'` | Character role. Controls expression, hair, and accessory weights. |
-| `opts.age` | `30` | Character age. Controls hair color, facial hair, and style filtering. |
+| Parameter        | Default     | Description                                                           |
+| ---------------- | ----------- | --------------------------------------------------------------------- |
+| `seed`           | (required)  | Any string. Same seed = same base identity.                           |
+| `opts.archetype` | `'generic'` | Character role. Controls expression, hair, and accessory weights.     |
+| `opts.age`       | `30`        | Character age. Controls hair color, facial hair, and style filtering. |
 
 ### `generatePortraitSVG(config)`
 
@@ -52,25 +52,25 @@ so multiple portraits can coexist on the same page without ID collisions.
 
 ## Archetypes
 
-| Archetype | Expression bias | Hair bias | Glasses | Facial hair mod |
-| --- | --- | --- | --- | --- |
-| `player` | confident, friendly | athletic | 5% | -10% |
-| `rival` | intense, confident | distinctive | 5% | +0% |
-| `coach` | stern, neutral | conservative | 30% | +15% |
-| `recruiter` | friendly, neutral | conservative | 35% | +0% |
-| `scout` | friendly, neutral | conservative | 40% | +0% |
-| `generic` | uniform | full range | 15% | +0% |
+| Archetype   | Expression bias     | Hair bias    | Glasses | Facial hair mod |
+| ----------- | ------------------- | ------------ | ------- | --------------- |
+| `player`    | confident, friendly | athletic     | 5%      | -10%            |
+| `rival`     | intense, confident  | distinctive  | 5%      | +0%             |
+| `coach`     | stern, neutral      | conservative | 30%     | +15%            |
+| `recruiter` | friendly, neutral   | conservative | 35%     | +0%             |
+| `scout`     | friendly, neutral   | conservative | 40%     | +0%             |
+| `generic`   | uniform             | full range   | 15%     | +0%             |
 
 Recruiter and scout intentionally share the same profile except glasses chance.
 
 ## Age bands
 
-| Band | Age range | Facial hair | Gray hair | Hair styles |
-| --- | --- | --- | --- | --- |
-| teen | under 22 | 0% | never | youth-coded |
-| young adult | 22-35 | 35% base | never | full range |
-| middle aged | 36-50 | 65% base | 25% chance | youth styles suppressed |
-| senior | 50+ | 80% base | 60% chance | conservative dominant |
+| Band        | Age range | Facial hair | Gray hair  | Hair styles             |
+| ----------- | --------- | ----------- | ---------- | ----------------------- |
+| teen        | under 22  | 0%          | never      | youth-coded             |
+| young adult | 22-35     | 35% base    | never      | full range              |
+| middle aged | 36-50     | 65% base    | 25% chance | youth styles suppressed |
+| senior      | 50+       | 80% base    | 60% chance | conservative dominant   |
 
 All characters are male-biased (American football context). Facial hair base
 rates are higher than a general-population generator.
@@ -98,17 +98,17 @@ The config object stores keys into the parts registry. All fields except
 
 ```typescript
 interface AvatarConfig {
-  skinTone: string;         // key into SKIN_TONES (7 options)
-  hairColor: string;        // key into HAIR_COLORS (10 options)
-  facialHairColor?: string; // defaults to hairColor if omitted
-  faceShape: string;        // key into FACE_SHAPES (1 option currently)
-  hair: string;             // key into HAIR_STYLES (10 options)
-  eyes: string;             // key into EYES (6 options)
-  eyebrows: string;         // key into EYEBROWS (5 options)
-  nose: string;             // key into NOSES (1 option currently)
-  mouth: string;            // key into MOUTHS (5 options)
-  facialHair?: string;      // key into FACIAL_HAIR (2 options)
-  accessory?: string;       // key into ACCESSORIES (3 options, glasses)
+	skinTone: string; // key into SKIN_TONES (7 options)
+	hairColor: string; // key into HAIR_COLORS (10 options)
+	facialHairColor?: string; // defaults to hairColor if omitted
+	faceShape: string; // key into FACE_SHAPES (1 option currently)
+	hair: string; // key into HAIR_STYLES (10 options)
+	eyes: string; // key into EYES (6 options)
+	eyebrows: string; // key into EYEBROWS (5 options)
+	nose: string; // key into NOSES (1 option currently)
+	mouth: string; // key into MOUTHS (5 options)
+	facialHair?: string; // key into FACIAL_HAIR (2 options)
+	accessory?: string; // key into ACCESSORIES (3 options, glasses)
 }
 ```
 
@@ -120,13 +120,13 @@ You can construct an `AvatarConfig` manually instead of using
 The generator picks a coherent expression (eyes + eyebrows + mouth) as a set,
 then optionally varies individual features within compatible subpools.
 
-| Preset | Eyes | Eyebrows | Mouth |
-| --- | --- | --- | --- |
-| neutral | default | default | default |
-| confident | default | defaultNatural | smile |
-| stern | squint | flatNatural | serious |
-| friendly | happy | defaultNatural | smile |
-| intense | squint | raisedExcited | serious |
+| Preset    | Eyes    | Eyebrows       | Mouth   |
+| --------- | ------- | -------------- | ------- |
+| neutral   | default | default        | default |
+| confident | default | defaultNatural | smile   |
+| stern     | squint  | flatNatural    | serious |
+| friendly  | happy   | defaultNatural | smile   |
+| intense   | squint  | raisedExcited  | serious |
 
 Each preset has compatible alternates so swapped features still look coherent
 (e.g., stern eyes can vary to default but not to happy).
@@ -151,12 +151,12 @@ from a 5-color neutral palette (navy, charcoal, maroon, forest, gray).
 
 ## Files
 
-| File | Purpose |
-| --- | --- |
-| [src/avatar.ts](../src/avatar.ts) | Generator and renderer |
-| [src/data/avatar_parts.ts](../src/data/avatar_parts.ts) | Extracted SVG part strings |
-| [tools/extract_avataaars.py](../tools/extract_avataaars.py) | Part extraction script |
-| [avatar_test.html](../avatar_test.html) | Standalone test page |
+| File                                                        | Purpose                    |
+| ----------------------------------------------------------- | -------------------------- |
+| [src/avatar.ts](../src/avatar.ts)                           | Generator and renderer     |
+| [src/data/avatar_parts.ts](../src/data/avatar_parts.ts)     | Extracted SVG part strings |
+| [tools/extract_avataaars.py](../tools/extract_avataaars.py) | Part extraction script     |
+| [avatar_test.html](../avatar_test.html)                     | Standalone test page       |
 
 ## Test page
 
@@ -168,6 +168,7 @@ python3 -m http.server 8080
 ```
 
 The test page provides:
+
 - Randomize grid with archetype and age controls
 - Seed repeatability check (same seed twice = identical portraits)
 - Archetype comparison (same seed across all 6 roles)

@@ -18,7 +18,7 @@ export function renderActivitiesTab(
 		goals: GoalInfo[];
 		currentGoal: SeasonGoal;
 		onGoalChange: (goal: SeasonGoal) => void;
-	},
+	}
 ): void {
 	const content = document.getElementById('activities-content');
 	if (!content) {
@@ -65,7 +65,7 @@ export function renderActivitiesTab(
 		goalSection.appendChild(goalSelect);
 
 		// Show description of current goal
-		const currentGoalInfo = goalInfo.goals.find(g => g.key === goalInfo.currentGoal);
+		const currentGoalInfo = goalInfo.goals.find((g) => g.key === goalInfo.currentGoal);
 		if (currentGoalInfo) {
 			const goalDesc = document.createElement('div');
 			goalDesc.className = 'goal-description';

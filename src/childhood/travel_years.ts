@@ -27,7 +27,8 @@ export const travelHandler: YearHandler = {
 		// Clear previous year's content so the log stays manageable
 		ctx.clearStory();
 
-		const gradeLabel = player.age === 11 ? '6th grade' : player.age === 12 ? '7th grade' : '8th grade';
+		const gradeLabel =
+			player.age === 11 ? '6th grade' : player.age === 12 ? '7th grade' : '8th grade';
 		ctx.addHeadline(`Age ${player.age} - Travel Team (${gradeLabel})`);
 		ctx.addText(`${player.firstName} plays travel ball for the ${player.teamName}.`);
 		if (player.position) {
@@ -45,8 +46,12 @@ export const travelHandler: YearHandler = {
 		};
 
 		const eligible = filterEvents(
-			ctx.events, 'youth', 0, player.position,
-			player.storyFlags, statsRecord,
+			ctx.events,
+			'youth',
+			0,
+			player.position,
+			player.storyFlags,
+			statsRecord
 		);
 
 		const event = selectEvent(eligible);
@@ -72,13 +77,11 @@ export const travelHandler: YearHandler = {
 
 //============================================
 // Present one event, then show Continue
-function presentEventThenContinue(
-	player: Player, ctx: CareerContext, event: GameEvent,
-): void {
+function presentEventThenContinue(player: Player, ctx: CareerContext, event: GameEvent): void {
 	ctx.addHeadline(event.title);
 	ctx.addText(event.description);
 
-	const choiceButtons = event.choices.map(choice => ({
+	const choiceButtons = event.choices.map((choice) => ({
 		text: choice.text,
 		primary: false,
 		action: () => {
@@ -97,9 +100,11 @@ function presentEventThenContinue(
 //============================================
 // Show the continue button
 function showContinue(player: Player, ctx: CareerContext): void {
-	ctx.waitForInteraction('Travel Years', [{
-		text: 'Continue to Next Year',
-		primary: true,
-		action: () => advanceToNextYear(player, ctx),
-	}]);
+	ctx.waitForInteraction('Travel Years', [
+		{
+			text: 'Continue to Next Year',
+			primary: true,
+			action: () => advanceToNextYear(player, ctx),
+		},
+	]);
 }

@@ -55,7 +55,7 @@ export function filterEvents(
 	flags: Record<string, boolean>,
 	stats: Record<string, number>,
 	collegeYear?: number,
-	age?: number,
+	age?: number
 ): GameEvent[] {
 	return events.filter((event) => {
 		// Check phase match
@@ -147,8 +147,6 @@ export function filterEvents(
 			}
 		}
 
-
-
 		return true;
 	});
 }
@@ -181,11 +179,8 @@ export function selectEvent(eligible: GameEvent[]): GameEvent | null {
 
 //============================================
 // Select one event strictly from a specific category. Returns null if none match.
-export function selectEventByCategory(
-	eligible: GameEvent[],
-	category: string,
-): GameEvent | null {
-	const filtered = eligible.filter(e => e.event_category === category);
+export function selectEventByCategory(eligible: GameEvent[], category: string): GameEvent | null {
+	const filtered = eligible.filter((e) => e.event_category === category);
 	if (filtered.length === 0) {
 		return null;
 	}
@@ -194,10 +189,7 @@ export function selectEventByCategory(
 
 //============================================
 // Apply event choice to player: modify stats, set/clear flags, return flavor
-export function applyEventChoice(
-	player: Player,
-	choice: EventChoice
-): string {
+export function applyEventChoice(player: Player, choice: EventChoice): string {
 	// Apply stat effects to player
 	for (const [statName, delta] of Object.entries(choice.effects)) {
 		// Handle core stats
@@ -216,9 +208,7 @@ export function applyEventChoice(
 
 		// Handle career stats
 		if (statName === 'popularity') {
-			player.career.popularity = clampStat(
-				player.career.popularity + delta
-			);
+			player.career.popularity = clampStat(player.career.popularity + delta);
 		}
 		if (statName === 'money') {
 			player.career.money = Math.max(0, player.career.money + delta);
@@ -226,21 +216,24 @@ export function applyEventChoice(
 
 		// Handle hidden stats
 		if (statName === 'leadership') {
-			player.hidden.leadership = clampStat(
-				player.hidden.leadership + delta
-			);
+			player.hidden.leadership = clampStat(player.hidden.leadership + delta);
 		}
 		if (statName === 'durability') {
-			player.hidden.durability = clampStat(
-				player.hidden.durability + delta
-			);
+			player.hidden.durability = clampStat(player.hidden.durability + delta);
 		}
 
 		// Warn if stat name does not match any known stat
 		const knownStats = [
-			'athleticism', 'technique', 'footballIq', 'discipline',
-			'health', 'confidence', 'popularity', 'money',
-			'leadership', 'durability',
+			'athleticism',
+			'technique',
+			'footballIq',
+			'discipline',
+			'health',
+			'confidence',
+			'popularity',
+			'money',
+			'leadership',
+			'durability',
 		];
 		if (!knownStats.includes(statName)) {
 			console.warn(`Unknown stat name in event effect: "${statName}"`);
@@ -259,7 +252,8 @@ export function applyEventChoice(
 
 	// Increment flag progress if specified
 	if (choice.progress_flag !== undefined) {
-		player.flagProgress[choice.progress_flag] = (player.flagProgress[choice.progress_flag] || 0) + 1;
+		player.flagProgress[choice.progress_flag] =
+			(player.flagProgress[choice.progress_flag] || 0) + 1;
 	}
 
 	// Return flavor text

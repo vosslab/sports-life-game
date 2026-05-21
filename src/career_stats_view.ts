@@ -98,12 +98,29 @@ function formatYearCell(record: SeasonRecord): string {
 // Sum a list of season records into a single totals row
 function sumStatTotals(records: SeasonRecord[]): SeasonStatTotals {
 	const totals: SeasonStatTotals = {
-		gamesPlayed: 0, totalYards: 0, totalTouchdowns: 0,
-		passYards: 0, passTds: 0, passInts: 0, completions: 0, attempts: 0,
-		rushYards: 0, carries: 0, rushTds: 0, fumbles: 0,
-		receptions: 0, recYards: 0, recTds: 0, targets: 0,
-		tackles: 0, sacks: 0, ints: 0,
-		fgMade: 0, fgAttempts: 0, xpMade: 0, xpAttempts: 0,
+		gamesPlayed: 0,
+		totalYards: 0,
+		totalTouchdowns: 0,
+		passYards: 0,
+		passTds: 0,
+		passInts: 0,
+		completions: 0,
+		attempts: 0,
+		rushYards: 0,
+		carries: 0,
+		rushTds: 0,
+		fumbles: 0,
+		receptions: 0,
+		recYards: 0,
+		recTds: 0,
+		targets: 0,
+		tackles: 0,
+		sacks: 0,
+		ints: 0,
+		fgMade: 0,
+		fgAttempts: 0,
+		xpMade: 0,
+		xpAttempts: 0,
 		playerOfTheWeekCount: 0,
 	};
 	for (const r of records) {
@@ -187,10 +204,10 @@ function deriveCurrentYear(player: Player): number {
 export function renderCareerStatsTable(
 	container: HTMLElement,
 	player: Player,
-	phaseFilter?: 'high_school' | 'college' | 'nfl',
+	phaseFilter?: 'high_school' | 'college' | 'nfl'
 ): void {
 	// Collect rows: completed seasons first, optionally filtered by phase
-	const completed = player.careerHistory.filter(r => {
+	const completed = player.careerHistory.filter((r) => {
 		if (!phaseFilter) {
 			return true;
 		}
@@ -206,7 +223,7 @@ export function renderCareerStatsTable(
 	}
 
 	// Hide table entirely if no rows have stats
-	const hasAnyStats = rows.some(r => r.statTotals && r.statTotals.gamesPlayed > 0);
+	const hasAnyStats = rows.some((r) => r.statTotals && r.statTotals.gamesPlayed > 0);
 	if (!hasAnyStats) {
 		return;
 	}
@@ -229,7 +246,7 @@ export function renderCareerStatsTable(
 	// Header row
 	const thead = document.createElement('thead');
 	const headRow = document.createElement('tr');
-	const headLabels = ['Year', 'Team', 'Pos', 'GP', 'W-L', ...statCols.map(c => c.label)];
+	const headLabels = ['Year', 'Team', 'Pos', 'GP', 'W-L', ...statCols.map((c) => c.label)];
 	for (const label of headLabels) {
 		const th = document.createElement('th');
 		th.textContent = label;
@@ -243,7 +260,7 @@ export function renderCareerStatsTable(
 	for (const r of rows) {
 		const tr = document.createElement('tr');
 		const stats = r.statTotals;
-		const wlText = (r.wins + r.losses + r.ties) === 0 ? '--' : `${r.wins}-${r.losses}`;
+		const wlText = r.wins + r.losses + r.ties === 0 ? '--' : `${r.wins}-${r.losses}`;
 		const cells = [
 			formatYearCell(r),
 			shortenTeam(r.team),
@@ -267,18 +284,14 @@ export function renderCareerStatsTable(
 	}
 
 	// Totals row (only if more than one stat row)
-	const statRows = rows.filter(r => r.statTotals && r.statTotals.gamesPlayed > 0);
+	const statRows = rows.filter((r) => r.statTotals && r.statTotals.gamesPlayed > 0);
 	if (statRows.length > 1) {
 		const totals = sumStatTotals(statRows);
 		const totalWins = statRows.reduce((s, r) => s + r.wins, 0);
 		const totalLosses = statRows.reduce((s, r) => s + r.losses, 0);
 		const tr = document.createElement('tr');
 		tr.className = 'career-stats-totals';
-		const cells = [
-			'Total', '', '',
-			fmtInt(totals.gamesPlayed),
-			`${totalWins}-${totalLosses}`,
-		];
+		const cells = ['Total', '', '', fmtInt(totals.gamesPlayed), `${totalWins}-${totalLosses}`];
 		for (const text of cells) {
 			const td = document.createElement('td');
 			td.textContent = text;
@@ -313,9 +326,24 @@ function shortenTeam(name: string): string {
 
 //============================================
 // Inline assertions for column picker
-console.assert(pickStatColumns('QB').some(c => c.key === 'passYards'), 'QB picks pass yards');
-console.assert(pickStatColumns('RB').some(c => c.key === 'rushYards'), 'RB picks rush yards');
-console.assert(pickStatColumns('WR').some(c => c.key === 'receptions'), 'WR picks receptions');
-console.assert(pickStatColumns('LB').some(c => c.key === 'tackles'), 'LB picks tackles');
-console.assert(pickStatColumns('K').some(c => c.key === 'fgMade'), 'K picks fg made');
+console.assert(
+	pickStatColumns('QB').some((c) => c.key === 'passYards'),
+	'QB picks pass yards'
+);
+console.assert(
+	pickStatColumns('RB').some((c) => c.key === 'rushYards'),
+	'RB picks rush yards'
+);
+console.assert(
+	pickStatColumns('WR').some((c) => c.key === 'receptions'),
+	'WR picks receptions'
+);
+console.assert(
+	pickStatColumns('LB').some((c) => c.key === 'tackles'),
+	'LB picks tackles'
+);
+console.assert(
+	pickStatColumns('K').some((c) => c.key === 'fgMade'),
+	'K picks fg made'
+);
 console.assert(pickStatColumns(null).length > 0, 'null position falls back to generic columns');

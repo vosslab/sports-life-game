@@ -3,13 +3,6 @@ report_*.txt
 .DS_Store
 node_modules/
 dist/
-_te*.ts
-_te*.js
-_te*.py
-_te*.sh
-_te*.cjs
+_te*.?*
 OTHER_REPOS_FOR_STUDY/
-tools/avataaars_source/
-tools/_out/
 .superpowers/
-_site/

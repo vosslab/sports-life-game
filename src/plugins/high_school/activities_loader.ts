@@ -1,34 +1,15 @@
 // activities_loader.ts - Load HS activities from JSON
 //
-// Activities are fetched at module load time (when imported) so that
-// register() can use them synchronously. This ensures the plugin
-// can register activities without requiring async registration.
+// Activities are imported at bundle time by esbuild (resolveJsonModule),
+// so the data is available synchronously without any preload step.
 
 import type { Activity } from '../../activities.js';
+import activitiesData from './activities.json';
 
-let loadedActivities: Activity[] | null = null;
+// Cast through unknown: inferred JSON literal types are too narrow for Activity[].
+const hsActivities = activitiesData as unknown as Activity[];
 
-export async function fetchHsActivities(): Promise<Activity[]> {
-	const url = '/src/plugins/high_school/activities.json';
-	const response = await fetch(url);
-	if (!response.ok) {
-		throw new Error(`Failed to load HS activities from ${url}: ${response.status}`);
-	}
-	const hsActivities = (await response.json()) as Activity[];
-	return hsActivities;
-}
-
-// Synchronous getter; activities are pre-loaded at plugin init time
+// Synchronous getter; data is resolved at import time
 export function loadHsActivities(): Activity[] {
-	if (!loadedActivities) {
-		throw new Error(
-			'HS activities not yet loaded. Call preloadHsActivities() during bootstrap.'
-		);
-	}
-	return loadedActivities;
-}
-
-// Called during async bootstrap to pre-load activities
-export async function preloadHsActivities(): Promise<void> {
-	loadedActivities = await fetchHsActivities();
+	return hsActivities;
 }

@@ -7,7 +7,13 @@
 // Route order: events -> choices -> activities -> lifecycle hooks.
 // Throws on duplicate pack id. Sub-items throw if they conflict with existing ids.
 
-import type { DataPack, DataPackRegistry, AgeHook, PhaseStartHook, CareerEndHook } from '../plugin_host.js';
+import type {
+	DataPack,
+	DataPackRegistry,
+	AgeHook,
+	PhaseStartHook,
+	CareerEndHook,
+} from '../plugin_host.js';
 import * as eventReg from './event_registry.js';
 import * as choiceReg from './choice_registry.js';
 import * as activityReg from './activity_registry.js';

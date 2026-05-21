@@ -15,10 +15,7 @@ export interface DepthChartUpdate {
 
 //============================================
 // Adjust depth chart week-to-week based on grade and current role
-export function evaluateDepthChartUpdate(
-	player: Player,
-	playerGrade: string,
-): DepthChartUpdate {
+export function evaluateDepthChartUpdate(player: Player, playerGrade: string): DepthChartUpdate {
 	if (player.depthChart === 'starter') {
 		let demotionChance = 0;
 		if (playerGrade === 'D') {

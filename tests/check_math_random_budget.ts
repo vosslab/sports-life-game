@@ -117,7 +117,9 @@ function main(): void {
 	if (total < SIM_TREE_BUDGET) {
 		console.warn('');
 		console.warn(`Budget can be tightened: actual ${total} < budget ${SIM_TREE_BUDGET}.`);
-		console.warn('Lower SIM_TREE_BUDGET in tests/check_math_random_budget.ts and note the drop in docs/CHANGELOG.md.');
+		console.warn(
+			'Lower SIM_TREE_BUDGET in tests/check_math_random_budget.ts and note the drop in docs/CHANGELOG.md.'
+		);
 	}
 }
 

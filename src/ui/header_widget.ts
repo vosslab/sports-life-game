@@ -46,11 +46,7 @@ export function updateHeader(player: Player): void {
 }
 
 // Update the compact status shown on the Life tab
-export function updateLifeStatus(
-	record: string,
-	nextOpponent: string,
-	extraStatus?: string,
-): void {
+export function updateLifeStatus(record: string, nextOpponent: string, extraStatus?: string): void {
 	const recordEl = getElement('life-record');
 	const nextEl = getElement('life-next-opponent');
 	const extraEl = findElement('life-extra-status');
@@ -61,4 +57,3 @@ export function updateLifeStatus(
 		extraEl.textContent = extraStatus || '';
 	}
 }
-

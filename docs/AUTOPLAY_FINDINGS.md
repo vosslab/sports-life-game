@@ -9,34 +9,34 @@ one year of the player's life. "Choices" are modal popup decisions (weekly focus
 events). "Activities" are choices-panel buttons (Game Day, activity selections).
 "Next/Continue" are main action bar advances.
 
-| Age | Phase | Total | Choices | Activities | Next/Continue |
-| --- | --- | --- | --- | --- | --- |
-| -1 | Pre-game | 2 | 0 | 1 | 1 |
-| 0 | Childhood | 1 | 0 | 0 | 1 |
-| 1 | Childhood | 2 | 1 | 0 | 1 |
-| 2 | Childhood | 2 | 1 | 0 | 1 |
-| 3 | Childhood | 2 | 1 | 0 | 1 |
-| 4 | Youth | 3 | 2 | 0 | 1 |
-| 5 | Youth | 3 | 2 | 0 | 1 |
-| 6 | Youth | 3 | 2 | 0 | 1 |
-| 7 | Youth | 3 | 2 | 0 | 1 |
-| 8 | Travel team | 2 | 1 | 0 | 1 |
-| 9 | Travel team | 2 | 1 | 0 | 1 |
-| 10 | Travel team | 2 | 1 | 0 | 1 |
-| 11 | Travel team | 2 | 1 | 0 | 1 |
-| 12 | Travel team | 2 | 1 | 0 | 1 |
-| 13 | Travel team | 2 | 1 | 0 | 1 |
-| 14 | HS freshman | 38 | 23 | 3 | 12 |
-| 15 | HS sophomore | 39 | 23 | 3 | 13 |
-| 16 | HS junior | 41 | 24 | 4 | 13 |
-| 17 | HS senior | 40 | 25 | 4 | 11 |
-| 18 | College freshman | 38 | 24 | 1 | 13 |
-| 19 | College sophomore | 44 | 26 | 3 | 15 |
-| 20 | College junior | 47 | 27 | 4 | 16 |
-| 21 | College senior | 46 | 28 | 5 | 13 |
-| 22 | NFL rookie | 1148* | 3 | 1144 | 1 |
+| Age | Phase             | Total  | Choices | Activities | Next/Continue |
+| --- | ----------------- | ------ | ------- | ---------- | ------------- |
+| -1  | Pre-game          | 2      | 0       | 1          | 1             |
+| 0   | Childhood         | 1      | 0       | 0          | 1             |
+| 1   | Childhood         | 2      | 1       | 0          | 1             |
+| 2   | Childhood         | 2      | 1       | 0          | 1             |
+| 3   | Childhood         | 2      | 1       | 0          | 1             |
+| 4   | Youth             | 3      | 2       | 0          | 1             |
+| 5   | Youth             | 3      | 2       | 0          | 1             |
+| 6   | Youth             | 3      | 2       | 0          | 1             |
+| 7   | Youth             | 3      | 2       | 0          | 1             |
+| 8   | Travel team       | 2      | 1       | 0          | 1             |
+| 9   | Travel team       | 2      | 1       | 0          | 1             |
+| 10  | Travel team       | 2      | 1       | 0          | 1             |
+| 11  | Travel team       | 2      | 1       | 0          | 1             |
+| 12  | Travel team       | 2      | 1       | 0          | 1             |
+| 13  | Travel team       | 2      | 1       | 0          | 1             |
+| 14  | HS freshman       | 38     | 23      | 3          | 12            |
+| 15  | HS sophomore      | 39     | 23      | 3          | 13            |
+| 16  | HS junior         | 41     | 24      | 4          | 13            |
+| 17  | HS senior         | 40     | 25      | 4          | 11            |
+| 18  | College freshman  | 38     | 24      | 1          | 13            |
+| 19  | College sophomore | 44     | 26      | 3          | 15            |
+| 20  | College junior    | 47     | 27      | 4          | 16            |
+| 21  | College senior    | 46     | 28      | 5          | 13            |
+| 22  | NFL rookie        | 1148\* | 3       | 1144       | 1             |
 
-(*) Age 22 inflated in this dataset by the NFL `advanceWeek` bug (fixed as of 2026-05-20; see CHANGELOG.md). Previously 1144 failed "Game Day" clicks erroring without advancing. Current runs progress past age 22 without errors.
+(\*) Age 22 inflated in this dataset by the NFL `advanceWeek` bug (fixed as of 2026-05-20; see CHANGELOG.md). Previously 1144 failed "Game Day" clicks erroring without advancing. Current runs progress past age 22 without errors.
 
 ### Observations from click data
 

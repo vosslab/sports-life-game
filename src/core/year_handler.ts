@@ -44,19 +44,17 @@ export interface ActivitiesRender {
 // Weekly engine return type: impossible to misuse
 // Every call to runSeasonWeek() must return one of these.
 // Handlers do NOT decide whether a week advanced.
-export type WeekAdvanceResult =
-	| { kind: 'next_week'; nextWeek: number }
-	| { kind: 'season_ended' };
+export type WeekAdvanceResult = { kind: 'next_week'; nextWeek: number } | { kind: 'season_ended' };
 
 //============================================
 // Season configuration returned by handlers
 // Tells the weekly engine how to run this year's season.
 export interface SeasonConfig {
-	seasonLength: number;       // total weeks in the season (0 = no football)
-	hasFootball: boolean;       // whether this age band plays football
-	hasDepthChart: boolean;     // whether depth chart is tracked
-	hasPlayoffs: boolean;       // whether playoffs exist
-	eventChance: number;        // percentage chance of random event per week (0-100)
+	seasonLength: number; // total weeks in the season (0 = no football)
+	hasFootball: boolean; // whether this age band plays football
+	hasDepthChart: boolean; // whether depth chart is tracked
+	hasPlayoffs: boolean; // whether playoffs exist
+	eventChance: number; // percentage chance of random event per week (0-100)
 	opponentStrengthBase: number; // base opponent strength for this level
 	opponentStrengthRange: number; // random range added to base
 }
@@ -95,7 +93,12 @@ export interface CareerContext {
 	showChoices(options: ChoiceOption[]): void;
 	// Choice/event popup modal with title and description
 	// style: 'decision' (default, centered bold) or 'narrative' (gold title, left-aligned)
-	waitForInteraction(title: string, options: ChoiceOption[], description?: string, style?: string): void;
+	waitForInteraction(
+		title: string,
+		options: ChoiceOption[],
+		description?: string,
+		style?: string
+	): void;
 	// Persistence
 	save(): void;
 	// Stats display refresh
@@ -121,7 +124,6 @@ export interface CareerContext {
 	showTabBar(): void;
 	syncTabsToPhase(phase: Player['phase']): void;
 }
-
 
 //============================================
 // Transition result: what happens after a year ends

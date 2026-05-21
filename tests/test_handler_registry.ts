@@ -8,7 +8,6 @@
 
 import assert from 'node:assert/strict';
 
-import { setupFetchMock } from './fixtures/fetch_mock.js';
 import { registerAllPlugins } from '../src/plugins/register_plugins.js';
 import { buildPluginHost } from '../src/plugins/build_host.js';
 import {
@@ -17,11 +16,6 @@ import {
 	getHandler,
 	hasHandler,
 } from '../src/core/year_registry.js';
-import { preloadHsActivities } from '../src/plugins/high_school/activities_loader.js';
-import { preloadHsEvents } from '../src/plugins/high_school/events_loader.js';
-
-// Set up fetch mock for disk-based JSON loading
-setupFetchMock();
 
 //============================================
 // Re-register from a clean slate so this test is independent of import order.
@@ -35,8 +29,6 @@ async function withFreshRegistry<T>(fn: () => T): Promise<T> {
 	host.lifecycle.clear();
 	host.activities.clear();
 	host.dataPacks.clear();
-	await preloadHsActivities();
-	await preloadHsEvents();
 	registerAllPlugins(host);
 	const result = fn();
 	clearHandlers();
@@ -62,7 +54,6 @@ async function testCoverage(): Promise<void> {
 	});
 }
 
-
 //============================================
 // Phase-specific season configs feel distinctly different. This is the
 // "shared engine, distinct phase adapters" invariant: HS, college, and NFL
@@ -83,18 +74,19 @@ async function testSeasonConfigDifferentiation(): Promise<void> {
 		const nfl = nflPeak.getSeasonConfig!({} as never);
 
 		// Opponent strength scales with level (HS < college < NFL).
-		assert.ok(hs.opponentStrengthBase < col.opponentStrengthBase,
-			'HS opponents should be weaker than college');
-		assert.ok(col.opponentStrengthBase < nfl.opponentStrengthBase,
-			'college opponents should be weaker than NFL');
+		assert.ok(
+			hs.opponentStrengthBase < col.opponentStrengthBase,
+			'HS opponents should be weaker than college'
+		);
+		assert.ok(
+			col.opponentStrengthBase < nfl.opponentStrengthBase,
+			'college opponents should be weaker than NFL'
+		);
 
 		// Childhood handlers do not run football season machinery.
-		const childConfig = childhood.getSeasonConfig
-			? childhood.getSeasonConfig({} as never)
-			: null;
+		const childConfig = childhood.getSeasonConfig ? childhood.getSeasonConfig({} as never) : null;
 		if (childConfig !== null) {
-			assert.equal(childConfig.hasFootball, false,
-				'childhood handler should not have football');
+			assert.equal(childConfig.hasFootball, false, 'childhood handler should not have football');
 		}
 	});
 }
@@ -107,8 +99,11 @@ async function testAgeBands(): Promise<void> {
 		for (let i = 1; i < handlers.length; i++) {
 			const prev = handlers[i - 1];
 			const cur = handlers[i];
-			assert.equal(cur.ageStart, prev.ageEnd + 1,
-				`gap between ${prev.id} (ends ${prev.ageEnd}) and ${cur.id} (starts ${cur.ageStart})`);
+			assert.equal(
+				cur.ageStart,
+				prev.ageEnd + 1,
+				`gap between ${prev.id} (ends ${prev.ageEnd}) and ${cur.id} (starts ${cur.ageStart})`
+			);
 		}
 	});
 }

@@ -24,27 +24,21 @@ const widgets = new Map<string, WidgetRegistration>();
 class UiRegistryImpl implements UiRegistry {
 	registerTab(config: TabRegistration): void {
 		if (tabs.has(config.tabId)) {
-			throw new Error(
-				`Duplicate tab id: "${config.tabId}" already registered in UiRegistry`
-			);
+			throw new Error(`Duplicate tab id: "${config.tabId}" already registered in UiRegistry`);
 		}
 		tabs.set(config.tabId, config);
 	}
 
 	registerPanel(config: PanelRegistration): void {
 		if (panels.has(config.panelId)) {
-			throw new Error(
-				`Duplicate panel id: "${config.panelId}" already registered in UiRegistry`
-			);
+			throw new Error(`Duplicate panel id: "${config.panelId}" already registered in UiRegistry`);
 		}
 		panels.set(config.panelId, config);
 	}
 
 	registerWidget(config: WidgetRegistration): void {
 		if (widgets.has(config.widgetId)) {
-			throw new Error(
-				`Duplicate widget id: "${config.widgetId}" already registered in UiRegistry`
-			);
+			throw new Error(`Duplicate widget id: "${config.widgetId}" already registered in UiRegistry`);
 		}
 		widgets.set(config.widgetId, config);
 	}

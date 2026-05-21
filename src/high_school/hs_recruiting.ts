@@ -18,7 +18,7 @@ import { showSigningDay, showWalkOnOptions } from './recruiting_offers.js';
 export function runRecruitingHookForStartOfYear(
 	player: Player,
 	ctx: CareerContext,
-	onDone: () => void,
+	onDone: () => void
 ): void {
 	if (player.age === 16) {
 		showJuniorPreseason(player, ctx, onDone);
@@ -36,7 +36,7 @@ export function runRecruitingHookForStartOfYear(
 export function runRecruitingHookForEndOfSeason(
 	player: Player,
 	ctx: CareerContext,
-	onDone: () => void,
+	onDone: () => void
 ): void {
 	if (player.age === 16) {
 		showJuniorPostseason(player, ctx, onDone);

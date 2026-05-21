@@ -60,51 +60,51 @@ Each position bucket gets 3 choices at low/medium/high risk tiers.
 
 ### QB (passer)
 
-| Choice | Risk | Key Stat | Success | Failure |
-| --- | --- | --- | --- | --- |
-| Check down / safe pass | Low | technique | +3 pts (FG drive) | 0 pts (stall) |
-| Play action / short pass | Medium | footballIq | +7 pts (TD drive) | 0 pts (stall) |
-| Go deep / bomb | High | confidence | +7 pts (TD) | -3 pts (INT, opp FG) |
+| Choice                   | Risk   | Key Stat   | Success           | Failure              |
+| ------------------------ | ------ | ---------- | ----------------- | -------------------- |
+| Check down / safe pass   | Low    | technique  | +3 pts (FG drive) | 0 pts (stall)        |
+| Play action / short pass | Medium | footballIq | +7 pts (TD drive) | 0 pts (stall)        |
+| Go deep / bomb           | High   | confidence | +7 pts (TD)       | -3 pts (INT, opp FG) |
 
 ### RB (runner_receiver, position RB)
 
-| Choice | Risk | Key Stat | Success | Failure |
-| --- | --- | --- | --- | --- |
-| Hit the hole / power run | Low | technique | +3 pts | 0 pts |
-| Bounce outside / speed | Medium | athleticism | +7 pts | 0 pts |
-| Fight for extra yards | High | confidence | +7 pts | -3 pts (fumble) |
+| Choice                   | Risk   | Key Stat    | Success | Failure         |
+| ------------------------ | ------ | ----------- | ------- | --------------- |
+| Hit the hole / power run | Low    | technique   | +3 pts  | 0 pts           |
+| Bounce outside / speed   | Medium | athleticism | +7 pts  | 0 pts           |
+| Fight for extra yards    | High   | confidence  | +7 pts  | -3 pts (fumble) |
 
 ### WR/TE (runner_receiver, position WR or TE)
 
-| Choice | Risk | Key Stat | Success | Failure |
-| --- | --- | --- | --- | --- |
-| Run a crisp route | Low | technique | +3 pts | 0 pts |
-| Break off the route / improvise | Medium | footballIq | +7 pts | 0 pts |
-| Go up for the 50/50 ball | High | athleticism | +7 pts | -3 pts (tipped INT) |
+| Choice                          | Risk   | Key Stat    | Success | Failure             |
+| ------------------------------- | ------ | ----------- | ------- | ------------------- |
+| Run a crisp route               | Low    | technique   | +3 pts  | 0 pts               |
+| Break off the route / improvise | Medium | footballIq  | +7 pts  | 0 pts               |
+| Go up for the 50/50 ball        | High   | athleticism | +7 pts  | -3 pts (tipped INT) |
 
 ### OL/DL (lineman)
 
-| Choice | Risk | Key Stat | Success | Failure |
-| --- | --- | --- | --- | --- |
-| Hold your assignment | Low | discipline | +3 pts | 0 pts |
-| Double team the star | Medium | technique | +7 pts | 0 pts |
-| Shoot the gap / blitz pickup | High | athleticism | +7 pts | -3 pts (blown play) |
+| Choice                       | Risk   | Key Stat    | Success | Failure             |
+| ---------------------------- | ------ | ----------- | ------- | ------------------- |
+| Hold your assignment         | Low    | discipline  | +3 pts  | 0 pts               |
+| Double team the star         | Medium | technique   | +7 pts  | 0 pts               |
+| Shoot the gap / blitz pickup | High   | athleticism | +7 pts  | -3 pts (blown play) |
 
 ### LB/CB/S (defender)
 
-| Choice | Risk | Key Stat | Success | Failure |
-| --- | --- | --- | --- | --- |
-| Stay in your zone | Low | discipline | +3 pts (stop) | 0 pts |
-| Jump the route | Medium | footballIq | +7 pts (turnover TD) | -3 pts (blown coverage) |
-| Blitz / go for the big hit | High | athleticism | +7 pts (sack/fumble TD) | -3 pts (missed, TD) |
+| Choice                     | Risk   | Key Stat    | Success                 | Failure                 |
+| -------------------------- | ------ | ----------- | ----------------------- | ----------------------- |
+| Stay in your zone          | Low    | discipline  | +3 pts (stop)           | 0 pts                   |
+| Jump the route             | Medium | footballIq  | +7 pts (turnover TD)    | -3 pts (blown coverage) |
+| Blitz / go for the big hit | High   | athleticism | +7 pts (sack/fumble TD) | -3 pts (missed, TD)     |
 
 ### K/P (kicker)
 
-| Choice | Risk | Key Stat | Success | Failure |
-| --- | --- | --- | --- | --- |
-| Chip shot / safe kick | Low | technique | +3 pts | 0 pts |
-| Aim for the corner / precision | Medium | confidence | +3 pts + pin deep | -3 pts (missed) |
-| Bomb it / long FG attempt | High | technique | +7 pts (50+ yd FG) | -3 pts (short, returned) |
+| Choice                         | Risk   | Key Stat   | Success            | Failure                  |
+| ------------------------------ | ------ | ---------- | ------------------ | ------------------------ |
+| Chip shot / safe kick          | Low    | technique  | +3 pts             | 0 pts                    |
+| Aim for the corner / precision | Medium | confidence | +3 pts + pin deep  | -3 pts (missed)          |
+| Bomb it / long FG attempt      | High   | technique  | +7 pts (50+ yd FG) | -3 pts (short, returned) |
 
 ## Success probability formula
 
@@ -117,12 +117,12 @@ success_chance = clamp(base_rate + stat_bonus, 0.10, 0.95)
 Examples at different stat levels:
 
 | Stat | Low risk | Medium risk | High risk |
-| --- | --- | --- | --- |
-| 30 | 55% | 30% | 10% |
-| 50 | 75% | 50% | 30% |
-| 70 | 95% | 70% | 50% |
-| 80 | 95% | 80% | 60% |
-| 90 | 95% | 90% | 70% |
+| ---- | -------- | ----------- | --------- |
+| 30   | 55%      | 30%         | 10%       |
+| 50   | 75%      | 50%         | 30%       |
+| 70   | 95%      | 70%         | 50%       |
+| 80   | 95%      | 80%         | 60%       |
+| 90   | 95%      | 90%         | 70%       |
 
 The 0.01 multiplier means stats have major impact. An elite player (80+) can
 reasonably attempt high-risk plays. A low-stat player (30) should stick to safe
@@ -159,9 +159,9 @@ opponent 40).
 
 Each choice button includes a description line showing risk level:
 
-- "Check down to the flat" -- *Safe. Moves the chains, sets up a field goal.*
-- "Play action over the middle" -- *Moderate risk. Could break it open for a TD.*
-- "Air it out deep" -- *High risk. Home run ball or a devastating pick.*
+- "Check down to the flat" -- _Safe. Moves the chains, sets up a field goal._
+- "Play action over the middle" -- _Moderate risk. Could break it open for a TD._
+- "Air it out deep" -- _High risk. Home run ball or a devastating pick._
 
 ### Outcome narrative
 
@@ -169,10 +169,12 @@ After resolution, 2-3 sentences of flavor text describe what happened. Each choi
 has a success and failure narrative variant stored in the clutch moment data.
 
 Example (QB deep ball, success):
+
 > "You let it fly to the end zone. Your receiver goes up over the corner and comes
 > down with it. Touchdown! The sideline erupts."
 
 Example (QB deep ball, failure):
+
 > "You heave it deep but the safety reads it all the way. Picked off at the 15.
 > The defense jogs off the field, shaking their heads."
 

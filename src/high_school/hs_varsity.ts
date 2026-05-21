@@ -71,16 +71,15 @@ export const hsVarsityHandler: YearHandler = {
 
 		// Run recruiting pre-season hook, then start football season
 		runRecruitingHookForStartOfYear(player, ctx, () => {
-			ctx.waitForInteraction('Varsity Season', [{
-				text: 'Start Season',
-				primary: true,
-				action: () => {
-					startSeason(
-						player, ctx, SEASON_CONFIG, season,
-						() => handleSeasonEnd(player, ctx),
-					);
+			ctx.waitForInteraction('Varsity Season', [
+				{
+					text: 'Start Season',
+					primary: true,
+					action: () => {
+						startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
+					},
 				},
-			}]);
+			]);
 		});
 	},
 

@@ -64,9 +64,10 @@ export function runPracticeSession(player: Player): PracticeResult {
 			depthUpdate = {
 				changed: true,
 				newStatus: player.depthChart,
-				message: player.depthChart === 'starter'
-					? 'Your practice tape earned you the starting job for this week.'
-					: 'Coaches bumped you up the depth chart. You are now the primary backup.',
+				message:
+					player.depthChart === 'starter'
+						? 'Your practice tape earned you the starting job for this week.'
+						: 'Coaches bumped you up the depth chart. You are now the primary backup.',
 			};
 		}
 	}

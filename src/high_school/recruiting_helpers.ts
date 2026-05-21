@@ -9,10 +9,7 @@ import { getSchoolById } from '../recruiting_profile.js';
 
 //============================================
 // Helper: resolve school display name from ID
-export function resolveSchoolDisplayName(
-	schoolId: string,
-	ctx: CareerContext,
-): string {
+export function resolveSchoolDisplayName(schoolId: string, ctx: CareerContext): string {
 	const school = getSchoolById(schoolId, ctx.ncaaSchools);
 	if (school) {
 		return formatSchoolName(school);
@@ -22,10 +19,7 @@ export function resolveSchoolDisplayName(
 
 //============================================
 // Helper: get division label for a school
-export function getSchoolDivisionLabel(
-	schoolId: string,
-	ctx: CareerContext,
-): string {
+export function getSchoolDivisionLabel(schoolId: string, ctx: CareerContext): string {
 	const school = getSchoolById(schoolId, ctx.ncaaSchools);
 	if (school) {
 		return school.subdivision;
@@ -39,9 +33,7 @@ export function getSchoolDivisionLabel(
 export function estimateSeasonWins(player: Player): number {
 	// Rough estimate based on team strength and player contribution
 	const baseWins = Math.floor(player.teamStrength / 15);
-	const playerBonus = Math.floor(
-		(player.core.athleticism + player.core.technique) / 50
-	);
+	const playerBonus = Math.floor((player.core.athleticism + player.core.technique) / 50);
 	const totalWins = Math.min(10, baseWins + playerBonus + randomInRange(-1, 2));
 	return Math.max(0, totalWins);
 }
@@ -56,7 +48,7 @@ export function showVisitImpressionCard(
 		playingTimePath: string;
 		familyReaction: string;
 	},
-	schoolName: string,
+	schoolName: string
 ): void {
 	ctx.addText(`Visit Report - ${schoolName}:`);
 	ctx.addText(`  Campus Vibe: ${impression.campusVibe}`);

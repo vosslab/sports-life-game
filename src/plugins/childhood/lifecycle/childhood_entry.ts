@@ -14,9 +14,9 @@ export const childhoodEntryHook: PhaseStartHook = {
 	fire(player: Player, ctx: GameContext): void {
 		ctx.addHeadline(`The Beginning: Age ${player.age}`);
 		ctx.addText(
-			'Life starts simple. You\'re just a kid, discovering the world one day at a time. ' +
-			'Play, grow, learn, and enjoy these years. ' +
-			'One day, football will call. But for now, just be a kid.'
+			"Life starts simple. You're just a kid, discovering the world one day at a time. " +
+				'Play, grow, learn, and enjoy these years. ' +
+				'One day, football will call. But for now, just be a kid.'
 		);
 	},
 };

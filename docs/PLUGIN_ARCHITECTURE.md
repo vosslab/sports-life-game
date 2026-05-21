@@ -32,16 +32,16 @@ The `PluginHost` facade exposes eight registries. Each registry owns one
 content type and offers a `register` (and sometimes `registerMany`) entry
 point plus lookup helpers.
 
-| Registry | Owns | Key registration method |
-| --- | --- | --- |
-| `phases` | Year handlers (per age band) | `host.phases.register(handler)` |
-| `events` | Narrative `GameEvent` records | `host.events.register(event)` / `registerMany` |
-| `choices` | `WeeklyChoice` records (JSON-loaded, keyed by `id`) | `host.choices.register(choice)` / `registerMany` |
-| `rules` | `RuleSetReference` pointers to simulator rule modules | `host.rules.register(ruleSetRef)` |
-| `ui` | Tabs, panels, widgets | `host.ui.registerTab` / `registerPanel` / `registerWidget` |
-| `lifecycle` | Age, phase-start, career-end hooks | `host.lifecycle.registerAgeHook` / `registerPhaseStartHook` / `registerCareerEndHook` |
-| `activities` | Weekly `Activity` entries | `host.activities.register(activity)` / `registerMany` |
-| `dataPacks` | Arbitrary `DataPack` content bundles | `host.dataPacks.register(pack)` |
+| Registry     | Owns                                                  | Key registration method                                                               |
+| ------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `phases`     | Year handlers (per age band)                          | `host.phases.register(handler)`                                                       |
+| `events`     | Narrative `GameEvent` records                         | `host.events.register(event)` / `registerMany`                                        |
+| `choices`    | `WeeklyChoice` records (JSON-loaded, keyed by `id`)   | `host.choices.register(choice)` / `registerMany`                                      |
+| `rules`      | `RuleSetReference` pointers to simulator rule modules | `host.rules.register(ruleSetRef)`                                                     |
+| `ui`         | Tabs, panels, widgets                                 | `host.ui.registerTab` / `registerPanel` / `registerWidget`                            |
+| `lifecycle`  | Age, phase-start, career-end hooks                    | `host.lifecycle.registerAgeHook` / `registerPhaseStartHook` / `registerCareerEndHook` |
+| `activities` | Weekly `Activity` entries                             | `host.activities.register(activity)` / `registerMany`                                 |
+| `dataPacks`  | Arbitrary `DataPack` content bundles                  | `host.dataPacks.register(pack)`                                                       |
 
 ## Contract index
 
@@ -284,7 +284,7 @@ handler in the plugin tree:
   `src/plugins/high_school/activities.json`).
 - `host.ui.registerTab({...})` from `src/plugins/high_school/tabs.ts`.
 - `host.ui.registerPanel({ panelId, label, availableInPhase,
-  render(ctx) { ... } })` from
+render(ctx) { ... } })` from
   `src/plugins/high_school/panels/career_panel.ts`. The `render(ctx)`
   callback is the only place inside the plugin allowed to touch DOM (see
   the Panel render contract above).

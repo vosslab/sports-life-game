@@ -36,12 +36,22 @@ function repoRoot(): string {
 }
 
 //============================================
+// Path to the CSV ESM loader hook used by Node + tsx so `import x from './foo.csv'`
+// resolves to the file's text content (matching esbuild's text loader contract).
+const CSV_LOADER_REL = 'tests/fixtures/csv_loader.mjs';
+
+//============================================
 // Run a single tsx target. Returns true on success, false on any nonzero exit.
 function runOne(root: string, rel: string): boolean {
-	const result = spawnSync('npx', ['tsx', rel], {
+	const csvLoaderUrl = url.pathToFileURL(path.join(root, CSV_LOADER_REL)).href;
+	// Silence DEP0205 from tsx's internal `module.register()` use. Our own
+	// csv_loader.mjs already uses the new registerHooks API.
+	const env = { ...process.env, NODE_OPTIONS: '--disable-warning=DEP0205' };
+	const result = spawnSync('npx', ['tsx', '--import', csvLoaderUrl, rel], {
 		cwd: root,
 		stdio: 'inherit',
 		encoding: 'utf8',
+		env,
 	});
 	return result.status === 0;
 }

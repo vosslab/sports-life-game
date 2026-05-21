@@ -3,9 +3,9 @@
 // Handles kickoffs, punts, field goals, PAT conversions
 //============================================
 
-import { GameState, PlayOutcome, PlayResult } from "../engine/state_machine.js";
-import { LeagueRules } from "../rules/league_rules.js";
-import { LeagueTuning } from "../rules/league_tuning.js";
+import { GameState, PlayOutcome, PlayResult } from '../engine/state_machine.js';
+import { LeagueRules } from '../rules/league_rules.js';
+import { LeagueTuning } from '../rules/league_tuning.js';
 import { rand } from '../../core/rng.js';
 import { randomNormal } from './math_utils.js';
 
@@ -13,14 +13,11 @@ import { randomNormal } from './math_utils.js';
 // Kickoff
 //============================================
 
-export function resolveKickoff(
-	state: GameState,
-	tuning: LeagueTuning
-): PlayOutcome {
+export function resolveKickoff(state: GameState, tuning: LeagueTuning): PlayOutcome {
 	// Touchback probability (typically 55%)
 	if (rand() < tuning.kickoffTouchbackRate) {
 		return {
-			play_type: "kickoff",
+			play_type: 'kickoff',
 			result: PlayResult.TOUCHBACK,
 			yards_gained: 0,
 			turnover: false,
@@ -39,7 +36,7 @@ export function resolveKickoff(
 			sack: false,
 			air_yards: 0,
 			is_complete: false,
-			description: "Kickoff, touchback.",
+			description: 'Kickoff, touchback.',
 		};
 	}
 
@@ -50,7 +47,7 @@ export function resolveKickoff(
 	// Return touchdown (1% chance)
 	if (rand() < 0.01) {
 		return {
-			play_type: "kickoff",
+			play_type: 'kickoff',
 			result: PlayResult.TOUCHDOWN,
 			yards_gained: returnYards,
 			turnover: false,
@@ -76,7 +73,7 @@ export function resolveKickoff(
 	// Fumble on return (1% chance)
 	if (rand() < 0.01) {
 		return {
-			play_type: "kickoff",
+			play_type: 'kickoff',
 			result: PlayResult.FUMBLE_LOST,
 			yards_gained: returnYards,
 			turnover: true,
@@ -101,7 +98,7 @@ export function resolveKickoff(
 
 	// Normal return
 	return {
-		play_type: "kickoff",
+		play_type: 'kickoff',
 		result: PlayResult.SHORT_OF_FIRST,
 		yards_gained: returnYards,
 		turnover: false,
@@ -128,24 +125,18 @@ export function resolveKickoff(
 // Punt
 //============================================
 
-export function resolvePunt(
-	state: GameState,
-	tuning: LeagueTuning
-): PlayOutcome {
+export function resolvePunt(state: GameState, tuning: LeagueTuning): PlayOutcome {
 	// Max punt distance limited by field position (can't punt past endzone)
 	const maxPunt = state.opponent_yard_line;
 
 	// Average punt ~45 yards, limited by field position
-	const puntDistance = Math.max(
-		20,
-		Math.min(Math.round(randomNormal(45, 8)), maxPunt)
-	);
+	const puntDistance = Math.max(20, Math.min(Math.round(randomNormal(45, 8)), maxPunt));
 
 	// Blocked punt (1.5% chance)
 	if (rand() < 0.015) {
 		const blockRecoveryYards = Math.floor(rand() * 15);
 		return {
-			play_type: "punt",
+			play_type: 'punt',
 			result: PlayResult.FUMBLE_LOST,
 			yards_gained: -blockRecoveryYards,
 			turnover: true,
@@ -164,7 +155,7 @@ export function resolvePunt(
 			sack: false,
 			air_yards: 0,
 			is_complete: false,
-			description: "Punt BLOCKED! Recovered by defense.",
+			description: 'Punt BLOCKED! Recovered by defense.',
 		};
 	}
 
@@ -174,7 +165,7 @@ export function resolvePunt(
 	// Touchback if punt reaches endzone
 	if (landYard >= 100) {
 		return {
-			play_type: "punt",
+			play_type: 'punt',
 			result: PlayResult.TOUCHBACK,
 			yards_gained: puntDistance,
 			turnover: false,
@@ -200,7 +191,7 @@ export function resolvePunt(
 	// Fair catch chance
 	if (rand() < tuning.puntFairCatchRate) {
 		return {
-			play_type: "punt",
+			play_type: 'punt',
 			result: PlayResult.FAIR_CATCH,
 			yards_gained: puntDistance,
 			turnover: false,
@@ -229,7 +220,7 @@ export function resolvePunt(
 	// Muffed punt (2% chance) - punting team recovers, keeps ball
 	if (rand() < 0.02) {
 		return {
-			play_type: "punt",
+			play_type: 'punt',
 			result: PlayResult.FUMBLE_LOST,
 			yards_gained: puntDistance,
 			turnover: false, // punting team recovers = no turnover
@@ -255,7 +246,7 @@ export function resolvePunt(
 	// Punt return touchdown (1% chance)
 	if (rand() < 0.01) {
 		return {
-			play_type: "punt",
+			play_type: 'punt',
 			result: PlayResult.TOUCHDOWN,
 			yards_gained: puntDistance,
 			turnover: false,
@@ -274,14 +265,14 @@ export function resolvePunt(
 			sack: false,
 			air_yards: 0,
 			is_complete: false,
-			description: "Punt returned for a TOUCHDOWN!",
+			description: 'Punt returned for a TOUCHDOWN!',
 		};
 	}
 
 	// Normal punt with return
 	const netPuntYards = puntDistance - returnYards;
 	return {
-		play_type: "punt",
+		play_type: 'punt',
 		result: PlayResult.PUNT,
 		yards_gained: netPuntYards,
 		turnover: false,
@@ -318,7 +309,7 @@ export function resolveFieldGoal(
 	// Auto-miss if beyond max range
 	if (distance > rules.fieldGoalMaxRange) {
 		return {
-			play_type: "field_goal",
+			play_type: 'field_goal',
 			result: PlayResult.FIELD_GOAL_MISSED,
 			yards_gained: 0,
 			turnover: false,
@@ -369,7 +360,7 @@ export function resolveFieldGoal(
 
 	if (rand() < successProb) {
 		return {
-			play_type: "field_goal",
+			play_type: 'field_goal',
 			result: PlayResult.FIELD_GOAL_MADE,
 			yards_gained: 0,
 			turnover: false,
@@ -393,7 +384,7 @@ export function resolveFieldGoal(
 	}
 
 	return {
-		play_type: "field_goal",
+		play_type: 'field_goal',
 		result: PlayResult.FIELD_GOAL_MISSED,
 		yards_gained: 0,
 		turnover: false,
@@ -420,15 +411,12 @@ export function resolveFieldGoal(
 // Extra Point (PAT)
 //============================================
 
-export function resolveExtraPoint(
-	state: GameState,
-	rules: LeagueRules
-): PlayOutcome {
+export function resolveExtraPoint(state: GameState, rules: LeagueRules): PlayOutcome {
 	const successProb = rules.patSuccessRate;
 
 	if (rand() < successProb) {
 		return {
-			play_type: "extra_point",
+			play_type: 'extra_point',
 			result: PlayResult.FIELD_GOAL_MADE,
 			yards_gained: 0,
 			turnover: false,
@@ -447,12 +435,12 @@ export function resolveExtraPoint(
 			sack: false,
 			air_yards: 0,
 			is_complete: false,
-			description: "Extra point is GOOD.",
+			description: 'Extra point is GOOD.',
 		};
 	}
 
 	return {
-		play_type: "extra_point",
+		play_type: 'extra_point',
 		result: PlayResult.FIELD_GOAL_MISSED,
 		yards_gained: 0,
 		turnover: false,
@@ -471,7 +459,7 @@ export function resolveExtraPoint(
 		sack: false,
 		air_yards: 0,
 		is_complete: false,
-		description: "Extra point is NO GOOD.",
+		description: 'Extra point is NO GOOD.',
 	};
 }
 
@@ -479,15 +467,12 @@ export function resolveExtraPoint(
 // Two-Point Conversion
 //============================================
 
-export function resolveTwoPoint(
-	state: GameState,
-	rules: LeagueRules
-): PlayOutcome {
+export function resolveTwoPoint(state: GameState, rules: LeagueRules): PlayOutcome {
 	const successProb = rules.twoPointRate;
 
 	if (rand() < successProb) {
 		return {
-			play_type: "two_point",
+			play_type: 'two_point',
 			result: PlayResult.TOUCHDOWN,
 			yards_gained: 0,
 			turnover: false,
@@ -506,12 +491,12 @@ export function resolveTwoPoint(
 			sack: false,
 			air_yards: 0,
 			is_complete: false,
-			description: "Two-point conversion is GOOD!",
+			description: 'Two-point conversion is GOOD!',
 		};
 	}
 
 	return {
-		play_type: "two_point",
+		play_type: 'two_point',
 		result: PlayResult.SHORT_OF_FIRST,
 		yards_gained: 0,
 		turnover: false,
@@ -530,6 +515,6 @@ export function resolveTwoPoint(
 		sack: false,
 		air_yards: 0,
 		is_complete: false,
-		description: "Two-point conversion FAILED.",
+		description: 'Two-point conversion FAILED.',
 	};
 }

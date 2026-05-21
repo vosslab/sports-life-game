@@ -12,9 +12,9 @@ export class SeasonTeam {
 	id: TeamId;
 	name: string;
 	mascot: string;
-	strength: number;          // 1-100
-	conferenceId: string;      // empty string if no conference
-	divisionId: string;        // empty string if no division
+	strength: number; // 1-100
+	conferenceId: string; // empty string if no conference
+	divisionId: string; // empty string if no division
 	coachPersonality: CoachPersonality;
 
 	constructor(
@@ -24,7 +24,7 @@ export class SeasonTeam {
 		strength: number,
 		coachPersonality: CoachPersonality,
 		conferenceId: string = '',
-		divisionId: string = '',
+		divisionId: string = ''
 	) {
 		this.id = id;
 		this.name = name;
@@ -46,6 +46,9 @@ export class SeasonTeam {
 // Simple assertions
 const testTeam = new SeasonTeam('t1', 'Lincoln', 'Spartans', 75, 'supportive', 'north');
 console.assert(testTeam.id === 't1', 'Team id should match');
-console.assert(testTeam.getDisplayName() === 'Lincoln Spartans', 'Display name should combine name + mascot');
+console.assert(
+	testTeam.getDisplayName() === 'Lincoln Spartans',
+	'Display name should combine name + mascot'
+);
 console.assert(testTeam.conferenceId === 'north', 'Conference should be set');
 console.assert(testTeam.divisionId === '', 'Division should default to empty');

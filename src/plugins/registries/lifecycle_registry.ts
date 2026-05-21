@@ -5,12 +5,7 @@
 // Lookup methods: getAgeHooks, getPhaseStartHooks, getCareerEndHooks.
 // Throws on duplicate id within each hook type.
 
-import type {
-	AgeHook,
-	PhaseStartHook,
-	CareerEndHook,
-	LifecycleRegistry,
-} from '../plugin_host.js';
+import type { AgeHook, PhaseStartHook, CareerEndHook, LifecycleRegistry } from '../plugin_host.js';
 
 //============================================
 // Module-level state: separate arrays for each hook type
@@ -22,9 +17,7 @@ const careerEndHooks: CareerEndHook[] = [];
 // Helper: sort by priority desc, then id asc.
 // Higher priority number fires FIRST. Default priority is 0.
 // Use priority > 0 to ensure a hook fires before others at the same age.
-function sortHooks<T extends { id: string; priority?: number }>(
-	hooks: T[]
-): void {
+function sortHooks<T extends { id: string; priority?: number }>(hooks: T[]): void {
 	hooks.sort((a, b) => {
 		const priorityA = a.priority ?? 0;
 		const priorityB = b.priority ?? 0;

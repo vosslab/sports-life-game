@@ -3,8 +3,8 @@
 // Decides what play to call based on game context using heuristic fallbacks
 //============================================
 
-import { GameState, Situation } from "../engine/state_machine.js";
-import { LeagueTuning } from "../rules/league_tuning.js";
+import { GameState, Situation } from '../engine/state_machine.js';
+import { LeagueTuning } from '../rules/league_tuning.js';
 import { rand } from '../../core/rng.js';
 
 //============================================
@@ -16,12 +16,12 @@ import { rand } from '../../core/rng.js';
  * Mirrors nflsim's _distance_bucket() for play-calling model consistency.
  */
 export function distanceBucket(ytg: number): string {
-	if (ytg <= 1) return "1";
-	if (ytg <= 3) return "2-3";
-	if (ytg <= 6) return "4-6";
-	if (ytg <= 10) return "7-10";
-	if (ytg <= 15) return "11-15";
-	return "16+";
+	if (ytg <= 1) return '1';
+	if (ytg <= 3) return '2-3';
+	if (ytg <= 6) return '4-6';
+	if (ytg <= 10) return '7-10';
+	if (ytg <= 15) return '11-15';
+	return '16+';
 }
 
 /**
@@ -30,14 +30,14 @@ export function distanceBucket(ytg: number): string {
  * Mirrors nflsim's _field_zone().
  */
 export function fieldZone(oppYardLine: number): string {
-	if (oppYardLine <= 3) return "goal_line";
-	if (oppYardLine <= 10) return "green_zone";
-	if (oppYardLine <= 20) return "red_zone";
-	if (oppYardLine <= 40) return "plus_territory";
-	if (oppYardLine <= 60) return "midfield";
-	if (oppYardLine <= 80) return "own_territory";
-	if (oppYardLine <= 90) return "own_deep";
-	return "backed_up";
+	if (oppYardLine <= 3) return 'goal_line';
+	if (oppYardLine <= 10) return 'green_zone';
+	if (oppYardLine <= 20) return 'red_zone';
+	if (oppYardLine <= 40) return 'plus_territory';
+	if (oppYardLine <= 60) return 'midfield';
+	if (oppYardLine <= 80) return 'own_territory';
+	if (oppYardLine <= 90) return 'own_deep';
+	return 'backed_up';
 }
 
 /**
@@ -46,15 +46,15 @@ export function fieldZone(oppYardLine: number): string {
  * Mirrors nflsim's _score_bucket().
  */
 export function scoreBucket(diff: number): string {
-	if (diff <= -17) return "down_17+";
-	if (diff <= -9) return "down_9_16";
-	if (diff <= -4) return "down_4_8";
-	if (diff <= -1) return "down_1_3";
-	if (diff === 0) return "tied";
-	if (diff <= 3) return "up_1_3";
-	if (diff <= 8) return "up_4_8";
-	if (diff <= 16) return "up_9_16";
-	return "up_17+";
+	if (diff <= -17) return 'down_17+';
+	if (diff <= -9) return 'down_9_16';
+	if (diff <= -4) return 'down_4_8';
+	if (diff <= -1) return 'down_1_3';
+	if (diff === 0) return 'tied';
+	if (diff <= 3) return 'up_1_3';
+	if (diff <= 8) return 'up_4_8';
+	if (diff <= 16) return 'up_9_16';
+	return 'up_17+';
 }
 
 //============================================
@@ -75,14 +75,14 @@ function passProb(
 	situation: Situation,
 	scoreDiff: number,
 	quarter: number,
-	secsRemaining: number,
+	secsRemaining: number
 ): number {
 	// Base pass rate depends on down and distance
 	let base = 0.58;
 	if (down === 1) {
 		base = 0.52;
 	} else if (down === 2) {
-		base = ytg >= 7 ? 0.65 : 0.50;
+		base = ytg >= 7 ? 0.65 : 0.5;
 	} else if (down === 3) {
 		if (ytg >= 5) base = 0.82;
 		else if (ytg >= 3) base = 0.65;
@@ -91,17 +91,17 @@ function passProb(
 
 	// TWO_MINUTE: hurry offense, more passing
 	if (situation === Situation.TWO_MINUTE) {
-		base = Math.min(0.90, base + 0.20);
+		base = Math.min(0.9, base + 0.2);
 	}
 	// GOAL_LINE: run-heavy in scoring zone
 	else if (situation === Situation.GOAL_LINE) {
-		base = Math.max(0.30, base - 0.15);
+		base = Math.max(0.3, base - 0.15);
 	}
 	// GARBAGE_TIME: leading teams run clock, trailing teams pass
 	else if (situation === Situation.GARBAGE_TIME) {
 		if (scoreDiff > 0) {
 			// winning: conservative, run more
-			base = Math.max(0.30, base - 0.20);
+			base = Math.max(0.3, base - 0.2);
 		} else {
 			// losing: aggressive, pass more
 			base = Math.min(0.85, base + 0.15);
@@ -136,11 +136,11 @@ function fourthDownGoProb(
 	oppYardLine: number,
 	scoreDiff: number,
 	quarter: number,
-	secsRemaining: number,
+	secsRemaining: number
 ): number {
 	// Base probability by distance
 	let prob = 0.05;
-	if (ytg <= 1) prob = 0.40;
+	if (ytg <= 1) prob = 0.4;
 	else if (ytg <= 2) prob = 0.25;
 	else if (ytg <= 3) prob = 0.15;
 
@@ -154,7 +154,7 @@ function fourthDownGoProb(
 		prob += 0.25;
 		// Very late (<=5 min): even more desperate
 		if (secsRemaining <= 300) {
-			prob += 0.20;
+			prob += 0.2;
 		}
 	}
 
@@ -193,30 +193,17 @@ export function choosePlay(state: GameState, tuning: LeagueTuning): string {
 	// Kneel to run out the clock: winning, Q4, <=2:00, defense no timeouts, down <= 3
 	// Prevents defense from using their last timeouts when game is decided
 	const defTimeouts =
-		state.possession === state.home_team
-			? state.away_timeouts
-			: state.home_timeouts;
+		state.possession === state.home_team ? state.away_timeouts : state.home_timeouts;
 
-	if (
-		scoreDiff > 0 &&
-		quarter === 4 &&
-		secsRemaining <= 120 &&
-		defTimeouts === 0 &&
-		down <= 3
-	) {
-		return "kneel";
+	if (scoreDiff > 0 && quarter === 4 && secsRemaining <= 120 && defTimeouts === 0 && down <= 3) {
+		return 'kneel';
 	}
 
 	// Spike to stop the clock: losing, <60s left, Q2 or Q4, down <= 3
 	// Low probability (15%) to avoid excessive clock-stopping
-	if (
-		scoreDiff < 0 &&
-		secsRemaining <= 60 &&
-		(quarter === 2 || quarter === 4) &&
-		down <= 3
-	) {
+	if (scoreDiff < 0 && secsRemaining <= 60 && (quarter === 2 || quarter === 4) && down <= 3) {
 		if (rand() < 0.15) {
-			return "spike";
+			return 'spike';
 		}
 	}
 
@@ -227,28 +214,21 @@ export function choosePlay(state: GameState, tuning: LeagueTuning): string {
 		// Attempt FG if within range and reasonable field position
 		// 55 yards is typical FG max range; requires positioning within ~38 yards of goal
 		if (fgDistance <= 55 && oppYardLine <= 38) {
-			return "field_goal";
+			return 'field_goal';
 		}
 
 		// Go for it or punt based on context
 		const goProb = fourthDownGoProb(ytg, oppYardLine, scoreDiff, quarter, secsRemaining);
 		if (rand() < goProb) {
 			// Go for it: slightly more pass-heavy (55% pass)
-			return rand() < 0.55 ? "pass" : "run";
+			return rand() < 0.55 ? 'pass' : 'run';
 		}
 
 		// Default to punt
-		return "punt";
+		return 'punt';
 	}
 
 	// -- 1st-3rd down: pass or run --
-	const passProb_ = passProb(
-		down,
-		ytg,
-		state.situation,
-		scoreDiff,
-		quarter,
-		secsRemaining,
-	);
-	return rand() < passProb_ ? "pass" : "run";
+	const passProb_ = passProb(down, ytg, state.situation, scoreDiff, quarter, secsRemaining);
+	return rand() < passProb_ ? 'pass' : 'run';
 }

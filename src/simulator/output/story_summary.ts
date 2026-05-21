@@ -1,21 +1,16 @@
 export interface StoryGameSummary {
-	result: "win" | "loss";
+	result: 'win' | 'loss';
 	score: { team: number; opponent: number };
 	gameTone:
-		| "blowout_win"
-		| "blowout_loss"
-		| "close_win"
-		| "close_loss"
-		| "comeback_win"
-		| "collapse_loss"
-		| "defensive_struggle"
-		| "shootout";
-	significance:
-		| "normal"
-		| "upset"
-		| "rivalry"
-		| "playoff_implication"
-		| "ranking_implication";
+		| 'blowout_win'
+		| 'blowout_loss'
+		| 'close_win'
+		| 'close_loss'
+		| 'comeback_win'
+		| 'collapse_loss'
+		| 'defensive_struggle'
+		| 'shootout';
+	significance: 'normal' | 'upset' | 'rivalry' | 'playoff_implication' | 'ranking_implication';
 	playerStoryStats: {
 		headlineStat?: string;
 		touchdowns?: number;
@@ -31,10 +26,10 @@ export interface StoryGameSummary {
 //============================================
 // Extract numeric values from stat line entries
 function extractNumber(value: unknown): number {
-	if (typeof value === "number") {
+	if (typeof value === 'number') {
 		return value;
 	}
-	if (typeof value === "string") {
+	if (typeof value === 'string') {
 		const num = parseFloat(value);
 		return isNaN(num) ? 0 : num;
 	}
@@ -47,7 +42,7 @@ function analyzeScoreTrends(
 	playLog: string[],
 	teamScore: number,
 	opponentScore: number,
-	isHome: boolean,
+	isHome: boolean
 ): { wasTrailingBy10: boolean; wasLeadingBy10: boolean } {
 	// Simple heuristic: scan for patterns suggesting earlier deficit or lead
 	// For more sophisticated tracking, the play log would include actual score states
@@ -56,24 +51,20 @@ function analyzeScoreTrends(
 	let wasLeadingBy10 = false;
 
 	// Look for comeback/collapse indicators in play log
-	const logText = playLog.join(" ").toUpperCase();
+	const logText = playLog.join(' ').toUpperCase();
 
 	// Comebacks often mention being behind or rallying
 	if (
-		logText.includes("COMEBACK") ||
-		logText.includes("RALLY") ||
-		logText.includes("DOWN 10") ||
-		logText.includes("DEFICIT")
+		logText.includes('COMEBACK') ||
+		logText.includes('RALLY') ||
+		logText.includes('DOWN 10') ||
+		logText.includes('DEFICIT')
 	) {
 		wasTrailingBy10 = true;
 	}
 
 	// Collapses mention being ahead then losing
-	if (
-		logText.includes("COLLAPSE") ||
-		logText.includes("BLOWN LEAD") ||
-		logText.includes("UP 10")
-	) {
+	if (logText.includes('COLLAPSE') || logText.includes('BLOWN LEAD') || logText.includes('UP 10')) {
 		wasLeadingBy10 = true;
 	}
 
@@ -87,43 +78,43 @@ function determineGameTone(
 	opponentScore: number,
 	wasTrailingBy10: boolean,
 	wasLeadingBy10: boolean,
-	result: "win" | "loss",
-): StoryGameSummary["gameTone"] {
+	result: 'win' | 'loss'
+): StoryGameSummary['gameTone'] {
 	const margin = Math.abs(teamScore - opponentScore);
 	const totalPoints = teamScore + opponentScore;
 
 	// Blowout: 21+ point margin
 	if (margin >= 21) {
-		return result === "win" ? "blowout_win" : "blowout_loss";
+		return result === 'win' ? 'blowout_win' : 'blowout_loss';
 	}
 
 	// Comeback: won after being down 10+
-	if (result === "win" && wasTrailingBy10) {
-		return "comeback_win";
+	if (result === 'win' && wasTrailingBy10) {
+		return 'comeback_win';
 	}
 
 	// Collapse: lost after being up 10+
-	if (result === "loss" && wasLeadingBy10) {
-		return "collapse_loss";
+	if (result === 'loss' && wasLeadingBy10) {
+		return 'collapse_loss';
 	}
 
 	// Shootout: high scoring, close game (60+ combined points, <14 margin)
 	if (totalPoints >= 60 && margin < 14) {
-		return "shootout";
+		return 'shootout';
 	}
 
 	// Defensive struggle: low scoring (20 or fewer combined points)
 	if (totalPoints <= 20) {
-		return "defensive_struggle";
+		return 'defensive_struggle';
 	}
 
 	// Close: tight margin (7 or fewer)
 	if (margin <= 7) {
-		return result === "win" ? "close_win" : "close_loss";
+		return result === 'win' ? 'close_win' : 'close_loss';
 	}
 
 	// Default to win/loss
-	return result === "win" ? "close_win" : "close_loss";
+	return result === 'win' ? 'close_win' : 'close_loss';
 }
 
 //============================================
@@ -132,7 +123,7 @@ function determineGameTone(
 // Stat keys use camelCase matching adapter output and accumulateGameStats.
 function extractHeadlineStat(
 	positionBucket: string,
-	playerStatLine: Record<string, number | string>,
+	playerStatLine: Record<string, number | string>
 ): string | undefined {
 	const num = (key: string): number => {
 		const v = playerStatLine[key];
@@ -161,13 +152,13 @@ function extractHeadlineStat(
 			if (rushYards > 0 || rushTds > 0) {
 				// RB stats
 				if (rushTds >= 1) {
-					return `${rushTds} rushing touchdown${rushTds > 1 ? "s" : ""}`;
+					return `${rushTds} rushing touchdown${rushTds > 1 ? 's' : ''}`;
 				}
 				return `${rushYards} rushing yards`;
 			}
 			// WR/TE stats
 			if (recTds >= 1) {
-				return `${recTds} receiving touchdown${recTds > 1 ? "s" : ""}`;
+				return `${recTds} receiving touchdown${recTds > 1 ? 's' : ''}`;
 			}
 			if (receptions >= 5) {
 				return `${receptions} receptions for ${recYards} yards`;
@@ -182,10 +173,10 @@ function extractHeadlineStat(
 			const sacks = num('sacks');
 			const tackles = num('tackles');
 			if (ints >= 1) {
-				return `${ints} interception${ints > 1 ? "s" : ""}`;
+				return `${ints} interception${ints > 1 ? 's' : ''}`;
 			}
 			if (sacks >= 1) {
-				return `${sacks} sack${sacks > 1 ? "s" : ""}`;
+				return `${sacks} sack${sacks > 1 ? 's' : ''}`;
 			}
 			if (tackles > 0) {
 				return `${tackles} tackles`;
@@ -221,17 +212,17 @@ function extractNotableMoments(playLog: string[]): string[] {
 		const upperEntry = entry.toUpperCase();
 
 		// Touchdowns
-		if (upperEntry.includes("TOUCHDOWN")) {
+		if (upperEntry.includes('TOUCHDOWN')) {
 			moments.push(entry);
 		}
 		// Turnovers (interceptions or fumbles)
-		else if (upperEntry.includes("INTERCEPTED") || upperEntry.includes("FUMBLE")) {
+		else if (upperEntry.includes('INTERCEPTED') || upperEntry.includes('FUMBLE')) {
 			moments.push(entry);
 		}
 		// Big plays (40+ yards)
 		else if (
-			upperEntry.includes("GAIN") &&
-			(upperEntry.includes("40+") || upperEntry.includes("50+") || upperEntry.includes("60+"))
+			upperEntry.includes('GAIN') &&
+			(upperEntry.includes('40+') || upperEntry.includes('50+') || upperEntry.includes('60+'))
 		) {
 			moments.push(entry);
 		}
@@ -263,12 +254,12 @@ function hasLongPlay(playLog: string[]): boolean {
 
 		// Look for mentions of large gains
 		if (
-			upperEntry.includes("40 YARD") ||
-			upperEntry.includes("50 YARD") ||
-			upperEntry.includes("60 YARD") ||
-			upperEntry.includes("40+") ||
-			upperEntry.includes("50+") ||
-			upperEntry.includes("60+")
+			upperEntry.includes('40 YARD') ||
+			upperEntry.includes('50 YARD') ||
+			upperEntry.includes('60 YARD') ||
+			upperEntry.includes('40+') ||
+			upperEntry.includes('50+') ||
+			upperEntry.includes('60+')
 		) {
 			return true;
 		}
@@ -294,18 +285,18 @@ export function buildStorySummary(
 	isHome: boolean,
 	playerStatLine: Record<string, number | string>,
 	positionBucket: string,
-	playLog: string[],
+	playLog: string[]
 ): StoryGameSummary {
 	const teamScore = isHome ? homeScore : awayScore;
 	const opponentScore = isHome ? awayScore : homeScore;
-	const result = teamScore > opponentScore ? "win" : "loss";
+	const result = teamScore > opponentScore ? 'win' : 'loss';
 
 	// Analyze score trends
 	const { wasTrailingBy10, wasLeadingBy10 } = analyzeScoreTrends(
 		playLog,
 		teamScore,
 		opponentScore,
-		isHome,
+		isHome
 	);
 
 	// Determine game tone
@@ -314,18 +305,18 @@ export function buildStorySummary(
 		opponentScore,
 		wasTrailingBy10,
 		wasLeadingBy10,
-		result,
+		result
 	);
 
 	// Extract player stats using camelCase keys matching the adapter output
 	const headlineStat = extractHeadlineStat(positionBucket, playerStatLine);
 	const touchdowns = extractNumber(
-		playerStatLine["passTds"] ?? playerStatLine["rushTds"] ?? playerStatLine["recTds"] ?? 0,
+		playerStatLine['passTds'] ?? playerStatLine['rushTds'] ?? playerStatLine['recTds'] ?? 0
 	);
-	const turnovers = extractNumber(playerStatLine["passInts"] ?? 0)
-		+ extractNumber(playerStatLine["fumbles"] ?? 0);
-	const sacks = extractNumber(playerStatLine["sacks"] ?? 0);
-	const interceptions = extractNumber(playerStatLine["ints"] ?? 0);
+	const turnovers =
+		extractNumber(playerStatLine['passInts'] ?? 0) + extractNumber(playerStatLine['fumbles'] ?? 0);
+	const sacks = extractNumber(playerStatLine['sacks'] ?? 0);
+	const interceptions = extractNumber(playerStatLine['ints'] ?? 0);
 
 	// Notable moments and long plays
 	const longPlay = hasLongPlay(playLog);
@@ -335,7 +326,7 @@ export function buildStorySummary(
 		result,
 		score: { team: teamScore, opponent: opponentScore },
 		gameTone,
-		significance: "normal",
+		significance: 'normal',
 		playerStoryStats: {
 			headlineStat,
 			touchdowns: touchdowns > 0 ? touchdowns : undefined,
@@ -357,39 +348,39 @@ export function generateStoryText(summary: StoryGameSummary, playerName: string)
 			? `${summary.score.team}-${summary.score.opponent} win`
 			: `${summary.score.team}-${summary.score.opponent} loss`;
 
-	let narrative = "";
+	let narrative = '';
 
 	// Build core narrative based on game tone
 	switch (summary.gameTone) {
-		case "blowout_win":
+		case 'blowout_win':
 			narrative = `${playerName} dominated in a ${summary.score.team}-${summary.score.opponent} blowout.`;
 			break;
 
-		case "blowout_loss":
+		case 'blowout_loss':
 			narrative = `${playerName} fell short in a ${summary.score.team}-${summary.score.opponent} blowout loss.`;
 			break;
 
-		case "comeback_win":
+		case 'comeback_win':
 			narrative = `${playerName} led a remarkable comeback to secure a ${scorePhrase}.`;
 			break;
 
-		case "collapse_loss":
+		case 'collapse_loss':
 			narrative = `${playerName} couldn't hold on as the team collapsed in a ${scorePhrase}.`;
 			break;
 
-		case "close_win":
+		case 'close_win':
 			narrative = `${playerName} delivered in a close ${scorePhrase}.`;
 			break;
 
-		case "close_loss":
+		case 'close_loss':
 			narrative = `${playerName} came up short in a tight ${scorePhrase}.`;
 			break;
 
-		case "shootout":
+		case 'shootout':
 			narrative = `${playerName} participated in an exciting high-scoring battle that ended ${scorePhrase}.`;
 			break;
 
-		case "defensive_struggle":
+		case 'defensive_struggle':
 			narrative = `${playerName} battled in a defensive struggle that ended ${scorePhrase}.`;
 			break;
 

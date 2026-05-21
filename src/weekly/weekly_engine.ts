@@ -38,9 +38,29 @@ export async function initializeWeeklyEngine(): Promise<void> {
 
 // Re-export public API from cohesive submodules
 export { startSeason, advanceToNextWeek, endSeason, finalizeSeason } from './season_lifecycle.js';
-export { showGoalSelection, applyGoalAndAdvance, showWeeklyChoices, showCrisisResponse } from './week_phases.js';
-export { showActivities, handleActivitySelected, applyBackgroundActivityFromGoal, proceedToEventCheck, showEventCard } from './week_phases.js';
+export {
+	showGoalSelection,
+	applyGoalAndAdvance,
+	showWeeklyChoices,
+	showCrisisResponse,
+} from './week_phases.js';
+export {
+	showActivities,
+	handleActivitySelected,
+	applyBackgroundActivityFromGoal,
+	proceedToEventCheck,
+	showEventCard,
+} from './week_phases.js';
 export { proceedToGame, showRegularSeasonPostGame, simulateRestOfSeason } from './game_handler.js';
-export { startPlayoffs, showPlayoffPostGame, simulateNonPlayerPlayoffGames } from './playoff_handler.js';
-export { refreshActivitiesForCurrentSeason, isSeasonActive, getSeasonRecord, getActiveWeekState, getActiveSeason } from './engine_state.js';
-
+export {
+	startPlayoffs,
+	showPlayoffPostGame,
+	simulateNonPlayerPlayoffGames,
+} from './playoff_handler.js';
+export {
+	refreshActivitiesForCurrentSeason,
+	isSeasonActive,
+	getSeasonRecord,
+	getActiveWeekState,
+	getActiveSeason,
+} from './engine_state.js';

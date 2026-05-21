@@ -8,22 +8,22 @@
 // flow through LeagueRules and LeagueTuning interfaces.
 //============================================
 
-import {
-	Phase,
-	GameState,
-	PlayOutcome,
-	PlayResult,
-} from "./state_machine.js";
-import { applyPlayResult } from "./rules_engine.js";
-import { LeagueRules } from "../rules/league_rules.js";
-import { LeagueTuning } from "../rules/league_tuning.js";
+import { Phase, GameState, PlayOutcome, PlayResult } from './state_machine.js';
+import { applyPlayResult } from './rules_engine.js';
+import { LeagueRules } from '../rules/league_rules.js';
+import { LeagueTuning } from '../rules/league_tuning.js';
 import {
 	GameTeamContext,
 	MatchupAdjustment,
 	computeMatchupAdjustment,
-} from "../models/team_strength_model.js";
-import { choosePlay } from "../models/play_call_model.js";
-import { resolvePass, resolveRun, resolveKneel, resolveSpike } from "../models/play_result_model.js";
+} from '../models/team_strength_model.js';
+import { choosePlay } from '../models/play_call_model.js';
+import {
+	resolvePass,
+	resolveRun,
+	resolveKneel,
+	resolveSpike,
+} from '../models/play_result_model.js';
 import { rand } from '../../core/rng.js';
 import {
 	resolveKickoff,
@@ -31,7 +31,7 @@ import {
 	resolveFieldGoal,
 	resolveExtraPoint,
 	resolveTwoPoint,
-} from "../models/special_teams_model.js";
+} from '../models/special_teams_model.js';
 
 // Safety limit to prevent infinite loops
 const MAX_PLAYS = 300;
@@ -61,7 +61,7 @@ export function simulateGame(
 	home: GameTeamContext,
 	away: GameTeamContext,
 	rules: LeagueRules,
-	tuning: LeagueTuning,
+	tuning: LeagueTuning
 ): SimulatorGameResult {
 	// Initialize game state
 	const state = new GameState();
@@ -87,9 +87,7 @@ export function simulateGame(
 		}
 
 		// Get matchup adjustment for current possession
-		const matchup = state.possession === state.home_team
-			? homeOnOffense
-			: awayOnOffense;
+		const matchup = state.possession === state.home_team ? homeOnOffense : awayOnOffense;
 
 		// Resolve one play
 		const outcome = resolveOnePlay(state, rules, tuning, matchup);
@@ -98,12 +96,16 @@ export function simulateGame(
 		applyPlayResult(state, outcome);
 
 		// Clock management (skip for PAT plays)
-		if (outcome.play_type !== "extra_point" && outcome.play_type !== "two_point") {
+		if (outcome.play_type !== 'extra_point' && outcome.play_type !== 'two_point') {
 			const runoff = computeRunoff(state, outcome, rules);
 			advanceClock(state, runoff);
 
 			// Quarter end check
-			if (state.quarter_seconds_remaining <= 0 && (state.phase as string) !== Phase.PAT && (state.phase as string) !== Phase.GAME_OVER) {
+			if (
+				state.quarter_seconds_remaining <= 0 &&
+				(state.phase as string) !== Phase.PAT &&
+				(state.phase as string) !== Phase.GAME_OVER
+			) {
 				transitionQuarter(state, rules);
 			}
 		}
@@ -151,7 +153,7 @@ function coinToss(state: GameState): void {
 	const winner = rand() < 0.5 ? state.home_team : state.away_team;
 
 	// ~60% of coin toss winners defer to receive in 2nd half
-	if (rand() < 0.60) {
+	if (rand() < 0.6) {
 		// Winner defers: they receive in 2H, so they kick first
 		if (winner === state.home_team) {
 			state.home_receives_2h = true;
@@ -176,7 +178,7 @@ function coinToss(state: GameState): void {
 	}
 
 	state.phase = Phase.KICKOFF;
-	state.kickoff_reason = "start_of_game";
+	state.kickoff_reason = 'start_of_game';
 	state.logPlay(`Coin toss: ${winner} wins.`);
 }
 
@@ -188,7 +190,7 @@ function resolveOnePlay(
 	state: GameState,
 	rules: LeagueRules,
 	tuning: LeagueTuning,
-	matchup: MatchupAdjustment,
+	matchup: MatchupAdjustment
 ): PlayOutcome {
 	// Kickoff phase
 	if (state.phase === Phase.KICKOFF) {
@@ -208,7 +210,7 @@ function resolveOnePlay(
 
 	// Should not reach here
 	return {
-		play_type: "kneel",
+		play_type: 'kneel',
 		result: PlayResult.KNEEL,
 		yards_gained: -1,
 		turnover: false,
@@ -227,7 +229,7 @@ function resolveOnePlay(
 		sack: false,
 		air_yards: 0,
 		is_complete: false,
-		description: "ERROR: unexpected phase",
+		description: 'ERROR: unexpected phase',
 	};
 }
 
@@ -235,11 +237,7 @@ function resolveOnePlay(
 // PAT decision: extra point or two-point
 //============================================
 
-function resolvePat(
-	state: GameState,
-	rules: LeagueRules,
-	tuning: LeagueTuning,
-): PlayOutcome {
+function resolvePat(state: GameState, rules: LeagueRules, tuning: LeagueTuning): PlayOutcome {
 	// Score diff before PAT (the TD already added 6)
 	const scoreDiff = state.score_diff - 6;
 
@@ -272,24 +270,24 @@ function executePlay(
 	playCall: string,
 	rules: LeagueRules,
 	tuning: LeagueTuning,
-	matchup: MatchupAdjustment,
+	matchup: MatchupAdjustment
 ): PlayOutcome {
-	if (playCall === "pass") {
+	if (playCall === 'pass') {
 		return resolvePass(state, tuning, matchup);
 	}
-	if (playCall === "run") {
+	if (playCall === 'run') {
 		return resolveRun(state, tuning, matchup);
 	}
-	if (playCall === "punt") {
+	if (playCall === 'punt') {
 		return resolvePunt(state, tuning);
 	}
-	if (playCall === "field_goal") {
+	if (playCall === 'field_goal') {
 		return resolveFieldGoal(state, rules, tuning);
 	}
-	if (playCall === "kneel") {
+	if (playCall === 'kneel') {
 		return resolveKneel(state);
 	}
-	if (playCall === "spike") {
+	if (playCall === 'spike') {
 		return resolveSpike(state);
 	}
 
@@ -301,11 +299,7 @@ function executePlay(
 // Clock management
 //============================================
 
-function computeRunoff(
-	state: GameState,
-	outcome: PlayOutcome,
-	rules: LeagueRules,
-): number {
+function computeRunoff(state: GameState, outcome: PlayOutcome, rules: LeagueRules): number {
 	// Base clock runoffs calibrated from NFL medians
 	const quarterSeconds = rules.quarterLengthMin * 60;
 
@@ -314,16 +308,20 @@ function computeRunoff(
 	const scale = quarterSeconds / 900;
 
 	// Scoring plays: TD celebration + PAT + kickoff = significant time
-	if (outcome.touchdown || outcome.result === PlayResult.FIELD_GOAL_MADE || outcome.result === PlayResult.SAFETY) {
+	if (
+		outcome.touchdown ||
+		outcome.result === PlayResult.FIELD_GOAL_MADE ||
+		outcome.result === PlayResult.SAFETY
+	) {
 		return Math.round(15 * scale);
 	}
 
 	// Kickoffs: return + lineup
-	if (outcome.play_type === "kickoff") {
+	if (outcome.play_type === 'kickoff') {
 		return Math.round(12 * scale);
 	}
 	// Punts: punt + return + lineup
-	if (outcome.play_type === "punt") {
+	if (outcome.play_type === 'punt') {
 		return Math.round(15 * scale);
 	}
 
@@ -334,10 +332,10 @@ function computeRunoff(
 	}
 
 	// Spike and kneel
-	if (outcome.play_type === "spike") {
+	if (outcome.play_type === 'spike') {
 		return Math.round(1 * scale);
 	}
-	if (outcome.play_type === "kneel") {
+	if (outcome.play_type === 'kneel') {
 		return Math.round(40 * scale);
 	}
 
@@ -347,9 +345,10 @@ function computeRunoff(
 	}
 
 	// Hurry-up mode: trailing team in last 2 min of each half
-	const isHurryUp = state.score_diff < 0
-		&& state.quarter_seconds_remaining <= 120
-		&& (state.quarter === 2 || state.quarter === 4);
+	const isHurryUp =
+		state.score_diff < 0 &&
+		state.quarter_seconds_remaining <= 120 &&
+		(state.quarter === 2 || state.quarter === 4);
 	if (isHurryUp) {
 		return Math.round(18 * scale);
 	}
@@ -394,8 +393,8 @@ function transitionQuarter(state: GameState, rules: LeagueRules): void {
 		}
 		state.possession = state.scoring_team_last;
 		state.phase = Phase.KICKOFF;
-		state.kickoff_reason = "start_of_half";
-		state.logPlay("** Halftime **");
+		state.kickoff_reason = 'start_of_half';
+		state.logPlay('** Halftime **');
 	} else if (state.quarter === 4) {
 		// End of regulation
 		if (state.home_score === state.away_score) {
@@ -405,7 +404,7 @@ function transitionQuarter(state: GameState, rules: LeagueRules): void {
 			state.home_timeouts = 2;
 			state.away_timeouts = 2;
 			state.phase = Phase.KICKOFF;
-			state.kickoff_reason = "start_of_game";
+			state.kickoff_reason = 'start_of_game';
 
 			// Coin toss for OT possession
 			if (rand() < 0.5) {
@@ -415,24 +414,24 @@ function transitionQuarter(state: GameState, rules: LeagueRules): void {
 				state.possession = state.away_team;
 				state.scoring_team_last = state.away_team;
 			}
-			state.logPlay("** Overtime **");
+			state.logPlay('** Overtime **');
 		} else {
 			state.phase = Phase.GAME_OVER;
-			state.logPlay("** Final **");
+			state.logPlay('** Final **');
 		}
 	} else if (state.quarter === 5) {
 		// End of overtime - if still tied, award FG to random team
 		if (state.home_score === state.away_score) {
 			if (rand() < 0.5) {
 				state.home_score += 3;
-				state.logPlay("Home team wins with late field goal in overtime.");
+				state.logPlay('Home team wins with late field goal in overtime.');
 			} else {
 				state.away_score += 3;
-				state.logPlay("Away team wins with late field goal in overtime.");
+				state.logPlay('Away team wins with late field goal in overtime.');
 			}
 		}
 		state.phase = Phase.GAME_OVER;
-		state.logPlay("** Final (OT) **");
+		state.logPlay('** Final (OT) **');
 	} else {
 		// Q1 -> Q2, Q3 -> Q4: just advance quarter
 		state.quarter += 1;

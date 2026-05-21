@@ -29,11 +29,16 @@ export function getArcPhase(currentWeek: number, seasonLength: number): ArcPhase
 // Get display name for the arc phase (for UI headers)
 export function getArcPhaseLabel(phase: ArcPhase): string {
 	switch (phase) {
-		case 'preseason': return 'Preseason';
-		case 'opening': return 'Early Season';
-		case 'midseason': return 'Midseason';
-		case 'stretch': return 'Stretch Run';
-		case 'postseason': return 'Postseason';
+		case 'preseason':
+			return 'Preseason';
+		case 'opening':
+			return 'Early Season';
+		case 'midseason':
+			return 'Midseason';
+		case 'stretch':
+			return 'Stretch Run';
+		case 'postseason':
+			return 'Postseason';
 	}
 }
 
@@ -41,10 +46,15 @@ export function getArcPhaseLabel(phase: ArcPhase): string {
 // Get narrative flavor for the phase transition
 export function getPhaseTransitionText(phase: ArcPhase): string {
 	switch (phase) {
-		case 'preseason': return 'A new season begins. Time to set the tone.';
-		case 'opening': return 'The season is underway. Every game matters.';
-		case 'midseason': return 'Deep into the season now. The grind is real.';
-		case 'stretch': return 'The final stretch. Everything is on the line.';
-		case 'postseason': return 'The season is over. Time to reflect and decide.';
+		case 'preseason':
+			return 'A new season begins. Time to set the tone.';
+		case 'opening':
+			return 'The season is underway. Every game matters.';
+		case 'midseason':
+			return 'Deep into the season now. The grind is real.';
+		case 'stretch':
+			return 'The final stretch. Everything is on the line.';
+		case 'postseason':
+			return 'The season is over. Time to reflect and decide.';
 	}
 }

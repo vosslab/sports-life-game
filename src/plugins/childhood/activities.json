@@ -4,7 +4,7 @@
 		"name": "Play Outside",
 		"description": "Run around, explore the neighborhood, climb trees.",
 		"phases": ["childhood"],
-		"effects": {"athleticism": 1},
+		"effects": { "athleticism": 1 },
 		"flavorText": "You spent the afternoon running around. Your legs feel stronger."
 	},
 	{
@@ -12,7 +12,7 @@
 		"name": "Read Books",
 		"description": "Settle in with a good book. Quiet time for imagination.",
 		"phases": ["childhood"],
-		"effects": {"footballIq": 1},
+		"effects": { "footballIq": 1 },
 		"flavorText": "You got lost in a story. Your imagination is alive."
 	},
 	{
@@ -20,7 +20,7 @@
 		"name": "Help with Chores",
 		"description": "Pitch in around the house. Build responsibility.",
 		"phases": ["childhood"],
-		"effects": {"discipline": 1},
+		"effects": { "discipline": 1 },
 		"flavorText": "You helped out without complaining. Your parents were impressed."
 	},
 	{
@@ -28,7 +28,7 @@
 		"name": "Play Catch",
 		"description": "Toss a ball back and forth in the yard.",
 		"phases": ["childhood"],
-		"effects": {"athleticism": 1, "technique": 1},
+		"effects": { "athleticism": 1, "technique": 1 },
 		"flavorText": "Your throws are getting more accurate. Your hand-eye coordination is improving."
 	},
 	{
@@ -36,7 +36,7 @@
 		"name": "Sleep In",
 		"description": "Rest and recharge. Good for growing bodies.",
 		"phases": ["childhood"],
-		"effects": {"health": 2},
+		"effects": { "health": 2 },
 		"flavorText": "After a full night of sleep, you feel refreshed and ready for anything."
 	}
 ]

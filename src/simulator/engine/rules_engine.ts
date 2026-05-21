@@ -4,7 +4,7 @@
 // scoring, turnovers, down/distance, possession changes, and phase changes
 //============================================
 
-import { Phase, GameState, PlayOutcome, PlayResult } from "./state_machine.js";
+import { Phase, GameState, PlayOutcome, PlayResult } from './state_machine.js';
 
 // Constants
 const KICKOFF_TOUCHBACK_YARD_LINE = 30;
@@ -66,13 +66,13 @@ export function applyPlayResult(state: GameState, outcome: PlayOutcome): void {
 	}
 
 	// ---- Kickoff results ----
-	if (outcome.play_type === "kickoff") {
+	if (outcome.play_type === 'kickoff') {
 		applyKickoffResult(state, outcome);
 		return;
 	}
 
 	// ---- Punt results ----
-	if (outcome.play_type === "punt") {
+	if (outcome.play_type === 'punt') {
 		applyPuntResult(state, outcome);
 		return;
 	}
@@ -194,7 +194,10 @@ function applyKickoffResult(state: GameState, outcome: PlayOutcome): void {
 		const kickingTeam = state.home_team === receivingTeam ? state.away_team : state.home_team;
 		state.possession = kickingTeam;
 		// Ball is at return spot (touchback point + return yards)
-		state.yard_line = Math.max(1, Math.min(99, 100 - (KICKOFF_TOUCHBACK_YARD_LINE + outcome.yards_gained)));
+		state.yard_line = Math.max(
+			1,
+			Math.min(99, 100 - (KICKOFF_TOUCHBACK_YARD_LINE + outcome.yards_gained))
+		);
 	} else {
 		// Normal return: ball starts at ~own 25, returned N yards upfield
 		const start = KICKOFF_TOUCHBACK_YARD_LINE;
@@ -351,5 +354,5 @@ function setupKickoff(state: GameState, kickingTeam: string): void {
 	state.down = 1;
 	state.yards_to_go = 10;
 	state.phase = Phase.KICKOFF;
-	state.kickoff_reason = "after_score";
+	state.kickoff_reason = 'after_score';
 }

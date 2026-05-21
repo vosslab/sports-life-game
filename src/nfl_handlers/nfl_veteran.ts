@@ -58,9 +58,7 @@ export const nflVeteranHandler: YearHandler = {
 				primary: true,
 				action: () => {
 					player.nflYear += 1;
-					startSeason(player, ctx, SEASON_CONFIG, season,
-						() => handleSeasonEnd(player, ctx),
-					);
+					startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
 				},
 			},
 			{
@@ -68,7 +66,9 @@ export const nflVeteranHandler: YearHandler = {
 				primary: false,
 				action: () => {
 					ctx.addHeadline('Retirement');
-					ctx.addText(`${player.firstName} announces retirement after ${player.nflYear} NFL seasons.`);
+					ctx.addText(
+						`${player.firstName} announces retirement after ${player.nflYear} NFL seasons.`
+					);
 					player.phase = 'legacy';
 					// TODO: Hall of Fame check, legacy screen
 				},

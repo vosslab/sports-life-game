@@ -15,9 +15,9 @@ export const firstFootballHook: AgeHook = {
 	fire(player: Player, ctx: GameContext): void {
 		ctx.addText(
 			'You turned 5. One afternoon, your parent showed you a highlight clip on TV. ' +
-			'A player made an incredible catch. You were mesmerized. ' +
-			'"That looks fun," you said. Your parent smiled. ' +
-			'Maybe someday you\'d play football too.'
+				'A player made an incredible catch. You were mesmerized. ' +
+				'"That looks fun," you said. Your parent smiled. ' +
+				"Maybe someday you'd play football too."
 		);
 	},
 };

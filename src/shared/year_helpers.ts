@@ -116,7 +116,7 @@ export function coachAssignPosition(player: Player): void {
 		} else {
 			player.position = 'OL';
 		}
-	// Medium kids: QB, LB, or S
+		// Medium kids: QB, LB, or S
 	} else if (size >= 3) {
 		if (ath >= 65) {
 			player.position = 'QB';
@@ -125,7 +125,7 @@ export function coachAssignPosition(player: Player): void {
 		} else {
 			player.position = 'S';
 		}
-	// Small kids: WR, RB, CB, or K
+		// Small kids: WR, RB, CB, or K
 	} else {
 		if (ath >= 65) {
 			player.position = 'WR';

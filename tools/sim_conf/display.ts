@@ -18,9 +18,17 @@ export function printStandings(season: LeagueSeason, playerTeamId: string): void
 	console.log('');
 	console.log('Conference standings (main_conference):');
 	console.log(
-		'    ' + pad('Team', 32) + ' ' + pad('W-L', 5, false)
-		+ '  ' + pad('Conf', 5, false) + '  ' + pad('PF', 5, false)
-		+ '  ' + pad('PA', 5, false) + '  Diff',
+		'    ' +
+			pad('Team', 32) +
+			' ' +
+			pad('W-L', 5, false) +
+			'  ' +
+			pad('Conf', 5, false) +
+			'  ' +
+			pad('PF', 5, false) +
+			'  ' +
+			pad('PA', 5, false) +
+			'  Diff'
 	);
 	console.log('    ' + '-'.repeat(64));
 	for (const row of standings) {
@@ -30,16 +38,18 @@ export function printStandings(season: LeagueSeason, playerTeamId: string): void
 		const diff = row.pointsFor - row.pointsAgainst;
 		const diffStr = (diff >= 0 ? '+' : '') + String(diff);
 		console.log(
-			`${marker} ${pad(row.name, 32)} ${pad(record, 5, false)}  `
-			+ `${pad(conf, 5, false)}  ${pad(row.pointsFor, 5, false)}  `
-			+ `${pad(row.pointsAgainst, 5, false)}  ${diffStr}`,
+			`${marker} ${pad(row.name, 32)} ${pad(record, 5, false)}  ` +
+				`${pad(conf, 5, false)}  ${pad(row.pointsFor, 5, false)}  ` +
+				`${pad(row.pointsAgainst, 5, false)}  ${diffStr}`
 		);
 	}
 }
 
 //============================================
 export function printAggregateSummary(
-	wins: Map<string, number>, totalRuns: number, playerName: string,
+	wins: Map<string, number>,
+	totalRuns: number,
+	playerName: string
 ): void {
 	console.log('');
 	console.log(`Conference titles across ${totalRuns} season(s):`);
@@ -56,25 +66,21 @@ export function printAggregatePlayerStats(stats: AggregateStats, totalRuns: numb
 	console.log('');
 	console.log(`Player team aggregate stats across ${totalRuns} season(s):`);
 	console.log(
-		`  Avg record:        ${stats.playerAvgWins.toFixed(1)}-${stats.playerAvgLosses.toFixed(1)}`,
+		`  Avg record:        ${stats.playerAvgWins.toFixed(1)}-${stats.playerAvgLosses.toFixed(1)}`
+	);
+	console.log(`  Win pct:           ${(stats.conferenceWinRate * 100).toFixed(1)}%`);
+	console.log(`  Undefeated rate:   ${(stats.undefeatedRate * 100).toFixed(1)}%`);
+	console.log(
+		`  Avg PF/PA:         ${stats.avgPF.toFixed(1)}/${stats.avgPA.toFixed(1)} ` +
+			`(diff ${stats.avgDiff >= 0 ? '+' : ''}${stats.avgDiff.toFixed(1)})`
 	);
 	console.log(
-		`  Win pct:           ${(stats.conferenceWinRate * 100).toFixed(1)}%`,
+		`  Best season:       ${stats.bestSeason.wins}-${stats.bestSeason.losses} ` +
+			`(diff ${stats.bestSeason.diff >= 0 ? '+' : ''}${stats.bestSeason.diff})`
 	);
 	console.log(
-		`  Undefeated rate:   ${(stats.undefeatedRate * 100).toFixed(1)}%`,
-	);
-	console.log(
-		`  Avg PF/PA:         ${stats.avgPF.toFixed(1)}/${stats.avgPA.toFixed(1)} `
-		+ `(diff ${(stats.avgDiff >= 0 ? '+' : '')}${stats.avgDiff.toFixed(1)})`,
-	);
-	console.log(
-		`  Best season:       ${stats.bestSeason.wins}-${stats.bestSeason.losses} `
-		+ `(diff ${(stats.bestSeason.diff >= 0 ? '+' : '')}${stats.bestSeason.diff})`,
-	);
-	console.log(
-		`  Worst season:      ${stats.worstSeason.wins}-${stats.worstSeason.losses} `
-		+ `(diff ${(stats.worstSeason.diff >= 0 ? '+' : '')}${stats.worstSeason.diff})`,
+		`  Worst season:      ${stats.worstSeason.wins}-${stats.worstSeason.losses} ` +
+			`(diff ${stats.worstSeason.diff >= 0 ? '+' : ''}${stats.worstSeason.diff})`
 	);
 	console.log('');
 	console.log('  Conference rank distribution:');
@@ -92,16 +98,14 @@ export function printPlayerTeamSchedule(season: LeagueSeason): void {
 	if (!playerTeam) return;
 
 	const playerTeamName = playerTeam.getDisplayName();
-	const playerGames = season.games.filter(g =>
-		g.homeTeamId === 'player' || g.awayTeamId === 'player'
+	const playerGames = season.games.filter(
+		(g) => g.homeTeamId === 'player' || g.awayTeamId === 'player'
 	);
 	playerGames.sort((a, b) => a.week - b.week);
 
 	console.log('');
 	console.log(`Schedule for ${playerTeamName}:`);
-	console.log(
-		'  Week  vs Opponent               Strength  Score    Record  Type',
-	);
+	console.log('  Week  vs Opponent               Strength  Score    Record  Type');
 	console.log('  ' + '-'.repeat(66));
 
 	let wins = 0;
@@ -118,8 +122,7 @@ export function printPlayerTeamSchedule(season: LeagueSeason): void {
 		if (!oppTeam) continue;
 
 		// Skip games that aren't final yet (homeScore/awayScore are undefined).
-		if (game.status !== 'final' || game.homeScore === undefined
-				|| game.awayScore === undefined) {
+		if (game.status !== 'final' || game.homeScore === undefined || game.awayScore === undefined) {
 			continue;
 		}
 		const playerScore = isHome ? game.homeScore : game.awayScore;
@@ -140,22 +143,20 @@ export function printPlayerTeamSchedule(season: LeagueSeason): void {
 		const record = `${wins}-${losses}`;
 
 		console.log(
-			`  ${pad(game.week, 3, false)}   ${vs} ${pad(oppName, 25)}  `
-			+ `${strength}    ${pad(scoreStr, 7)}  ${pad(record, 6)}  ${confType}`,
+			`  ${pad(game.week, 3, false)}   ${vs} ${pad(oppName, 25)}  ` +
+				`${strength}    ${pad(scoreStr, 7)}  ${pad(record, 6)}  ${confType}`
 		);
 	}
 }
 
 //============================================
 export function printBoxScores(season: LeagueSeason): void {
-	const confGames = season.games.filter(g => g.isConferenceGame && g.status === 'final');
+	const confGames = season.games.filter((g) => g.isConferenceGame && g.status === 'final');
 	confGames.sort((a, b) => a.week - b.week);
 
 	console.log('');
 	console.log('All conference games:');
-	console.log(
-		'  Wk  Home Team                    Score  Away Team                    Score',
-	);
+	console.log('  Wk  Home Team                    Score  Away Team                    Score');
 	console.log('  ' + '-'.repeat(78));
 
 	for (const game of confGames) {
@@ -171,8 +172,7 @@ export function printBoxScores(season: LeagueSeason): void {
 		const awayScore = `${game.awayScore}`.padStart(3);
 
 		console.log(
-			`  ${pad(game.week, 2, false)}  ${homeName}  ${homeScore}  `
-			+ `${awayName}  ${awayScore}`,
+			`  ${pad(game.week, 2, false)}  ${homeName}  ${homeScore}  ` + `${awayName}  ${awayScore}`
 		);
 	}
 }
@@ -181,20 +181,18 @@ export function printBoxScores(season: LeagueSeason): void {
 export function printPowerRanking(season: LeagueSeason): void {
 	const standings = season.getStandings('main_conference');
 
-	const strengths = standings.map(s => season.getTeam(s.teamId)?.strength ?? 0);
-	const diffs = standings.map(s => s.pointsFor - s.pointsAgainst);
+	const strengths = standings.map((s) => season.getTeam(s.teamId)?.strength ?? 0);
+	const diffs = standings.map((s) => s.pointsFor - s.pointsAgainst);
 	const maxStrength = Math.max(...strengths);
 	const minStrength = Math.min(...strengths);
-	const maxDiff = Math.max(...diffs.map(d => Math.abs(d)));
+	const maxDiff = Math.max(...diffs.map((d) => Math.abs(d)));
 
 	const scores = standings.map((row, i) => {
 		const total = row.wins + row.losses + row.ties || 1;
 		const recordPct = row.wins / total;
 		const diffNorm = maxDiff > 0 ? diffs[i] / maxDiff : 0;
 		const strengthNorm =
-			maxStrength > minStrength
-				? (strengths[i] - minStrength) / (maxStrength - minStrength)
-				: 0;
+			maxStrength > minStrength ? (strengths[i] - minStrength) / (maxStrength - minStrength) : 0;
 		const score = recordPct * 0.6 + diffNorm * 0.3 + strengthNorm * 0.1;
 		return { row, score, strength: strengths[i], diff: diffs[i] };
 	});
@@ -203,9 +201,7 @@ export function printPowerRanking(season: LeagueSeason): void {
 
 	console.log('');
 	console.log('Tool-side power ranking (not game canon):');
-	console.log(
-		'    Team                           Score    W-L  Strength  Diff',
-	);
+	console.log('    Team                           Score    W-L  Strength  Diff');
 	console.log('    ' + '-'.repeat(60));
 
 	for (let rank = 0; rank < scores.length; rank++) {
@@ -214,8 +210,8 @@ export function printPowerRanking(season: LeagueSeason): void {
 		const marker = row.teamId === 'player' ? '>>>' : '   ';
 		const diffStr = (diff >= 0 ? '+' : '') + String(diff);
 		console.log(
-			`${marker} ${rank + 1}. ${pad(row.name, 32)} ${score.toFixed(2)}   `
-			+ `${pad(record, 4, false)}    ${pad(strength, 3, false)}       ${diffStr}`,
+			`${marker} ${rank + 1}. ${pad(row.name, 32)} ${score.toFixed(2)}   ` +
+				`${pad(record, 4, false)}    ${pad(strength, 3, false)}       ${diffStr}`
 		);
 	}
 }

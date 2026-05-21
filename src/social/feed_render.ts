@@ -2,17 +2,25 @@
 
 import { Player } from '../player.js';
 import {
-	FotomagicPost, FEED_RENDER_LIMIT, recentPosts,
-	addPost, buildManualPost, applyPostPopularity,
+	FotomagicPost,
+	FEED_RENDER_LIMIT,
+	recentPosts,
+	addPost,
+	buildManualPost,
+	applyPostPopularity,
 } from './fotomagic.js';
 
 //============================================
 // Format a post timestamp like "HS Yr 2 - Wk 4"
 function formatPostTime(post: FotomagicPost): string {
-	const phaseShort = post.phase === 'high_school' ? 'HS'
-		: post.phase === 'college' ? 'COL'
-		: post.phase === 'nfl' ? 'NFL'
-		: post.phase;
+	const phaseShort =
+		post.phase === 'high_school'
+			? 'HS'
+			: post.phase === 'college'
+				? 'COL'
+				: post.phase === 'nfl'
+					? 'NFL'
+					: post.phase;
 	if (post.week > 0) {
 		return phaseShort + ' Age ' + post.age + ' - Wk ' + post.week;
 	}
@@ -41,8 +49,8 @@ function buildPostCard(post: FotomagicPost): HTMLElement {
 	// Image placeholder (Fotomagic is a photo app)
 	const image = document.createElement('div');
 	image.className = 'fotomagic-post-image';
-	const kindLabel = post.kind === 'milestone' ? 'MILESTONE'
-		: post.kind === 'game' ? 'GAME DAY' : 'POST';
+	const kindLabel =
+		post.kind === 'milestone' ? 'MILESTONE' : post.kind === 'game' ? 'GAME DAY' : 'POST';
 	image.textContent = kindLabel;
 	card.appendChild(image);
 
@@ -74,13 +82,12 @@ function buildPostCard(post: FotomagicPost): HTMLElement {
 export function renderSocialTab(
 	player: Player,
 	container: HTMLElement,
-	onAfterPost: () => void,
+	onAfterPost: () => void
 ): void {
 	container.innerHTML = '';
 
 	// Header bar with handle and follower count
-	const handle = '@' + player.firstName.toLowerCase() + '.'
-		+ player.lastName.toLowerCase();
+	const handle = '@' + player.firstName.toLowerCase() + '.' + player.lastName.toLowerCase();
 	const followers = Math.floor(player.career.popularity * 12);
 	const headerBar = document.createElement('div');
 	headerBar.className = 'fotomagic-header';

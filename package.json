@@ -1,35 +1,42 @@
 {
-  "name": "sports-life-game",
-  "description": "A BitLife-style American football career simulator",
-  "type": "module",
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "lint": "tsc -p tsconfig.lint.json --noEmit",
-    "test": "tsx tests/run.ts"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.60.0",
-    "@types/node": "^20.0.0",
-    "playwright": "^1.59.1",
-    "tsx": "^4.7.0",
-    "typescript": "^5.4"
-  },
-  "license": "GPL-3.0",
-  "version": "1.0.0",
-  "main": "eslint.config.js",
-  "directories": {
-    "doc": "docs",
-    "test": "tests"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vosslab/sports-life-game.git"
-  },
-  "keywords": [],
-  "author": "",
-  "bugs": {
-    "url": "https://github.com/vosslab/sports-life-game/issues"
-  },
-  "homepage": "https://github.com/vosslab/sports-life-game#readme"
+	"name": "sports-life-game",
+	"description": "A BitLife-style American football career simulator",
+	"type": "module",
+	"scripts": {
+		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"typecheck:lint": "tsc --noEmit -p tsconfig.lint.json",
+		"format:check": "prettier --check .",
+		"format:write": "prettier --write .",
+		"test:node": "NODE_OPTIONS=--disable-warning=DEP0205 tsx tests/run.ts",
+		"test:playwright": "node tests/playwright/autoplay.mjs",
+		"build": "./build_github_pages.sh",
+		"serve": "./run_web_server.sh",
+		"check": "./check_codebase.sh",
+		"dev": "esbuild src/main.ts --bundle --format=esm --target=es2020 --sourcemap --loader:.csv=text --loader:.json=json --outfile=dist/main.js --watch"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.60.0",
+		"@types/node": "^20.0.0",
+		"esbuild": "^0.28.0",
+		"playwright": "^1.59.1",
+		"prettier": "^3.8.3",
+		"tsx": "^4.7.0",
+		"typescript": "^5.4"
+	},
+	"license": "GPL-3.0",
+	"version": "1.0.0",
+	"directories": {
+		"doc": "docs",
+		"test": "tests"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/vosslab/sports-life-game.git"
+	},
+	"keywords": [],
+	"author": "",
+	"bugs": {
+		"url": "https://github.com/vosslab/sports-life-game/issues"
+	},
+	"homepage": "https://github.com/vosslab/sports-life-game#readme"
 }

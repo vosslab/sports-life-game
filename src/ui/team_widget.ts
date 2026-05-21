@@ -13,7 +13,7 @@ export function updateTeamTab(
 	formattedStandings: string,
 	schedule: ScheduleEntry[],
 	currentWeek: number,
-	coachName: string,
+	coachName: string
 ): void {
 	const content = document.getElementById('team-content');
 	if (!content) {

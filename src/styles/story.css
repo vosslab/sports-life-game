@@ -115,7 +115,9 @@
 .story-section.collapsed {
 	max-height: 0;
 	opacity: 0;
-	transition: max-height 0.3s ease, opacity 0.2s ease;
+	transition:
+		max-height 0.3s ease,
+		opacity 0.2s ease;
 }
 
 /*============================================*/

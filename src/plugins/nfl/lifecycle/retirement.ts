@@ -14,6 +14,6 @@ export const retirementHook: CareerEndHook = {
 
 	fire(player: Player, ctx: GameContext): void {
 		ctx.addHeadline('End of Career');
-		ctx.addText('After a legendary career in the NFL, it\'s time to hang it up.');
+		ctx.addText("After a legendary career in the NFL, it's time to hang it up.");
 	},
 };

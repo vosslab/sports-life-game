@@ -40,33 +40,22 @@ export function showRetirement(ctx: RetirementContext): void {
 				ctx.switchToLife();
 				ctx.clearStory();
 				ctx.addStoryHeadline('The End of an Era');
-				ctx.addStoryText(
-					`After ${player.nflYear} NFL seasons, ` +
-					'you hang up the cleats.'
-				);
-				ctx.addStoryText(
-					`Career earnings: $${player.career.money.toLocaleString()}`
-				);
+				ctx.addStoryText(`After ${player.nflYear} NFL seasons, ` + 'you hang up the cleats.');
+				ctx.addStoryText(`Career earnings: $${player.career.money.toLocaleString()}`);
 				const avgStats = Math.round(
-					(player.core.technique + player.core.footballIq +
-					player.core.athleticism + player.core.confidence) / 4
+					(player.core.technique +
+						player.core.footballIq +
+						player.core.athleticism +
+						player.core.confidence) /
+						4
 				);
 				if (player.nflYear >= 10 && avgStats >= 65) {
 					ctx.addStoryHeadline('Hall of Fame');
-					ctx.addStoryText(
-						'Years from now, you stand at the podium ' +
-						'in Canton.'
-					);
+					ctx.addStoryText('Years from now, you stand at the podium ' + 'in Canton.');
 				} else if (player.nflYear >= 7 && avgStats >= 55) {
-					ctx.addStoryText(
-						'You may not make the Hall of Fame, but ' +
-						'you had a great career.'
-					);
+					ctx.addStoryText('You may not make the Hall of Fame, but ' + 'you had a great career.');
 				} else {
-					ctx.addStoryText(
-						'You made it to the NFL. Not many people ' +
-						'can say that.'
-					);
+					ctx.addStoryText('You made it to the NFL. Not many people ' + 'can say that.');
 				}
 				ctx.addStoryHeadline('Your Legacy');
 				if (player.bigDecisions.length > 0) {

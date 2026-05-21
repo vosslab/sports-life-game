@@ -93,7 +93,7 @@ function renderScoutReport(container: HTMLElement, player: Player): void {
 		notesRow.style.marginTop = '1.5em';
 
 		// Strengths
-		const strengths = report.notes.filter(n => n.category === 'strength');
+		const strengths = report.notes.filter((n) => n.category === 'strength');
 		if (strengths.length > 0) {
 			const strengthsHeader = document.createElement('div');
 			strengthsHeader.style.fontWeight = 'bold';
@@ -111,7 +111,7 @@ function renderScoutReport(container: HTMLElement, player: Player): void {
 		}
 
 		// Weaknesses
-		const weaknesses = report.notes.filter(n => n.category === 'weakness');
+		const weaknesses = report.notes.filter((n) => n.category === 'weakness');
 		if (weaknesses.length > 0) {
 			const weaknessesHeader = document.createElement('div');
 			weaknessesHeader.style.fontWeight = 'bold';
@@ -129,7 +129,7 @@ function renderScoutReport(container: HTMLElement, player: Player): void {
 		}
 
 		// Concerns
-		const concerns = report.notes.filter(n => n.category === 'concern');
+		const concerns = report.notes.filter((n) => n.category === 'concern');
 		if (concerns.length > 0) {
 			const concernsHeader = document.createElement('div');
 			concernsHeader.style.fontWeight = 'bold';
@@ -147,7 +147,7 @@ function renderScoutReport(container: HTMLElement, player: Player): void {
 		}
 
 		// Buzz
-		const buzz = report.notes.filter(n => n.category === 'buzz');
+		const buzz = report.notes.filter((n) => n.category === 'buzz');
 		if (buzz.length > 0) {
 			const buzzHeader = document.createElement('div');
 			buzzHeader.style.fontWeight = 'bold';

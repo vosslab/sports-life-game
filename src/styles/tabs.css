@@ -34,7 +34,9 @@
 	-webkit-user-select: none;
 	user-select: none;
 	touch-action: manipulation;
-	transition: color 0.15s ease, border-color 0.15s ease;
+	transition:
+		color 0.15s ease,
+		border-color 0.15s ease;
 }
 
 .tab-button.tab-active {

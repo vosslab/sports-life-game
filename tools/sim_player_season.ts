@@ -49,7 +49,17 @@ interface SimConfig {
 //============================================
 // Allowed positions for the --position flag.
 const VALID_POSITIONS: readonly Position[] = [
-	'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'CB', 'S', 'K', 'P',
+	'QB',
+	'RB',
+	'WR',
+	'TE',
+	'OL',
+	'DL',
+	'LB',
+	'CB',
+	'S',
+	'K',
+	'P',
 ];
 
 //============================================
@@ -63,7 +73,7 @@ function parseArgs(argv: readonly string[]): SimConfig {
 		oppBase: 60,
 		oppRange: 25,
 		weeks: 17,
-		seed: 0xCAFEBABE,
+		seed: 0xcafebabe,
 		coreValue: 75,
 	};
 	for (let i = 0; i < argv.length; i++) {
@@ -235,11 +245,7 @@ function printHeader(keys: readonly string[]): void {
 }
 
 //============================================
-function printGameRow(
-	week: number,
-	keys: readonly string[],
-	result: GameResult,
-): void {
+function printGameRow(week: number, keys: readonly string[], result: GameResult): void {
 	const cols: string[] = [
 		pad(week, 3),
 		pad(result.result.toUpperCase(), 8, false),
@@ -256,9 +262,16 @@ function printGameRow(
 //============================================
 // Print season totals by reading off the player's accumulated seasonStats
 // rather than re-summing the per-game lines (verifies accumulation works).
-function printSeasonTotals(player: Player, keys: readonly string[], wins: number, losses: number): void {
+function printSeasonTotals(
+	player: Player,
+	keys: readonly string[],
+	wins: number,
+	losses: number
+): void {
 	console.log('');
-	console.log(`Season totals (${player.position}, ${player.depthChart}, team strength ${player.teamStrength}):`);
+	console.log(
+		`Season totals (${player.position}, ${player.depthChart}, team strength ${player.teamStrength}):`
+	);
 	const stats: Record<string, number> = player.seasonStats as unknown as Record<string, number>;
 	console.log(`  Record: ${wins}-${losses}`);
 	console.log(`  Games played: ${stats.gamesPlayed}`);
@@ -296,8 +309,12 @@ function main(): void {
 	const keys: readonly string[] = statKeysForBucket(player.positionBucket);
 
 	console.log('');
-	console.log(`Reality-check season: ${cfg.position} (${cfg.depth}), seed=0x${cfg.seed.toString(16)}`);
-	console.log(`Team strength: ${cfg.strength}, opponent base: ${cfg.oppBase} +- ${Math.floor(cfg.oppRange / 2)}`);
+	console.log(
+		`Reality-check season: ${cfg.position} (${cfg.depth}), seed=0x${cfg.seed.toString(16)}`
+	);
+	console.log(
+		`Team strength: ${cfg.strength}, opponent base: ${cfg.oppBase} +- ${Math.floor(cfg.oppRange / 2)}`
+	);
 	console.log('');
 
 	if (keys.length > 0) {
@@ -321,7 +338,13 @@ function main(): void {
 		if (keys.length > 0) {
 			printGameRow(week, keys, result);
 		} else {
-			console.log(pad(week, 3) + ' ' + pad(result.result.toUpperCase(), 8, false) + ' ' + pad(`${result.teamScore}-${result.opponentScore}`, 9, false));
+			console.log(
+				pad(week, 3) +
+					' ' +
+					pad(result.result.toUpperCase(), 8, false) +
+					' ' +
+					pad(`${result.teamScore}-${result.opponentScore}`, 9, false)
+			);
 		}
 	}
 

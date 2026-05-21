@@ -12,10 +12,10 @@ export const hsEntryHook: PhaseStartHook = {
 	id: 'hs-entry',
 	phase: 'high_school',
 	fire(player: Player, ctx: GameContext): void {
-		ctx.addHeadline('You\'re a High School Freshman');
+		ctx.addHeadline("You're a High School Freshman");
 		ctx.addText(
 			'Welcome to high school. Four years ahead: growing as an athlete, ' +
-			'building your name, and catching the eye of college scouts.'
+				'building your name, and catching the eye of college scouts.'
 		);
 	},
 };

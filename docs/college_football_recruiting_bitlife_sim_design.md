@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document translates the real college football recruiting process into a gameable system for a BitLife-style text simulation. The goal is not to perfectly reproduce every NCAA bylaw. The goal is to capture the *feel* of recruiting: early promise, uneven exposure, academic pressure, camp season, coach communication, official visits, committable versus non-committable offers, late risers, decommitments, signing, and the chaos created by coaching changes and the transfer portal.
+This document translates the real college football recruiting process into a gameable system for a BitLife-style text simulation. The goal is not to perfectly reproduce every NCAA bylaw. The goal is to capture the _feel_ of recruiting: early promise, uneven exposure, academic pressure, camp season, coach communication, official visits, committable versus non-committable offers, late risers, decommitments, signing, and the chaos created by coaching changes and the transfer portal.
 
 The best design choice is to build a **layered simulation**:
 
@@ -81,7 +81,7 @@ For gameplay, the right move is to **keep these facts as invisible rules under t
 
 ## 4. Design Goal for a BitLife-Style Version
 
-A BitLife-style game is choice-driven, text-forward, and highly compressed. That means you should **not** simulate every coach, every camp rep, or every NCAA technicality. Instead, simulate the *decision pressure*.
+A BitLife-style game is choice-driven, text-forward, and highly compressed. That means you should **not** simulate every coach, every camp rep, or every NCAA technicality. Instead, simulate the _decision pressure_.
 
 The player should repeatedly answer questions like:
 
@@ -388,16 +388,19 @@ This branch is important because failure paths make success feel earned.
 A strong design uses **three different values** rather than one number.
 
 ### 1. True talent
+
 Hidden to player.
 
 Represents real future college value.
 
 ### 2. Public reputation
+
 Visible or semi-visible.
 
 Represents stars, buzz, media hype, and social proof.
 
 ### 3. Recruitability
+
 Hidden or partially visible.
 
 Represents how likely schools are to actually pursue the player now.
@@ -460,9 +463,9 @@ A school can show public interest without guaranteeing a spot. In the sim, every
 So the player might see:
 
 - **"Offer: Coastal State"**
-- *Status: Verbal offer*
-- *Coach tone: Warm*
-- *Commitment security: Unclear*
+- _Status: Verbal offer_
+- _Coach tone: Warm_
+- _Commitment security: Unclear_
 
 That uncertainty is good gameplay.
 
@@ -912,7 +915,7 @@ Do not let stars fully control offers. Use them as social proof.
 - NIL attention
 - ego events
 
-### What stars should *not* fully determine
+### What stars should _not_ fully determine
 
 - scheme fit
 - coach honesty
@@ -986,46 +989,46 @@ A coach can love the player and still lose the battle because of unrelated chaos
 
 ```json
 {
-  "player": {
-    "position": "WR",
-    "overall": 78,
-    "trueTalent": 84,
-    "publicRating": 74,
-    "heightIn": 72,
-    "weightLb": 182,
-    "athleticism": 81,
-    "footballIQ": 70,
-    "versatility": 66,
-    "gpa": 3.1,
-    "coreProgress": "On Track",
-    "filmGrade": "Strong",
-    "exposure": 58,
-    "socialMedia": 49,
-    "workEthic": 77,
-    "coachability": 82,
-    "injuryRisk": 21,
-    "starRating": 3,
-    "recruitingBuzz": 61
-  },
-  "schools": [
-    {
-      "name": "Great Plains State",
-      "tier": "G5",
-      "prestige": 68,
-      "academics": 61,
-      "nil": 54,
-      "distance": 220,
-      "coachStability": 73,
-      "portalStrategy": "balanced",
-      "needByPosition": {"WR": 0.87},
-      "schemeFitByPosition": {"WR": 0.91},
-      "interest": 74,
-      "relationship": 63,
-      "offerState": "Committable",
-      "scholarshipAmount": 1.0,
-      "visitStatus": "Official Completed"
-    }
-  ]
+	"player": {
+		"position": "WR",
+		"overall": 78,
+		"trueTalent": 84,
+		"publicRating": 74,
+		"heightIn": 72,
+		"weightLb": 182,
+		"athleticism": 81,
+		"footballIQ": 70,
+		"versatility": 66,
+		"gpa": 3.1,
+		"coreProgress": "On Track",
+		"filmGrade": "Strong",
+		"exposure": 58,
+		"socialMedia": 49,
+		"workEthic": 77,
+		"coachability": 82,
+		"injuryRisk": 21,
+		"starRating": 3,
+		"recruitingBuzz": 61
+	},
+	"schools": [
+		{
+			"name": "Great Plains State",
+			"tier": "G5",
+			"prestige": 68,
+			"academics": 61,
+			"nil": 54,
+			"distance": 220,
+			"coachStability": 73,
+			"portalStrategy": "balanced",
+			"needByPosition": { "WR": 0.87 },
+			"schemeFitByPosition": { "WR": 0.91 },
+			"interest": 74,
+			"relationship": 63,
+			"offerState": "Committable",
+			"scholarshipAmount": 1.0,
+			"visitStatus": "Official Completed"
+		}
+	]
 }
 ```
 

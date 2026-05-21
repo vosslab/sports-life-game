@@ -5,46 +5,46 @@
 
 // Phase of the game
 export const enum Phase {
-	COIN_TOSS = "COIN_TOSS",
-	KICKOFF = "KICKOFF",
-	NORMAL = "NORMAL",           // regular offensive play
-	PAT = "PAT",                 // point-after-touchdown attempt
-	OVERTIME = "OVERTIME",
-	GAME_OVER = "GAME_OVER",
+	COIN_TOSS = 'COIN_TOSS',
+	KICKOFF = 'KICKOFF',
+	NORMAL = 'NORMAL', // regular offensive play
+	PAT = 'PAT', // point-after-touchdown attempt
+	OVERTIME = 'OVERTIME',
+	GAME_OVER = 'GAME_OVER',
 }
 
 // Contextual game situation for play-calling and strategy
 export const enum Situation {
-	NORMAL = "NORMAL",
-	TWO_MINUTE = "TWO_MINUTE",   // under 2:00 in half
-	GOAL_LINE = "GOAL_LINE",     // inside 3 yard line
-	RED_ZONE = "RED_ZONE",       // inside 20
-	BACKED_UP = "BACKED_UP",     // inside own 10
-	GARBAGE_TIME = "GARBAGE_TIME", // 3+ score lead, 4th quarter
-	LATE_AND_CLOSE = "LATE_AND_CLOSE", // within 8 points, 4th quarter
+	NORMAL = 'NORMAL',
+	TWO_MINUTE = 'TWO_MINUTE', // under 2:00 in half
+	GOAL_LINE = 'GOAL_LINE', // inside 3 yard line
+	RED_ZONE = 'RED_ZONE', // inside 20
+	BACKED_UP = 'BACKED_UP', // inside own 10
+	GARBAGE_TIME = 'GARBAGE_TIME', // 3+ score lead, 4th quarter
+	LATE_AND_CLOSE = 'LATE_AND_CLOSE', // within 8 points, 4th quarter
 }
 
 // Outcome category of a single play
 export const enum PlayResult {
-	FIRST_DOWN = "FIRST_DOWN",
-	SHORT_OF_FIRST = "SHORT_OF_FIRST",
-	TOUCHDOWN = "TOUCHDOWN",
-	TURNOVER_DOWNS = "TURNOVER_DOWNS",
-	INTERCEPTION = "INTERCEPTION",
-	FUMBLE_LOST = "FUMBLE_LOST",
-	INCOMPLETE = "INCOMPLETE",
-	SACK = "SACK",
-	PENALTY_OFFENSE = "PENALTY_OFFENSE",
-	PENALTY_DEFENSE = "PENALTY_DEFENSE",
-	SAFETY = "SAFETY",
-	FIELD_GOAL_MADE = "FIELD_GOAL_MADE",
-	FIELD_GOAL_MISSED = "FIELD_GOAL_MISSED",
-	PUNT = "PUNT",
-	TOUCHBACK = "TOUCHBACK",
-	FAIR_CATCH = "FAIR_CATCH",
-	KNEEL = "KNEEL",
-	SPIKE = "SPIKE",
-	TWO_MINUTE_WARNING = "TWO_MINUTE_WARNING",
+	FIRST_DOWN = 'FIRST_DOWN',
+	SHORT_OF_FIRST = 'SHORT_OF_FIRST',
+	TOUCHDOWN = 'TOUCHDOWN',
+	TURNOVER_DOWNS = 'TURNOVER_DOWNS',
+	INTERCEPTION = 'INTERCEPTION',
+	FUMBLE_LOST = 'FUMBLE_LOST',
+	INCOMPLETE = 'INCOMPLETE',
+	SACK = 'SACK',
+	PENALTY_OFFENSE = 'PENALTY_OFFENSE',
+	PENALTY_DEFENSE = 'PENALTY_DEFENSE',
+	SAFETY = 'SAFETY',
+	FIELD_GOAL_MADE = 'FIELD_GOAL_MADE',
+	FIELD_GOAL_MISSED = 'FIELD_GOAL_MISSED',
+	PUNT = 'PUNT',
+	TOUCHBACK = 'TOUCHBACK',
+	FAIR_CATCH = 'FAIR_CATCH',
+	KNEEL = 'KNEEL',
+	SPIKE = 'SPIKE',
+	TWO_MINUTE_WARNING = 'TWO_MINUTE_WARNING',
 }
 
 // The resolved outcome of a single play
@@ -74,19 +74,19 @@ export interface PlayOutcome {
 // Complete state of a game at any point
 export class GameState {
 	// Teams
-	home_team: string = "";
-	away_team: string = "";
+	home_team: string = '';
+	away_team: string = '';
 
 	// Score
 	home_score: number = 0;
 	away_score: number = 0;
 
 	// Possession
-	possession: string = "";     // team abbreviation with the ball
+	possession: string = ''; // team abbreviation with the ball
 	home_receives_2h: boolean = false; // who deferred in coin toss
 
 	// Field position
-	yard_line: number = 25;      // yards from possessing team's own goal (1-99)
+	yard_line: number = 25; // yards from possessing team's own goal (1-99)
 	down: number = 1;
 	yards_to_go: number = 10;
 	first_down_marker: number = 35; // absolute yard line of first down
@@ -105,8 +105,8 @@ export class GameState {
 	phase: Phase = Phase.COIN_TOSS;
 
 	// Kickoff tracking
-	kickoff_reason: string = "";  // "start_of_game", "start_of_half", "after_score"
-	scoring_team_last: string = ""; // who scored last (for kickoff direction)
+	kickoff_reason: string = ''; // "start_of_game", "start_of_half", "after_score"
+	scoring_team_last: string = ''; // who scored last (for kickoff direction)
 
 	// Stats tracking
 	play_number: number = 0;
@@ -255,7 +255,11 @@ export class GameState {
 		}
 
 		// Possession must be assigned (except during coin toss)
-		if (this.possession !== this.home_team && this.possession !== this.away_team && this.phase !== Phase.COIN_TOSS) {
+		if (
+			this.possession !== this.home_team &&
+			this.possession !== this.away_team &&
+			this.phase !== Phase.COIN_TOSS
+		) {
 			errors.push(`invalid possession: ${this.possession}`);
 		}
 
@@ -278,13 +282,13 @@ export class GameState {
 	private clockStr(): string {
 		const mins = Math.floor(this.quarter_seconds_remaining / 60);
 		const secs = this.quarter_seconds_remaining % 60;
-		return `${mins}:${secs.toString().padStart(2, "0")}`;
+		return `${mins}:${secs.toString().padStart(2, '0')}`;
 	}
 
 	// Format field position string
 	private fieldPosStr(): string {
 		if (this.yard_line === 50) {
-			return "50";
+			return '50';
 		}
 		if (this.yard_line < 50) {
 			return `${this.possession} ${this.yard_line}`;

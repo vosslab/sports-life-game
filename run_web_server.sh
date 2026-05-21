@@ -1,29 +1,28 @@
-#!/bin/sh
-# Local dev server for the repo-root GitHub Pages model.
-# Serves root/index.html + root/src/styles/*.css + root/dist/main.js.
-# This is NOT a self-contained dist/ deployment. Pages serves the repo root;
-# dist/ holds only the compiled JS tree.
-# Builds via ./build_github_pages.sh (runs tsc, not inlined here).
+#!/usr/bin/env bash
+# run_web_server.sh - local dev preview for the GitHub Pages build.
+#
+# Always serves dist/ (the self-contained GitHub Pages artifact).
+# Never serves the repo root or _site/. Rebuilds dist/ on every run so
+# the served files match current src/.
 
-set -e
-
+set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
-# Check node_modules exists
 if [ ! -d node_modules ]; then
-	echo "ERROR: node_modules missing. Run ./setup_game.sh first." >&2
+	echo "ERROR: node_modules missing. Run 'npm install' or 'bash devel/setup_typescript.sh' first." >&2
 	exit 1
 fi
 
-# Build the app
+# Build fresh dist/ before serving so the browser always sees current src/.
 ./build_github_pages.sh
 
-# Cache-bust: add timestamp query param to script tag so browser loads fresh JS
-TIMESTAMP=$(date +%s)
-perl -0pi -e "s|dist/main\\.js(?:\\?v=[0-9]+)?|dist/main.js?v=${TIMESTAMP}|g" index.html
+# Random port per session: each port is its own browser origin, so the
+# cache is effectively invalidated every run. PORT env var overrides.
+PORT="${PORT:-$((8000 + RANDOM % 1000))}"
 
-# Open browser and start server
-PORT="${PORT:-8123}"
-sleep 1 && open "http://localhost:${PORT}/" &
-sleep 0.1
-python3 -m http.server "${PORT}"
+echo "Serving dist/ at http://localhost:${PORT}/"
+
+if command -v open >/dev/null 2>&1 && [ -t 0 ]; then
+	(sleep 1 && open "http://localhost:${PORT}/") &
+fi
+python3 -m http.server "${PORT}" --directory dist

@@ -52,7 +52,7 @@
 
 - **Duplicate function scanner tool**: `tools/find_duplicates.ts` scans all .ts files under src/, tokenizes function bodies (normalize whitespace/comments), clusters by Jaccard similarity >= 0.85, reports >= 30-token functions. Tool successfully identified all 12 mergeable duplicates across 378 functions scanned. Output: `tools/_out/duplicates.json` with cluster metadata (similarity %, line ranges, symbols, file paths).
 - **New test: test_choice_schemas.ts**: validates all 5 choice JSON files (preseason, opening, midseason, stretch, postseason) against the WeeklyChoice type contract. Confirms: array at top level, required fields present and typed, probability bounds [0, 1], success+failure sum to 1.0, no duplicate choice IDs per phase. All 5 phases validate successfully (19 total choices).
-- **Enhanced dead_code_scan.ts**: added barrel re-export detection. When processing import chains, the scanner now recognizes `export { ... } from './path'` and `export * from './path'` patterns in each module's source, treating those as effective imports of the re-exported module for reachability purposes. Re-run identified clutch_moment.ts as reachable through weekly_engine.ts barrel. Updated tools/_out/dead_code.json accordingly.
+- **Enhanced dead_code_scan.ts**: added barrel re-export detection. When processing import chains, the scanner now recognizes `export { ... } from './path'` and `export * from './path'` patterns in each module's source, treating those as effective imports of the re-exported module for reachability purposes. Re-run identified clutch_moment.ts as reachable through weekly_engine.ts barrel. Updated tools/\_out/dead_code.json accordingly.
 
 ## 2026-05-18
 
@@ -73,7 +73,7 @@
 
 ### Documentation
 
-- **Refreshed `docs/CODE_ARCHITECTURE.md` and `docs/FILE_STRUCTURE.md`** to match the current repo: documented the new `src/simulator/` play-by-play engine and its bridge through `src/simulator/adapter.ts`; the cohesion-split `src/weekly/` tree (`season_lifecycle`, `week_phases`, `game_handler`, `playoff_handler`, `engine_state`); the `src/social/` Fotomagic feed; the `src/crisis.ts` midseason crisis system; the `src/season_arc.ts` five-phase arc; `src/weekly_choices.ts` plus `src/data/choices/`; `src/data/events/` phase libraries; the moved `src/styles/` CSS modules; and supporting helpers (`scout_report`, `recruiting_profile`, `career_stats_view`, `stat_info`, `team_emoji`, `popup`, `dom_utils`). Top-level file map now reflects current root (Brewfile, pip_requirements*.txt, tsconfig.lint.json, LICENSE.* split, _site/, devel/) and removes the stale `styles.css` root entry.
+- **Refreshed `docs/CODE_ARCHITECTURE.md` and `docs/FILE_STRUCTURE.md`** to match the current repo: documented the new `src/simulator/` play-by-play engine and its bridge through `src/simulator/adapter.ts`; the cohesion-split `src/weekly/` tree (`season_lifecycle`, `week_phases`, `game_handler`, `playoff_handler`, `engine_state`); the `src/social/` Fotomagic feed; the `src/crisis.ts` midseason crisis system; the `src/season_arc.ts` five-phase arc; `src/weekly_choices.ts` plus `src/data/choices/`; `src/data/events/` phase libraries; the moved `src/styles/` CSS modules; and supporting helpers (`scout_report`, `recruiting_profile`, `career_stats_view`, `stat_info`, `team_emoji`, `popup`, `dom_utils`). Top-level file map now reflects current root (Brewfile, pip_requirements*.txt, tsconfig.lint.json, LICENSE.* split, \_site/, devel/) and removes the stale `styles.css` root entry.
 
 ## 2026-05-12
 
@@ -106,7 +106,7 @@
 
 - **Parameterized high school season builder** (`src/high_school/hs_season_builder.ts`):
   - New `buildHighSchoolSeasonConfigured(config: HighSchoolSeasonConfig)` accepts optional `conferenceTeams`, `gamesPerTeam`, and `nonConferenceTeams` parameters.
-  - Validates: `conferenceTeams` must be even and >= 2 (round-robin requirement); `gamesPerTeam` must fit within single or double round-robin (1 to 2*teams-2); sufficient non-conf teams available if needed.
+  - Validates: `conferenceTeams` must be even and >= 2 (round-robin requirement); `gamesPerTeam` must fit within single or double round-robin (1 to 2\*teams-2); sufficient non-conf teams available if needed.
   - Existing `buildHighSchoolSeason(name, mascot, strength)` delegates to the configured version with current defaults (8 conf teams, 10 games, 8 non-conf teams), preserving runtime behavior for game engine.
   - Schedule imbalance warnings suppressed when non-conf padding is intentional (`gamesPerTeam > conferenceTeams-1`).
 
@@ -167,11 +167,11 @@
   - `sidebar_widget.ts`: `updateSidebar`, `showMilestoneCard`
   - `format_helpers.ts`: `formatStatKey`, `formatStatLine`
   - `index.ts`: barrel export of all above + re-export popup.js functions for backward compat
-  Original `src/ui.ts` deleted. All callers now import from `./ui/index.js`.
+    Original `src/ui.ts` deleted. All callers now import from `./ui/index.js`.
 
 - **P5.3: Phase -> render decoupling** (completed upstream, included in M5):
   Checked: weekly_engine rewired through `CareerContext` for view updates
-  instead of direct ui.* calls. Phase handlers no longer import `src/ui/` or
+  instead of direct ui.\* calls. Phase handlers no longer import `src/ui/` or
   `src/render/`. Zero raw DOM access from simulator tree.
 
 - **M6 main.ts slimdown** (`src/main.ts` 1357 -> 283 lines, 79% reduction):
@@ -190,11 +190,11 @@
   - `src/childhood/name_loader.ts` (47 lines, written earlier): CSV loader
     for first/last name lists with default fallbacks; main.ts now calls
     `loadNameLists()` once during bootstrap instead of inlining the fetch.
-  Remaining DOM access in main.ts: `document.addEventListener('DOMContentLoaded', ...)`
-  and a single fallback `panel.innerHTML` in the bootstrap error handler.
-  Story log section state moved out of main.ts entirely. Empty stub files
-  from the prior consolidation attempt removed (`character_creation.ts`,
-  `position_selection.ts`, `retirement.ts` stubs, `_deleted.txt`).
+    Remaining DOM access in main.ts: `document.addEventListener('DOMContentLoaded', ...)`
+    and a single fallback `panel.innerHTML` in the bootstrap error handler.
+    Story log section state moved out of main.ts entirely. Empty stub files
+    from the prior consolidation attempt removed (`character_creation.ts`,
+    `position_selection.ts`, `retirement.ts` stubs, `_deleted.txt`).
 
 ### Behavior or Interface Changes
 
@@ -359,6 +359,7 @@
   [src/season/playoff_bracket.ts](../src/season/playoff_bracket.ts) (1),
   [src/high_school/hs_recruiting.ts](../src/high_school/hs_recruiting.ts)
   (1). 54 total replacements.
+
 - **`randomInRange` in [src/player.ts](../src/player.ts) now routes
   through the seeded RNG** via `randInt(min, max)`. The seam is
   upstream of every existing caller, so the cascade fixes the dozens
@@ -1000,7 +1001,7 @@
 
 - **Removed stale `src/player.js` and `src/team.js`**: These compiled JS files were
   outdated and missing fields from current TypeScript sources. With `moduleResolution:
-  "bundler"` in tsconfig, imports resolve to `.ts` files directly.
+"bundler"` in tsconfig, imports resolve to `.ts` files directly.
 
 ## 2026-04-04 (UX Playthrough Review and Fixes)
 
@@ -1979,7 +1980,7 @@
 
 - Fixed 2 college season simulation bugs in `src/college.ts`
   - **Bug H3 (negative losses)**: Clamped wins to 0-12 range before computing losses. With high athleticism, `randomInRange(-2, 2)` could produce 15+ wins, resulting in -3 losses. Now `clampedWins = Math.min(12, Math.max(0, wins))` ensures losses always non-negative. Used `clampedWins` throughout function for consistency.
-  - **Bug H6 (draft stock ceiling too low)**: Removed `/2` divisor and adjusted weights in `calculateDraftStock()`. Old formula maxed at ~73 (below 85 first-round threshold). New formula: 0.30*athleticism + 0.25*technique + 0.15*footballIq + 0.10*confidence + 4*size + 0.10*leadership + 0.05*popularity. Max-stat player (100s) now reaches ~95, average player (50s) reaches ~45-55. Added explanatory comments on formula intent and expected ranges.
+  - **Bug H6 (draft stock ceiling too low)**: Removed `/2` divisor and adjusted weights in `calculateDraftStock()`. Old formula maxed at ~73 (below 85 first-round threshold). New formula: 0.30*athleticism + 0.25*technique + 0.15*footballIq + 0.10*confidence + 4*size + 0.10*leadership + 0.05\*popularity. Max-stat player (100s) now reaches ~95, average player (50s) reaches ~45-55. Added explanatory comments on formula intent and expected ranges.
 
 - Fixed 3 theme color bugs in `src/theme.ts`
   - **Bug M6**: `generateNFLPalette()` now creates a copy of NFL_TEAMS palette before mutating (prevents permanent modification of shared constant)

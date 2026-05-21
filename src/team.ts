@@ -10,11 +10,11 @@ export type CoachPersonality = 'supportive' | 'demanding' | 'volatile';
 // Single opponent schedule entry
 export interface ScheduleEntry {
 	opponentName: string;
-	opponentStrength: number;  // 1-100
+	opponentStrength: number; // 1-100
 	week: number;
 	played: boolean;
-	teamScore: number;         // 0 until played
-	opponentScore: number;     // 0 until played
+	teamScore: number; // 0 until played
+	opponentScore: number; // 0 until played
 }
 
 //============================================
@@ -31,7 +31,7 @@ export interface DepthChartEntry {
 // Full team state
 export interface Team {
 	teamName: string;
-	strength: number;           // 1-100
+	strength: number; // 1-100
 	coachPersonality: CoachPersonality;
 	wins: number;
 	losses: number;
@@ -58,13 +58,34 @@ export interface Conference {
 //============================================
 // Pool of team name prefixes
 const TEAM_PREFIXES = [
-	'North', 'South', 'East', 'West',
-	'Central', 'Valley', 'Mountain', 'Riverside',
-	'New', 'Pine', 'Oak', 'Cedar',
-	'Spring', 'Clear', 'Sunnybrook', 'Westfield',
-	'Lakeside', 'Highland', 'Meadow', 'Crest',
-	'Lincoln', 'Washington', 'Jefferson', 'Madison',
-	'Jackson', 'Franklin', 'Monroe', 'Adams',
+	'North',
+	'South',
+	'East',
+	'West',
+	'Central',
+	'Valley',
+	'Mountain',
+	'Riverside',
+	'New',
+	'Pine',
+	'Oak',
+	'Cedar',
+	'Spring',
+	'Clear',
+	'Sunnybrook',
+	'Westfield',
+	'Lakeside',
+	'Highland',
+	'Meadow',
+	'Crest',
+	'Lincoln',
+	'Washington',
+	'Jefferson',
+	'Madison',
+	'Jackson',
+	'Franklin',
+	'Monroe',
+	'Adams',
 ];
 
 //============================================
@@ -72,32 +93,91 @@ const TEAM_PREFIXES = [
 // 50% animals, 25% food, 15% plants, 10% weird
 const TEAM_MASCOTS = [
 	// Animals (most common)
-	'Alpacas', 'Bison', 'Bumblebees', 'Bunnies', 'Cobras',
-	'Cranes', 'Crickets', 'Dingos', 'Doves', 'Ferrets',
-	'Foxes', 'Frogs', 'Geckos', 'Gophers', 'Gulls',
-	'Hares', 'Honeybees', 'Hoppers', 'Iguanas', 'Jackrabbits',
-	'Jellyfish', 'Lemurs', 'Lobsters', 'Macaws', 'Moles',
-	'Narwhals', 'Newts', 'Parrots', 'Platypus', 'Poodles',
-	'Prawns', 'Puffins', 'Quails', 'Raccoons', 'Rhinos',
-	'Salmon', 'Seals', 'Shrimp', 'Squids', 'Swans',
-	'Tadpoles', 'Toads', 'Trout', 'Turtles', 'Vipers',
-	'Vultures', 'Wasps', 'Walruses', 'Weasels', 'Wombats',
+	'Alpacas',
+	'Bison',
+	'Bumblebees',
+	'Bunnies',
+	'Cobras',
+	'Cranes',
+	'Crickets',
+	'Dingos',
+	'Doves',
+	'Ferrets',
+	'Foxes',
+	'Frogs',
+	'Geckos',
+	'Gophers',
+	'Gulls',
+	'Hares',
+	'Honeybees',
+	'Hoppers',
+	'Iguanas',
+	'Jackrabbits',
+	'Jellyfish',
+	'Lemurs',
+	'Lobsters',
+	'Macaws',
+	'Moles',
+	'Narwhals',
+	'Newts',
+	'Parrots',
+	'Platypus',
+	'Poodles',
+	'Prawns',
+	'Puffins',
+	'Quails',
+	'Raccoons',
+	'Rhinos',
+	'Salmon',
+	'Seals',
+	'Shrimp',
+	'Squids',
+	'Swans',
+	'Tadpoles',
+	'Toads',
+	'Trout',
+	'Turtles',
+	'Vipers',
+	'Vultures',
+	'Wasps',
+	'Walruses',
+	'Weasels',
+	'Wombats',
 	'Zebras',
 	// Food (quirky)
-	'Acorns', 'Avocados', 'Beets', 'Berries', 'Carrots',
-	'Hot Peppers', 'Kumquats', 'Oreos', 'Spuds', 'Walnuts',
+	'Acorns',
+	'Avocados',
+	'Beets',
+	'Berries',
+	'Carrots',
+	'Hot Peppers',
+	'Kumquats',
+	'Oreos',
+	'Spuds',
+	'Walnuts',
 	// Plants (flavor)
-	'Basil', 'Chives', 'Clovers', 'Dandelions', 'Ferns',
+	'Basil',
+	'Chives',
+	'Clovers',
+	'Dandelions',
+	'Ferns',
 	'Marigolds',
 	// Weird (rare)
-	'Wyverns', 'Whalers',
+	'Wyverns',
+	'Whalers',
 ];
 
 //============================================
 // Conference region names
 const CONFERENCE_REGIONS = [
-	'Northern', 'Southern', 'Eastern', 'Western',
-	'Central', 'Pacific', 'Mountain', 'Valley',
+	'Northern',
+	'Southern',
+	'Eastern',
+	'Western',
+	'Central',
+	'Pacific',
+	'Mountain',
+	'Valley',
 ];
 
 //============================================
@@ -110,14 +190,9 @@ export function generateOpponentName(): string {
 
 //============================================
 // Generate a conference with 8 teams including the player's team
-export function generateConference(
-	playerTeamName: string,
-	playerTeamStrength: number
-): Conference {
+export function generateConference(playerTeamName: string, playerTeamStrength: number): Conference {
 	// Pick a random region for the conference name
-	const region = CONFERENCE_REGIONS[
-		randomInRange(0, CONFERENCE_REGIONS.length - 1)
-	];
+	const region = CONFERENCE_REGIONS[randomInRange(0, CONFERENCE_REGIONS.length - 1)];
 	const conferenceName = `${region} Conference`;
 
 	// Create the player's team as a conference team
@@ -205,10 +280,7 @@ export function getStandings(conference: Conference): ConferenceTeam[] {
 
 //============================================
 // Format standings as a readable string
-export function formatStandings(
-	conference: Conference,
-	playerTeamName: string
-): string {
+export function formatStandings(conference: Conference, playerTeamName: string): string {
 	const standings = getStandings(conference);
 	let output = `${conference.name}:\n`;
 
@@ -232,9 +304,7 @@ export function generateHighSchoolTeam(teamName: string): Team {
 	const strength = randomInRange(40, 90);
 
 	// Coach personality is random
-	const personalityChoices: CoachPersonality[] = [
-		'supportive', 'demanding', 'volatile',
-	];
+	const personalityChoices: CoachPersonality[] = ['supportive', 'demanding', 'volatile'];
 	const coachPersonality = personalityChoices[randomInRange(0, 2)];
 
 	// Generate 10 game schedule (matches HS_SEASON_WEEKS = 10 in main.ts)
@@ -270,11 +340,10 @@ export function generateHighSchoolTeam(teamName: string): Team {
 // Simple assertions for testing
 const testTeam = generateHighSchoolTeam('Test High School');
 console.assert(testTeam.teamName === 'Test High School', 'Team name should match');
-console.assert(testTeam.strength >= 40 && testTeam.strength <= 90,
-	'Team strength should be 40-90');
-console.assert(['supportive', 'demanding', 'volatile'].includes(testTeam.coachPersonality),
-	'Coach personality should be valid');
-console.assert(testTeam.schedule.length === 10,
-	'Schedule should have 10 games');
-console.assert(testTeam.wins === 0 && testTeam.losses === 0,
-	'New team should have 0 wins/losses');
+console.assert(testTeam.strength >= 40 && testTeam.strength <= 90, 'Team strength should be 40-90');
+console.assert(
+	['supportive', 'demanding', 'volatile'].includes(testTeam.coachPersonality),
+	'Coach personality should be valid'
+);
+console.assert(testTeam.schedule.length === 10, 'Schedule should have 10 games');
+console.assert(testTeam.wins === 0 && testTeam.losses === 0, 'New team should have 0 wins/losses');

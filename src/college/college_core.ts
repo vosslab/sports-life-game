@@ -48,23 +48,23 @@ export const collegeCoreHandler: YearHandler = {
 		if (allSchools.length === 0) {
 			throw new Error('No NCAA schools loaded');
 		}
-		const playerSchool = allSchools.find(s => formatSchoolName(s) === player.teamName)
-			|| allSchools[0];
+		const playerSchool =
+			allSchools.find((s) => formatSchoolName(s) === player.teamName) || allSchools[0];
 		const season = buildCollegeSeason(playerSchool, allSchools);
 		const playerTeam = season.getPlayerTeam();
 		if (playerTeam) {
 			player.teamStrength = playerTeam.strength;
 		}
 
-		ctx.waitForInteraction('College Season', [{
-			text: 'Start Season',
-			primary: true,
-			action: () => {
-				startSeason(player, ctx, SEASON_CONFIG, season,
-					() => handleSeasonEnd(player, ctx),
-				);
+		ctx.waitForInteraction('College Season', [
+			{
+				text: 'Start Season',
+				primary: true,
+				action: () => {
+					startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
+				},
 			},
-		}]);
+		]);
 	},
 
 	getSeasonConfig(): SeasonConfig {

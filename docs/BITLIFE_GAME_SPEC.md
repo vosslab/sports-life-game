@@ -22,10 +22,11 @@ BitLife appears to use a mix of player choice, character stats, and random event
 4. Likelihood of good or bad outcomes
 
 There does not appear to be any official public source with exact probabilities for most outcomes. So a precise odds table would be speculative. The safest spec language is:
-* outcomes are weighted, not purely random
-* the weights are influenced by current stats, age, life context, and selected actions
-* some events are deterministic unlocks or consequences
-* many others are probabilistic, with hidden thresholds or rolls
+
+- outcomes are weighted, not purely random
+- the weights are influenced by current stats, age, life context, and selected actions
+- some events are deterministic unlocks or consequences
+- many others are probabilistic, with hidden thresholds or rolls
 
 A reasonable external reading is that BitLife uses a "soft simulation" model: it gives the player directional control, but preserves unpredictability by keeping many odds hidden.
 
@@ -40,27 +41,28 @@ The game keeps stats as persistent per-character values that are updated on each
 7. Proposed internal spec language for stats
 
 You could describe the system this way:
-* CharacterState
-* age
-* health
-* happiness
-* smarts
-* looks
-* optional fame
-* optional approval
-* wealth/assets
-* relationships[]
-* education_state
-* career_state
-* legal_state
-* special_mode_flags
-* AnnualUpdate()
-* increment age
-* pull age-appropriate event set
-* apply passive stat drift
-* resolve player choices
-* run consequence checks
-* update derived systems such as job status, health conditions, fame, or relationship status
+
+- CharacterState
+- age
+- health
+- happiness
+- smarts
+- looks
+- optional fame
+- optional approval
+- wealth/assets
+- relationships[]
+- education_state
+- career_state
+- legal_state
+- special_mode_flags
+- AnnualUpdate()
+- increment age
+- pull age-appropriate event set
+- apply passive stat drift
+- resolve player choices
+- run consequence checks
+- update derived systems such as job status, health conditions, fame, or relationship status
 
 That structure is an inference from the public gameplay model, not an official reverse-engineered schema.
 
@@ -69,11 +71,12 @@ How BitLife has changed over the years
 BitLife launched on iOS on September 29, 2018, and the Android version followed on February 4, 2019. The early game was a simpler text life sim, then expanded rapidly through frequent content updates.
 
 Key growth phases look like this:
-* 2018 to 2019: core simulator growth, then bigger identity features such as Fame, Prison, and School. Android lagged behind iOS for a period, and the developers explicitly used "Ketchup Updates" to bring Android closer to feature parity.
-* 2020: expansion into larger life domains, including Politics, deeper Social Media, and a Pride Update that the developers described as making the game more inclusive around gender and sexuality.
-* 2021: a quieter maintenance-heavy period in the update log, with many bug-fix releases and hints that larger plans were in development.
-* 2022: a shift toward heavier systems and premium-style content, including the Business Update and restored accessibility features for visually impaired players.
-* 2025 to 2026: the game added more event content, marketplace items, streak systems, social features, music/social-media additions like SoundCloud, and fantasy content such as Vampire Mode and follow-on vampire systems. Recent App Store notes also show live seasonal content and monetized marketplace items like the Aura Ring.
+
+- 2018 to 2019: core simulator growth, then bigger identity features such as Fame, Prison, and School. Android lagged behind iOS for a period, and the developers explicitly used "Ketchup Updates" to bring Android closer to feature parity.
+- 2020: expansion into larger life domains, including Politics, deeper Social Media, and a Pride Update that the developers described as making the game more inclusive around gender and sexuality.
+- 2021: a quieter maintenance-heavy period in the update log, with many bug-fix releases and hints that larger plans were in development.
+- 2022: a shift toward heavier systems and premium-style content, including the Business Update and restored accessibility features for visually impaired players.
+- 2025 to 2026: the game added more event content, marketplace items, streak systems, social features, music/social-media additions like SoundCloud, and fantasy content such as Vampire Mode and follow-on vampire systems. Recent App Store notes also show live seasonal content and monetized marketplace items like the Aura Ring.
 
 Bottom line
 
@@ -100,10 +103,11 @@ Each instance varies in a few main ways. Your starting conditions are different,
 A big part of the appeal is that BitLife is simple to read but wide in possibility space. It is text-based, so it moves quickly, but it still simulates enough of adult life, relationships, careers, and consequences to make each run feel like a tiny alternate biography. That combination of speed, branching outcomes, and dark humor is probably the clearest reason people keep starting over.
 
 For your spec, I would summarize it like this:
-* Core engagement: fast life-story generation through repeated meaningful choices
-* Replay value: short runs, many goals, hidden outcome variance
-* Run-to-run variation: randomized starting stats, different event rolls, changing relationships and opportunities
-* Player fantasy: test "what if" lives with low friction and high consequence density
+
+- Core engagement: fast life-story generation through repeated meaningful choices
+- Replay value: short runs, many goals, hidden outcome variance
+- Run-to-run variation: randomized starting stats, different event rolls, changing relationships and opportunities
+- Player fantasy: test "what if" lives with low friction and high consequence density
 
 BitLife UX/UI Product Specification
 
@@ -112,21 +116,23 @@ BitLife UX/UI Product Specification
 BitLife is a text-based life simulation game built around a yearly progression loop. The interface prioritizes clarity, speed, and low cognitive load. The UX enables rapid decision-making while maintaining narrative immersion.
 
 2. Core UX Principles
-* Simplicity: Text-first interface with minimal visual clutter
-* Speed: One-tap progression through life stages
-* Clarity: All key information visible without navigation depth
-* Feedback: Immediate response to user actions
-* Replayability: Fast reset and low friction to start new lives
+
+- Simplicity: Text-first interface with minimal visual clutter
+- Speed: One-tap progression through life stages
+- Clarity: All key information visible without navigation depth
+- Feedback: Immediate response to user actions
+- Replayability: Fast reset and low friction to start new lives
 
 3. Primary Navigation Structure
 
 Top-Level Tabs (Persistent Navigation):
-* Life (main timeline)
-* Relationships
-* Activities
-* Assets
-* Career / School
-* Menu / Settings
+
+- Life (main timeline)
+- Relationships
+- Activities
+- Assets
+- Career / School
+- Menu / Settings
 
 Each tab exposes context-specific actions relevant to current age and status.
 
@@ -135,97 +141,111 @@ Each tab exposes context-specific actions relevant to current age and status.
 Components:
 
 A. Header
-* Character name
-* Age
-* Location (optional depending on build)
+
+- Character name
+- Age
+- Location (optional depending on build)
 
 B. Status Bar
-* Health
-* Happiness
-* Smarts
-* Looks
-* Conditional stats:
-* Fame
-* Approval
-* Other mode-specific stats
+
+- Health
+- Happiness
+- Smarts
+- Looks
+- Conditional stats:
+- Fame
+- Approval
+- Other mode-specific stats
 
 Behavior:
-* Displayed as horizontal bars
-* Updated after every action and age increment
-* Color-coded for quick interpretation
+
+- Displayed as horizontal bars
+- Updated after every action and age increment
+- Color-coded for quick interpretation
 
 C. Event Feed (Central Panel)
-* Chronological list of life events
-* Includes:
-* Narrative text
-* Outcome summaries
-* Random events
-* Scrollable
+
+- Chronological list of life events
+- Includes:
+- Narrative text
+- Outcome summaries
+- Random events
+- Scrollable
 
 Interaction:
-* Passive reading
-* No branching from past events
+
+- Passive reading
+- No branching from past events
 
 D. Action Panel
-* Contextual buttons based on age and state
-* Examples:
-* Study harder
-* Spend time with family
-* Go to doctor
-* Commit crime
+
+- Contextual buttons based on age and state
+- Examples:
+- Study harder
+- Spend time with family
+- Go to doctor
+- Commit crime
 
 Behavior:
-* Updates dynamically each year
-* Some actions gated by age, stats, or prior choices
+
+- Updates dynamically each year
+- Some actions gated by age, stats, or prior choices
 
 E. Primary CTA
-* "Age Up" button
-* Advances simulation by one year
+
+- "Age Up" button
+- Advances simulation by one year
 
 5. Profile Screen
 
 Access: Tap character name or avatar
 
 Displays:
-* Full stat breakdown
-* Personal details:
-* Age
-* Gender
-* Location
-* Traits (if present)
-* Summary of life state
+
+- Full stat breakdown
+- Personal details:
+- Age
+- Gender
+- Location
+- Traits (if present)
+- Summary of life state
 
 Extended Profiles:
-* Accessible for:
-* Family members
-* Partners
-* Friends
-* Pets
+
+- Accessible for:
+- Family members
+- Partners
+- Friends
+- Pets
 
 Relationship UI:
-* List format
-* Each entry clickable for interaction options
+
+- List format
+- Each entry clickable for interaction options
 
 6. Relationship Interface
 
 Structure:
-* Categorized lists:
-* Family
-* Friends
-* Romantic partners
-* Children
+
+- Categorized lists:
+- Family
+- Friends
+- Romantic partners
+- Children
 
 Per-Entity Data:
-* Name
-* Relationship type
-* Relationship strength (hidden or visible meter)
+
+- Name
+- Relationship type
+- Relationship strength (hidden or visible meter)
 
 Actions:
-* Spend time
-* Argue
-* Gift
-* Break up
-* Other context-specific actions
+
+- Spend time
+- Argue
+- Gift
+- Break up
+- Other context-specific actions
 
 7. Activities Interface
 
@@ -233,86 +253,102 @@ Purpose:
 Central hub for optional actions
 
 Categories:
-* Health
-* Mind and body
-* Crime
-* Social
-* Entertainment
+
+- Health
+- Mind and body
+- Crime
+- Social
+- Entertainment
 
 Behavior:
-* Actions affect stats and trigger events
-* Some actions have probabilistic outcomes
+
+- Actions affect stats and trigger events
+- Some actions have probabilistic outcomes
 
 8. Feedback Systems
 
 Immediate Feedback:
-* Event text after every action
-* Stat bar changes
+
+- Event text after every action
+- Stat bar changes
 
 Audio Feedback:
-* Tap/click sounds
-* Event confirmation sounds
-* Reward or success tones
+
+- Tap/click sounds
+- Event confirmation sounds
+- Reward or success tones
 
 Visual Feedback:
-* Stat bar movement
-* Pop-up modals for major events
+
+- Stat bar movement
+- Pop-up modals for major events
 
 9. Progression Model (UX Layer)
 
 Time System:
-* Discrete yearly increments
+
+- Discrete yearly increments
 
 Unlock Logic:
-* Age-gated content
-* Stat-dependent opportunities
-* Career and education branching
+
+- Age-gated content
+- Stat-dependent opportunities
+- Career and education branching
 
 User Perception:
-* Continuous forward momentum
-* Clear cause and effect
+
+- Continuous forward momentum
+- Clear cause and effect
 
 10. Replay UX Design
 
 Restart Flow:
-* Immediate new life option after death
-* Minimal setup time
+
+- Immediate new life option after death
+- Minimal setup time
 
 Variation Sources (UX-visible):
-* Randomized starting stats
-* Different family structures
-* Event variability
-* Diverging opportunity sets
+
+- Randomized starting stats
+- Different family structures
+- Event variability
+- Diverging opportunity sets
 
 Retention Mechanisms:
-* Achievements
-* Ribbons (end-of-life summary)
-* Challenges (time-limited goals)
+
+- Achievements
+- Ribbons (end-of-life summary)
+- Challenges (time-limited goals)
 
 11. Side Systems (Optional UX Layers)
 
 Challenges
-* Visible checklist UI
-* Time-limited objectives
+
+- Visible checklist UI
+- Time-limited objectives
 
 Scavenger Hunts
-* Clue-based progression
-* Cross-life exploration
+
+- Clue-based progression
+- Cross-life exploration
 
 Achievements
-* Persistent across lives
-* Tracked in profile/menu
+
+- Persistent across lives
+- Tracked in profile/menu
 
 12. Error Prevention and Constraints
-* Disabled actions when requirements are unmet
-* Clear feedback for failed attempts
-* Soft penalties instead of hard blocks
+
+- Disabled actions when requirements are unmet
+- Clear feedback for failed attempts
+- Soft penalties instead of hard blocks
 
 13. Accessibility Considerations
-* Text-first design supports readability
-* Large tap targets
-* Minimal reliance on timing or precision
-* Screen reader support (added in later updates)
+
+- Text-first design supports readability
+- Large tap targets
+- Minimal reliance on timing or precision
+- Screen reader support (added in later updates)
 
 14. UX Summary
 
@@ -333,9 +369,10 @@ Candywriter is a mobile game development studio based in the United States. It c
 It was founded earlier, in 2006, and later acquired by the gaming group Stillfront, which owns many mobile studios.
 
 What Candywriter does
-* Develops mobile games, mostly free-to-play
-* Focuses on simple UI, fast gameplay loops, and high replay value
-* Known for text-based and simulation formats, especially BitLife
+
+- Develops mobile games, mostly free-to-play
+- Focuses on simple UI, fast gameplay loops, and high replay value
+- Known for text-based and simulation formats, especially BitLife
 
 BitLife is by far its most successful title, with tens of millions of downloads and strong ongoing updates.
 
@@ -344,32 +381,36 @@ Other games like BitLife
 Candywriter does have a few direct spinoffs and similar simulation games:
 
 1. DogLife (BitLife Dogs)
-* Life simulator where you play as a dog
-* Same structure: age up, make choices, relationships, survival
+
+- Life simulator where you play as a dog
+- Same structure: age up, make choices, relationships, survival
 
 2. CatLife (BitLife Cats)
-* Same concept but from a cat's perspective
-* Focus on survival, owners, environment, behavior
+
+- Same concept but from a cat's perspective
+- Focus on survival, owners, environment, behavior
 
 3. BitLife GO!
-* A newer variation or extension of the BitLife concept
-* Still centered on life simulation mechanics
+
+- A newer variation or extension of the BitLife concept
+- Still centered on life simulation mechanics
 
 These are the closest "BitLife-like" games in their portfolio.
 
 Other (non-BitLife) games
 
 Before BitLife, Candywriter mainly made casual puzzle and word games, such as:
-* Letter Soup
-* Letter Fridge
-* Word Therapy
-* What's the Difference
+
+- Letter Soup
+- Letter Fridge
+- Word Therapy
+- What's the Difference
 
 These are simpler, traditional mobile games and not life simulators.
 
 Key takeaway
-* Candywriter is essentially a mobile casual game studio
-* BitLife is their breakout hit and core product
-* Most newer games are variations on the BitLife formula
-* Earlier work was puzzle and word-based, not simulation
 
+- Candywriter is essentially a mobile casual game studio
+- BitLife is their breakout hit and core product
+- Most newer games are variations on the BitLife formula
+- Earlier work was puzzle and word-based, not simulation
