@@ -1,6 +1,6 @@
 // milestones.ts - career milestone definitions and checking logic
 
-import { Player } from './player.js';
+import type { Player } from './player.js';
 
 //============================================
 // A milestone: one-time event with condition and narrative text

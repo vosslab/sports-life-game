@@ -5,7 +5,8 @@
 // playoff games, career firsts) to avoid nagging. The Social tab also has a
 // manual "New Post" button for any-time posting.
 
-import { Player, clampStat } from '../player.js';
+import type { Player } from '../player.js';
+import { clampStat } from '../player.js';
 import type { GameResult, StatLine } from '../week_sim/index.js';
 import { waitForInteraction } from '../popup.js';
 

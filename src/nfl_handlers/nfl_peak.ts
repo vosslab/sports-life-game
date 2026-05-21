@@ -3,8 +3,9 @@
 // Highest stat potential. Big contract money.
 // Pro Bowl / All-Pro most likely here. Subtle decline near 31.
 
-import { Player, modifyStat, clampStat } from '../player.js';
-import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import { modifyStat, clampStat } from '../player.js';
+import type { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';

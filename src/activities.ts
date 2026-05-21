@@ -1,7 +1,8 @@
 // activities.ts - activity definitions, effects, and action cap logic
 
 import type { PluginHost } from './plugins/plugin_host.js';
-import { Player, CareerPhase, CoreStats, modifyStat } from './player.js';
+import type { Player, CareerPhase, CoreStats } from './player.js';
+import { modifyStat } from './player.js';
 
 //============================================
 // Activity definition
@@ -80,7 +81,7 @@ export function setPluginHost(host: PluginHost): void {
 
 //============================================
 // Get available activities for the current phase and player state
-export function getActivitiesForPhase(phase: CareerPhase, player: Player): Activity[] {
+export function getActivitiesForPhase(phase: CareerPhase, _player: Player): Activity[] {
 	let activities: Activity[] = [];
 
 	if (phase === 'childhood' || phase === 'high_school' || phase === 'college' || phase === 'nfl') {

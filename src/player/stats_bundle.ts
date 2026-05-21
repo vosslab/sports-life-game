@@ -6,7 +6,7 @@
 // grouping so the composed Player type can be assembled from narrow slices
 // without losing structure.
 
-import { CoreStats, CareerStats, HiddenStats } from './stats.js';
+import type { CoreStats, CareerStats, HiddenStats } from './stats.js';
 import type { SeasonStatTotals } from '../player.js';
 
 //============================================

@@ -4,8 +4,9 @@
 // instead of signing directly. Called from college_entry.ts
 // via the routing check.
 
-import { Player, modifyStat, randomInRange } from '../player.js';
-import { CareerContext, SeasonConfig } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import { modifyStat, randomInRange } from '../player.js';
+import type { CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
@@ -15,7 +16,7 @@ import {
 	generateIncrementalOffers,
 	advanceSchoolInterestStates,
 } from '../recruiting.js';
-import { getSchoolsAtState, getSchoolById, countOffers } from '../recruiting_profile.js';
+import { getSchoolsAtState, getSchoolById } from '../recruiting_profile.js';
 import { formatSchoolName } from '../ncaa.js';
 import { showWalkOnOptions } from './hs_recruiting.js';
 

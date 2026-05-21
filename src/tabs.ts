@@ -1,7 +1,7 @@
 // tabs.ts - tab bar state, switching logic, and phase-adaptive configuration
 
 import type { PluginHost } from './plugins/plugin_host.js';
-import { CareerPhase } from './player.js';
+import type { CareerPhase } from './player.js';
 
 //============================================
 // Tab ID and configuration types
@@ -84,7 +84,7 @@ export function getTabsForPhase(phase: CareerPhase): TabConfig[] {
 		];
 	}
 	// Fallback for unknown phases (should not reach here)
-	throw new Error(`Unknown career phase: ${phase}`);
+	throw new Error(`Unknown career phase: ${String(phase)}`);
 }
 
 //============================================

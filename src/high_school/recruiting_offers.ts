@@ -2,11 +2,12 @@
 //
 // Handles signing day flow, commitment decisions, walk-on/JUCO alternatives.
 
-import { Player } from '../player.js';
-import { CareerContext } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import type { CareerContext } from '../core/year_handler.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { formatSchoolName } from '../ncaa.js';
 import { rand } from '../core/rng.js';
+import type { CollegeOffer } from '../recruiting.js';
 import {
 	processCommitment,
 	processSigning,
@@ -16,9 +17,8 @@ import {
 	updateRecruitingStars,
 	advanceSchoolInterestStates,
 	getRecruitingStory,
-	CollegeOffer,
 } from '../recruiting.js';
-import { getSchoolById, getSchoolsAtState, countOffers } from '../recruiting_profile.js';
+import { getSchoolById } from '../recruiting_profile.js';
 import {
 	clearRecruitingFlags,
 	resolveSchoolDisplayName,

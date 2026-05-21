@@ -3,7 +3,7 @@
 // This is the atomic truth for records. A game stores whether it happened
 // and what the result was. Team records and standings are derived from these.
 
-import { GameId, TeamId, GameStatus } from './season_types.js';
+import type { GameId, TeamId, GameStatus } from './season_types.js';
 
 //============================================
 // A single game on the season schedule

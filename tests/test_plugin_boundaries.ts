@@ -1,4 +1,4 @@
-// check_plugin_boundaries.ts - enforce architectural boundaries for plugins
+// test_plugin_boundaries.ts - enforce architectural boundaries for plugins
 //
 // Static scan: asserts that plugin registry files and plugin entry points
 // do NOT import from forbidden modules (phase folders, UI widgets, simulator engine).
@@ -13,8 +13,9 @@
 //
 // Allowed imports from core, stdlib, and specific UI helpers (format_helpers, ui_utils, dom_utils).
 //
-// Run with: npx tsx tests/check_plugin_boundaries.ts
+// Run with: npm run test:node -- --test-name-pattern='plugin_boundaries'
 
+import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
@@ -67,8 +68,7 @@ function isViolation(line: string): boolean {
 }
 
 //============================================
-// Main scan
-function main(): void {
+test('boundary check: no forbidden imports in plugin tree', () => {
 	const here = url.fileURLToPath(import.meta.url);
 	const repoRoot = path.resolve(path.dirname(here), '..');
 	const pluginRegistriesDir = path.join(repoRoot, 'src', 'plugins', 'registries');
@@ -111,14 +111,11 @@ function main(): void {
 	}
 
 	if (violations.length > 0) {
-		console.error('check_plugin_boundaries.ts: found boundary violations:');
+		const lines: string[] = [];
+		lines.push('plugin boundary check: found violations:');
 		for (const violation of violations) {
-			console.error(`  ${violation}`);
+			lines.push(`  ${violation}`);
 		}
-		process.exit(1);
+		throw new Error(lines.join('\n'));
 	}
-
-	console.log('check_plugin_boundaries.ts: no boundary violations');
-}
-
-main();
+});

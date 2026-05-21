@@ -1,8 +1,8 @@
 // feed_render.ts - render the Fotomagic Social tab content.
 
-import { Player } from '../player.js';
+import type { Player } from '../player.js';
+import type { FotomagicPost } from './fotomagic.js';
 import {
-	FotomagicPost,
 	FEED_RENDER_LIMIT,
 	recentPosts,
 	addPost,

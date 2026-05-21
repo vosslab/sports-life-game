@@ -1,6 +1,7 @@
 // events.ts - event system with data-driven event cards and weighted selection
 
-import { Player, CoreStats, clampStat } from './player.js';
+import type { Player } from './player.js';
+import { clampStat } from './player.js';
 
 //============================================
 // Event choice with effects and story text
@@ -201,9 +202,9 @@ export function applyEventChoice(player: Player, choice: EventChoice): string {
 			statName === 'health' ||
 			statName === 'confidence'
 		) {
-			const oldValue = player.core[statName as keyof CoreStats];
+			const oldValue = player.core[statName];
 			const newValue = clampStat(oldValue + delta);
-			player.core[statName as keyof CoreStats] = newValue;
+			player.core[statName] = newValue;
 		}
 
 		// Handle career stats

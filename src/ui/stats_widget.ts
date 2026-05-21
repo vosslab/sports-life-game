@@ -5,7 +5,7 @@
 
 import type { Player } from '../player.js';
 import { getAcademicStanding } from '../player.js';
-import { findElement, getElement } from '../dom_utils.js';
+import { findElement } from '../dom_utils.js';
 import { isSidebarVisible } from '../tabs.js';
 import { formatMoney } from './ui_utils.js';
 

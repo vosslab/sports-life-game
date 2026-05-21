@@ -4,17 +4,12 @@
 // Stats affected: athleticism (playing outside), discipline (school), confidence (social).
 // Fast-forward feel: ~30-60 seconds per year.
 
-import { Player } from '../player.js';
-import { YearHandler, CareerContext } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import type { YearHandler, CareerContext } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
-import {
-	filterEvents,
-	selectEvent,
-	selectEventByCategory,
-	applyEventChoice,
-	GameEvent,
-} from '../events.js';
+import type { GameEvent } from '../events.js';
+import { filterEvents, selectEvent, selectEventByCategory, applyEventChoice } from '../events.js';
 
 //============================================
 // Age-appropriate headlines for flavor
@@ -210,12 +205,12 @@ function presentEvent(
 				// Promote flags and show yearly summary
 				promoteFlags(player);
 				const deltas: Record<string, number> = {};
-				deltas['athleticism'] = player.core.athleticism - statsBefore!['athleticism'];
-				deltas['confidence'] = player.core.confidence - statsBefore!['confidence'];
-				deltas['discipline'] = player.core.discipline - statsBefore!['discipline'];
-				deltas['leadership'] = player.hidden.leadership - statsBefore!['leadership'];
-				deltas['durability'] = player.hidden.durability - statsBefore!['durability'];
-				deltas['health'] = player.core.health - statsBefore!['health'];
+				deltas['athleticism'] = player.core.athleticism - statsBefore['athleticism'];
+				deltas['confidence'] = player.core.confidence - statsBefore['confidence'];
+				deltas['discipline'] = player.core.discipline - statsBefore['discipline'];
+				deltas['leadership'] = player.hidden.leadership - statsBefore['leadership'];
+				deltas['durability'] = player.hidden.durability - statsBefore['durability'];
+				deltas['health'] = player.core.health - statsBefore['health'];
 				const summary = generateChildhoodSummary(player, deltas);
 				ctx.addText(`*${summary}*`);
 				showContinue(player, ctx);

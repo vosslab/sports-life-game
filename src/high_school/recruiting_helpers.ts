@@ -2,8 +2,9 @@
 //
 // School lookup, division labels, season estimation, and other helpers.
 
-import { Player, randomInRange } from '../player.js';
-import { CareerContext } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import { randomInRange } from '../player.js';
+import type { CareerContext } from '../core/year_handler.js';
 import { formatSchoolName } from '../ncaa.js';
 import { getSchoolById } from '../recruiting_profile.js';
 

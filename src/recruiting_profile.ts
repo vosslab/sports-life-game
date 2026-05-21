@@ -5,7 +5,7 @@
 // Store schoolId strings (not full NCAASchool objects) to keep
 // save data lean and avoid stale references.
 
-import { NCAASchool } from './ncaa.js';
+import type { NCAASchool } from './ncaa.js';
 
 //============================================
 // Offer progression states (per design doc section 9)

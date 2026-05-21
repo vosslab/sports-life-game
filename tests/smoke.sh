@@ -9,7 +9,7 @@
 #   bash tests/smoke.sh [--headed]
 #
 # This is the M1 end-to-end guard. Node-side characterization tests live in
-# tests/run.ts and run separately.
+# tests/test_*.ts and run separately via `npm run test:node` (node --test).
 
 set -euo pipefail
 

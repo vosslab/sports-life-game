@@ -312,11 +312,11 @@ locally by [run_web_server.sh](../run_web_server.sh) via
 - Browser-driven Playwright tests under [tests/playwright/](../tests/playwright/);
   see [E2E_TESTS.md](E2E_TESTS.md) and
   [PLAYWRIGHT_USAGE.md](PLAYWRIGHT_USAGE.md).
-- [tests/check_dom_imports.ts](../tests/check_dom_imports.ts) enforces that core /
+- [tests/test_dom_imports.ts](../tests/test_dom_imports.ts) enforces that core /
   simulation code does not import DOM APIs.
-- [tests/check_math_random_budget.ts](../tests/check_math_random_budget.ts)
+- [tests/test_math_random_budget.ts](../tests/test_math_random_budget.ts)
   bounds `Math.random` usage to keep simulation reproducible.
-- [tests/check_plugin_boundaries.ts](../tests/check_plugin_boundaries.ts)
+- [tests/test_plugin_boundaries.ts](../tests/test_plugin_boundaries.ts)
   enforces plugin tree boundary rules (no cross-plugin imports).
 - [tests/fixtures/csv_loader.mjs](../tests/fixtures/csv_loader.mjs) is the
   Node ESM loader hook that lets tsx-run tests import `.csv` files as

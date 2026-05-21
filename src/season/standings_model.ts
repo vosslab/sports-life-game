@@ -3,7 +3,7 @@
 // Standings are always computed, never stored. This ensures they
 // cannot desync from the actual game results.
 
-import { TeamId, StandingsRow } from './season_types.js';
+import type { TeamId, StandingsRow } from './season_types.js';
 import { SeasonGame } from './game_model.js';
 import { SeasonTeam } from './team_model.js';
 

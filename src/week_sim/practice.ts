@@ -3,10 +3,11 @@
 // Split from `src/week_sim.ts` during M4. Used for backups and bench
 // players to compete for snaps during weeks they don't play.
 
-import { Player, clampStat, randomInRange } from '../player.js';
+import type { Player } from '../player.js';
+import { clampStat, randomInRange } from '../player.js';
 import { calculatePlayerPerformanceScore } from './game.js';
 import { calculateLetterGrade } from './momentum.js';
-import { DepthChartUpdate } from './depth_chart.js';
+import type { DepthChartUpdate } from './depth_chart.js';
 
 //============================================
 export interface PracticeResult {

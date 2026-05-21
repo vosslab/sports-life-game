@@ -3,8 +3,8 @@
 // Identity and ratings only. Do NOT store wins/losses here.
 // Records are derived from finalized SeasonGame objects.
 
-import { TeamId } from './season_types.js';
-import { CoachPersonality } from '../team.js';
+import type { TeamId } from './season_types.js';
+import type { CoachPersonality } from '../team.js';
 
 //============================================
 // A team within a season

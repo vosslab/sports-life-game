@@ -7,7 +7,10 @@
 // - All probabilities are in [0, 1]
 // - success.probability + failure.probability = 1.0 (within 0.01 tolerance)
 // - Choice IDs are unique within each file
+//
+// Run with: npm run test:node -- --test-name-pattern='choice_schemas'
 
+import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
@@ -43,8 +46,46 @@ function repoRoot(): string {
 function loadChoiceFile(phase: string): WeeklyChoice[] {
 	const filePath = path.join(repoRoot(), 'src', 'data', 'choices', `${phase}.json`);
 	const content = fs.readFileSync(filePath, 'utf8');
-	const data = JSON.parse(content);
+	// JSON.parse returns any; cast through unknown then to the expected shape.
+	// Validation in validateChoice() ensures every element matches WeeklyChoice.
+	const data = JSON.parse(content) as unknown as WeeklyChoice[];
 	return data;
+}
+
+//============================================
+// Validate a single outcome (success or failure)
+function validateOutcome(
+	outcome: Record<string, unknown>,
+	choiceId: string,
+	phase: string,
+	kind: 'success' | 'failure'
+): void {
+	if (typeof outcome.probability !== 'number') {
+		throw new Error(
+			`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid probability`
+		);
+	}
+	if (outcome.probability < 0 || outcome.probability > 1) {
+		throw new Error(
+			`Choice ${choiceId} in ${phase} ${kind} outcome probability ${outcome.probability} not in [0, 1]`
+		);
+	}
+	if (typeof outcome.effects !== 'object' || outcome.effects === null) {
+		throw new Error(`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid effects`);
+	}
+	if (typeof outcome.narrative !== 'string') {
+		throw new Error(`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid narrative`);
+	}
+
+	// Validate effects are all numbers
+	const effects = outcome.effects as Record<string, unknown>;
+	for (const [key, val] of Object.entries(effects)) {
+		if (typeof val !== 'number') {
+			throw new Error(
+				`Choice ${choiceId} in ${phase} ${kind} outcome effect ${key} is not a number`
+			);
+		}
+	}
 }
 
 //============================================
@@ -102,89 +143,31 @@ function validateChoice(choice: unknown, phase: string): void {
 	if (Math.abs(probSum - 1.0) > tolerance) {
 		throw new Error(
 			`Choice ${c.id} in ${phase} probabilities do not sum to 1.0: ` +
-				`${success.probability} + ${failure.probability} = ${probSum}`
+				`${String(success.probability)} + ${String(failure.probability)} = ${probSum}`
 		);
 	}
 }
 
 //============================================
-// Validate a single outcome (success or failure)
-function validateOutcome(
-	outcome: Record<string, unknown>,
-	choiceId: string,
-	phase: string,
-	kind: 'success' | 'failure'
-): void {
-	if (typeof outcome.probability !== 'number') {
-		throw new Error(
-			`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid probability`
-		);
-	}
-	if (outcome.probability < 0 || outcome.probability > 1) {
-		throw new Error(
-			`Choice ${choiceId} in ${phase} ${kind} outcome probability ${outcome.probability} not in [0, 1]`
-		);
-	}
-	if (typeof outcome.effects !== 'object' || outcome.effects === null) {
-		throw new Error(`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid effects`);
-	}
-	if (typeof outcome.narrative !== 'string') {
-		throw new Error(`Choice ${choiceId} in ${phase} ${kind} outcome missing or invalid narrative`);
-	}
+// One node:test per phase so failures localize cleanly in the reporter output.
+const PHASES = ['preseason', 'opening', 'midseason', 'stretch', 'postseason'] as const;
 
-	// Validate effects are all numbers
-	const effects = outcome.effects as Record<string, unknown>;
-	for (const [key, val] of Object.entries(effects)) {
-		if (typeof val !== 'number') {
-			throw new Error(
-				`Choice ${choiceId} in ${phase} ${kind} outcome effect ${key} is not a number`
-			);
+for (const phase of PHASES) {
+	test(`choice_schemas: ${phase} JSON is well-formed`, () => {
+		const choices = loadChoiceFile(phase);
+
+		if (!Array.isArray(choices)) {
+			throw new Error(`${phase} choices is not an array`);
 		}
-	}
-}
 
-//============================================
-// Main
-function main(): void {
-	const phases = ['preseason', 'opening', 'midseason', 'stretch', 'postseason'];
-	const allErrors: string[] = [];
-
-	for (const phase of phases) {
-		try {
-			const choices = loadChoiceFile(phase);
-
-			// Validate array
-			if (!Array.isArray(choices)) {
-				throw new Error(`${phase} choices is not an array`);
+		const seenIds = new Set<string>();
+		for (const choice of choices) {
+			validateChoice(choice, phase);
+			const choiceId = choice.id;
+			if (seenIds.has(choiceId)) {
+				throw new Error(`Duplicate choice id ${choiceId} in ${phase}`);
 			}
-
-			// Validate each choice
-			const seenIds = new Set<string>();
-			for (const choice of choices) {
-				validateChoice(choice, phase);
-				const choiceId = (choice as WeeklyChoice).id;
-				if (seenIds.has(choiceId)) {
-					throw new Error(`Duplicate choice id ${choiceId} in ${phase}`);
-				}
-				seenIds.add(choiceId);
-			}
-
-			console.log(`OK: ${phase} (${choices.length} choices)`);
-		} catch (err) {
-			const msg = err instanceof Error ? err.message : String(err);
-			allErrors.push(`${phase}: ${msg}`);
-			console.error(`FAIL: ${phase}: ${msg}`);
+			seenIds.add(choiceId);
 		}
-	}
-
-	if (allErrors.length > 0) {
-		console.error('');
-		console.error(`test_choice_schemas.ts: ${allErrors.length} phase(s) failed validation`);
-		process.exit(1);
-	}
-
-	console.log('');
-	console.log('test_choice_schemas.ts: all choice schemas valid.');
+	});
 }
-
-main();

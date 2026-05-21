@@ -4,10 +4,10 @@
 // tracks the currently running season. Getter functions allow other modules
 // to safely query engine state without creating circular dependencies.
 
-import { Player } from '../player.js';
-import { CareerContext, SeasonConfig } from '../core/year_handler.js';
-import { LeagueSeason } from '../season/season_model.js';
-import { Activity, WeekState } from '../activities.js';
+import type { Player } from '../player.js';
+import type { CareerContext, SeasonConfig } from '../core/year_handler.js';
+import type { LeagueSeason } from '../season/season_model.js';
+import type { Activity, WeekState } from '../activities.js';
 import { getActivitiesForPhase, isActivityUnlocked, getEffectPreview } from '../activities.js';
 
 //============================================

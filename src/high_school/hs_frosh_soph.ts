@@ -4,8 +4,9 @@
 // Full weekly loop via weekly engine: focus -> activities -> events -> game.
 // 10-game season. Depth chart matters.
 
-import { Player, randomInRange } from '../player.js';
-import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import { randomInRange } from '../player.js';
+import type { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';

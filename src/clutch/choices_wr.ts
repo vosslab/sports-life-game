@@ -3,7 +3,7 @@
 // Pure data. Split during M4 modularization. Imported by
 // `src/clutch/resolve.ts` to drive position-aware choice selection.
 
-import { ChoiceTemplate } from './types.js';
+import type { ChoiceTemplate } from './types.js';
 
 //============================================
 // WR/TE choice pools

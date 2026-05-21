@@ -40,9 +40,9 @@ function extractNumber(value: unknown): number {
 // Scan play log for score changes indicating comebacks or collapses
 function analyzeScoreTrends(
 	playLog: string[],
-	teamScore: number,
-	opponentScore: number,
-	isHome: boolean
+	_teamScore: number,
+	_opponentScore: number,
+	_isHome: boolean
 ): { wasTrailingBy10: boolean; wasLeadingBy10: boolean } {
 	// Simple heuristic: scan for patterns suggesting earlier deficit or lead
 	// For more sophisticated tracking, the play log would include actual score states

@@ -69,6 +69,7 @@ function parseNCAASchoolCsv(text: string, subdivision: string): NCAASchool[] {
 
 //============================================
 // Load NCAA schools from bundled FBS and FCS CSV imports
+// eslint-disable-next-line @typescript-eslint/require-await -- M5 loader contract: callers await; body is sync because csv text is bundled at build time
 export async function loadNCAASchools(): Promise<{
 	fbs: NCAASchool[];
 	fcs: NCAASchool[];
@@ -235,7 +236,7 @@ export function generateCollegeSchedule(
 
 	// Generate 4 non-conference games
 	const nonConfGames = selectRandomSchools(nonConferenceSchools, 4);
-	let nonConfWeeks = [1, 2, 3, 4];
+	const nonConfWeeks = [1, 2, 3, 4];
 
 	for (const opponent of nonConfGames) {
 		const weekIndex = Math.floor(Math.random() * nonConfWeeks.length);

@@ -17,16 +17,16 @@
 //   --core N        all core stats set to (default 75)
 //   --base-seed N   first seed; each run uses base+i (default 1000)
 
+import type { Player, Position } from '../src/player.js';
 import {
-	Player,
-	Position,
 	accumulateGameStats,
 	clampStat,
 	createEmptySeasonStats,
 	createPlayer,
 	getPositionBucket,
 } from '../src/player.js';
-import { Team, generateHighSchoolTeam } from '../src/team.js';
+import type { Team } from '../src/team.js';
+import { generateHighSchoolTeam } from '../src/team.js';
 import { simulateGame } from '../src/week_sim/game.js';
 import { seedDefaultRng, randInt } from '../src/core/rng.js';
 

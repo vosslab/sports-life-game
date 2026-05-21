@@ -4,8 +4,9 @@
 // across all eight registries. Covers lifecycle hook independence and
 // stable ordering.
 //
-// Run with: npx tsx tests/test_plugin_host.ts
+// Run with: npm run test:node -- --test-name-pattern='plugin_host'
 
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import type { YearHandler } from '../src/core/year_handler.js';
@@ -46,12 +47,11 @@ function clearAllRegistries(): void {
 }
 
 //============================================
-// Test: phase registry register and lookup
-function testPhaseRegistryRegisterLookup(): void {
+// Phase registry tests
+test('plugin_host: phase registry register and lookup', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
-	// Create a minimal test handler
 	const testHandler: YearHandler = {
 		id: 'test_phase',
 		ageStart: 50,
@@ -72,13 +72,10 @@ function testPhaseRegistryRegisterLookup(): void {
 	const looked = host.phases.lookup('test_phase');
 	assert.ok(looked, 'phase registry lookup failed');
 	assert.equal(looked.id, 'test_phase', 'phase handler id mismatch');
-}
+});
 
 //============================================
-// Test: phase registry age-overlap rejection
-// Note: phase_registry delegates to core year_registry which validates
-// age overlap but not explicit duplicate id (since handlers are keyed by age range).
-function testPhaseRegistryAgeOverlapRejection(): void {
+test('plugin_host: phase registry age-overlap rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -119,15 +116,14 @@ function testPhaseRegistryAgeOverlapRejection(): void {
 	let threw = false;
 	try {
 		host.phases.register(handler2);
-	} catch (err) {
+	} catch (_err) {
 		threw = true;
 	}
 	assert.ok(threw, 'phase registry should throw on age overlap');
-}
+});
 
 //============================================
-// Test: phase registry clear
-function testPhaseRegistryClear(): void {
+test('plugin_host: phase registry clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -151,11 +147,11 @@ function testPhaseRegistryClear(): void {
 	host.phases.clear();
 	const looked = host.phases.lookup('clear_test');
 	assert.ok(!looked, 'phase registry clear failed');
-}
+});
 
 //============================================
-// Test: event registry register and lookup
-function testEventRegistryRegisterLookup(): void {
+// Event registry tests
+test('plugin_host: event registry register and lookup', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -175,11 +171,10 @@ function testEventRegistryRegisterLookup(): void {
 	const looked = host.events.lookup('test_event');
 	assert.ok(looked, 'event registry lookup failed');
 	assert.equal(looked.id, 'test_event', 'event id mismatch');
-}
+});
 
 //============================================
-// Test: event registry duplicate rejection
-function testEventRegistryDuplicateRejection(): void {
+test('plugin_host: event registry duplicate rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -212,15 +207,14 @@ function testEventRegistryDuplicateRejection(): void {
 	let threw = false;
 	try {
 		host.events.register(event2);
-	} catch (err) {
+	} catch (_err) {
 		threw = true;
 	}
 	assert.ok(threw, 'event registry should throw on duplicate id');
-}
+});
 
 //============================================
-// Test: event registry clear
-function testEventRegistryClear(): void {
+test('plugin_host: event registry clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -240,11 +234,11 @@ function testEventRegistryClear(): void {
 	host.events.clear();
 	const looked = host.events.lookup('clear_event');
 	assert.ok(!looked, 'event registry clear failed');
-}
+});
 
 //============================================
-// Test: choice registry register and lookup (uses WeeklyChoice with id)
-function testChoiceRegistryRegisterLookup(): void {
+// Choice registry tests
+test('plugin_host: choice registry register and lookup', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -265,11 +259,10 @@ function testChoiceRegistryRegisterLookup(): void {
 	const looked = host.choices.lookup('test_choice');
 	assert.ok(looked, 'choice registry lookup failed');
 	assert.equal(looked.id, 'test_choice', 'choice id mismatch');
-}
+});
 
 //============================================
-// Test: choice registry duplicate rejection
-function testChoiceRegistryDuplicateRejection(): void {
+test('plugin_host: choice registry duplicate rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -304,15 +297,14 @@ function testChoiceRegistryDuplicateRejection(): void {
 	let threw = false;
 	try {
 		host.choices.register(choice2);
-	} catch (err) {
+	} catch (_err) {
 		threw = true;
 	}
 	assert.ok(threw, 'choice registry should throw on duplicate id');
-}
+});
 
 //============================================
-// Test: choice registry clear
-function testChoiceRegistryClear(): void {
+test('plugin_host: choice registry clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -333,11 +325,11 @@ function testChoiceRegistryClear(): void {
 	host.choices.clear();
 	const looked = host.choices.lookup('clear_choice');
 	assert.ok(!looked, 'choice registry clear failed');
-}
+});
 
 //============================================
-// Test: activity registry register and lookup
-function testActivityRegistryRegisterLookup(): void {
+// Activity registry tests
+test('plugin_host: activity registry register and lookup', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -354,11 +346,10 @@ function testActivityRegistryRegisterLookup(): void {
 	const looked = host.activities.lookup('test_activity');
 	assert.ok(looked, 'activity registry lookup failed');
 	assert.equal(looked.id, 'test_activity', 'activity id mismatch');
-}
+});
 
 //============================================
-// Test: activity registry duplicate rejection
-function testActivityRegistryDuplicateRejection(): void {
+test('plugin_host: activity registry duplicate rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -385,15 +376,14 @@ function testActivityRegistryDuplicateRejection(): void {
 	let threw = false;
 	try {
 		host.activities.register(activity2);
-	} catch (err) {
+	} catch (_err) {
 		threw = true;
 	}
 	assert.ok(threw, 'activity registry should throw on duplicate id');
-}
+});
 
 //============================================
-// Test: activity registry clear
-function testActivityRegistryClear(): void {
+test('plugin_host: activity registry clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -410,145 +400,225 @@ function testActivityRegistryClear(): void {
 	host.activities.clear();
 	const looked = host.activities.lookup('clear_activity');
 	assert.ok(!looked, 'activity registry clear failed');
-}
+});
 
 //============================================
-// Test: lifecycle hooks - AgeHook, PhaseStartHook, CareerEndHook independence
-function testLifecycleHookIndependence(): void {
+// Rules registry tests
+test('plugin_host: rules registry register and lookup', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
-	const ageHook: AgeHook = {
-		id: 'age_hook_1',
-		age: 18,
-		fire: () => {},
-	};
+	host.rules.register({
+		id: 'test_rules',
+		name: 'Test Ruleset',
+		implementationModule: 'test/rules.ts',
+	});
 
-	const phaseHook: PhaseStartHook = {
-		id: 'phase_hook_1',
-		phase: 'nfl',
-		fire: () => {},
-	};
-
-	const careerHook: CareerEndHook = {
-		id: 'career_hook_1',
-		trigger: 'retirement',
-		fire: () => {},
-	};
-
-	host.lifecycle.registerAgeHook(ageHook);
-	host.lifecycle.registerPhaseStartHook(phaseHook);
-	host.lifecycle.registerCareerEndHook(careerHook);
-
-	const ageHooks = host.lifecycle.getAgeHooks();
-	const phaseHooks = host.lifecycle.getPhaseStartHooks();
-	const careerHooks = host.lifecycle.getCareerEndHooks();
-
-	assert.ok(
-		ageHooks.some((h) => h.id === 'age_hook_1'),
-		'AgeHook not registered'
-	);
-	assert.ok(
-		phaseHooks.some((h) => h.id === 'phase_hook_1'),
-		'PhaseStartHook not registered'
-	);
-	assert.ok(
-		careerHooks.some((h) => h.id === 'career_hook_1'),
-		'CareerEndHook not registered'
-	);
-}
+	const looked = host.rules.lookup('test_rules');
+	assert.ok(looked, 'rules registry lookup failed');
+	assert.equal(looked.id, 'test_rules', 'rules id mismatch');
+});
 
 //============================================
-// Test: lifecycle hooks - AgeHook duplicate rejection
-function testLifecycleAgeHookDuplicateRejection(): void {
+test('plugin_host: rules registry duplicate rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
-	const hook1: AgeHook = {
-		id: 'dup_age_hook',
-		age: 18,
-		fire: () => {},
+	host.rules.register({
+		id: 'dup_rules',
+		name: 'Rules 1',
+	});
+
+	let threw = false;
+	try {
+		host.rules.register({
+			id: 'dup_rules',
+			name: 'Rules 2',
+		});
+	} catch (_err) {
+		threw = true;
+	}
+	assert.ok(threw, 'rules registry should throw on duplicate id');
+});
+
+//============================================
+test('plugin_host: rules registry clear', () => {
+	clearAllRegistries();
+	const host = buildPluginHost();
+
+	host.rules.register({
+		id: 'clear_rules',
+		name: 'Rules',
+	});
+
+	host.rules.clear();
+	const looked = host.rules.lookup('clear_rules');
+	assert.ok(!looked, 'rules registry clear failed');
+});
+
+//============================================
+// UI registry tests
+test('plugin_host: UI tab registry register, duplicate rejection, clear', () => {
+	clearAllRegistries();
+	const host = buildPluginHost();
+
+	const testTab = {
+		tabId: 'test_tab',
+		label: 'Test Tab',
+		availableInPhase: () => true,
+		render: () => {},
 	};
 
-	host.lifecycle.registerAgeHook(hook1);
+	host.ui.registerTab(testTab);
+	const allTabs = host.ui.getAllTabs();
+	assert.ok(
+		allTabs.some((t) => t.tabId === 'test_tab'),
+		'tab registry register and lookup failed'
+	);
 
-	const hook2: AgeHook = {
-		id: 'dup_age_hook',
-		age: 19,
-		fire: () => {},
+	// Test duplicate rejection
+	const dupTab = {
+		tabId: 'test_tab',
+		label: 'Duplicate Tab',
+		availableInPhase: () => true,
+		render: () => {},
 	};
 
 	let threw = false;
 	try {
-		host.lifecycle.registerAgeHook(hook2);
-	} catch (err) {
+		host.ui.registerTab(dupTab);
+	} catch (_err) {
 		threw = true;
 	}
-	assert.ok(threw, 'lifecycle registry should throw on duplicate AgeHook id');
-}
+	assert.ok(threw, 'UI tab registry should throw on duplicate tabId');
+
+	// Test clear
+	host.ui.clear();
+	const afterClear = host.ui.getAllTabs();
+	assert.ok(!afterClear.find((t) => t.tabId === 'test_tab'), 'UI tab registry clear failed');
+});
 
 //============================================
-// Test: lifecycle hooks - stable ordering (priority desc, id asc)
-function testLifecycleHookOrdering(): void {
+test('plugin_host: UI panel registry register, duplicate rejection, clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
-	// Register hooks with same age but different priorities
-	const hook1: AgeHook = {
-		id: 'low_priority',
-		age: 18,
-		priority: 10,
-		fire: () => {},
+	const testPanel = {
+		panelId: 'test_panel',
+		label: 'Test Panel',
+		availableInPhase: () => true,
+		render: () => {},
 	};
 
-	const hook2: AgeHook = {
-		id: 'high_priority',
-		age: 18,
-		priority: 100,
-		fire: () => {},
+	host.ui.registerPanel(testPanel);
+	const allPanels = host.ui.getAllPanels();
+	assert.ok(
+		allPanels.some((p) => p.panelId === 'test_panel'),
+		'panel registry register and lookup failed'
+	);
+
+	// Test duplicate rejection
+	const dupPanel = {
+		panelId: 'test_panel',
+		label: 'Duplicate Panel',
+		availableInPhase: () => true,
+		render: () => {},
 	};
 
-	const hook3: AgeHook = {
-		id: 'another_low',
-		age: 18,
-		priority: 10,
-		fire: () => {},
-	};
+	let threw = false;
+	try {
+		host.ui.registerPanel(dupPanel);
+	} catch (_err) {
+		threw = true;
+	}
+	assert.ok(threw, 'UI panel registry should throw on duplicate panelId');
 
-	host.lifecycle.registerAgeHook(hook1);
-	host.lifecycle.registerAgeHook(hook2);
-	host.lifecycle.registerAgeHook(hook3);
-
-	const hooks = host.lifecycle.getAgeHooks();
-
-	// Should be ordered: priority 100 first, then priority 10 by id (asc: 'another_low' < 'low_priority')
-	assert.equal(hooks[0].id, 'high_priority', 'highest priority should be first');
-	assert.equal(hooks[1].id, 'another_low', 'same priority should be sorted by id asc');
-	assert.equal(hooks[2].id, 'low_priority', 'lowest priority should be last');
-}
+	// Test clear
+	host.ui.clear();
+	const afterClear = host.ui.getAllPanels();
+	assert.ok(!afterClear.find((p) => p.panelId === 'test_panel'), 'UI panel registry clear failed');
+});
 
 //============================================
-// Test: lifecycle registry clear
-function testLifecycleRegistryClear(): void {
+test('plugin_host: UI widget registry register, duplicate rejection, clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
-	const ageHook: AgeHook = {
-		id: 'clear_age',
-		age: 18,
-		fire: () => {},
+	const testWidget = {
+		widgetId: 'test_widget',
+		availableInPhase: () => true,
+		render: () => {},
 	};
 
-	host.lifecycle.registerAgeHook(ageHook);
-	host.lifecycle.clear();
+	host.ui.registerWidget(testWidget);
+	const allWidgets = host.ui.getAllWidgets();
+	assert.ok(
+		allWidgets.some((w) => w.widgetId === 'test_widget'),
+		'widget registry register and lookup failed'
+	);
 
-	const hooks = host.lifecycle.getAgeHooks();
-	assert.ok(!hooks.find((h) => h.id === 'test_age'), 'lifecycle registry clear failed');
-}
+	// Test duplicate rejection
+	const dupWidget = {
+		widgetId: 'test_widget',
+		availableInPhase: () => true,
+		render: () => {},
+	};
+
+	let threw = false;
+	try {
+		host.ui.registerWidget(dupWidget);
+	} catch (_err) {
+		threw = true;
+	}
+	assert.ok(threw, 'UI widget registry should throw on duplicate widgetId');
+
+	// Test clear
+	host.ui.clear();
+	const afterClear = host.ui.getAllWidgets();
+	assert.ok(
+		!afterClear.find((w) => w.widgetId === 'test_widget'),
+		'UI widget registry clear failed'
+	);
+});
 
 //============================================
-// Test: DataPack routing - registering a pack routes sub-items to sub-registries
-function testDataPackRouting(): void {
+// DataPack registry tests
+test('plugin_host: data pack registry register, duplicate rejection, clear', () => {
+	clearAllRegistries();
+	const host = buildPluginHost();
+
+	const testPack = {
+		id: 'test_pack',
+		name: 'Test DataPack',
+	};
+
+	host.dataPacks.register(testPack);
+	const looked = host.dataPacks.lookup('test_pack');
+	assert.ok(looked, 'data pack registry lookup failed');
+	assert.equal(looked.id, 'test_pack', 'data pack id mismatch');
+
+	// Test duplicate rejection
+	const dupPack = {
+		id: 'test_pack',
+		name: 'Duplicate DataPack',
+	};
+
+	let threw = false;
+	try {
+		host.dataPacks.register(dupPack);
+	} catch (_err) {
+		threw = true;
+	}
+	assert.ok(threw, 'data pack registry should throw on duplicate id');
+
+	// Test clear
+	host.dataPacks.clear();
+	const afterClear = host.dataPacks.lookup('test_pack');
+	assert.ok(!afterClear, 'data pack registry clear failed');
+});
+
+//============================================
+test('plugin_host: data pack routes sub-items to sub-registries', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -606,240 +676,149 @@ function testDataPackRouting(): void {
 	const hooks = host.lifecycle.getAgeHooks();
 	const routedHook = hooks.find((h) => h.id === 'routing_test_hook');
 	assert.ok(routedHook, 'lifecycle hook from pack not routed to lifecycle registry');
-}
+});
 
 //============================================
-// Test: boot order assertion (M3: plugin-only handler registration)
-// Verify: clearHandlers() -> buildPluginHost() -> registerAllPlugins()
-function testBootOrder(): void {
+// Lifecycle registry tests
+test('plugin_host: lifecycle hooks - register and independence', () => {
+	clearAllRegistries();
+	const host = buildPluginHost();
+
+	const ageHook: AgeHook = {
+		id: 'age_hook_1',
+		age: 18,
+		fire: () => {},
+	};
+
+	const phaseHook: PhaseStartHook = {
+		id: 'phase_hook_1',
+		phase: 'nfl',
+		fire: () => {},
+	};
+
+	const careerHook: CareerEndHook = {
+		id: 'career_hook_1',
+		trigger: 'retirement',
+		fire: () => {},
+	};
+
+	host.lifecycle.registerAgeHook(ageHook);
+	host.lifecycle.registerPhaseStartHook(phaseHook);
+	host.lifecycle.registerCareerEndHook(careerHook);
+
+	const ageHooks = host.lifecycle.getAgeHooks();
+	const phaseHooks = host.lifecycle.getPhaseStartHooks();
+	const careerHooks = host.lifecycle.getCareerEndHooks();
+
+	assert.ok(
+		ageHooks.some((h) => h.id === 'age_hook_1'),
+		'AgeHook not registered'
+	);
+	assert.ok(
+		phaseHooks.some((h) => h.id === 'phase_hook_1'),
+		'PhaseStartHook not registered'
+	);
+	assert.ok(
+		careerHooks.some((h) => h.id === 'career_hook_1'),
+		'CareerEndHook not registered'
+	);
+});
+
+//============================================
+test('plugin_host: lifecycle AgeHook duplicate rejection', () => {
+	clearAllRegistries();
+	const host = buildPluginHost();
+
+	const hook1: AgeHook = {
+		id: 'dup_age_hook',
+		age: 18,
+		fire: () => {},
+	};
+
+	host.lifecycle.registerAgeHook(hook1);
+
+	const hook2: AgeHook = {
+		id: 'dup_age_hook',
+		age: 19,
+		fire: () => {},
+	};
+
+	let threw = false;
+	try {
+		host.lifecycle.registerAgeHook(hook2);
+	} catch (_err) {
+		threw = true;
+	}
+	assert.ok(threw, 'lifecycle registry should throw on duplicate AgeHook id');
+});
+
+//============================================
+test('plugin_host: lifecycle hook ordering (priority desc, id asc)', () => {
+	clearAllRegistries();
+	const host = buildPluginHost();
+
+	// Register hooks with same age but different priorities
+	const hook1: AgeHook = {
+		id: 'low_priority',
+		age: 18,
+		priority: 10,
+		fire: () => {},
+	};
+
+	const hook2: AgeHook = {
+		id: 'high_priority',
+		age: 18,
+		priority: 100,
+		fire: () => {},
+	};
+
+	const hook3: AgeHook = {
+		id: 'another_low',
+		age: 18,
+		priority: 10,
+		fire: () => {},
+	};
+
+	host.lifecycle.registerAgeHook(hook1);
+	host.lifecycle.registerAgeHook(hook2);
+	host.lifecycle.registerAgeHook(hook3);
+
+	const hooks = host.lifecycle.getAgeHooks();
+
+	// Should be ordered: priority 100 first, then priority 10 by id (asc: 'another_low' < 'low_priority')
+	assert.equal(hooks[0].id, 'high_priority', 'highest priority should be first');
+	assert.equal(hooks[1].id, 'another_low', 'same priority should be sorted by id asc');
+	assert.equal(hooks[2].id, 'low_priority', 'lowest priority should be last');
+});
+
+//============================================
+test('plugin_host: lifecycle registry clear', () => {
+	clearAllRegistries();
+	const host = buildPluginHost();
+
+	const ageHook: AgeHook = {
+		id: 'clear_age',
+		age: 18,
+		fire: () => {},
+	};
+
+	host.lifecycle.registerAgeHook(ageHook);
+	host.lifecycle.clear();
+
+	const hooks = host.lifecycle.getAgeHooks();
+	assert.ok(!hooks.find((h) => h.id === 'clear_age'), 'lifecycle registry clear failed');
+});
+
+//============================================
+// Boot order tests
+test('plugin_host: boot order clearHandlers -> buildPluginHost -> registerAllPlugins', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 	registerAllPlugins(host);
-}
+});
 
 //============================================
-// Test: rules registry register and lookup
-function testRulesRegistryRegisterLookup(): void {
-	clearAllRegistries();
-	const host = buildPluginHost();
-
-	host.rules.register({
-		id: 'test_rules',
-		name: 'Test Ruleset',
-		implementationModule: 'test/rules.ts',
-	});
-
-	const looked = host.rules.lookup('test_rules');
-	assert.ok(looked, 'rules registry lookup failed');
-	assert.equal(looked.id, 'test_rules', 'rules id mismatch');
-}
-
-//============================================
-// Test: rules registry duplicate rejection
-function testRulesRegistryDuplicateRejection(): void {
-	clearAllRegistries();
-	const host = buildPluginHost();
-
-	host.rules.register({
-		id: 'dup_rules',
-		name: 'Rules 1',
-	});
-
-	let threw = false;
-	try {
-		host.rules.register({
-			id: 'dup_rules',
-			name: 'Rules 2',
-		});
-	} catch (err) {
-		threw = true;
-	}
-	assert.ok(threw, 'rules registry should throw on duplicate id');
-}
-
-//============================================
-// Test: rules registry clear
-function testRulesRegistryClear(): void {
-	clearAllRegistries();
-	const host = buildPluginHost();
-
-	host.rules.register({
-		id: 'clear_rules',
-		name: 'Rules',
-	});
-
-	host.rules.clear();
-	const looked = host.rules.lookup('clear_rules');
-	assert.ok(!looked, 'rules registry clear failed');
-}
-
-//============================================
-// Test: UI registry - registerTab, getAllTabs, duplicate rejection, clear
-function testUiRegistryTabs(): void {
-	clearAllRegistries();
-	const host = buildPluginHost();
-
-	const testTab = {
-		tabId: 'test_tab',
-		label: 'Test Tab',
-		availableInPhase: () => true,
-		render: () => {},
-	};
-
-	host.ui.registerTab(testTab);
-	const allTabs = host.ui.getAllTabs();
-	assert.ok(
-		allTabs.some((t) => t.tabId === 'test_tab'),
-		'tab registry register and lookup failed'
-	);
-
-	// Test duplicate rejection
-	const dupTab = {
-		tabId: 'test_tab',
-		label: 'Duplicate Tab',
-		availableInPhase: () => true,
-		render: () => {},
-	};
-
-	let threw = false;
-	try {
-		host.ui.registerTab(dupTab);
-	} catch (err) {
-		threw = true;
-	}
-	assert.ok(threw, 'UI tab registry should throw on duplicate tabId');
-
-	// Test clear
-	host.ui.clear();
-	const afterClear = host.ui.getAllTabs();
-	assert.ok(!afterClear.find((t) => t.tabId === 'test_tab'), 'UI tab registry clear failed');
-}
-
-//============================================
-// Test: UI registry - registerPanel, getAllPanels, duplicate rejection, clear
-function testUiRegistryPanels(): void {
-	clearAllRegistries();
-	const host = buildPluginHost();
-
-	const testPanel = {
-		panelId: 'test_panel',
-		label: 'Test Panel',
-		availableInPhase: () => true,
-		render: () => {},
-	};
-
-	host.ui.registerPanel(testPanel);
-	const allPanels = host.ui.getAllPanels();
-	assert.ok(
-		allPanels.some((p) => p.panelId === 'test_panel'),
-		'panel registry register and lookup failed'
-	);
-
-	// Test duplicate rejection
-	const dupPanel = {
-		panelId: 'test_panel',
-		label: 'Duplicate Panel',
-		availableInPhase: () => true,
-		render: () => {},
-	};
-
-	let threw = false;
-	try {
-		host.ui.registerPanel(dupPanel);
-	} catch (err) {
-		threw = true;
-	}
-	assert.ok(threw, 'UI panel registry should throw on duplicate panelId');
-
-	// Test clear
-	host.ui.clear();
-	const afterClear = host.ui.getAllPanels();
-	assert.ok(!afterClear.find((p) => p.panelId === 'test_panel'), 'UI panel registry clear failed');
-}
-
-//============================================
-// Test: UI registry - registerWidget, getAllWidgets, duplicate rejection, clear
-function testUiRegistryWidgets(): void {
-	clearAllRegistries();
-	const host = buildPluginHost();
-
-	const testWidget = {
-		widgetId: 'test_widget',
-		availableInPhase: () => true,
-		render: () => {},
-	};
-
-	host.ui.registerWidget(testWidget);
-	const allWidgets = host.ui.getAllWidgets();
-	assert.ok(
-		allWidgets.some((w) => w.widgetId === 'test_widget'),
-		'widget registry register and lookup failed'
-	);
-
-	// Test duplicate rejection
-	const dupWidget = {
-		widgetId: 'test_widget',
-		availableInPhase: () => true,
-		render: () => {},
-	};
-
-	let threw = false;
-	try {
-		host.ui.registerWidget(dupWidget);
-	} catch (err) {
-		threw = true;
-	}
-	assert.ok(threw, 'UI widget registry should throw on duplicate widgetId');
-
-	// Test clear
-	host.ui.clear();
-	const afterClear = host.ui.getAllWidgets();
-	assert.ok(
-		!afterClear.find((w) => w.widgetId === 'test_widget'),
-		'UI widget registry clear failed'
-	);
-}
-
-//============================================
-// Test: DataPack registry - register, lookup, duplicate rejection, clear
-function testDataPackRegistry(): void {
-	clearAllRegistries();
-	const host = buildPluginHost();
-
-	const testPack = {
-		id: 'test_pack',
-		name: 'Test DataPack',
-	};
-
-	host.dataPacks.register(testPack);
-	const looked = host.dataPacks.lookup('test_pack');
-	assert.ok(looked, 'data pack registry lookup failed');
-	assert.equal(looked.id, 'test_pack', 'data pack id mismatch');
-
-	// Test duplicate rejection
-	const dupPack = {
-		id: 'test_pack',
-		name: 'Duplicate DataPack',
-	};
-
-	let threw = false;
-	try {
-		host.dataPacks.register(dupPack);
-	} catch (err) {
-		threw = true;
-	}
-	assert.ok(threw, 'data pack registry should throw on duplicate id');
-
-	// Test clear
-	host.dataPacks.clear();
-	const afterClear = host.dataPacks.lookup('test_pack');
-	assert.ok(!afterClear, 'data pack registry clear failed');
-}
-
-//============================================
-// Test: boot order NEGATIVE - core handlers should not be registered in core registerAllHandlers
-// (M2+: HS, childhood, college, NFL handlers now register via plugins, not via registerAllHandlers)
-function testBootOrderNegativeNoHandlers(): void {
+test('plugin_host: plugin registration independent of registerAllHandlers', () => {
 	clearAllRegistries();
 	// Test that registerAllPlugins succeeds independently
 	// (independent of registerAllHandlers being called first)
@@ -847,68 +826,14 @@ function testBootOrderNegativeNoHandlers(): void {
 	registerAllPlugins(host);
 
 	// After M2+, all phase handlers register via plugins, so phases will NOT be empty.
-	// This test verifies that plugin registration succeeds without needing registerAllHandlers.
 	const phases = host.phases.getAll();
 	assert.ok(phases.length > 0, 'Phase handlers should be registered via plugins');
-}
+});
 
 //============================================
-// Test: single plugin registration (M3: plugin-only model)
-function testSinglePluginRegistration(): void {
+test('plugin_host: single plugin registration (HS plugin)', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 	// Register only HS plugin to test that plugin registration works independently
 	highSchoolPlugin.register(host);
-}
-
-//============================================
-async function main(): Promise<void> {
-	// Phase registry tests
-	testPhaseRegistryRegisterLookup();
-	testPhaseRegistryAgeOverlapRejection();
-	testPhaseRegistryClear();
-
-	// Event registry tests
-	testEventRegistryRegisterLookup();
-	testEventRegistryDuplicateRejection();
-	testEventRegistryClear();
-
-	// Choice registry tests
-	testChoiceRegistryRegisterLookup();
-	testChoiceRegistryDuplicateRejection();
-	testChoiceRegistryClear();
-
-	// Activity registry tests
-	testActivityRegistryRegisterLookup();
-	testActivityRegistryDuplicateRejection();
-	testActivityRegistryClear();
-
-	// Rules registry tests
-	testRulesRegistryRegisterLookup();
-	testRulesRegistryDuplicateRejection();
-	testRulesRegistryClear();
-
-	// UI registry tests
-	testUiRegistryTabs();
-	testUiRegistryPanels();
-	testUiRegistryWidgets();
-
-	// DataPack registry tests
-	testDataPackRegistry();
-	testDataPackRouting();
-
-	// Lifecycle registry tests
-	testLifecycleHookIndependence();
-	testLifecycleAgeHookDuplicateRejection();
-	testLifecycleHookOrdering();
-	testLifecycleRegistryClear();
-
-	// Boot order tests
-	testBootOrder();
-	testBootOrderNegativeNoHandlers();
-	testSinglePluginRegistration();
-
-	console.log('test_plugin_host.ts: all tests passed');
-}
-
-main();
+});

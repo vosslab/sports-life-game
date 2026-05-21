@@ -3,7 +3,7 @@
 // Used by phase-specific builders (HS, college, NFL) to construct schedules.
 // Round-robin pairing, week assignment, non-conference generation, validation.
 
-import { TeamId, GameId } from './season_types.js';
+import type { TeamId, GameId } from './season_types.js';
 import { SeasonGame } from './game_model.js';
 import { rand } from '../core/rng.js';
 

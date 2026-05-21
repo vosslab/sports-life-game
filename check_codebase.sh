@@ -4,20 +4,21 @@
 # Runs (in order):
 #   1. TypeScript typecheck via tsconfig.json (src/).
 #   2. Wider typecheck via tsconfig.lint.json if present (tests/, tools/).
-#   3. Prettier --check.
-#   4. Node unit tests under tests/ (npm run test:node).
-#   5. Playwright smoke tests if at least one *.spec.{ts,mjs} exists
-#      under tests/playwright/. (tests/playwright/autoplay.mjs is a
-#      standalone manual smoke runner and does NOT trigger this step.)
+#   3. ESLint (zero warnings).
+#   4. Prettier --check.
+#   5. Node unit tests under tests/ (node --test 'tests/test_*.ts').
 #   6. Production build (npm run build), with post-build artifact checks
 #      on dist/index.html, dist/main.js, and dist/styles/base.css.
+#
+# Playwright (browser walkthroughs) is intentionally NOT part of this
+# gate; this script checks the codebase only. Run Playwright manually
+# via `npm run test:playwright` after `bash run_web_server.sh`.
 #
 # All steps are invoked via 'npm run --silent <name>' so package.json
 # remains the single source of truth for what each check does.
 #
 # Flags:
-#   --fast              Skip Playwright AND build.
-#   --skip-playwright   Skip Playwright only (build still runs).
+#   --fast              Skip the build step (inner-loop iteration).
 #   -h, --help          Print usage and exit 0.
 #
 # A per-run summary is printed on exit (after preflight succeeds) listing
@@ -29,10 +30,9 @@ set -euo pipefail
 # Usage
 usage() {
 	cat <<'USAGE'
-Usage: check_codebase.sh [--fast] [--skip-playwright] [-h|--help]
+Usage: check_codebase.sh [--fast] [-h|--help]
 
-  --fast              Skip Playwright AND build.
-  --skip-playwright   Skip Playwright only (build still runs).
+  --fast              Skip the build step (inner-loop iteration).
   -h, --help          Print this help and exit 0.
 
 All steps are invoked via 'npm run --silent <name>'; package.json is
@@ -42,15 +42,10 @@ USAGE
 
 # Parse flags
 FAST=0
-SKIP_PLAYWRIGHT=0
 while [ "$#" -gt 0 ]; do
 	case "$1" in
 		--fast)
 			FAST=1
-			shift
-			;;
-		--skip-playwright)
-			SKIP_PLAYWRIGHT=1
 			shift
 			;;
 		-h|--help)
@@ -175,7 +170,7 @@ print_summary() {
 		i=$((i + 1))
 	done
 	if [ "$failed" -eq 0 ]; then
-		echo "PASS: $total checks ($failed failed)."
+		echo "PASS: $total checks passed."
 	else
 		echo "FAIL: $failed of $total checks failed."
 	fi
@@ -196,40 +191,16 @@ else
 	step_skip typecheck:lint "tsconfig.lint.json not present"
 fi
 
-# 3. format:check
+# 3. lint
+step_run lint
+
+# 4. format:check
 step_run format:check
 
-# 4. test:node
+# 5. test:node
 step_run test:node
 
-# 5. test:playwright
-# Triggered ONLY when *.spec.{ts,mjs} files exist under tests/playwright/.
-# tests/playwright/autoplay.mjs is a standalone manual smoke runner that
-# requires a running webserver; not suitable for an unattended pre-push
-# gate. Run it manually with `npm run test:playwright` (after
-# `bash run_web_server.sh` in another terminal).
-playwright_has_entry() {
-	if find tests/playwright -type f \( -name '*.spec.ts' -o -name '*.spec.mjs' \) 2>/dev/null | grep -q .; then
-		return 0
-	fi
-	return 1
-}
-
-if [ "$FAST" = "1" ]; then
-	step_skip test:playwright "--fast"
-elif [ "$SKIP_PLAYWRIGHT" = "1" ]; then
-	step_skip test:playwright "--skip-playwright"
-elif ! playwright_has_entry; then
-	step_skip test:playwright "no playwright specs found"
-else
-	step_run test:playwright
-fi
-
 # 6. build (with post-build artifact checks)
-# Required artifacts for this repo: dist/index.html, dist/main.js, and
-# dist/styles/base.css. This repo uses src/styles/*.css (10 files copied
-# into dist/styles/), not a single src/style.css. base.css is the
-# canonical anchor file.
 if [ "$FAST" = "1" ]; then
 	step_skip build "--fast"
 else
@@ -246,6 +217,9 @@ else
 		trap - EXIT
 		exit 1
 	fi
+	# Post-build artifact checks. Required: dist/index.html, dist/main.js,
+	# and dist/styles/base.css (this repo uses src/styles/*.css copied to
+	# dist/styles/; base.css is the canonical anchor file).
 	artifact_ok=1
 	for required in dist/index.html dist/main.js dist/styles/base.css; do
 		if [ ! -f "$required" ]; then

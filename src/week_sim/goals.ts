@@ -4,7 +4,7 @@
 // UI to render the season-goal picker and by the activity scheduler to bias
 // background work toward the chosen goal.
 
-import { CareerPhase, SeasonGoal } from '../player.js';
+import type { CareerPhase, SeasonGoal } from '../player.js';
 
 //============================================
 // Goal display info for UI

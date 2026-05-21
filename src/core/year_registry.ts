@@ -3,7 +3,7 @@
 // Central registry that maps player age to the correct YearHandler.
 // Handlers are registered at app boot. Registry is frozen after init.
 
-import { YearHandler } from './year_handler.js';
+import type { YearHandler } from './year_handler.js';
 
 //============================================
 // All registered handlers, ordered by ageStart

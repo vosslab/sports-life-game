@@ -350,13 +350,12 @@ Per-phase event JSON now lives under each plugin tree
 
 ```text
 tests/
-+- run.ts                       TS unit test runner (used by check_codebase.sh)
 +- smoke.sh                     Shell wrapper for smoke runs
 +- TESTS_README.md              Test-suite overview and command reference
-+- test_*.ts                    TS tests (handler registry, player helpers, RNG, simulator, plugin host, choice schemas)
-+- check_dom_imports.ts         Boundary check: core code must not import DOM
-+- check_math_random_budget.ts  Static budget on Math.random usage
-+- check_plugin_boundaries.ts   Plugin tree boundary check (no cross-plugin imports)
++- test_*.ts                    TS tests (handler registry, player helpers, RNG, simulator, plugin host, choice schemas) discovered via `node --test 'tests/test_*.ts'`
++- test_dom_imports.ts          Boundary check: core code must not import DOM
++- test_math_random_budget.ts   Static budget on Math.random usage
++- test_plugin_boundaries.ts    Plugin tree boundary check (no cross-plugin imports)
 +- test_*.py                    Python lint/compliance tests (pyflakes, ASCII, imports, indentation, shebangs, bandit, init files, naming, readme paragraph)
 +- check_ascii_compliance.py    Single-file ASCII/ISO-8859-1 checker
 +- fix_ascii_compliance.py      Single-file ASCII fixer
@@ -364,7 +363,7 @@ tests/
 +- conftest.py                  pytest config (excludes e2e/playwright subtrees)
 +- git_file_utils.py            Repo-root helper used by Python tests
 +- fixtures/
-|  `- fetch_mock.ts             Browser fetch mock for plugin loader tests
+|  `- csv_loader.mjs            Node ESM loader hook for .csv text imports
 +- playwright/                  Browser-driven Playwright tests
    `- autoplay.mjs              Headless autoplay smoke driver
 

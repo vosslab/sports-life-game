@@ -10,7 +10,7 @@ export function registerHsTabs(host: PluginHost): void {
 			tabId: 'hs_life',
 			label: 'Life',
 			availableInPhase: (phase) => phase === 'high_school',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for hs_life');
 			},
 		},
@@ -18,7 +18,7 @@ export function registerHsTabs(host: PluginHost): void {
 			tabId: 'hs_stats',
 			label: 'Stats',
 			availableInPhase: (phase) => phase === 'high_school',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for hs_stats');
 			},
 		},
@@ -26,7 +26,7 @@ export function registerHsTabs(host: PluginHost): void {
 			tabId: 'hs_activities',
 			label: 'Activities',
 			availableInPhase: (phase) => phase === 'high_school',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for hs_activities');
 			},
 		},
@@ -34,7 +34,7 @@ export function registerHsTabs(host: PluginHost): void {
 			tabId: 'hs_team',
 			label: 'Team',
 			availableInPhase: (phase) => phase === 'high_school',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for hs_team');
 			},
 		},
@@ -42,7 +42,7 @@ export function registerHsTabs(host: PluginHost): void {
 			tabId: 'hs_career',
 			label: 'Career',
 			availableInPhase: (phase) => phase === 'high_school',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for hs_career');
 			},
 		},
@@ -50,7 +50,7 @@ export function registerHsTabs(host: PluginHost): void {
 			tabId: 'hs_social',
 			label: 'Social',
 			availableInPhase: (phase) => phase === 'high_school',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for hs_social');
 			},
 		},

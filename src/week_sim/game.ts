@@ -5,16 +5,14 @@
 // narrative text into a single `simulateGame` entry point used by the
 // season simulator and weekly engine.
 
-import { Player, PerformanceRating, PositionBucket, clampStat, randomInRange } from '../player.js';
-import { Team } from '../team.js';
+import type { Player, PerformanceRating, PositionBucket } from '../player.js';
+import { clampStat, randomInRange } from '../player.js';
+import type { Team } from '../team.js';
 import { rand } from '../core/rng.js';
 import { calculateLetterGrade } from './momentum.js';
 import { rollOvertimePoints, calculatePerformanceRating } from '../shared/game_utils.js';
-import {
-	StatLine,
-	adjustStatLineForDepthChart,
-	generateStatLineForPosition,
-} from './stat_lines.js';
+import type { StatLine } from './stat_lines.js';
+import { adjustStatLineForDepthChart, generateStatLineForPosition } from './stat_lines.js';
 
 export type { StatLine } from './stat_lines.js';
 
@@ -224,7 +222,6 @@ function generateGameStory(
 			resultText = ` A close ${teamScore}-${opponentScore} victory.`;
 		}
 	} else if (result === 'loss') {
-		const margin = opponentScore - teamScore;
 		if (wentToOvertime && regulationTieScore !== undefined) {
 			resultText =
 				` Regulation ended tied ${regulationTieScore}-${regulationTieScore}. ` +

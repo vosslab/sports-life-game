@@ -11,8 +11,8 @@
 //   driver license milestone fires during age-16 flow
 //   varsity season starts
 
-import { Player } from '../player.js';
-import { CareerContext } from './year_handler.js';
+import type { Player } from '../player.js';
+import type { CareerContext } from './year_handler.js';
 import { getHandler, hasHandler } from './year_registry.js';
 
 //============================================

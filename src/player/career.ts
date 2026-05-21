@@ -3,8 +3,8 @@
 // These accrue across seasons and rarely shrink. SeasonRecord is owned here
 // because its primary consumer is careerHistory[].
 
-import { CareerPhase, DepthChartStatus, Position } from './identity.js';
-import { RecruitingProfile } from '../recruiting_profile.js';
+import type { CareerPhase, DepthChartStatus, Position } from './identity.js';
+import type { RecruitingProfile } from '../recruiting_profile.js';
 
 // Re-import the canonical SeasonStatTotals via the legacy path. Future passes
 // may move it to ./stats.ts; for now the legacy file remains the source.

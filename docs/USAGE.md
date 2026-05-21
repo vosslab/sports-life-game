@@ -52,9 +52,24 @@ bash check_codebase.sh --skip-playwright   # keep build, skip Playwright only
 npm run test:node
 ```
 
-Runs the TypeScript unit suite via `tsx tests/run.ts`. For just the
-browser-driven smoke test, use `npm run test:playwright`. For the full
-gate use `npm run check` as described above.
+Runs every `tests/test_*.ts` file under Node's built-in test runner
+(`node --test`) with `tsx` loading TypeScript and a small ESM loader
+hook (`tests/fixtures/csv_loader.mjs`) translating `.csv` text imports.
+
+Useful node:test flags (place them before the file glob; passing them
+through `npm run test:node -- <flag>` lands them after the script's file
+list, where node ignores `--test-name-pattern`):
+
+```bash
+# Filter to a subset of tests by name (regex against the test() name)
+node --test-name-pattern='rng' --import tsx --import ./tests/fixtures/csv_loader.mjs --test 'tests/test_*.ts'
+
+# Re-run tests on file change
+node --watch --import tsx --import ./tests/fixtures/csv_loader.mjs --test 'tests/test_*.ts'
+```
+
+For just the browser-driven smoke test, use `npm run test:playwright`.
+For the full gate use `npm run check` as described above.
 
 For end-to-end and browser-driven test conventions, see
 [docs/E2E_TESTS.md](E2E_TESTS.md) and

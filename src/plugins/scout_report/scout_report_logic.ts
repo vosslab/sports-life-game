@@ -4,7 +4,7 @@
 // Shows after each college season and during pre-draft events.
 // Makes the invisible draftStock number into a narrative the player can act on.
 
-import { Player, clampStat } from '../../player.js';
+import type { Player } from '../../player.js';
 
 //============================================
 // Draft projection tiers

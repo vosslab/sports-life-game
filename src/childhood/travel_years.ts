@@ -5,11 +5,12 @@
 // Position can shift based on growth.
 // 1 life event per year alongside football setup.
 
-import { Player } from '../player.js';
-import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import type { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
-import { filterEvents, selectEvent, applyEventChoice, GameEvent } from '../events.js';
+import type { GameEvent } from '../events.js';
+import { filterEvents, selectEvent, applyEventChoice } from '../events.js';
 
 //============================================
 export const travelHandler: YearHandler = {

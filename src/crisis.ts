@@ -3,7 +3,8 @@
 // 0-2 crises per season during midseason arc phase.
 // Each crisis replaces the normal weekly choice for its duration.
 
-import { Player, modifyStat, randomInRange } from './player.js';
+import type { Player } from './player.js';
+import { modifyStat } from './player.js';
 
 //============================================
 // Crisis data types
@@ -166,7 +167,7 @@ export function resolveCrisisResponse(
 			stat === 'footballIq' ||
 			stat === 'discipline'
 		) {
-			modifyStat(player, stat as keyof typeof player.core, delta);
+			modifyStat(player, stat, delta);
 		}
 	}
 

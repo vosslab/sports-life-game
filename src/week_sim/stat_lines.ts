@@ -4,7 +4,8 @@
 // position-specific subset of fields so accumulation in
 // `accumulateGameStats` lines up with `SeasonStatTotals`.
 
-import { Position, PositionBucket, clampStat, randomInRange } from '../player.js';
+import type { Position, PositionBucket } from '../player.js';
+import { clampStat, randomInRange } from '../player.js';
 
 //============================================
 // Game stat line (record of stat name to value)

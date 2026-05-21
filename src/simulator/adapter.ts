@@ -11,14 +11,13 @@
 // 3. Story: converts to GameResult (existing shape) via story_summary
 //============================================
 
-import { Player, PerformanceRating, PositionBucket, clampStat } from '../player.js';
-import { Team } from '../team.js';
-import { simulateGame, SimulatorGameResult } from './engine/game_engine.js';
-import {
-	GameTeamContext,
-	TeamProfile,
-	createDefaultTeamProfile,
-} from './models/team_strength_model.js';
+import type { Player, PerformanceRating } from '../player.js';
+import { clampStat } from '../player.js';
+import type { Team } from '../team.js';
+import type { SimulatorGameResult } from './engine/game_engine.js';
+import { simulateGame } from './engine/game_engine.js';
+import type { GameTeamContext, TeamProfile } from './models/team_strength_model.js';
+import { createDefaultTeamProfile } from './models/team_strength_model.js';
 import { NFL_RULES, NFL_TUNING } from './rules/nfl_rules.js';
 import { FCS_RULES, FCS_TUNING } from './rules/fcs_rules.js';
 import {
@@ -27,8 +26,8 @@ import {
 	IHSA_VARSITY_RULES,
 	IHSA_VARSITY_TUNING,
 } from './rules/ihsa_rules.js';
-import { LeagueRules } from './rules/league_rules.js';
-import { LeagueTuning } from './rules/league_tuning.js';
+import type { LeagueRules } from './rules/league_rules.js';
+import type { LeagueTuning } from './rules/league_tuning.js';
 import { getSnapShare } from './output/stat_line.js';
 import { buildStorySummary, generateStoryText } from './output/story_summary.js';
 import { rand } from '../core/rng.js';
@@ -209,7 +208,7 @@ function getLeagueTuningForPhase(phase: string, age?: number): LeagueTuning {
 function convertToGameResult(
 	sim: SimulatorGameResult,
 	player: Player,
-	homeContext: GameTeamContext
+	_homeContext: GameTeamContext
 ): GameResult {
 	// Determine win/loss from player's perspective (player is always home)
 	const teamScore = sim.homeScore;
@@ -340,10 +339,7 @@ function extractPlayerStatsFromSim(
 			stat.passInts = Math.round(passInts * share);
 			stat.completions = Math.round(completions * share);
 			stat.attempts = Math.round(passPlays * share);
-			const pct =
-				stat.attempts > 0
-					? Math.round(((stat.completions as number) / (stat.attempts as number)) * 100)
-					: 0;
+			const pct = stat.attempts > 0 ? Math.round((stat.completions / stat.attempts) * 100) : 0;
 			stat.completionPct = `${pct}%`;
 			break;
 		}

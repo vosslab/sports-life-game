@@ -4,7 +4,8 @@
 // scoring, turnovers, down/distance, possession changes, and phase changes
 //============================================
 
-import { Phase, GameState, PlayOutcome, PlayResult } from './state_machine.js';
+import type { GameState, PlayOutcome } from './state_machine.js';
+import { Phase, PlayResult } from './state_machine.js';
 
 // Constants
 const KICKOFF_TOUCHBACK_YARD_LINE = 30;
@@ -134,7 +135,7 @@ function applyPatResult(state: GameState, outcome: PlayOutcome): void {
  * Safety: 2 points to defense.
  * The team that was scored on (offense) gets a free kick from their own 20.
  */
-function applySafety(state: GameState, outcome: PlayOutcome): void {
+function applySafety(state: GameState, _outcome: PlayOutcome): void {
 	const defense = state.defense;
 	if (defense === state.home_team) {
 		state.home_score += 2;

@@ -8,16 +8,18 @@
 //   * `buildClutchMoment` produces a valid moment for an eligible context
 //     and `resolveClutchMoment` returns a result with a non-empty narrative.
 //
-// Run with: npx tsx tests/test_simulator.ts
+// Run with: npm run test:node -- --test-name-pattern='simulator'
 
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { seedDefaultRng } from '../src/core/rng.js';
 import { accumulateGameStats, createPlayer } from '../src/player.js';
-import { Team } from '../src/team.js';
+import type { Team } from '../src/team.js';
 import { calculateLetterGrade, simulateGame } from '../src/week_sim/index.js';
 import { calculatePerformanceRating } from '../src/shared/game_utils.js';
-import { ClutchGameContext, buildClutchMoment, resolveClutchMoment } from '../src/clutch/index.js';
+import type { ClutchGameContext } from '../src/clutch/index.js';
+import { buildClutchMoment, resolveClutchMoment } from '../src/clutch/index.js';
 
 //============================================
 // Build a deterministic player + team for the simulator harness.
@@ -51,7 +53,7 @@ function makeTeam(strength: number): Team {
 }
 
 //============================================
-function testSimulateGameDeterministic(): void {
+test('simulator: simulateGame is deterministic under a fixed seed', () => {
 	seedDefaultRng(0xcafebabe);
 	const player1 = makeStarterRb();
 	const team1 = makeTeam(70);
@@ -67,11 +69,10 @@ function testSimulateGameDeterministic(): void {
 	assert.equal(result1.result, result2.result, 'result must match');
 	assert.equal(result1.playerGrade, result2.playerGrade, 'grade must match');
 	assert.equal(result1.playerRating, result2.playerRating, 'rating must match');
-	console.log('  ok: simulateGame is deterministic under a fixed seed');
-}
+});
 
 //============================================
-function testOffenseBeatsWeakDefense(): void {
+test('simulator: stacked offense wins majority vs weak defense', () => {
 	// Behavioral property: a stacked offense vs a weak opponent should win
 	// more often than not over many runs. Use 50 runs at a fixed seed range.
 	let wins = 0;
@@ -86,11 +87,10 @@ function testOffenseBeatsWeakDefense(): void {
 		}
 	}
 	assert.ok(wins > runs * 0.6, `expected >60% wins for a stacked team; got ${wins}/${runs}`);
-	console.log(`  ok: stacked offense wins ${wins}/${runs} vs weak defense`);
-}
+});
 
 //============================================
-function testAccumulateGameStats(): void {
+test('simulator: accumulateGameStats sums across calls', () => {
 	const player = makeStarterRb();
 	assert.equal(player.seasonStats.gamesPlayed, 0);
 
@@ -109,31 +109,28 @@ function testAccumulateGameStats(): void {
 		1,
 		'totalTouchdowns = passTds + rushTds + recTds'
 	);
-	console.log('  ok: accumulateGameStats sums correctly across calls');
-}
+});
 
 //============================================
-function testRatingBoundaries(): void {
+test('simulator: performance rating boundaries', () => {
 	assert.equal(calculatePerformanceRating(0), 'poor', '0 is poor');
 	assert.equal(calculatePerformanceRating(50), 'average', '50 is average');
 	assert.equal(calculatePerformanceRating(100), 'elite', '100 is elite');
 	assert.equal(calculatePerformanceRating(86), 'elite', '86 is elite');
 	assert.equal(calculatePerformanceRating(85), 'great', '85 is great');
-	console.log('  ok: performance rating boundaries map correctly');
-}
+});
 
 //============================================
-function testLetterGradeBoundaries(): void {
+test('simulator: letter grade boundaries', () => {
 	assert.equal(calculateLetterGrade(85), 'A', '85 -> A');
 	assert.equal(calculateLetterGrade(70), 'B', '70 -> B');
 	assert.equal(calculateLetterGrade(55), 'C', '55 -> C');
 	assert.equal(calculateLetterGrade(40), 'D', '40 -> D');
 	assert.equal(calculateLetterGrade(0), 'F', '0 -> F');
-	console.log('  ok: letter grade boundaries map correctly');
-}
+});
 
 //============================================
-function testBuildAndResolveClutch(): void {
+test('simulator: buildClutchMoment + resolveClutchMoment for eligible context', () => {
 	const player = makeStarterRb();
 	const ctx: ClutchGameContext = {
 		teamName: 'Eagles',
@@ -169,11 +166,10 @@ function testBuildAndResolveClutch(): void {
 	assert.equal(typeof result.points, 'number', 'points is number');
 	assert.ok(result.narrative.length > 0, 'narrative is non-empty');
 	assert.ok(['heroic', 'steady', 'costly'].includes(result.momentumTag), 'momentumTag is known');
-	console.log('  ok: buildClutchMoment + resolveClutchMoment produce valid output');
-}
+});
 
 //============================================
-function testClutchSkippedForBlowout(): void {
+test('simulator: blowout margin skips clutch moment', () => {
 	const player = makeStarterRb();
 	const ctx: ClutchGameContext = {
 		teamName: 'Eagles',
@@ -188,20 +184,4 @@ function testClutchSkippedForBlowout(): void {
 	};
 	const moment = buildClutchMoment(player, ctx);
 	assert.equal(moment, null, 'blowout margin should not trigger a clutch moment');
-	console.log('  ok: blowout margin skips clutch moment');
-}
-
-//============================================
-function main(): void {
-	console.log('test_simulator.ts');
-	testSimulateGameDeterministic();
-	testOffenseBeatsWeakDefense();
-	testAccumulateGameStats();
-	testRatingBoundaries();
-	testLetterGradeBoundaries();
-	testBuildAndResolveClutch();
-	testClutchSkippedForBlowout();
-	console.log('test_simulator.ts: all tests passed');
-}
-
-main();
+});

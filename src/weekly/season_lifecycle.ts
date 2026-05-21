@@ -1,20 +1,21 @@
 // season_lifecycle.ts - Season lifecycle functions
 // These functions form the outer boundary of the season engine.
 
-import { Player, createEmptySeasonStats } from '../player.js';
-import { CareerContext, SeasonConfig } from '../core/year_handler.js';
-import { LeagueSeason } from '../season/season_model.js';
+import type { Player } from '../player.js';
+import { createEmptySeasonStats } from '../player.js';
+import type { CareerContext, SeasonConfig } from '../core/year_handler.js';
+import type { LeagueSeason } from '../season/season_model.js';
+import type { PlayoffBracket } from '../season/playoff_bracket.js';
 import {
-	PlayoffBracket,
 	createHSPlayoffBracket,
 	createCollegePlayoffBracket,
 	createNFLPlayoffBracket,
 } from '../season/playoff_bracket.js';
-import { PlayoffSeed } from '../season/season_types.js';
+import type { PlayoffSeed } from '../season/season_types.js';
 import { getArcPhase, getPhaseTransitionText } from '../season_arc.js';
 import { getPlayerOpponentName, simulateNonPlayerGames } from '../season/season_simulator.js';
-import { Activity, createWeekState } from '../activities.js';
-import { activeEngine, setActiveEngine, EngineState } from './engine_state.js';
+import { createWeekState } from '../activities.js';
+import { activeEngine, setActiveEngine } from './engine_state.js';
 import * as weekPhases from './week_phases.js';
 import * as playoffHandler from './playoff_handler.js';
 
@@ -184,7 +185,7 @@ export function endSeason(player: Player, ctx: CareerContext): void {
 		const playerRank = standings.findIndex((row) => row.teamId === playerTeamId);
 
 		// Determine playoff bracket type and size based on phase
-		let playoffSize = 4;
+		const playoffSize = 4;
 		let bracket: PlayoffBracket | undefined;
 
 		if (playerRank >= 0 && playerRank < playoffSize) {

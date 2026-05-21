@@ -3,8 +3,8 @@
 // Delegates to recruiting_events and recruiting_offers modules.
 // This is the ONLY file imported by hs_varsity.ts.
 
-import { Player } from '../player.js';
-import { CareerContext } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import type { CareerContext } from '../core/year_handler.js';
 import {
 	showJuniorPreseason,
 	showJuniorPostseason,

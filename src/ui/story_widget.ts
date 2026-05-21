@@ -3,7 +3,7 @@
 // Exports functions to manage the story log: clear, add headlines, text,
 // results, stat changes, and track recent changes in the sidebar.
 
-import { getElement, findElement } from '../dom_utils.js';
+import { getElement } from '../dom_utils.js';
 
 //============================================
 // Clear story log

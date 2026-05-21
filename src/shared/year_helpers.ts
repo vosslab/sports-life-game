@@ -3,7 +3,8 @@
 // These helper functions are used by year handlers to apply
 // age-appropriate stat changes during offseason or year transitions.
 
-import { Player, modifyStat, getPositionBucket } from '../player.js';
+import type { Player } from '../player.js';
+import { modifyStat, getPositionBucket } from '../player.js';
 
 //============================================
 // Apply natural age-based stat drift

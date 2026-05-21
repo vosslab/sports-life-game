@@ -8,15 +8,13 @@
 // flow through LeagueRules and LeagueTuning interfaces.
 //============================================
 
-import { Phase, GameState, PlayOutcome, PlayResult } from './state_machine.js';
+import type { PlayOutcome } from './state_machine.js';
+import { Phase, GameState, PlayResult } from './state_machine.js';
 import { applyPlayResult } from './rules_engine.js';
-import { LeagueRules } from '../rules/league_rules.js';
-import { LeagueTuning } from '../rules/league_tuning.js';
-import {
-	GameTeamContext,
-	MatchupAdjustment,
-	computeMatchupAdjustment,
-} from '../models/team_strength_model.js';
+import type { LeagueRules } from '../rules/league_rules.js';
+import type { LeagueTuning } from '../rules/league_tuning.js';
+import type { GameTeamContext, MatchupAdjustment } from '../models/team_strength_model.js';
+import { computeMatchupAdjustment } from '../models/team_strength_model.js';
 import { choosePlay } from '../models/play_call_model.js';
 import {
 	resolvePass,
@@ -101,6 +99,10 @@ export function simulateGame(
 			advanceClock(state, runoff);
 
 			// Quarter end check
+			// Defensive comparison: state.phase is narrowed by control flow upstream,
+			// but the runtime phase value may still be PAT or GAME_OVER here.
+			// String cast bypasses TS's narrowing without losing enum value safety.
+			/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison -- defensive runtime guard, see comment */
 			if (
 				state.quarter_seconds_remaining <= 0 &&
 				(state.phase as string) !== Phase.PAT &&
@@ -108,6 +110,7 @@ export function simulateGame(
 			) {
 				transitionQuarter(state, rules);
 			}
+			/* eslint-enable @typescript-eslint/no-unsafe-enum-comparison */
 		}
 
 		// Overtime scoring: first team to score wins (simplified)
@@ -237,7 +240,7 @@ function resolveOnePlay(
 // PAT decision: extra point or two-point
 //============================================
 
-function resolvePat(state: GameState, rules: LeagueRules, tuning: LeagueTuning): PlayOutcome {
+function resolvePat(state: GameState, rules: LeagueRules, _tuning: LeagueTuning): PlayOutcome {
 	// Score diff before PAT (the TD already added 6)
 	const scoreDiff = state.score_diff - 6;
 

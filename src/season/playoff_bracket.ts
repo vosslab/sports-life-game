@@ -4,7 +4,7 @@
 // Used by HS (4-team), college (championship + 4-team CFP), and
 // NFL (7 seeds per conference, 4 rounds with bye).
 
-import { TeamId, GameId, PlayoffSeed } from './season_types.js';
+import type { TeamId, GameId, PlayoffSeed } from './season_types.js';
 import { SeasonGame } from './game_model.js';
 import { randomInRange } from '../player.js';
 import { rand } from '../core/rng.js';

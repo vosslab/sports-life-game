@@ -50,8 +50,8 @@ let currentPlayer: Player | null = null;
 let allEvents: GameEvent[] = [];
 let ncaaSchools: { fbs: NCAASchool[]; fcs: NCAASchool[] } = { fbs: [], fcs: [] };
 let careerCtx: CareerContext | null = null;
-let lastFocusLabel = '';
-let lastRecentChange = '';
+const lastFocusLabel = '';
+const lastRecentChange = '';
 
 //============================================
 // Dashboard refresh
@@ -180,7 +180,7 @@ function resumeGame(): void {
 			switchToLife: () => switchTab('life'),
 			deleteSave,
 			onRestart: () => {
-				initGame();
+				void initGame();
 			},
 		});
 		return;
@@ -285,7 +285,13 @@ async function initGame(): Promise<void> {
 									offerNewGame(firstNames, lastNames);
 								},
 							},
-							{ text: 'Go Back', primary: false, action: initGame },
+							{
+								text: 'Go Back',
+								primary: false,
+								action: () => {
+									void initGame();
+								},
+							},
 						]);
 					},
 				},

@@ -14,7 +14,7 @@ export function registerChildhoodTabs(host: PluginHost): void {
 			tabId: 'childhood_life',
 			label: 'Life',
 			availableInPhase: (phase) => phase === 'childhood',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				// Childhood tabs are hidden; render is a no-op
 				// Implemented by UI layer if ever made visible
 			},
@@ -23,7 +23,7 @@ export function registerChildhoodTabs(host: PluginHost): void {
 			tabId: 'childhood_stats',
 			label: 'Stats',
 			availableInPhase: (phase) => phase === 'childhood',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				// Childhood tabs are hidden; render is a no-op
 			},
 		},
@@ -31,7 +31,7 @@ export function registerChildhoodTabs(host: PluginHost): void {
 			tabId: 'childhood_activities',
 			label: 'Activities',
 			availableInPhase: (phase) => phase === 'childhood',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				// Childhood tabs are hidden; render is a no-op
 			},
 		},

@@ -4,7 +4,7 @@
 // 11-game schedule: 7 conference (full round-robin) + 4 non-conference.
 // Uses actual NCAA school names from the CSV data.
 
-import { TeamId } from '../season/season_types.js';
+import type { TeamId } from '../season/season_types.js';
 import { SeasonTeam } from '../season/team_model.js';
 import { LeagueSeason } from '../season/season_model.js';
 import { SeasonGame } from '../season/game_model.js';
@@ -16,9 +16,10 @@ import {
 	shuffleArray,
 	validateSchedule,
 } from '../season/season_builder.js';
-import { NCAASchool, formatSchoolName, getConferenceSchools } from '../ncaa.js';
+import type { NCAASchool } from '../ncaa.js';
+import { getConferenceSchools } from '../ncaa.js';
 import { randomInRange } from '../player.js';
-import { CoachPersonality } from '../team.js';
+import type { CoachPersonality } from '../team.js';
 
 //============================================
 // Power conference names for strength assignment

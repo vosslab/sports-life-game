@@ -6,7 +6,7 @@
 
 import { randomInRange } from '../player.js';
 import { rand } from '../core/rng.js';
-import { ClutchGameContext, ClutchSituation } from './types.js';
+import type { ClutchGameContext, ClutchSituation } from './types.js';
 
 //============================================
 // Utility helpers used across the clutch engine.

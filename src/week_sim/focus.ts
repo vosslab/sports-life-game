@@ -5,7 +5,8 @@
 // season goal: stat changes, recovery, injury rolls, and the random flavor
 // pool used by the story log.
 
-import { Player, clampStat, randomInRange, modifyStat, modifyGpa } from '../player.js';
+import type { Player } from '../player.js';
+import { clampStat, randomInRange, modifyStat, modifyGpa } from '../player.js';
 
 //============================================
 // Legacy type alias kept for any remaining references during migration

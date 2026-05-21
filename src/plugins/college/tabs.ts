@@ -10,7 +10,7 @@ export function registerCollegeTabs(host: PluginHost): void {
 			tabId: 'col_life',
 			label: 'Life',
 			availableInPhase: (phase) => phase === 'college',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for col_life');
 			},
 		},
@@ -18,7 +18,7 @@ export function registerCollegeTabs(host: PluginHost): void {
 			tabId: 'col_stats',
 			label: 'Stats',
 			availableInPhase: (phase) => phase === 'college',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for col_stats');
 			},
 		},
@@ -26,7 +26,7 @@ export function registerCollegeTabs(host: PluginHost): void {
 			tabId: 'col_activities',
 			label: 'Activities',
 			availableInPhase: (phase) => phase === 'college',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for col_activities');
 			},
 		},
@@ -34,7 +34,7 @@ export function registerCollegeTabs(host: PluginHost): void {
 			tabId: 'col_team',
 			label: 'Team',
 			availableInPhase: (phase) => phase === 'college',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for col_team');
 			},
 		},
@@ -42,7 +42,7 @@ export function registerCollegeTabs(host: PluginHost): void {
 			tabId: 'col_career',
 			label: 'Career',
 			availableInPhase: (phase) => phase === 'college',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for col_career');
 			},
 		},
@@ -50,7 +50,7 @@ export function registerCollegeTabs(host: PluginHost): void {
 			tabId: 'col_social',
 			label: 'Social',
 			availableInPhase: (phase) => phase === 'college',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for col_social');
 			},
 		},

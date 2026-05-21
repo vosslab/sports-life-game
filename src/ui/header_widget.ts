@@ -3,7 +3,7 @@
 // Exports updateHeader and updateLifeStatus to display player name, position,
 // team, age, and current phase/week info.
 
-import type { Player, CareerPhase } from '../player.js';
+import type { Player } from '../player.js';
 import { generatePortraitSVG } from '../avatar.js';
 import { formatTeamWithEmoji } from '../team_emoji.js';
 import { getElement, findElement } from '../dom_utils.js';

@@ -32,8 +32,7 @@
 
 import process from 'node:process';
 
-import { LeagueSeason } from '../src/season/season_model.js';
-import { SeasonGame } from '../src/season/game_model.js';
+import type { LeagueSeason } from '../src/season/season_model.js';
 import { seedDefaultRng } from '../src/core/rng.js';
 import {
 	buildHighSchoolSeasonConfigured,
@@ -42,7 +41,7 @@ import {
 import { simulateGameBetweenTeams } from '../src/season/season_simulator.js';
 import { generateOpponentName } from '../src/team.js';
 
-import type { SimConfig, AggregateStats } from './sim_conf/types.js';
+import type { SimConfig } from './sim_conf/types.js';
 import {
 	printStandings,
 	printAggregateSummary,

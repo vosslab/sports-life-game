@@ -3,8 +3,9 @@
 // Replaces static activity selection with context-sensitive choices
 // that have real stakes and uncertain outcomes.
 
-import { Player, modifyStat, clampStat, randomInRange } from '../player.js';
-import { ArcPhase } from '../season_arc.js';
+import type { Player } from '../player.js';
+import { modifyStat } from '../player.js';
+import type { ArcPhase } from '../season_arc.js';
 import { rand } from '../core/rng.js';
 import preseasonData from '../data/choices/preseason.json';
 import openingData from '../data/choices/opening.json';
@@ -70,6 +71,7 @@ const CHOICE_DATA_BY_PHASE: Record<ArcPhase, WeeklyChoice[]> = {
 
 //============================================
 // Load choice pools from bundled JSON imports
+// eslint-disable-next-line @typescript-eslint/require-await -- M5 loader contract: callers await; body is sync because JSON is bundled at build time
 export async function loadChoicePools(): Promise<void> {
 	const phases: ArcPhase[] = ['preseason', 'opening', 'midseason', 'stretch', 'postseason'];
 	for (const phase of phases) {
@@ -168,7 +170,7 @@ export function resolveChoice(player: Player, choice: WeeklyChoice): ChoiceResul
 			stat === 'footballIq' ||
 			stat === 'discipline'
 		) {
-			modifyStat(player, stat as keyof typeof player.core, delta);
+			modifyStat(player, stat, delta);
 		}
 	}
 

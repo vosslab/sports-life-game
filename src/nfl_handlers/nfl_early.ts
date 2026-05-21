@@ -3,8 +3,9 @@
 // Stats still improving. Contract negotiation events.
 // Pro Bowl / All-Pro tracking. Trade request option.
 
-import { Player, modifyStat, clampStat } from '../player.js';
-import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import { modifyStat, clampStat } from '../player.js';
+import type { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';

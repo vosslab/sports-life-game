@@ -3,8 +3,9 @@
 // Draft day simulation. Assigned to real NFL team.
 // 17-game season. Rookie contract, low salary.
 
-import { Player, modifyStat, clampStat } from '../player.js';
-import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import { modifyStat } from '../player.js';
+import type { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';

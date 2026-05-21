@@ -6,18 +6,17 @@
 // selection, legacy-tag and reputation text generation, and tracking of
 // per-player clutch milestone flags.
 
-import { Player, Position, PositionBucket } from '../player.js';
+import type { Player, Position, PositionBucket } from '../player.js';
 import { rand } from '../core/rng.js';
-import {
-	BASE_RATES,
+import type {
 	ChoiceTemplate,
 	ClutchGameContext,
 	ClutchResult,
 	ClutchRisk,
 	ClutchSituation,
 	MomentumTag,
-	SCORING_MAPS,
 } from './types.js';
+import { BASE_RATES, SCORING_MAPS } from './types.js';
 import { clamp, deriveSituation, pickRandom, shuffle } from './situation.js';
 import { QB_CHOICES } from './choices_qb.js';
 import { RB_CHOICES } from './choices_rb.js';

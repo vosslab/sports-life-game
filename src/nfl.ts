@@ -1,6 +1,7 @@
 // nfl.ts - NFL career phase with draft, seasons, and legacy
 
-import { Player, randomInRange, clampStat, modifyStat, createEmptySeasonStats } from './player.js';
+import type { Player } from './player.js';
+import { randomInRange, clampStat, modifyStat, createEmptySeasonStats } from './player.js';
 import nflTeamsCsv from './data/nfl_teams.csv';
 
 //============================================
@@ -36,6 +37,7 @@ function parseNFLTeamLine(line: string): NFLTeamEntry | null {
 
 //============================================
 // Load NFL teams from bundled CSV import
+// eslint-disable-next-line @typescript-eslint/require-await -- M5 loader contract: callers await; body is sync because csv text is bundled at build time
 export async function loadNFLTeams(): Promise<NFLTeamEntry[]> {
 	// Return cached data if already loaded
 	if (cachedNFLTeams.length > 0) {
@@ -355,7 +357,7 @@ export function simulateNFLSeason(player: Player, year: number): NFLSeasonResult
 
 //============================================
 // Get a midseason event with choices
-export function getNFLMidseasonEvent(player: Player, year: number): NFLMidseasonEvent {
+export function getNFLMidseasonEvent(_player: Player, _year: number): NFLMidseasonEvent {
 	const eventPool: NFLMidseasonEvent[] = [
 		{
 			title: 'Contract Extension Offered',

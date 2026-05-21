@@ -7,7 +7,8 @@
 		"typecheck:lint": "tsc --noEmit -p tsconfig.lint.json",
 		"format:check": "prettier --check .",
 		"format:write": "prettier --write .",
-		"test:node": "NODE_OPTIONS=--disable-warning=DEP0205 tsx tests/run.ts",
+		"lint": "eslint .",
+		"test:node": "NODE_OPTIONS=--disable-warning=DEP0205 node --import tsx --import ./tests/fixtures/csv_loader.mjs --test 'tests/test_*.ts'",
 		"test:playwright": "node tests/playwright/autoplay.mjs",
 		"build": "./build_github_pages.sh",
 		"serve": "./run_web_server.sh",
@@ -18,10 +19,12 @@
 		"@playwright/test": "^1.60.0",
 		"@types/node": "^20.0.0",
 		"esbuild": "^0.28.0",
+		"eslint": "^10.4.0",
 		"playwright": "^1.59.1",
 		"prettier": "^3.8.3",
 		"tsx": "^4.7.0",
-		"typescript": "^5.4"
+		"typescript": "^5.4",
+		"typescript-eslint": "^8.59.4"
 	},
 	"license": "GPL-3.0",
 	"version": "1.0.0",

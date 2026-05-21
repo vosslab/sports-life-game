@@ -4,8 +4,8 @@
 // types and the two functions weekly_engine.ts depends on
 // (`buildClutchMoment`, `resolveClutchMoment`).
 
-import { Player } from '../player.js';
-import {
+import type { Player } from '../player.js';
+import type {
 	ChoiceTemplate,
 	ClutchChoice,
 	ClutchGameContext,

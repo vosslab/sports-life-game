@@ -4,7 +4,7 @@
 // (ClutchGameContext, ClutchMoment, ClutchResult, etc.) and the internal
 // scoring/risk tables shared across the per-position choice pools.
 
-import { Player, Position, PositionBucket } from '../player.js';
+import type { Player, Position, PositionBucket } from '../player.js';
 
 //============================================
 export interface ClutchGameContext {

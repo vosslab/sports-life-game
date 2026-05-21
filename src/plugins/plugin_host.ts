@@ -12,7 +12,6 @@
 // No UI imports, no phase imports, no simulator imports.
 
 import type { Player, CareerPhase } from '../player.js';
-import type { CareerContext } from '../core/year_handler.js';
 import type { YearHandler } from '../core/year_handler.js';
 import type { GameContext } from '../core/game_context.js';
 import type { GameEvent } from '../events.js';

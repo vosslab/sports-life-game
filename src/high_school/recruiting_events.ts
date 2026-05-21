@@ -3,10 +3,12 @@
 // Handles camp choices, film building, showcase attendance, and offer reviews
 // for recruiting stages at ages 16-17.
 
-import { Player, modifyStat, randomInRange } from '../player.js';
-import { CareerContext } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import { modifyStat, randomInRange } from '../player.js';
+import type { CareerContext } from '../core/year_handler.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { rand } from '../core/rng.js';
+import type { CollegeOffer } from '../recruiting.js';
 import {
 	updateRecruitingStars,
 	initRecruitingProfile,
@@ -16,7 +18,6 @@ import {
 	applyCoachingChange,
 	processCommitment,
 	advanceSchoolInterestStates,
-	CollegeOffer,
 } from '../recruiting.js';
 import { getSchoolsAtState, countOffers } from '../recruiting_profile.js';
 import {
@@ -25,8 +26,6 @@ import {
 	estimateSeasonWins,
 	showVisitImpressionCard,
 } from './recruiting_helpers.js';
-import { showSigningDay, showWalkOnOptions } from './recruiting_offers.js';
-
 //============================================
 // Junior Pre-Season: "Summer Before Junior Year"
 // Camp, highlight reel, or training choice

@@ -205,7 +205,7 @@ handlers (`src/plugins/<plugin>/phase_handler.ts`) must not import DOM
 APIs or `document.*`. DOM access is restricted to the panel render
 callback body, which typically calls `document.getElementById(...)` for
 its panel root before assembling content. The boundary is enforced by
-[tests/check_dom_imports.ts](../tests/check_dom_imports.ts).
+[tests/test_dom_imports.ts](../tests/test_dom_imports.ts).
 
 ## How to write a plugin
 
@@ -319,7 +319,7 @@ registries within `register(host)`.
   panel/widget render callbacks registered through
   [src/plugins/registries/ui_registry.ts](../src/plugins/registries/ui_registry.ts).
   This boundary is enforced by
-  [tests/check_dom_imports.ts](../tests/check_dom_imports.ts).
+  [tests/test_dom_imports.ts](../tests/test_dom_imports.ts).
 - No cross-plugin imports. A plugin under `src/plugins/<a>/` must not import
   from `src/plugins/<b>/`. Shared logic moves up to
   [src/shared/](../src/shared/) or to a core module.

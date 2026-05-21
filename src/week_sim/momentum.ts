@@ -3,7 +3,7 @@
 // Split from `src/week_sim.ts` during M4. Pure scoring helpers shared by the
 // game simulator and the UI summary panels.
 
-import { PerformanceRating } from '../player.js';
+import type { PerformanceRating } from '../player.js';
 
 //============================================
 // Update momentum based on game performance.

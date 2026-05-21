@@ -4,9 +4,9 @@
 // most volatile slice of Player and the most likely to be reshaped during
 // the simulator and event-system passes (M3/M4).
 
-import { ActiveCrisis } from '../crisis.js';
-import { StoryFlags } from '../player.js';
-import { FotomagicPost } from '../social/fotomagic.js';
+import type { ActiveCrisis } from '../crisis.js';
+import type { StoryFlags } from '../player.js';
+import type { FotomagicPost } from '../social/fotomagic.js';
 
 //============================================
 export type SeasonGoal = 'grind' | 'healthy' | 'popular' | 'academic';

@@ -9,7 +9,8 @@
 // No migrators. Anything that does not match CURRENT_SCHEMA_VERSION is
 // rejected and the caller falls back to a fresh default state.
 
-import { CURRENT_SCHEMA_VERSION, SaveEnvelope } from './schema.js';
+import type { SaveEnvelope } from './schema.js';
+import { CURRENT_SCHEMA_VERSION } from './schema.js';
 
 //============================================
 export type ValidationResult =
@@ -33,7 +34,7 @@ export function validateRawSave(raw: string | null): ValidationResult {
 	if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
 		return { kind: 'reset', reason: 'save was not a JSON object' };
 	}
-	const envelope: { schemaVersion?: unknown } = parsed as { schemaVersion?: unknown };
+	const envelope: { schemaVersion?: unknown } = parsed;
 	if (envelope.schemaVersion === undefined) {
 		return {
 			kind: 'reset',
@@ -43,7 +44,7 @@ export function validateRawSave(raw: string | null): ValidationResult {
 	if (envelope.schemaVersion !== CURRENT_SCHEMA_VERSION) {
 		const reason: string =
 			'unsupported schemaVersion ' +
-			String(envelope.schemaVersion) +
+			JSON.stringify(envelope.schemaVersion) +
 			' (expected ' +
 			String(CURRENT_SCHEMA_VERSION) +
 			')';

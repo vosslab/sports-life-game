@@ -4,7 +4,8 @@
 // from the most recent game plus a few stat thresholds to decide whether to
 // move them up or down the depth chart.
 
-import { DepthChartStatus, Player, randomInRange } from '../player.js';
+import type { DepthChartStatus, Player } from '../player.js';
+import { randomInRange } from '../player.js';
 
 //============================================
 export interface DepthChartUpdate {

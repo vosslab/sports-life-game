@@ -3,7 +3,8 @@
 // Adapted from nflsim's box_score.py
 //============================================
 
-import { PlayOutcome, PlayResult } from '../engine/state_machine.js';
+import type { PlayOutcome } from '../engine/state_machine.js';
+import { PlayResult } from '../engine/state_machine.js';
 
 //============================================
 // Team-level box score

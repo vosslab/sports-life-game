@@ -16,15 +16,10 @@
 //   npx tsx tools/sim_positions.ts --runs 50 --weeks 17
 //   npx tsx tools/sim_positions.ts --base-seed 7000
 
-import {
-	Player,
-	Position,
-	accumulateGameStats,
-	clampStat,
-	createPlayer,
-	getPositionBucket,
-} from '../src/player.js';
-import { Team, generateHighSchoolTeam } from '../src/team.js';
+import type { Player, Position } from '../src/player.js';
+import { accumulateGameStats, clampStat, createPlayer, getPositionBucket } from '../src/player.js';
+import type { Team } from '../src/team.js';
+import { generateHighSchoolTeam } from '../src/team.js';
 import { simulateGame } from '../src/week_sim/game.js';
 import { seedDefaultRng, randInt } from '../src/core/rng.js';
 

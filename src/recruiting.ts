@@ -3,20 +3,16 @@
 // Pure recruiting calculations and state transitions.
 // No modals, buttons, or flow timing -- that lives in hs_recruiting.ts.
 
-import { Player, randomInRange } from './player.js';
-import { NCAASchool } from './ncaa.js';
-import {
+import type { Player } from './player.js';
+import { randomInRange } from './player.js';
+import type { NCAASchool } from './ncaa.js';
+import type {
 	RecruitingProfile,
 	SchoolInterest,
 	SchoolRecord,
-	OfferState,
 	VisitImpression,
-	createRecruitingProfile,
-	advanceOfferState,
-	getSchoolById,
-	AcademicStanding,
-	CoreProgress,
 } from './recruiting_profile.js';
+import { createRecruitingProfile, advanceOfferState } from './recruiting_profile.js';
 
 //============================================
 // College offer from a recruiting school
@@ -162,7 +158,7 @@ export function generateOffers(player: Player, stars: number, seasonWins: number
 		case 5:
 			// Elite prospect: lots of Power 5 offers with full scholarships
 			offerCount = randomInRange(5, 8);
-			divisionList = Array(offerCount).fill('D1 Power 5');
+			divisionList = Array<string>(offerCount).fill('D1 Power 5');
 			scholarshipWeights = { full: 1.0, partial: 0.0, walkOn: 0.0 };
 			break;
 
@@ -170,8 +166,8 @@ export function generateOffers(player: Player, stars: number, seasonWins: number
 			// Very good prospect: mix of Power 5 and Group of 5
 			offerCount = randomInRange(3, 6);
 			divisionList = [
-				...Array(Math.ceil(offerCount * 0.6)).fill('D1 Power 5'),
-				...Array(Math.floor(offerCount * 0.4)).fill('D1 Group of 5'),
+				...Array<string>(Math.ceil(offerCount * 0.6)).fill('D1 Power 5'),
+				...Array<string>(Math.floor(offerCount * 0.4)).fill('D1 Group of 5'),
 			];
 			scholarshipWeights = { full: 0.8, partial: 0.2, walkOn: 0.0 };
 			break;
@@ -180,8 +176,8 @@ export function generateOffers(player: Player, stars: number, seasonWins: number
 			// Good prospect: Group of 5 and D2 offers
 			offerCount = randomInRange(2, 4);
 			divisionList = [
-				...Array(Math.ceil(offerCount * 0.5)).fill('D1 Group of 5'),
-				...Array(Math.floor(offerCount * 0.5)).fill('D2'),
+				...Array<string>(Math.ceil(offerCount * 0.5)).fill('D1 Group of 5'),
+				...Array<string>(Math.floor(offerCount * 0.5)).fill('D2'),
 			];
 			scholarshipWeights = { full: 0.4, partial: 0.6, walkOn: 0.0 };
 			break;
@@ -190,8 +186,8 @@ export function generateOffers(player: Player, stars: number, seasonWins: number
 			// Average prospect: D2 and D3 offers, mostly partial
 			offerCount = randomInRange(0, 2);
 			divisionList = [
-				...Array(Math.ceil(offerCount * 0.5)).fill('D2'),
-				...Array(Math.floor(offerCount * 0.5)).fill('D3'),
+				...Array<string>(Math.ceil(offerCount * 0.5)).fill('D2'),
+				...Array<string>(Math.floor(offerCount * 0.5)).fill('D3'),
 			];
 			scholarshipWeights = { full: 0.1, partial: 0.7, walkOn: 0.2 };
 			break;
@@ -200,7 +196,7 @@ export function generateOffers(player: Player, stars: number, seasonWins: number
 		default:
 			// Marginal prospect: possibly one D3 or walk-on
 			offerCount = randomInRange(0, 1);
-			divisionList = Array(offerCount).fill('D3');
+			divisionList = Array<string>(offerCount).fill('D3');
 			scholarshipWeights = { full: 0.0, partial: 0.4, walkOn: 0.6 };
 			break;
 	}
@@ -442,7 +438,7 @@ function seedSchoolWatchlist(
 //============================================
 // Derive scheme fit from school and player position (0-30 bonus)
 // Not persisted -- computed fresh when needed
-export function computeSchoolFit(school: NCAASchool, player: Player): number {
+export function computeSchoolFit(school: NCAASchool, _player: Player): number {
 	const positionFit = randomInRange(5, 25);
 	let prestigeBonus = 0;
 	if (school.subdivision === 'FBS') {

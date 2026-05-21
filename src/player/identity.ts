@@ -4,8 +4,8 @@
 // team they belong to. These fields change rarely (name never; position once
 // or twice over a career; team identity at recruiting/draft).
 
-import { AvatarConfig } from '../avatar.js';
-import { TeamPalette } from '../theme.js';
+import type { AvatarConfig } from '../avatar.js';
+import type { TeamPalette } from '../theme.js';
 
 //============================================
 export type Position = 'QB' | 'RB' | 'WR' | 'TE' | 'OL' | 'DL' | 'LB' | 'CB' | 'S' | 'K' | 'P';

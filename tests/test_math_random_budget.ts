@@ -1,4 +1,4 @@
-// check_math_random_budget.ts - ratchet on Math.random() in the simulation tree.
+// test_math_random_budget.ts - ratchet on Math.random() in the simulation tree.
 //
 // The simulation tree owns all gameplay randomness and must eventually flow
 // through src/core/rng.ts. Removing the existing 58 call sites in one patch
@@ -6,12 +6,13 @@
 // fails only if the count grows. The baseline is ratcheted down at each
 // milestone (M3 handler migration, M4 simulator split, M5 final cleanup).
 //
-// Run with: npx tsx tests/check_math_random_budget.ts
+// Run with: npm run test:node -- --test-name-pattern='math_random_budget'
 //
 // Updating the baseline: when a patch lowers the count, change the
 // SIM_TREE_BUDGET constant below to match the new actual count and note the
 // reason in docs/CHANGELOG.md. Increases are not allowed.
 
+import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
@@ -36,7 +37,7 @@ const SIM_TREE: readonly string[] = [
 const SIM_TREE_BUDGET: number = 0;
 
 //============================================
-// Resolve repo root from this file's location (tests/check_math_random_budget.ts).
+// Resolve repo root from this file's location (tests/test_math_random_budget.ts).
 function repoRoot(): string {
 	const here: string = url.fileURLToPath(import.meta.url);
 	return path.resolve(path.dirname(here), '..');
@@ -83,7 +84,10 @@ function countCallSites(filePath: string): number {
 //============================================
 // Aggregate a per-file count across the simulation tree, returning both the
 // total and a sorted detail list for diagnostic printing on failure.
-function tallySimTree(root: string): { total: number; details: { file: string; count: number }[] } {
+function tallySimTree(root: string): {
+	total: number;
+	details: { file: string; count: number }[];
+} {
 	const details: { file: string; count: number }[] = [];
 	let total: number = 0;
 	for (const rel of SIM_TREE) {
@@ -101,26 +105,19 @@ function tallySimTree(root: string): { total: number; details: { file: string; c
 }
 
 //============================================
-function main(): void {
+test('boundary check: Math.random budget in simulation tree', () => {
 	const root: string = repoRoot();
 	const { total, details } = tallySimTree(root);
-	console.log(`Math.random budget: ${total} / ${SIM_TREE_BUDGET}`);
 	if (total > SIM_TREE_BUDGET) {
-		console.error('');
-		console.error(`Math.random budget exceeded: found ${total}, max ${SIM_TREE_BUDGET}.`);
-		console.error('New simulation code must use src/core/rng.ts. Top offenders:');
+		const lines: string[] = [];
+		lines.push(`Math.random budget exceeded: found ${total}, max ${SIM_TREE_BUDGET}.`);
+		lines.push('New simulation code must use src/core/rng.ts. Top offenders:');
 		for (const { file, count } of details.slice(0, 10)) {
-			console.error(`  ${count.toString().padStart(3, ' ')}  ${file}`);
+			lines.push(`  ${count.toString().padStart(3, ' ')}  ${file}`);
 		}
-		process.exit(1);
+		throw new Error(lines.join('\n'));
 	}
-	if (total < SIM_TREE_BUDGET) {
-		console.warn('');
-		console.warn(`Budget can be tightened: actual ${total} < budget ${SIM_TREE_BUDGET}.`);
-		console.warn(
-			'Lower SIM_TREE_BUDGET in tests/check_math_random_budget.ts and note the drop in docs/CHANGELOG.md.'
-		);
-	}
-}
-
-main();
+	// Note: if total < SIM_TREE_BUDGET, the budget can be tightened. We do not
+	// fail the test, but we also do not emit a warning here -- node:test owns
+	// reporter output, and a warning line would mix into PASS output.
+});

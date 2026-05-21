@@ -10,7 +10,7 @@ export function registerNflTabs(host: PluginHost): void {
 			tabId: 'nfl_life',
 			label: 'Life',
 			availableInPhase: (phase) => phase === 'nfl',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for nfl_life');
 			},
 		},
@@ -18,7 +18,7 @@ export function registerNflTabs(host: PluginHost): void {
 			tabId: 'nfl_stats',
 			label: 'Stats',
 			availableInPhase: (phase) => phase === 'nfl',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for nfl_stats');
 			},
 		},
@@ -26,7 +26,7 @@ export function registerNflTabs(host: PluginHost): void {
 			tabId: 'nfl_activities',
 			label: 'Activities',
 			availableInPhase: (phase) => phase === 'nfl',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for nfl_activities');
 			},
 		},
@@ -34,7 +34,7 @@ export function registerNflTabs(host: PluginHost): void {
 			tabId: 'nfl_team',
 			label: 'Team',
 			availableInPhase: (phase) => phase === 'nfl',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for nfl_team');
 			},
 		},
@@ -42,7 +42,7 @@ export function registerNflTabs(host: PluginHost): void {
 			tabId: 'nfl_career',
 			label: 'Career',
 			availableInPhase: (phase) => phase === 'nfl',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for nfl_career');
 			},
 		},
@@ -50,7 +50,7 @@ export function registerNflTabs(host: PluginHost): void {
 			tabId: 'nfl_social',
 			label: 'Social',
 			availableInPhase: (phase) => phase === 'nfl',
-			render: (ctx: GameContext) => {
+			render: (_ctx: GameContext) => {
 				throw new Error('tab render not yet implemented for nfl_social');
 			},
 		},

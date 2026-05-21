@@ -4,11 +4,11 @@
 // Records are always derived from finalized games, never stored separately.
 // advanceWeek() refuses to advance if any current-week game is not final.
 
-import { TeamId, GameId, StandingsRow } from './season_types.js';
-import { SeasonTeam } from './team_model.js';
-import { SeasonGame } from './game_model.js';
+import type { TeamId, GameId, StandingsRow } from './season_types.js';
+import type { SeasonTeam } from './team_model.js';
+import type { SeasonGame } from './game_model.js';
 import { calculateStandings, calculateConferenceStandings } from './standings_model.js';
-import { CareerPhase } from '../player.js';
+import type { CareerPhase } from '../player.js';
 
 //============================================
 // Schedule display row for UI consumption

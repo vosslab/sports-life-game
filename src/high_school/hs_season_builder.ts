@@ -4,7 +4,7 @@
 // 10-game schedule: 7 conference (round-robin subset) + 3 non-conference.
 // Supports parameterized configuration for testing and analysis tools.
 
-import { TeamId } from '../season/season_types.js';
+import type { TeamId } from '../season/season_types.js';
 import { SeasonTeam } from '../season/team_model.js';
 import { SeasonGame } from '../season/game_model.js';
 import { LeagueSeason } from '../season/season_model.js';
@@ -18,7 +18,7 @@ import {
 } from '../season/season_builder.js';
 import { generateOpponentName } from '../team.js';
 import { randomInRange } from '../player.js';
-import { CoachPersonality } from '../team.js';
+import type { CoachPersonality } from '../team.js';
 
 //============================================
 // High school conference region names

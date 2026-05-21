@@ -4,8 +4,9 @@
 // phase-specific season configs (HS/college/NFL feel different), and ages
 // outside the registered range are reported correctly. These guard the M3
 // invariant: "shared engine, distinct phase adapters" -- not a flat generic
-// week. Run with: npx tsx tests/test_handler_registry.ts
+// week. Run with: npm run test:node -- --test-name-pattern='handler_registry'
 
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { registerAllPlugins } from '../src/plugins/register_plugins.js';
@@ -19,7 +20,7 @@ import {
 
 //============================================
 // Re-register from a clean slate so this test is independent of import order.
-async function withFreshRegistry<T>(fn: () => T): Promise<T> {
+function withFreshRegistry<T>(fn: () => T): T {
 	clearHandlers();
 	const host = buildPluginHost();
 	host.events.clear();
@@ -44,34 +45,37 @@ async function withFreshRegistry<T>(fn: () => T): Promise<T> {
 
 //============================================
 // Every age 1..39 maps to exactly one handler; ages outside that range do not.
-async function testCoverage(): Promise<void> {
-	await withFreshRegistry(() => {
+test('handler_registry: every age 1..39 has a handler, others do not', () => {
+	withFreshRegistry(() => {
 		for (let age = 1; age <= 39; age++) {
 			assert.equal(hasHandler(age), true, `age ${age} has no handler`);
 		}
 		assert.equal(hasHandler(0), false, 'age 0 should not have a handler');
 		assert.equal(hasHandler(40), false, 'age 40 should not have a handler');
 	});
-}
+});
 
 //============================================
 // Phase-specific season configs feel distinctly different. This is the
 // "shared engine, distinct phase adapters" invariant: HS, college, and NFL
 // must NOT collapse into the same week shape.
-async function testSeasonConfigDifferentiation(): Promise<void> {
-	await withFreshRegistry(() => {
+test('handler_registry: season configs differ across HS/college/NFL', () => {
+	withFreshRegistry(() => {
 		const hsVarsity = getHandler(16);
 		const collegeCore = getHandler(20);
 		const nflPeak = getHandler(28);
 		const childhood = getHandler(5);
 
+		// eslint-disable-next-line @typescript-eslint/unbound-method -- truthiness check, method is not invoked
 		assert.ok(hsVarsity.getSeasonConfig, 'hs_varsity must expose a season config');
+		// eslint-disable-next-line @typescript-eslint/unbound-method -- truthiness check, method is not invoked
 		assert.ok(collegeCore.getSeasonConfig, 'college_core must expose a season config');
+		// eslint-disable-next-line @typescript-eslint/unbound-method -- truthiness check, method is not invoked
 		assert.ok(nflPeak.getSeasonConfig, 'nfl_peak must expose a season config');
 
-		const hs = hsVarsity.getSeasonConfig!({} as never);
-		const col = collegeCore.getSeasonConfig!({} as never);
-		const nfl = nflPeak.getSeasonConfig!({} as never);
+		const hs = hsVarsity.getSeasonConfig({} as never);
+		const col = collegeCore.getSeasonConfig({} as never);
+		const nfl = nflPeak.getSeasonConfig({} as never);
 
 		// Opponent strength scales with level (HS < college < NFL).
 		assert.ok(
@@ -89,12 +93,12 @@ async function testSeasonConfigDifferentiation(): Promise<void> {
 			assert.equal(childConfig.hasFootball, false, 'childhood handler should not have football');
 		}
 	});
-}
+});
 
 //============================================
 // Age-band coverage matches the documented bands (no gaps, no overlap).
-async function testAgeBands(): Promise<void> {
-	await withFreshRegistry(() => {
+test('handler_registry: age bands have no gaps', () => {
+	withFreshRegistry(() => {
 		const handlers = [...getAllHandlers()].sort((a, b) => a.ageStart - b.ageStart);
 		for (let i = 1; i < handlers.length; i++) {
 			const prev = handlers[i - 1];
@@ -106,14 +110,4 @@ async function testAgeBands(): Promise<void> {
 			);
 		}
 	});
-}
-
-//============================================
-async function main(): Promise<void> {
-	await testCoverage();
-	await testSeasonConfigDifferentiation();
-	await testAgeBands();
-	console.log('handler_registry: 3/3 ok');
-}
-
-main();
+});

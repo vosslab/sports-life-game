@@ -11,7 +11,7 @@ export const childhoodCareerPanel: PanelRegistration = {
 	panelId: 'career_childhood',
 	label: 'Life Events',
 	availableInPhase: (phase) => phase === 'childhood',
-	render: (ctx: GameContext) => {
+	render: (_ctx: GameContext) => {
 		// Childhood has no team, no recruiting, no clutch moments.
 		// Story events are rendered in the main story log.
 		// This panel is a no-op placeholder for consistency with other phases.

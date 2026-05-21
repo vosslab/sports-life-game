@@ -3,8 +3,9 @@
 // Decides what play to call based on game context using heuristic fallbacks
 //============================================
 
-import { GameState, Situation } from '../engine/state_machine.js';
-import { LeagueTuning } from '../rules/league_tuning.js';
+import type { GameState } from '../engine/state_machine.js';
+import { Situation } from '../engine/state_machine.js';
+import type { LeagueTuning } from '../rules/league_tuning.js';
 import { rand } from '../../core/rng.js';
 
 //============================================
@@ -75,7 +76,7 @@ function passProb(
 	situation: Situation,
 	scoreDiff: number,
 	quarter: number,
-	secsRemaining: number
+	_secsRemaining: number
 ): number {
 	// Base pass rate depends on down and distance
 	let base = 0.58;
@@ -182,7 +183,7 @@ function fourthDownGoProb(
  *
  * Uses rand() for all stochastic decisions.
  */
-export function choosePlay(state: GameState, tuning: LeagueTuning): string {
+export function choosePlay(state: GameState, _tuning: LeagueTuning): string {
 	const down = state.down;
 	const scoreDiff = state.score_diff;
 	const quarter = state.quarter;

@@ -2,16 +2,17 @@
 // These handle the sequence of decision-making phases each week:
 // goal selection, choices, crisis responses, activities, events.
 
-import { Player } from '../player.js';
-import { CareerContext } from '../core/year_handler.js';
-import { SeasonGoal } from '../player.js';
+import type { Player } from '../player.js';
+import type { CareerContext } from '../core/year_handler.js';
+import type { SeasonGoal } from '../player.js';
 import {
 	applySeasonGoal,
 	getGoalsForPhase,
 	getPreferredActivitiesForGoal,
 } from '../week_sim/index.js';
-import { ArcPhase, getArcPhase } from '../season_arc.js';
-import { getWeeklyChoices, resolveChoice, WeeklyChoice, ChoiceResult } from './choices.js';
+import type { ArcPhase } from '../season_arc.js';
+import { getArcPhase } from '../season_arc.js';
+import { getWeeklyChoices, resolveChoice } from './choices.js';
 import {
 	scheduleCrises,
 	startCrisis,
@@ -19,8 +20,8 @@ import {
 	resolveCrisisResponse,
 	advanceCrisis,
 } from '../crisis.js';
+import type { Activity } from '../activities.js';
 import {
-	Activity,
 	createWeekState,
 	getActivitiesForPhase,
 	isActivityUnlocked,
@@ -28,7 +29,8 @@ import {
 	getEffectPreview,
 	formatActivityResult,
 } from '../activities.js';
-import { GameEvent, filterEvents, selectEvent, applyEventChoice } from '../events.js';
+import type { GameEvent } from '../events.js';
+import { filterEvents, selectEvent, applyEventChoice } from '../events.js';
 import { randomInRange } from '../player.js';
 import { activeEngine } from './engine_state.js';
 import * as gameHandler from './game_handler.js';

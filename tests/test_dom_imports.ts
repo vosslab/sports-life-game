@@ -1,21 +1,22 @@
-// check_dom_imports.ts - guard against DOM/UI imports inside the simulation tree.
+// test_dom_imports.ts - guard against DOM/UI imports inside the simulation tree.
 //
 // The simulation tree must remain pure: no `document`, no `getElementById`,
 // no imports from `src/ui/`, `src/render/`, `src/popup`, `src/tabs`,
 // `src/tab_manager`, or `src/dom_utils`. The render layer pulls a
 // GameViewState; the simulation never pushes DOM.
 //
-// Run with: npx tsx tests/check_dom_imports.ts
+// Run with: npm run test:node -- --test-name-pattern='dom_imports'
 //
-// This script fails on the first violation it finds. It is wired into
-// tests/run.ts and runs in the standard test pass.
+// Static-probe boundary check: scans the simulation tree and throws on the
+// first violation. node:test reports a single FAIL on any violation.
 
+import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 
 //============================================
-// Simulation tree (matches tests/check_math_random_budget.ts).
+// Simulation tree (matches tests/test_math_random_budget.ts).
 const SIM_TREE: readonly string[] = [
 	'src/core',
 	'src/weekly',
@@ -127,7 +128,7 @@ function checkFile(absPath: string, root: string): Violation[] {
 }
 
 //============================================
-function main(): void {
+test('boundary check: no DOM imports in simulation tree', () => {
 	const root: string = repoRoot();
 	const allViolations: Violation[] = [];
 	for (const rel of SIM_TREE) {
@@ -136,15 +137,12 @@ function main(): void {
 			allViolations.push(...checkFile(file, root));
 		}
 	}
-	if (allViolations.length === 0) {
-		console.log(`DOM imports check: 0 violations across ${SIM_TREE.length} sim-tree dirs.`);
-		return;
+	if (allViolations.length > 0) {
+		const lines: string[] = [];
+		lines.push(`DOM imports check: ${allViolations.length} violation(s):`);
+		for (const v of allViolations) {
+			lines.push(`  ${v.file}:${v.line} [${v.kind}] ${v.text}`);
+		}
+		throw new Error(lines.join('\n'));
 	}
-	console.error(`DOM imports check: ${allViolations.length} violation(s):`);
-	for (const v of allViolations) {
-		console.error(`  ${v.file}:${v.line} [${v.kind}] ${v.text}`);
-	}
-	process.exit(1);
-}
-
-main();
+});

@@ -20,16 +20,12 @@
 //   --seed N          RNG seed for reproducibility (default 0xCAFEBABE)
 //   --core NN         all six core stats set to this value (default 75)
 
-import {
-	Player,
-	Position,
-	accumulateGameStats,
-	clampStat,
-	createPlayer,
-	getPositionBucket,
-} from '../src/player.js';
-import { Team, generateHighSchoolTeam } from '../src/team.js';
-import { simulateGame, GameResult } from '../src/week_sim/game.js';
+import type { Player, Position } from '../src/player.js';
+import { accumulateGameStats, clampStat, createPlayer, getPositionBucket } from '../src/player.js';
+import type { Team } from '../src/team.js';
+import { generateHighSchoolTeam } from '../src/team.js';
+import type { GameResult } from '../src/week_sim/game.js';
+import { simulateGame } from '../src/week_sim/game.js';
 import { seedDefaultRng, randInt } from '../src/core/rng.js';
 
 //============================================

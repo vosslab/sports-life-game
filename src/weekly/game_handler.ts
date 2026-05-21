@@ -2,11 +2,13 @@
 // These functions handle regular season game simulation, clutch moments,
 // and post-game progression.
 
-import { Player, randomInRange, modifyStat, accumulateGameStats } from '../player.js';
-import { CareerContext } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import { randomInRange, modifyStat, accumulateGameStats } from '../player.js';
+import type { CareerContext } from '../core/year_handler.js';
 import { simulateWeeklyGame as simulateGame } from '../simulator/adapter.js';
-import { Team } from '../team.js';
-import { ClutchGameContext, buildClutchMoment, resolveClutchMoment } from '../clutch/index.js';
+import type { Team } from '../team.js';
+import type { ClutchGameContext } from '../clutch/index.js';
+import { buildClutchMoment, resolveClutchMoment } from '../clutch/index.js';
 import {
 	simulateNonPlayerGames,
 	recordPlayerGameResult,

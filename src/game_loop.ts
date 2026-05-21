@@ -6,14 +6,15 @@
 // Phase modules call these shared functions and provide callbacks for
 // phase-specific behavior (which game to play, which events to show).
 
-import { Player, CareerPhase, randomInRange } from './player.js';
-import { GameEvent, filterEvents, selectEvent, applyEventChoice } from './events.js';
-import { WeeklyFocus, applySeasonGoal, applyWeeklyFocus } from './week_sim/index.js';
+import type { Player, CareerPhase } from './player.js';
+import { randomInRange } from './player.js';
+import type { GameEvent } from './events.js';
+import { filterEvents, selectEvent, applyEventChoice } from './events.js';
+import type { WeeklyFocus } from './week_sim/index.js';
+import { applySeasonGoal } from './week_sim/index.js';
+import type { Activity, WeekState } from './activities.js';
 import {
-	Activity,
-	WeekState,
 	createWeekState,
-	canDoActivity,
 	getActivitiesForPhase,
 	isActivityUnlocked,
 	applyActivity,
@@ -265,7 +266,7 @@ export function proceedToEventCheck(phase: CareerPhase, onGameDay: () => void): 
 		};
 
 		// Try phase-specific events only (do not fall back to other phases)
-		let eligible = filterEvents(
+		const eligible = filterEvents(
 			allEvents,
 			phase,
 			player.currentWeek,
@@ -414,16 +415,6 @@ export interface YearSimRecap {
 
 // Show the year-end recap as a popup modal
 export function showYearRecap(recap: YearSimRecap, onContinue: () => void): void {
-	// Build recap text
-	let desc = `Simulated ${recap.weeksSimulated} weeks.\n`;
-	desc += `Season record: ${recap.wins}-${recap.losses}\n`;
-	if (recap.events.length > 0) {
-		desc += '\nNotable events:\n';
-		for (const ev of recap.events) {
-			desc += `- ${ev}\n`;
-		}
-	}
-
 	ui.showChoices([
 		{
 			text: 'Continue',

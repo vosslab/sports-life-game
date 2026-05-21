@@ -4,7 +4,7 @@
 // current in-progress season stats, picks position-relevant columns, and
 // builds a compact HTML table.
 
-import { Player, Position, SeasonRecord, SeasonStatTotals } from './player.js';
+import type { Player, Position, SeasonRecord, SeasonStatTotals } from './player.js';
 
 //============================================
 // One column descriptor for the stat table

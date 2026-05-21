@@ -2,13 +2,12 @@
 //
 // These interfaces are frozen after M1. Do not change them during M2-M7.
 
-import { Player, CareerPhase } from '../player.js';
-import { GameEvent } from '../events.js';
-import { NCAASchool } from '../ncaa.js';
-import { ChoiceOption } from './choice_option.js';
+import type { GameEvent } from '../events.js';
+import type { NCAASchool } from '../ncaa.js';
+import type { ChoiceOption } from './choice_option.js';
 import type { Activity, WeekState } from '../activities.js';
 import type { GoalInfo } from '../week_sim/index.js';
-import type { SeasonGoal } from '../player.js';
+import type { SeasonGoal, Player } from '../player.js';
 import type { StatLine } from '../week_sim/index.js';
 
 //============================================

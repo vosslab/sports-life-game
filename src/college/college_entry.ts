@@ -3,8 +3,9 @@
 // If redshirt: training year with events but no game action, big stat growth.
 // If playing: 12-game season as backup/starter depending on school choice.
 
-import { Player, modifyStat, clampStat, randomInRange } from '../player.js';
-import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import { modifyStat, randomInRange } from '../player.js';
+import type { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';

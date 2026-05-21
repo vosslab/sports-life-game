@@ -9,8 +9,9 @@
 //
 // No migrators. The pre-v1 inference-by-field-presence pattern is gone.
 
-import { Player } from '../player.js';
-import { CURRENT_SCHEMA_VERSION, SAVE_KEY, SaveEnvelope } from './schema.js';
+import type { Player } from '../player.js';
+import type { SaveEnvelope } from './schema.js';
+import { CURRENT_SCHEMA_VERSION, SAVE_KEY } from './schema.js';
 import { validateRawSave } from './validate.js';
 
 //============================================
@@ -21,7 +22,7 @@ export function saveGame(player: Player): void {
 	const envelope: SaveEnvelope = {
 		schemaVersion: CURRENT_SCHEMA_VERSION,
 		...player,
-	} as unknown as SaveEnvelope;
+	};
 	localStorage.setItem(SAVE_KEY, JSON.stringify(envelope));
 }
 
@@ -35,10 +36,7 @@ export function loadGame(): Player | null {
 		// Strip the schemaVersion before handing the payload back; the live
 		// Player object does not carry it.
 		const envelope = result.envelope;
-		const { schemaVersion: _ignored, ...payload } = envelope as {
-			schemaVersion: number;
-			[k: string]: unknown;
-		};
+		const { schemaVersion: _ignored, ...payload } = envelope;
 		return payload as unknown as Player;
 	}
 	if (result.kind === 'reset') {

@@ -3,7 +3,7 @@
 // All randomness in the simulation tree (src/core, src/weekly, src/simulator,
 // src/clutch, src/season, src/high_school, src/college, src/nfl_handlers)
 // must flow through this module. Direct Math.random() in those paths is
-// forbidden and enforced by tests/check_no_math_random.ts.
+// forbidden and enforced by tests/test_math_random_budget.ts.
 //
 // The implementation is mulberry32: a fast, well-distributed 32-bit PRNG
 // that takes a single 32-bit unsigned seed and produces deterministic output.

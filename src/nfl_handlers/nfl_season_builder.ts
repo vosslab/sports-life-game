@@ -4,7 +4,7 @@
 // 17-game schedule (simplified v1): division rivals twice, plus
 // cross-division and cross-conference opponents.
 
-import { TeamId } from '../season/season_types.js';
+import type { TeamId } from '../season/season_types.js';
 import { SeasonTeam } from '../season/team_model.js';
 import { SeasonGame } from '../season/game_model.js';
 import { LeagueSeason } from '../season/season_model.js';
@@ -15,8 +15,9 @@ import {
 	validateSchedule,
 } from '../season/season_builder.js';
 import { randomInRange } from '../player.js';
-import { CoachPersonality } from '../team.js';
-import { getNFLTeams, NFLTeamEntry } from '../nfl.js';
+import type { CoachPersonality } from '../team.js';
+import type { NFLTeamEntry } from '../nfl.js';
+import { getNFLTeams } from '../nfl.js';
 
 //============================================
 // NFL team data used internally for season building
@@ -112,7 +113,7 @@ function buildNFLSeasonWithData(playerTeamName: string, roster: NFLTeamData[]): 
 // Build the simplified 17-game NFL schedule
 // Each team plays: 6 division (3 rivals x 2), 4 same-conf cross-div,
 // 4 cross-conference, 3 remaining from same conference
-function buildNFLSchedule(teams: Map<TeamId, SeasonTeam>, playerTeamId: TeamId): SeasonGame[] {
+function buildNFLSchedule(teams: Map<TeamId, SeasonTeam>, _playerTeamId: TeamId): SeasonGame[] {
 	const allGames: SeasonGame[] = [];
 	const teamIds = Array.from(teams.keys());
 

@@ -330,7 +330,7 @@
   letter grade boundaries (`poor`/`average`/`elite`, `F`/`C`/`A`),
   and the clutch round trip (`buildClutchMoment` produces a valid
   moment, `resolveClutchMoment` returns a non-empty narrative, blowouts
-  return null). Wired into [tests/run.ts](../tests/run.ts).
+  return null). Wired into `tests/run.ts`.
 
 ### Behavior or Interface Changes
 

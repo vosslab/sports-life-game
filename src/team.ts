@@ -1,6 +1,6 @@
 // team.ts - team state management and generation
 
-import { randomInRange, clampStat } from './player.js';
+import { randomInRange } from './player.js';
 
 //============================================
 // Coach personality types

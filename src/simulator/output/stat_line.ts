@@ -4,7 +4,7 @@
 // for accumulation into player career stats
 //============================================
 
-import { TeamBoxScore } from './box_score.js';
+import type { TeamBoxScore } from './box_score.js';
 
 //============================================
 // Type representing a single game's stat line
@@ -110,7 +110,7 @@ export function extractPlayerStatLine(
 		line.rushTds = Math.round(teamBox.rushTds * calculatedSnapShare);
 		// Estimate fumbles proportional to carries
 		const fumbleRate = teamBox.fumblesLost > 0 ? teamBox.fumblesLost / teamBox.rushAttempts : 0;
-		line.fumbles = Math.round(fumbleRate * (line.carries as number));
+		line.fumbles = Math.round(fumbleRate * line.carries);
 	}
 
 	//============================================
@@ -118,7 +118,7 @@ export function extractPlayerStatLine(
 	if (normalizedPosition === 'receiver') {
 		// Estimate targets as portion of pass attempts (assume each target is one play)
 		line.targets = Math.round(teamBox.passAttempts * calculatedSnapShare * 0.3); // ~30% of passes targeted at one receiver
-		line.receptions = Math.round((line.targets as number) * 0.65); // ~65% catch rate
+		line.receptions = Math.round(line.targets * 0.65); // ~65% catch rate
 		line.recYards = Math.round(teamBox.passYards * calculatedSnapShare * 0.35); // Receiver gets ~35% of team passing yards
 		line.recTds = Math.round(teamBox.passTds * calculatedSnapShare);
 	}

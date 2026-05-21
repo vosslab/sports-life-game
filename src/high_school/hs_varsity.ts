@@ -4,8 +4,9 @@
 // Depth chart resets (likely backup on varsity).
 // Recruiting is handled entirely by hs_recruiting.ts via two hooks.
 
-import { Player, randomInRange } from '../player.js';
-import { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
+import type { Player } from '../player.js';
+import { randomInRange } from '../player.js';
+import type { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
 import { applyAgeDrift } from '../shared/year_helpers.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildHighSchoolSeason } from './hs_season_builder.js';

@@ -3,11 +3,13 @@
 
 import { activeEngine } from './engine_state.js';
 import { finalizeSeason } from './season_lifecycle.js';
-import { PlayoffBracket } from '../season/playoff_bracket.js';
-import { Player, accumulateGameStats } from '../player.js';
-import { CareerContext } from '../core/year_handler.js';
+import type { PlayoffBracket } from '../season/playoff_bracket.js';
+import type { Player } from '../player.js';
+import { accumulateGameStats } from '../player.js';
+import type { CareerContext } from '../core/year_handler.js';
 import { simulateWeeklyGame as simulateGame } from '../simulator/adapter.js';
-import { ClutchGameContext, buildClutchMoment, resolveClutchMoment } from '../clutch/index.js';
+import type { ClutchGameContext } from '../clutch/index.js';
+import { buildClutchMoment, resolveClutchMoment } from '../clutch/index.js';
 import { rand } from '../core/rng.js';
 
 //============================================

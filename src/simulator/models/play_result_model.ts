@@ -3,9 +3,10 @@
 // Resolves individual plays into outcomes
 //============================================
 
-import { GameState, PlayOutcome, PlayResult, Situation } from '../engine/state_machine.js';
-import { LeagueTuning } from '../rules/league_tuning.js';
-import { MatchupAdjustment } from './team_strength_model.js';
+import type { GameState, PlayOutcome } from '../engine/state_machine.js';
+import { PlayResult } from '../engine/state_machine.js';
+import type { LeagueTuning } from '../rules/league_tuning.js';
+import type { MatchupAdjustment } from './team_strength_model.js';
 import { rand } from '../../core/rng.js';
 import { randomNormal } from './math_utils.js';
 
@@ -200,7 +201,7 @@ export function resolvePass(
 	// Complete pass - sample yards (adjusted by matchup)
 	// Real NFL avg completion = ~6.5 yards. Use air=4, yac=2.5 for mean ~6.5.
 	let airYards = Math.floor(randomExponential(4));
-	let yac = Math.max(0, Math.floor(randomExponential(2.5)));
+	const yac = Math.max(0, Math.floor(randomExponential(2.5)));
 	let totalYards = airYards + yac;
 
 	// Apply pass yard matchup multiplier
@@ -454,7 +455,7 @@ export function resolveRun(
  * Resolve a QB kneel play.
  * Result: -1 yard, clock running.
  */
-export function resolveKneel(state: GameState): PlayOutcome {
+export function resolveKneel(_state: GameState): PlayOutcome {
 	return {
 		play_type: 'kneel',
 		result: PlayResult.KNEEL,
@@ -483,7 +484,7 @@ export function resolveKneel(state: GameState): PlayOutcome {
  * Resolve a QB spike play.
  * Result: 0 yards, clock stopped.
  */
-export function resolveSpike(state: GameState): PlayOutcome {
+export function resolveSpike(_state: GameState): PlayOutcome {
 	return {
 		play_type: 'spike',
 		result: PlayResult.SPIKE,

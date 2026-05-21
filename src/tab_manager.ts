@@ -16,7 +16,7 @@ import type { TabId } from './tabs.js';
 import type { WeekState } from './activities.js';
 import type { ScheduleEntry } from './team.js';
 import type { LeagueSeason } from './season/season_model.js';
-import { updateTabBar, switchTab, setOnTabSwitch } from './tabs.js';
+import { updateTabBar, setOnTabSwitch } from './tabs.js';
 import * as ui from './ui/index.js';
 import { renderSocialTab } from './social/feed_render.js';
 

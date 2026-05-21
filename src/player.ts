@@ -10,10 +10,10 @@
 
 import { randomAvatarConfig } from './avatar.js';
 import { randInt } from './core/rng.js';
-import { PlayerIdentity } from './player/identity.js';
-import { PlayerStatsBundle } from './player/stats_bundle.js';
-import { PlayerCareer } from './player/career.js';
-import { PlayerSeasonState } from './player/season_state.js';
+import type { PlayerIdentity } from './player/identity.js';
+import type { PlayerStatsBundle } from './player/stats_bundle.js';
+import type { PlayerCareer } from './player/career.js';
+import type { PlayerSeasonState } from './player/season_state.js';
 
 //============================================
 // Core visible stats (0-100 scale)
@@ -48,7 +48,7 @@ export interface HiddenStats {
 // `./player/index.js` directly.
 export type { Position, PositionBucket, CareerPhase, DepthChartStatus } from './player/identity.js';
 export type { SeasonGoal } from './player/season_state.js';
-import type { Position, PositionBucket, CareerPhase, DepthChartStatus } from './player/identity.js';
+import type { Position, PositionBucket } from './player/identity.js';
 
 //============================================
 // Weekly game performance rating

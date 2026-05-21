@@ -5,9 +5,9 @@
 // All results flow through LeagueSeason.recordGameResult().
 
 import { randomInRange } from '../player.js';
-import { LeagueSeason } from './season_model.js';
-import { SeasonGame } from './game_model.js';
-import { GameResult } from '../week_sim/index.js';
+import type { LeagueSeason } from './season_model.js';
+import type { SeasonGame } from './game_model.js';
+import type { GameResult } from '../week_sim/index.js';
 import { rand } from '../core/rng.js';
 import { rollOvertimePoints } from '../shared/game_utils.js';
 

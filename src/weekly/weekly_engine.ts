@@ -17,8 +17,8 @@
 // - playoff_handler: playoff bracket progression
 // - engine_state: engine state management and queries
 
-import { WeeklyChoice, ChoiceResult, loadChoicePools } from './choices.js';
-import { loadCrisisDefinitions, type CrisisDefinition } from '../crisis.js';
+import { loadChoicePools } from './choices.js';
+import { loadCrisisDefinitions } from '../crisis.js';
 
 // Data imports
 import crisisData from '../data/crises.js';
@@ -32,7 +32,7 @@ export async function initializeWeeklyEngine(): Promise<void> {
 		return;
 	}
 	await loadChoicePools();
-	loadCrisisDefinitions(crisisData as CrisisDefinition[]);
+	loadCrisisDefinitions(crisisData);
 	isInitialized = true;
 }
 

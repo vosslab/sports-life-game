@@ -3,9 +3,10 @@
 // Handles kickoffs, punts, field goals, PAT conversions
 //============================================
 
-import { GameState, PlayOutcome, PlayResult } from '../engine/state_machine.js';
-import { LeagueRules } from '../rules/league_rules.js';
-import { LeagueTuning } from '../rules/league_tuning.js';
+import type { GameState, PlayOutcome } from '../engine/state_machine.js';
+import { PlayResult } from '../engine/state_machine.js';
+import type { LeagueRules } from '../rules/league_rules.js';
+import type { LeagueTuning } from '../rules/league_tuning.js';
 import { rand } from '../../core/rng.js';
 import { randomNormal } from './math_utils.js';
 

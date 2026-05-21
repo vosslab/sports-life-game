@@ -95,6 +95,7 @@ function parseNameCsv(text: string): string[] {
 	return lines;
 }
 
+// eslint-disable-next-line @typescript-eslint/require-await -- M5 loader contract: callers await; body is sync because csv text is bundled at build time
 export async function loadNameLists(): Promise<{
 	firstNames: string[];
 	lastNames: string[];

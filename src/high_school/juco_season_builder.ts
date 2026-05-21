@@ -4,7 +4,7 @@
 // 8-game schedule: all conference games (round-robin subset).
 // Uses fictional JUCO team names, not real NCAA data.
 
-import { TeamId } from '../season/season_types.js';
+import type { TeamId } from '../season/season_types.js';
 import { SeasonTeam } from '../season/team_model.js';
 import { SeasonGame } from '../season/game_model.js';
 import { LeagueSeason } from '../season/season_model.js';
@@ -15,7 +15,7 @@ import {
 	validateSchedule,
 } from '../season/season_builder.js';
 import { randomInRange } from '../player.js';
-import { CoachPersonality } from '../team.js';
+import type { CoachPersonality } from '../team.js';
 
 //============================================
 // JUCO team name prefixes
