@@ -6,3 +6,19 @@ dist/
 _te*.?*
 OTHER_REPOS_FOR_STUDY/
 .superpowers/
+
+# === UNIVERSAL ===
+_temp*.?*
+# === TYPESCRIPT ===
+_site/
+*.tsbuildinfo
+.eslintcache
+.prettiercache
+test-results/
+playwright-report/
+blob-report/
+coverage/
+meta.json
+stats.html
+
+

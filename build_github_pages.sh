@@ -1,86 +1,77 @@
 #!/usr/bin/env bash
 # build_github_pages.sh - canonical production build for GitHub Pages.
 #
-# Style 2 (esbuild + dist-only): dist/ is a self-contained artifact.
+# Contract:
 #   - Wipes dist/ from scratch.
 #   - Type-checks via 'tsc --noEmit -p tsconfig.json'.
-#   - Bundles src/main.ts into dist/main.js with esbuild (ESM, es2020,
-#     minified, sourcemap, .csv as text, .json as JSON).
-#   - Copies src/index.html into dist/index.html and rewrites its
-#     absolute /dist/main.js and /src/styles/*.css references to
-#     relative paths (main.js, styles/*.css). src/index.html is NOT
-#     touched - perl in-place edit runs only on dist/index.html.
-#   - Copies src/styles/ into dist/styles/.
-#   - Writes dist/.nojekyll so Pages serves files starting with _.
-#   - Asserts dist/index.html, dist/main.js, and dist/styles/base.css
-#     all exist before exiting.
+#   - Resolves the entry: src/main.ts preferred, src/init.ts legacy fallback.
+#     Aborts with an actionable error if neither exists.
+#   - Verifies src/index.html and src/style.css exist before copying;
+#     aborts with an actionable error if missing.
+#   - Verifies src/index.html references dist/main.js with a module script
+#     tag (warns if missing -- the page will load but main.js is dead).
+#   - Bundles the entry into dist/main.js with esbuild (ESM, es2020,
+#     browser, minified, with sourcemap).
+#   - Copies src/index.html and src/style.css into dist/.
+#   - Writes dist/.nojekyll so GitHub Pages serves files starting with _.
+#   - Asserts dist/index.html and dist/main.js exist before exiting.
 #
 # Hard rule: never produces single-file output. ESM only.
-# Note: plugin JSON and weekly choice JSON are esbuild-resolved
-# imports inlined into dist/main.js at bundle time; CSV data files
-# load via --loader:.csv=text. dist/ is fully self-contained at
-# runtime - no /src/... fetches remain.
 
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
-# Pre-flight: node_modules must be present.
-if [ ! -d node_modules ]; then
-	echo "ERROR: node_modules missing. Run 'npm install' first." >&2
+# Resolve entry point.
+if [ -f "src/main.ts" ]; then
+	ENTRY="src/main.ts"
+elif [ -f "src/init.ts" ]; then
+	ENTRY="src/init.ts"
+	echo "WARNING: using legacy src/init.ts. Rename to src/main.ts." >&2
+else
+	echo "ERROR: no entry point. Create src/main.ts (preferred) or src/init.ts." >&2
 	exit 1
 fi
 
-# Pre-flight: required source files must be present.
-for required in src/main.ts src/index.html; do
+# Verify required static assets before any destructive step.
+for required in src/index.html src/style.css; do
 	if [ ! -f "$required" ]; then
 		echo "ERROR: required source file missing: $required" >&2
+		case "$required" in
+			src/index.html)
+				echo "  Create src/index.html with a <script type=\"module\" src=\"main.js\"></script> tag." >&2 ;;
+			src/style.css)
+				echo "  Create src/style.css (empty file is fine)." >&2 ;;
+		esac
 		exit 1
 	fi
 done
 
-if [ ! -d src/styles ]; then
-	echo "ERROR: required source directory missing: src/styles" >&2
-	exit 1
+# Soft-warn if index.html does not reference main.js as an ES module.
+if ! grep -Eq '<script[^>]+type="module"[^>]+src="(\./)?main\.js"' src/index.html; then
+	echo "WARNING: src/index.html does not appear to load main.js as an ES module." >&2
+	echo "  Expected tag: <script type=\"module\" src=\"main.js\"></script>" >&2
+	echo "  Build will proceed; the page may render but main.js will not run." >&2
 fi
 
-# Wipe dist/ from scratch.
 rm -rf dist
 mkdir -p dist
 
-# Type-check (no emit - esbuild owns the build output).
 npx tsc --noEmit -p tsconfig.json
 
-# Bundle with esbuild: ESM, browser, minified, sourcemapped.
-# CSV becomes a text string at build time; JSON imports are bundled inline.
-npx esbuild src/main.ts \
+npx esbuild "$ENTRY" \
 	--bundle \
 	--format=esm \
 	--target=es2020 \
+	--platform=browser \
 	--minify \
 	--sourcemap \
-	--loader:.csv=text \
-	--loader:.json=json \
 	--outfile=dist/main.js
 
-# Copy static assets into the self-contained dist/.
 cp src/index.html dist/index.html
-cp -R src/styles dist/styles
-
-# Rewrite absolute paths in dist/index.html ONLY (never touch src/index.html).
-# Script tag: /dist/main.js (with optional ?v=N query) -> main.js (relative).
-perl -0pi -e 's|/dist/main\.js(?:\?v=[0-9]+)?|main.js|g' dist/index.html
-# CSS link tags: /src/styles/foo.css -> styles/foo.css (relative).
-perl -0pi -e 's|/src/styles/|styles/|g' dist/index.html
-
-# GitHub Pages needs .nojekyll so it serves files starting with _.
+cp src/style.css dist/style.css
 touch dist/.nojekyll
 
-# Final assertions: dist/ must be a complete, self-contained artifact.
-for required in dist/index.html dist/main.js dist/styles/base.css; do
-	if [ ! -f "$required" ]; then
-		echo "ERROR: build incomplete - missing $required" >&2
-		exit 1
-	fi
-done
+test -f dist/index.html
+test -f dist/main.js
 
-echo "Built dist/ (esbuild, self-contained, GitHub Pages-ready)."
+echo "Built dist/ (GitHub Pages-ready)."

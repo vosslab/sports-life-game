@@ -36,19 +36,16 @@ above when the scripts use the library directly (see [Packages](#packages)).
 
 ### Shared helper: `repo_root.mjs`
 
-`tests/playwright/repo_root.mjs` (when present) is centrally propagated by
+`tests/playwright/repo_root.mjs` is centrally propagated by
 `propagate_style_guides.py`. Do not edit it per-repo. It exports `REPO_ROOT`
 resolved via `git rev-parse --show-toplevel`, so test scripts can compute
-absolute paths without brittle relative-path math. This repo's
-[tests/playwright/autoplay.mjs](../tests/playwright/autoplay.mjs) derives
-`REPO_ROOT` inline from `import.meta.url` instead:
+absolute paths without brittle relative-path math:
 
 ```javascript
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { REPO_ROOT } from "./repo_root.mjs";
+import path from "node:path";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = path.resolve(__dirname, '..');
+const pagePath = path.join(REPO_ROOT, "index.html");
 ```
 
 ## Key rule: scripts must run from the project root
@@ -67,8 +64,8 @@ node /tmp/_test_game_ui.mjs
 **Right:**
 
 ```bash
-cd /Users/vosslab/nsh/TYPESCRIPT/sports-life-game
-node tests/playwright/autoplay.mjs
+cd /Users/vosslab/nsh/cell-culture-game-claude
+node tests/playwright/test_game_ui.mjs
 ```
 
 Put Playwright scripts in `tests/playwright/`.
@@ -89,35 +86,22 @@ Some repos group complete Playwright walkthroughs (multi-step user journeys, rec
 
 ## Packages
 
-| Package            | Purpose                                                 |
-| ------------------ | ------------------------------------------------------- |
-| `playwright`       | Library/API for browser automation (what we use)        |
-| `@playwright/test` | Test runner with fixtures, assertions, reporters        |
-| `playwright-core`  | Low-level core without bundled browsers (rarely needed) |
+| Package | Purpose |
+| --- | --- |
+| `playwright` | Library/API for browser automation (what we use) |
+| `@playwright/test` | Test runner with fixtures, assertions, reporters |
+| `playwright-core` | Low-level core without bundled browsers (rarely needed) |
 
 For "open a local HTML file, click things, take screenshots", use `playwright`.
 
 ## Script template
 
-This repo serves the game from the built `dist/` artifact (not a repo-root
-`index.html`); the playwright script must hit `http://localhost:8000/index.html`
-while a separate terminal is running the static server. The canonical example
-is [tests/playwright/autoplay.mjs](../tests/playwright/autoplay.mjs); copy and
-trim its top section for new scripts.
-
-Prerequisites in another terminal:
-
-```bash
-npm run build
-python3 -m http.server 8000 --directory dist
-```
-
-Then a minimal script shape:
-
 ```javascript
 import { chromium } from 'playwright';
+import path from 'path';
 
-const url = 'http://localhost:8000/index.html';
+const gamePath = path.resolve('cell_culture_game.html');
+const url = `file://${gamePath}`;
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
@@ -176,7 +160,7 @@ Use `waitForTimeout` after actions that trigger animations:
 
 ```javascript
 await page.click('[data-item-id="flask"]');
-await page.waitForTimeout(2500); // aspiration takes ~2s
+await page.waitForTimeout(2500);  // aspiration takes ~2s
 ```
 
 ### Check element alignment
@@ -195,20 +179,20 @@ console.log(`Offset: dx=${dx.toFixed(1)} dy=${dy.toFixed(1)}`);
 
 ```javascript
 const result = await page.evaluate(() => {
-	return document.querySelectorAll('.quadrant-btn').length;
+    return document.querySelectorAll('.quadrant-btn').length;
 });
 console.log('Button count:', result);
 ```
 
 ## Troubleshooting
 
-| Problem                                            | Fix                                                                             |
-| -------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `Cannot find module 'playwright'`                  | Run the script from the project root, not `/tmp/`                               |
-| `browserType.launch: Executable doesn't exist`     | Run `npx playwright install`                                                    |
-| `npx playwright` works but `node script.mjs` fails | Different issue: npx resolves packages differently than Node require            |
-| Timeout clicking an element                        | Check the selector; use `data-item-id` not `data-item` for hood items           |
-| Browser windows pop up during test runs            | An agent added `headless: false` or `--headed`; remove it. Default is headless. |
+| Problem | Fix |
+| --- | --- |
+| `Cannot find module 'playwright'` | Run the script from the project root, not `/tmp/` |
+| `browserType.launch: Executable doesn't exist` | Run `npx playwright install` |
+| `npx playwright` works but `node script.mjs` fails | Different issue: npx resolves packages differently than Node require |
+| Timeout clicking an element | Check the selector; use `data-item-id` not `data-item` for hood items |
+| Browser windows pop up during test runs | An agent added `headless: false` or `--headed`; remove it. Default is headless. |
 
 ## Verify install
 
@@ -226,3 +210,47 @@ Should show `playwright@x.x.x` under the project.
 - Use `.mjs` extension for ES module scripts (e.g., `tests/playwright/test_game_ui.mjs`).
 - Put screenshots in `test-results/` (gitignored).
 - Note: `tests/conftest.py` declares `collect_ignore = ["e2e", "playwright"]` so pytest never collects anything in this tree, regardless of name.
+
+## PDF generation
+
+Render HTML to PDF using `tools/html_to_pdf.mjs`.
+
+Run with npm:
+
+```bash
+npm run pdf -- --input report.html --output test-results/report.pdf
+```
+
+Or call bare node:
+
+```bash
+node tools/html_to_pdf.mjs --input report.html --output test-results/report.pdf
+```
+
+The `--output` flag is optional. If not provided, the CLI derives the output filename by replacing the input's extension with `.pdf` in the same directory:
+
+```bash
+node tools/html_to_pdf.mjs --input report.html
+# writes report.pdf alongside report.html
+```
+
+When `--input` is an `http://`, `https://`, or `file://` URL, `--output` is required - the filename cannot be derived from a URL.
+
+Generate landscape orientation by adding the `--landscape` flag:
+
+```bash
+node tools/html_to_pdf.mjs --input wide.html --output /tmp/wide.pdf --landscape
+```
+
+Hardcoded defaults: Letter page size, 0.6 inch margins, screen media, 1440 x 1200 pixel viewport, `networkidle` wait, and backgrounds enabled.
+
+Write PDFs to `/tmp/` or `test-results/` - both are gitignored.
+
+Chromium only. Firefox and WebKit do not implement `page.pdf()`.
+
+If your `package.json` predates this tool, add the script entry and install the dev dependency:
+
+```bash
+npm install --save-dev playwright
+npm pkg set scripts.pdf="node tools/html_to_pdf.mjs"
+```

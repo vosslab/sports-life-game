@@ -6,9 +6,10 @@
 #   2. Wider typecheck via tsconfig.lint.json if present (tests/, tools/).
 #   3. ESLint (zero warnings).
 #   4. Prettier --check.
-#   5. Node unit tests under tests/ (node --test 'tests/test_*.ts').
+#   5. Node unit tests under tests/ (node --test tests/test_*.mjs).
 #   6. Production build (npm run build), with post-build artifact checks
-#      on dist/index.html, dist/main.js, and dist/styles/base.css.
+#      on dist/index.html, dist/main.js, and dist/style.css (when
+#      src/style.css existed at the start of the run).
 #
 # Playwright (browser walkthroughs) is intentionally NOT part of this
 # gate; this script checks the codebase only. Run Playwright manually
@@ -87,6 +88,13 @@ fi
 
 if [ ! -f package-lock.json ]; then
 	echo "WARN: package-lock.json missing; npm install will not produce a reproducible install." >&2
+fi
+
+# Capture whether src/style.css existed at the start of the run; this
+# governs whether the post-build artifact check requires dist/style.css.
+HAS_STYLE_CSS=0
+if [ -f src/style.css ]; then
+	HAS_STYLE_CSS=1
 fi
 
 # Step tracking (bash 3.2 compatible)
@@ -217,16 +225,20 @@ else
 		trap - EXIT
 		exit 1
 	fi
-	# Post-build artifact checks. Required: dist/index.html, dist/main.js,
-	# and dist/styles/base.css (this repo uses src/styles/*.css copied to
-	# dist/styles/; base.css is the canonical anchor file).
+	# Post-build artifact checks. Required: dist/index.html, dist/main.js.
+	# Conditionally required: dist/style.css when src/style.css existed
+	# at the start of the run.
 	artifact_ok=1
-	for required in dist/index.html dist/main.js dist/styles/base.css; do
+	for required in dist/index.html dist/main.js; do
 		if [ ! -f "$required" ]; then
 			echo "ERROR: missing build artifact: $required" >&2
 			artifact_ok=0
 		fi
 	done
+	if [ "$HAS_STYLE_CSS" = "1" ] && [ ! -f dist/style.css ]; then
+		echo "ERROR: missing build artifact: dist/style.css" >&2
+		artifact_ok=0
+	fi
 	if [ "$artifact_ok" = "1" ]; then
 		step_record build "PASS"
 	else

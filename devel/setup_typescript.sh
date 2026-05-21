@@ -1,13 +1,18 @@
 #!/bin/sh
-# One-time setup: install npm deps (TypeScript) and do an initial build.
-# Run this after cloning the repo, or whenever node_modules is missing.
+# setup_typescript.sh - one-time TypeScript setup.
+# Run after cloning, or whenever node_modules is missing.
 
 set -e
 
 cd "$(git rev-parse --show-toplevel)"
 
 if ! command -v npm >/dev/null 2>&1; then
-	echo "ERROR: npm not found. Install Node.js first (e.g., 'brew install node')." >&2
+	echo "ERROR: npm not found. Install Node.js first, for example: brew install node" >&2
+	exit 1
+fi
+
+if [ ! -f package.json ]; then
+	echo "ERROR: package.json missing. Did reset_repo.py finish?" >&2
 	exit 1
 fi
 
@@ -15,9 +20,9 @@ echo "Installing npm dependencies..."
 npm install
 
 echo "Building initial dist/..."
-./build_github_pages.sh
+npm run build
 
 echo "Setup complete."
-echo "  bash run_web_server.sh         - start the dev server"
-echo "  bash check_codebase.sh         - lint gate"
-echo "  bash devel/setup_playwright.sh - install Playwright + chromium (one-time, optional)"
+echo "  npm run serve - start the dev server"
+echo "  npm run check - full gate (typecheck, lint, format-check, tests, build); pass --fast to skip build"
+echo "  ./devel/setup_playwright.sh - install Playwright browsers, optional"
