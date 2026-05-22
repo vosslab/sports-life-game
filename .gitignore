@@ -1,4 +1,6 @@
 game_screenshots/
+tools/_out/
+package-lock.json
 report_*.txt
 .DS_Store
 node_modules/
