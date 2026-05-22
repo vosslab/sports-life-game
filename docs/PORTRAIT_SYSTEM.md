@@ -7,7 +7,7 @@ Avataaars library (MIT license).
 ## Quick start
 
 ```typescript
-import { generatePortraitSVG, randomAvatarConfig } from './avatar.js';
+import { generatePortraitSVG, randomAvatarConfig } from './dist/main.js';
 
 // Generate a deterministic portrait from a seed string
 const config = randomAvatarConfig('Coach Williams', { archetype: 'coach', age: 55 });
@@ -112,6 +112,8 @@ interface AvatarConfig {
 }
 ```
 
+All string fields must be valid keys in the parts registry (`src/data/avatar_parts.ts`); `getPart`, `getSkinColor`, and `getHairColor` throw on unknown keys.
+
 You can construct an `AvatarConfig` manually instead of using
 `randomAvatarConfig()` if you need full control.
 
@@ -188,15 +190,9 @@ parts like dizzy eyes or vomit mouth), replaces color variables with
 placeholders (`SKIN_PLACEHOLDER`, `HAIR_PLACEHOLDER`), and writes
 `src/data/avatar_parts.ts`.
 
-## Game integration (not yet implemented)
+## Game integration
 
-When ready to integrate into the game:
-
-1. Add `avatarConfig: AvatarConfig` to the `Player` interface in `player.ts`
-2. Generate config during `createPlayer()` using `randomAvatarConfig()`
-3. Add to save/load serialization in `save.ts`
-4. Render portraits in the UI for player profile, NPC event cards, and feed
-5. Generate NPC portraits with seeded generation (rival name as seed, etc.)
+The `Player` interface carries an `avatarConfig` field set at character creation via `randomAvatarConfig`; sidebar and header widgets render it via `generatePortraitSVG`.
 
 ## Art credits
 

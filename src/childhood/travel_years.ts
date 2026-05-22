@@ -11,6 +11,7 @@ import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import type { GameEvent } from '../events.js';
 import { filterEvents, selectEvent, applyEventChoice } from '../events.js';
+import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
 
 //============================================
 export const travelHandler: YearHandler = {
@@ -24,6 +25,14 @@ export const travelHandler: YearHandler = {
 		// Same team as peewee
 		player.teamName = `${player.townName} ${player.townMascot}`;
 		ctx.updateHeader(player);
+
+		// Fire phase start hooks for childhood phase (only once on entry)
+		if (player.phase === 'childhood') {
+			firePhaseStartHooks('childhood', player, ctx);
+		}
+
+		// Fire age hooks that match the current age
+		fireAgeHooks(player, ctx);
 
 		// Clear previous year's content so the log stays manageable
 		ctx.clearStory();

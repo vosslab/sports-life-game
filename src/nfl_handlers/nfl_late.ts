@@ -12,6 +12,7 @@ import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildNFLSeason } from './nfl_season_builder.js';
 import { applyPalette } from '../theme.js';
+import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -32,6 +33,13 @@ export const nflLateHandler: YearHandler = {
 
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
+
+		// Fire phase start hooks for NFL phase
+		firePhaseStartHooks('nfl', player, ctx);
+
+		// Fire age hooks that match the current age
+		fireAgeHooks(player, ctx);
+
 		// Reapply team colors each season
 		if (player.teamPalette) {
 			applyPalette(player.teamPalette);

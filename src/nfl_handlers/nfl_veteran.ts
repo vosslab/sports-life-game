@@ -11,6 +11,7 @@ import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildNFLSeason } from './nfl_season_builder.js';
 import { applyPalette } from '../theme.js';
+import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -31,6 +32,13 @@ export const nflVeteranHandler: YearHandler = {
 
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
+
+		// Fire phase start hooks for NFL phase
+		firePhaseStartHooks('nfl', player, ctx);
+
+		// Fire age hooks that match the current age
+		fireAgeHooks(player, ctx);
+
 		// Reapply team colors each season
 		if (player.teamPalette) {
 			applyPalette(player.teamPalette);
@@ -70,8 +78,11 @@ export const nflVeteranHandler: YearHandler = {
 					ctx.addText(
 						`${player.firstName} announces retirement after ${player.nflYear} NFL seasons.`
 					);
+					// Transition to legacy phase. showRetirement will be called by main.ts on resume,
+					// which handles the career-end hooks and legacy screen rendering with proper DOM access.
 					player.phase = 'legacy';
-					// TODO: Hall of Fame check, legacy screen
+					ctx.save();
+					ctx.syncTabsToPhase(player.phase);
 				},
 			},
 		]);

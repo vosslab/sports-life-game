@@ -4,7 +4,9 @@
 // eligibility, key moments, and restart flow.
 
 import type { Player } from '../player.js';
+import type { CareerContext } from '../core/year_handler.js';
 import { waitForInteraction } from '../ui/index.js';
+import { fireCareerEndHooks } from '../plugins/lifecycle_hooks_runner.js';
 
 //============================================
 // Context interface
@@ -20,6 +22,8 @@ export interface RetirementContext {
 	switchToLife: () => void;
 	deleteSave: () => void;
 	onRestart: () => void;
+	// Career context for firing lifecycle hooks (required)
+	careerContext: CareerContext;
 }
 
 //============================================
@@ -35,6 +39,10 @@ export function showRetirement(ctx: RetirementContext): void {
 			action: () => {
 				const player = ctx.player;
 				player.phase = 'legacy';
+
+				// Fire career end hooks (retirement trigger)
+				fireCareerEndHooks('retirement', player, ctx.careerContext);
+
 				ctx.save();
 				ctx.syncTabsToPhase(player.phase);
 				ctx.switchToLife();

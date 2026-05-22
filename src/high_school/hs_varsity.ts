@@ -12,6 +12,7 @@ import { startSeason } from '../weekly/weekly_engine.js';
 import { buildHighSchoolSeason } from './hs_season_builder.js';
 import { updateRecruitingStars } from '../recruiting.js';
 import { applyPalette } from '../theme.js';
+import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
 import {
 	runRecruitingHookForStartOfYear,
 	runRecruitingHookForEndOfSeason,
@@ -60,6 +61,12 @@ export const hsVarsityHandler: YearHandler = {
 		updateRecruitingStars(player);
 
 		ctx.updateHeader(player);
+
+		// Fire phase start hooks for high school phase
+		firePhaseStartHooks('high_school', player, ctx);
+
+		// Fire age hooks that match the current age
+		fireAgeHooks(player, ctx);
 
 		const yearLabel = player.age === 16 ? 'Junior' : 'Senior';
 		ctx.addHeadline(`Age ${player.age} - ${yearLabel} Year (Varsity)`);

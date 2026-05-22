@@ -12,6 +12,7 @@ import { advanceToNextYear } from '../core/year_runner.js';
 import { startSeason } from '../weekly/weekly_engine.js';
 import { buildHighSchoolSeason } from './hs_season_builder.js';
 import { generateTeamPalette, applyPalette } from '../theme.js';
+import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
 
 //============================================
 // Season config for frosh/soph
@@ -57,6 +58,12 @@ export const hsFroshSophHandler: YearHandler = {
 		const season = buildHighSchoolSeason(player.hsName, player.hsMascot, playerStrength);
 
 		ctx.updateHeader(player);
+
+		// Fire phase start hooks for high school phase
+		firePhaseStartHooks('high_school', player, ctx);
+
+		// Fire age hooks that match the current age
+		fireAgeHooks(player, ctx);
 
 		const yearLabel = player.age === 14 ? 'Freshman' : 'Sophomore';
 		ctx.addHeadline(`Age ${player.age} - ${yearLabel} Year`);

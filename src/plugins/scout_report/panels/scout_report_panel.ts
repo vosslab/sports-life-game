@@ -14,12 +14,19 @@ export const scoutReportPanel: PanelRegistration = {
 	label: 'Scout Report',
 	availableInPhase: (phase) => phase === 'college' || phase === 'nfl',
 	render: (ctx: GameContext) => {
-		const container = document.getElementById('panel-content');
+		const container = document.getElementById('career-content');
 		if (!container) {
-			throw new Error('panel-content slot missing');
+			throw new Error('career-content slot missing');
 		}
 		const player = ctx.getPlayer();
-		renderScoutReport(container, player);
+		// Create or reuse a contained section so we don't collide with other career content
+		let section = document.getElementById('scout-report-section');
+		if (!section) {
+			section = document.createElement('div');
+			section.id = 'scout-report-section';
+			container.appendChild(section);
+		}
+		renderScoutReport(section, player);
 	},
 };
 
@@ -28,7 +35,6 @@ export const scoutReportPanel: PanelRegistration = {
 function renderScoutReport(container: HTMLElement, player: Player): void {
 	container.innerHTML = '';
 
-	// Draft-stock-trend tracking is not implemented in M6-A panel-only proof.
 	// Passing this sentinel produces a steady-trend report, which the renderer hides via the `if (report.trend !== 'steady')` check below.
 	const NO_PREVIOUS_DRAFT_STOCK = null;
 	const previousDraftStock = NO_PREVIOUS_DRAFT_STOCK;

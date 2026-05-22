@@ -29,6 +29,8 @@ import {
 import { buildPluginHost } from './plugins/build_host.js';
 import { registerAllPlugins } from './plugins/register_plugins.js';
 import { advanceToNextYear, startYear } from './core/year_runner.js';
+import { applyDevJump, parseDevJumpParams } from './dev/dev_jump.js';
+import { initDevJumpButton } from './dev/dev_jump_ui.js';
 import {
 	getSeasonRecord,
 	getActiveSeason,
@@ -42,6 +44,7 @@ import { addStoryHeadline, addStoryText, clearStory, hardClearStory } from './re
 import { loadNameLists } from './childhood/name_loader.js';
 import { startNewGameFlow } from './childhood/character_creation.js';
 import { showRetirement } from './legacy/retirement.js';
+import { generatePortraitSVG, randomAvatarConfig } from './avatar.js';
 
 //============================================
 // Module state
@@ -50,8 +53,6 @@ let currentPlayer: Player | null = null;
 let allEvents: GameEvent[] = [];
 let ncaaSchools: { fbs: NCAASchool[]; fcs: NCAASchool[] } = { fbs: [], fcs: [] };
 let careerCtx: CareerContext | null = null;
-const lastFocusLabel = '';
-const lastRecentChange = '';
 
 //============================================
 // Dashboard refresh
@@ -84,8 +85,8 @@ function refreshDashboard(): void {
 	const weekState = getActiveWeekState() || getWeekState();
 	const seasonRec = getSeasonRecord();
 	const sidebarRecord = seasonRec ? `${seasonRec.wins}-${seasonRec.losses}` : undefined;
-	ui.updateSidebar(currentPlayer, weekState, opponentName, lastFocusLabel, sidebarRecord);
-	ui.showRecentChange(lastRecentChange);
+	ui.updateSidebar(currentPlayer, weekState, opponentName, '', sidebarRecord);
+	ui.showRecentChange('');
 }
 
 //============================================
@@ -167,6 +168,9 @@ function resumeGame(): void {
 	ui.updateHeader(player);
 
 	if (player.phase === 'legacy') {
+		if (!careerCtx) {
+			throw new Error('careerCtx must be initialized before retirement');
+		}
 		showRetirement({
 			player,
 			addStoryHeadline,
@@ -182,6 +186,7 @@ function resumeGame(): void {
 			onRestart: () => {
 				void initGame();
 			},
+			careerContext: careerCtx,
 		});
 		return;
 	}
@@ -251,7 +256,27 @@ async function initGame(): Promise<void> {
 	allEvents = Array.from(host.events.getAll());
 	buildCareerContext();
 
+	// Initialize developer fast-jump trigger button (bottom-right)
+	initDevJumpButton(host, (params) => {
+		currentPlayer = applyDevJump(host, params);
+		syncTabsToPhase(currentPlayer.phase);
+		showTabBar();
+		switchTab('life');
+		if (careerCtx) advanceToNextYear(currentPlayer, careerCtx);
+	});
+
 	hideTabBar();
+
+	// Life Jump: parse ?life= (preferred) or ?dev= (back-compat) URL parameter
+	const devParams = parseDevJumpParams(window.location.search);
+	if (devParams) {
+		currentPlayer = applyDevJump(host, devParams);
+		syncTabsToPhase(currentPlayer.phase);
+		showTabBar();
+		switchTab('life');
+		if (careerCtx) advanceToNextYear(currentPlayer, careerCtx);
+		return;
+	}
 
 	if (hasSave()) {
 		currentPlayer = loadGame();
@@ -327,3 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 });
+
+//============================================
+// Re-export avatar functions for avatar_test.html and external tools
+export { generatePortraitSVG, randomAvatarConfig };

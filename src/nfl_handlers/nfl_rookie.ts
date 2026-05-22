@@ -12,6 +12,7 @@ import { startSeason } from '../weekly/weekly_engine.js';
 import { buildNFLSeason } from './nfl_season_builder.js';
 import { generateNFLPalette, applyPalette } from '../theme.js';
 import { getNFLDraftResult } from '../nfl.js';
+import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -33,6 +34,12 @@ export const nflRookieHandler: YearHandler = {
 	startYear(player: Player, ctx: CareerContext): void {
 		applyAgeDrift(player);
 		player.nflYear = 1;
+
+		// Fire phase start hooks for NFL phase
+		firePhaseStartHooks('nfl', player, ctx);
+
+		// Fire age hooks that match the current age
+		fireAgeHooks(player, ctx);
 
 		ctx.addHeadline('NFL Scouting Combine');
 		ctx.addText(generateCombineNarrative(player));

@@ -277,54 +277,36 @@ function pickKey(record: Record<string, string>, rand: () => number): string {
 }
 
 //============================================
-// Get the first key from a Record (fallback/default)
-function defaultKey(record: Record<string, string>): string {
-	const keys = Object.keys(record);
-	const result = keys[0];
-	// Non-empty Record guaranteed by all callers
-	return result!;
-}
-
-//============================================
-// Look up part from registry with fallback to first key
+// Look up part from registry, throw if key not found
 function getPart(registry: Record<string, string>, key: string): string {
 	if (key in registry) {
 		const result = registry[key];
 		// Check-guarded by 'in' operator
 		return result!;
 	}
-	const fallbackKey = defaultKey(registry);
-	const result = registry[fallbackKey];
-	// Valid key from defaultKey
-	return result!;
+	throw new Error(`Unknown avatar part key: ${key}`);
 }
 
 //============================================
-// Get skin tone hex from SKIN_TONES
+// Get skin tone hex from SKIN_TONES, throw if key not found
 function getSkinColor(skinTone: string): string {
 	if (skinTone in SKIN_TONES) {
 		const result = SKIN_TONES[skinTone];
 		// Check-guarded by 'in' operator
 		return result!;
 	}
-	const fallbackKey = defaultKey(SKIN_TONES);
-	const result = SKIN_TONES[fallbackKey];
-	// Valid key from defaultKey
-	return result!;
+	throw new Error(`Unknown skin tone: ${skinTone}`);
 }
 
 //============================================
-// Get hair color hex from HAIR_COLORS
+// Get hair color hex from HAIR_COLORS, throw if key not found
 function getHairColor(hairColor: string): string {
 	if (hairColor in HAIR_COLORS) {
 		const result = HAIR_COLORS[hairColor];
 		// Check-guarded by 'in' operator
 		return result!;
 	}
-	const fallbackKey = defaultKey(HAIR_COLORS);
-	const result = HAIR_COLORS[fallbackKey];
-	// Valid key from defaultKey
-	return result!;
+	throw new Error(`Unknown hair color: ${hairColor}`);
 }
 
 //============================================

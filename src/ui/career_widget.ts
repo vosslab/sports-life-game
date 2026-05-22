@@ -54,9 +54,39 @@ export function updateCareerTab(player: Player): void {
 		}
 		hsCareerPanel.render(currentContext);
 	} else if (player.phase === 'college') {
+		if (!pluginHost) {
+			throw new Error(
+				'PluginHost not initialized: updateCareerTab called for college before setCareerPluginHost()'
+			);
+		}
+		if (!currentContext) {
+			throw new Error(
+				'Career context not initialized: updateCareerTab called before setCurrentCareerContext()'
+			);
+		}
 		renderCollegeCareer(content, player);
+		// Also render scout report panel if registered
+		const scoutReportPanel = pluginHost.ui.getAllPanels().find((p) => p.panelId === 'scout_report');
+		if (scoutReportPanel) {
+			scoutReportPanel.render(currentContext);
+		}
 	} else if (player.phase === 'nfl') {
+		if (!pluginHost) {
+			throw new Error(
+				'PluginHost not initialized: updateCareerTab called for nfl before setCareerPluginHost()'
+			);
+		}
+		if (!currentContext) {
+			throw new Error(
+				'Career context not initialized: updateCareerTab called before setCurrentCareerContext()'
+			);
+		}
 		renderNFLCareer(content, player);
+		// Also render scout report panel if registered
+		const scoutReportPanel = pluginHost.ui.getAllPanels().find((p) => p.panelId === 'scout_report');
+		if (scoutReportPanel) {
+			scoutReportPanel.render(currentContext);
+		}
 	} else if (player.phase === 'legacy') {
 		renderLegacyCareer(content, player);
 	} else {

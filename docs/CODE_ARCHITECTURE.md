@@ -36,6 +36,13 @@ and resume-game flows, and delegate yearly gameplay to the year runner.
 - [src/plugins/register_plugins.ts](../src/plugins/register_plugins.ts): boot-time
   registration of all phase plugins via PluginHost (each plugin calls
   `host.phases.register()` to wire its age-band handlers).
+- [src/plugins/lifecycle_hooks_runner.ts](../src/plugins/lifecycle_hooks_runner.ts):
+  shared utility that fires registered lifecycle hooks at the correct points in the
+  year flow. Exports `fireAgeHooks(player, ctx)`, `firePhaseStartHooks(phase, player, ctx)`,
+  and `fireCareerEndHooks(trigger, player, ctx)`. Wired into year handlers under
+  `src/childhood/`, `src/high_school/`, `src/college/`, `src/nfl_handlers/`, and
+  `src/legacy/retirement.ts` so registry-level hooks actually run in production
+  (previously hooks were registered but never fired).
 
 ### Weekly engine
 
@@ -221,6 +228,20 @@ Two simulation paths coexist:
   check, restart flow.
 - [src/game_loop.ts](../src/game_loop.ts): legacy adapter retained for the
   Activities-tab refresh path; not the main per-week driver.
+
+### Life Jump
+
+- [src/dev/dev_jump.ts](../src/dev/dev_jump.ts): synthetic-player constructor that
+  drops the player into a chosen phase and age. Reads phase + age + optional team id
+  from a `?life=<phase>&age=<n>&team=<id>` URL parameter parsed in
+  [src/main.ts](../src/main.ts) before the save-load step. Phase values:
+  `childhood`, `high_school`, `college`, `nfl`, `legacy`. `?dev=` accepted as
+  back-compatible alias. Constructs in-memory state only; does not persist unless
+  the player saves manually.
+- [src/dev/dev_jump_ui.ts](../src/dev/dev_jump_ui.ts): small fixed-position
+  "Life Jump" button rendered in the bottom-right corner. Opens a phase/age picker
+  that builds the same URL the URL-param path consumes. Discoverable but
+  unobtrusive; replaces an earlier hidden hotkey design.
 
 ## Data flow
 

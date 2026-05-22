@@ -99,10 +99,14 @@ src/
 |  +- game_context.ts      GameContext type alias for CareerContext (used by plugin hooks)
 |  +- choice_option.ts     Shared ChoiceOption type
 |  +- rng.ts               Seeded mulberry32 RNG (rand, randInt, randRange)
++- dev/                    Life Jump (player feature)
+|  +- dev_jump.ts          URL `?life=<phase>&age=<n>` parser (back-compat `?dev=` alias) plus synthetic Player factory for phase-skip
+|  `- dev_jump_ui.ts       Bottom-right "Life Jump" button overlay
 +- plugins/                Plugin host facade and plugin tree (M1+)
 |  +- plugin_host.ts       PluginHost facade and 8 registry contract interfaces
 |  +- build_host.ts        buildPluginHost() factory
 |  +- register_plugins.ts  registerAllPlugins(host) boot site
+|  +- lifecycle_hooks_runner.ts  Shared helpers `fireAgeHooks`, `firePhaseStartHooks`, `fireCareerEndHooks` invoked by year handlers
 |  +- registries/          8 thin registry implementations
 |  |  +- phase_registry.ts
 |  |  +- event_registry.ts
@@ -450,7 +454,3 @@ devel/
   document is not present at the repo root; only `LICENSE.LGPL_v3` is
   tracked. Confirm whether the CC-BY non-code license still applies and
   needs to be added back.
-- An empty/orphan `_site/` tree remains at the repo root, left over from
-  the M3-era Pages staging layout that M4 removed. The directory is
-  untracked and ignored by ESLint/Prettier; the user can `rm -rf _site`
-  whenever convenient.

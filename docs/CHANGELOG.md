@@ -2,7 +2,66 @@
 
 ## 2026-05-22
 
+### Additions and New Features
+
+- **Plugin repair and dev-jump plan closed (M1-M4)**: shipped the full plan, now
+  archived at
+  [docs/archive/2026-05-plugin_repair_and_devjump.md](archive/2026-05-plugin_repair_and_devjump.md).
+  Four milestones landed:
+  - **M1 (life jump)**: new `src/dev/` module ships
+    [src/dev/dev_jump.ts](../src/dev/dev_jump.ts) (synthetic-player constructor) and
+    [src/dev/dev_jump_ui.ts](../src/dev/dev_jump_ui.ts) (fixed-position "Life Jump"
+    button in the bottom-right corner). Trigger via `?life=<phase>&age=<n>&team=<id>`
+    URL parameter parsed in [src/main.ts](../src/main.ts) before save-load, or via
+    the visible button. Phase values: `childhood`, `high_school`, `college`, `nfl`,
+    `legacy`. `?dev=` accepted as back-compatible alias. Earlier hidden Alt+Shift+J hotkey design was replaced with the visible
+    button so testers can discover it without being mid-flow. Regression coverage in
+    [tests/test_dev_jump.ts](../tests/test_dev_jump.ts) (12 tests).
+  - **M2 (avatar repair)**: avatar internals were healthy; real defects were
+    (1) life-jump used invalid registry keys and (2) `avatar_test.html` imported a
+    nonexistent `./dist/avatar.js`. Fixes: re-enabled `randomAvatarConfig` in
+    `src/dev/dev_jump.ts`, fixed the harness import via a re-export from
+    [src/main.ts](../src/main.ts), and hardened `getPart` / `getSkinColor` /
+    `getHairColor` in [src/avatar.ts](../src/avatar.ts) to throw on unknown keys.
+    Playwright spec [tests/playwright/test_avatar_render.spec.ts](../tests/playwright/test_avatar_render.spec.ts)
+    covers six archetypes structurally.
+  - **M3 (plugin audit)**: scout_report panel never rendered because it targeted a
+    nonexistent `#panel-content` container; fixed to `#career-content` and wired into
+    [src/ui/career_widget.ts](../src/ui/career_widget.ts) for college and NFL phases.
+    Per-plugin tests added: [tests/test_plugin_childhood.ts](../tests/test_plugin_childhood.ts)
+    (13), [tests/test_high_school_plugin.ts](../tests/test_high_school_plugin.ts) (6),
+    [tests/test_plugin_college.ts](../tests/test_plugin_college.ts) (11),
+    [tests/test_nfl_plugin.ts](../tests/test_nfl_plugin.ts) (7), and
+    [tests/test_scout_report_panel.ts](../tests/test_scout_report_panel.ts) (6).
+  - **M4 (lifecycle hooks wiring)**: hooks were registered but never `.fire()`'d in
+    production. Built shared utility
+    [src/plugins/lifecycle_hooks_runner.ts](../src/plugins/lifecycle_hooks_runner.ts)
+    exporting `fireAgeHooks(player, ctx)`, `firePhaseStartHooks(phase, player, ctx)`,
+    and `fireCareerEndHooks(trigger, player, ctx)`. Wired into year handlers under
+    `src/childhood/`, `src/high_school/`, `src/college/`, `src/nfl_handlers/`, and
+    [src/legacy/retirement.ts](../src/legacy/retirement.ts). Extended
+    `RetirementContext` to carry a required `careerContext` field so retirement can
+    fire the `CareerEndHook`. Regression coverage in
+    [tests/test_lifecycle_wiring.ts](../tests/test_lifecycle_wiring.ts) (8 tests) plus
+    the per-plugin suites above.
+
+  Total test count grew from 56 baseline to 120 across the four milestones; shared
+  factories live in [tests/test_helpers.ts](../tests/test_helpers.ts).
+
 ### Behavior or Interface Changes
+
+- **Life Jump: rebrand Dev Jump as a player feature**: reframed "Dev Jump" as "Life Jump",
+  a player-facing feature that lets you skip ahead to any phase + age. Updated button text,
+  overlay title, and IDs. Docs now describe it as a gameplay feature, not developer-only.
+  URL parameter changed from `?dev=` to `?life=`, with `?dev=` still accepted for
+  backward compatibility. Module headers updated to reflect player-facing purpose.
+
+- **Scout report panel render target corrected**: panel previously targeted a
+  nonexistent `#panel-content` container, so it never rendered even though it was
+  registered. Fixed to `#career-content` and wired into
+  [src/ui/career_widget.ts](../src/ui/career_widget.ts) so the panel renders when the
+  career tab is viewed in college or NFL phases. Render now mounts into a contained
+  `#scout-report-section` to avoid colliding with other career panel content.
 
 - **Four-phase strict-mode recovery closed**: Completed four-phase recovery (Phases 1-4) from
   starter-repo sync commit 33642de, which introduced 454 typecheck errors and broken ESLint config.
@@ -46,6 +105,26 @@ Tests batch added`/// <reference types="node" />` to each test file to bring Nod
 
 ### Fixes and Maintenance
 
+- **C5 (NFL veteran retire path): set phase + save + sync only.** Original C5 fix
+  routed the veteran Retire action through `showRetirement()`, but importing
+  `render/story_log` from `src/nfl_handlers/` tripped `tests/test_dom_imports.ts`
+  (no DOM in simulation tree). Reverted to setting `player.phase = 'legacy'`,
+  calling `ctx.save()`, and `ctx.syncTabsToPhase('legacy')`. `showRetirement`
+  (and `fireCareerEndHooks`) is invoked by `src/main.ts:resumeGame` on next game
+  load when it detects `phase === 'legacy'`. Known limitation: in-session
+  retirement leaves the player without a forward UI interaction until reload. Real
+  fix requires a year-handler->main signaling layer; tracked as a separate residual.
+
+- **Fix C4 careerContext required in RetirementContext**: `src/legacy/retirement.ts`
+  had `careerContext?: CareerContext` as optional with a defensive `if (ctx.careerContext)` guard
+  around `fireCareerEndHooks()`. This violated "fix the design, not the symptom" - the missing wire
+  was hidden rather than exposed. Made `careerContext` required in `RetirementContext` interface,
+  removed the guard so hooks always fire, and updated the only caller in `src/main.ts`
+  `resumeGame()` to pass `careerContext: careerCtx` (with a precondition error if uninitialized).
+  TypeScript strict types and tests now prevent the missing-wire scenario.
+
+- **M3 W3.scout_report: plugin panel audit and fix complete**: Audited `src/plugins/scout_report/` panel-only proof-of-concept plugin. Issue: `scout_report_panel.ts` tried to render to non-existent `#panel-content` container; panel was registered but never invoked. Minimal fix: (1) Changed `scoutReportPanel.render()` to target `#career-content` (the actual career tab content area) instead of non-existent `#panel-content`; (2) Updated `renderScoutReport()` to create a contained `#scout-report-section` within the container to avoid colliding with other career panel content; (3) Integrated scout_report panel into `updateCareerTab()` in `src/ui/career_widget.ts` so it renders when the career tab is viewed in college or nfl phases. Added 6 verification tests in new `tests/test_scout_report_panel.ts` covering: panel registration, phase availability (college/nfl only, not high_school), and render-without-error paths for both college and nfl players. All tests green. `tests/test_plugin_boundaries.ts` still passes (no cross-plugin imports introduced). Per plan scope: no registry changes needed (scout_report is panel-only, no lifecycle hooks).
+
 - **Deleted stale gitignored `_site/` directory**: removed pre-M4 staging tree leftover from
   legacy build model. Directory was noted as cleanup-pending in 2026-05-21 M9 entry.
 
@@ -74,21 +153,54 @@ Tests batch added`/// <reference types="node" />` to each test file to bring Nod
   per [docs/TYPESCRIPT_STYLE.md](TYPESCRIPT_STYLE.md); gate ignores warnings. If warnings should
   be driven to zero, that is separate cleanup pass.
 
+- **Avatar test harness import deferred residual**: `tests/playwright/test_avatar_render.spec.ts`
+  is not invoked by `check_codebase.sh`. Snapshot baseline is intentionally not
+  committed; the spec uses structural assertions across six archetypes instead of
+  pixel diffs. Promote to the gate when a stable headless-render path is wired.
+
+- **`MockGameContext` duplicated across plugin test files**: shared mock context
+  helper is duplicated across [tests/test_high_school_plugin.ts](../tests/test_high_school_plugin.ts)
+  and [tests/test_nfl_plugin.ts](../tests/test_nfl_plugin.ts). Consolidation into
+  [tests/test_helpers.ts](../tests/test_helpers.ts) is deferred; each plugin suite
+  works independently today.
+
+- **`tests/playwright/autoplay.mjs` baseline failure is environmental**: not a code
+  regression. The failure stems from a stale port-8000 server that does not serve
+  `dist/`. Re-verify by starting a `dist/`-serving server (for example
+  `python3 -m http.server 8000 --directory dist`) before running autoplay.
+
 ### Developer Tests and Notes
 
-- **Gate verification (2026-05-22 close)**:
+- **Gate verification (M4 W4.B close, 2026-05-22)**:
   - PASS: typecheck
   - PASS: typecheck:lint
   - PASS: lint
   - PASS: format:check
-  - PASS: test:node (56/56 node:test PASS)
-  - 70 files changed, 880 insertions, 713 deletions
+  - PASS: test:node (120/120 node:test PASS, up from 56 baseline)
+  - `bash check_codebase.sh` reports 5/5 PASS
 
-## 2026-05-22
-
-### Fixes and Maintenance
+- **Test suite additions (M1-M4)**:
+  | File | Tests | Scope |
+  | --- | --- | --- |
+  | tests/test_dev_jump.ts | 12 | Synthetic-player constructor, URL-param parsing |
+  | tests/test_plugin_childhood.ts | 13 | Childhood handlers + hooks |
+  | tests/test_high_school_plugin.ts | 6 | HS handlers + hooks |
+  | tests/test_plugin_college.ts | 11 | College handlers + hooks |
+  | tests/test_nfl_plugin.ts | 7 | NFL handlers + hooks |
+  | tests/test_scout_report_panel.ts | 6 | Panel registration + render |
+  | tests/test_lifecycle_wiring.ts | 8 | Cross-handler hook firing |
+  | tests/test_helpers.ts | n/a | Shared factories |
+  | tests/playwright/test_avatar_render.spec.ts | n/a | Six avatar archetypes |
 
 - **Phase 3E: All 93 strict-mode errors fixed in 17 batch files**: Completed comprehensive fix across all remaining batch files from the approved plan. Applied consistent patterns for noUncheckedIndexedAccess (array[i]! with bounds-check comments), Record access with nullish coalescing (record[key] ?? 0), find() fallback pattern ((arr.find(...) || arr[0])!), unused parameters (\_param convention), and union-type casts (as CoachPersonality). Files fixed: recruiting.ts, ncaa.ts, nfl.ts, milestones.ts, character_creation.ts, kid_years.ts, peewee_years.ts, hs_frosh_soph.ts, hs_season_builder.ts, juco_season_builder.ts, recruiting_events.ts, recruiting_offers.ts, college_entry.ts, college_core.ts, college_senior.ts, college_season_builder.ts, nfl_season_builder.ts. TypeScript strict mode now passes with zero errors in batch files (verified with `npm run typecheck`). No runtime behavior changes; type-only fixes.
+
+- **Gate verification (earlier 2026-05-22 strict-mode close)**:
+  - PASS: typecheck
+  - PASS: typecheck:lint
+  - PASS: lint
+  - PASS: format:check
+  - PASS: test:node (56/56 node:test PASS at that checkpoint)
+  - 70 files changed, 880 insertions, 713 deletions
 
 ## 2026-05-21
 

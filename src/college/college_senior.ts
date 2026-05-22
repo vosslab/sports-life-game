@@ -12,6 +12,7 @@ import { startSeason } from '../weekly/weekly_engine.js';
 import { buildCollegeSeason } from './college_season_builder.js';
 import { formatSchoolName } from '../ncaa.js';
 import { applyPalette } from '../theme.js';
+import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -37,6 +38,12 @@ export const collegeSeniorHandler: YearHandler = {
 			applyPalette(player.teamPalette);
 		}
 		ctx.updateHeader(player);
+
+		// Fire phase start hooks for college phase
+		firePhaseStartHooks('college', player, ctx);
+
+		// Fire age hooks that match the current age
+		fireAgeHooks(player, ctx);
 
 		// Check if player has 5th year eligibility (redshirt + haven't used it yet)
 		const hasFifthYearOption =

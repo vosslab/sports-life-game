@@ -75,6 +75,43 @@ For end-to-end and browser-driven test conventions, see
 [docs/E2E_TESTS.md](E2E_TESTS.md) and
 [docs/PLAYWRIGHT_USAGE.md](PLAYWRIGHT_USAGE.md).
 
+## Life Jump
+
+Skip ahead to any phase of the career at a chosen age. This is useful for
+testing different career phases and scenarios without playing through years
+of weekly choices.
+
+Two entry points reach the same code path:
+
+- **URL parameter**: append `?life=<phase>&age=<n>&team=<id>` to the page
+  URL. Parsed by [src/main.ts](../src/main.ts) before the save-load step,
+  so Life Jump always wins over an existing save. The `?dev=` form is also
+  accepted for backward compatibility. `team` is optional and NFL-only.
+- **Life Jump button**: small fixed-position button in the bottom-right
+  corner of every page. Opens a picker that builds the same URL above.
+
+Valid `phase` values:
+
+| Phase         | Age range |
+| ------------- | --------- |
+| `childhood`   | 1-13      |
+| `high_school` | 14-17     |
+| `college`     | 18-21     |
+| `nfl`         | 22-39     |
+| `legacy`      | 40+       |
+
+Example:
+
+```text
+http://localhost:8080/?life=nfl&age=24
+```
+
+Implementation lives in [src/dev/dev_jump.ts](../src/dev/dev_jump.ts) and
+[src/dev/dev_jump_ui.ts](../src/dev/dev_jump_ui.ts). Life Jump constructs
+an in-memory `Player` only; it does not write to `localStorage` unless
+you save manually. Regression coverage is in
+[tests/test_dev_jump.ts](../tests/test_dev_jump.ts).
+
 ## More
 
 - [docs/CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md): system design, components, and data flow

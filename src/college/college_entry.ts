@@ -14,6 +14,7 @@ import { formatSchoolName, assignPlayerCollege } from '../ncaa.js';
 import { generateTeamPalette, applyPalette } from '../theme.js';
 import { getPostHighSchoolRoute } from '../recruiting.js';
 import { runJucoYear, runPrepYear } from '../high_school/hs_postgrad.js';
+import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
 
 //============================================
 const SEASON_CONFIG: SeasonConfig = {
@@ -51,6 +52,12 @@ export const collegeEntryHandler: YearHandler = {
 		applyPalette(collegePalette);
 		player.teamPalette = collegePalette;
 		ctx.updateHeader(player);
+
+		// Fire phase start hooks for college phase
+		firePhaseStartHooks('college', player, ctx);
+
+		// Fire age hooks that match the current age
+		fireAgeHooks(player, ctx);
 
 		ctx.addHeadline('Age 18 - College Freshman');
 		ctx.addText(`${player.firstName} begins college at ${player.teamName}.`);

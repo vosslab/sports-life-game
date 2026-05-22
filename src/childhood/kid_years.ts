@@ -10,6 +10,7 @@ import { applyAgeDrift } from '../shared/year_helpers.js';
 import { advanceToNextYear } from '../core/year_runner.js';
 import type { GameEvent } from '../events.js';
 import { filterEvents, selectEvent, selectEventByCategory, applyEventChoice } from '../events.js';
+import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
 
 //============================================
 // Age-appropriate headlines for flavor
@@ -33,6 +34,14 @@ export const kidYearsHandler: YearHandler = {
 		// Apply natural growth for this age
 		applyAgeDrift(player);
 		ctx.updateHeader(player);
+
+		// Fire phase start hooks for childhood phase (only once on entry)
+		if (player.phase === 'childhood') {
+			firePhaseStartHooks('childhood', player, ctx);
+		}
+
+		// Fire age hooks that match the current age
+		fireAgeHooks(player, ctx);
 
 		// Clear previous year's content so the log stays manageable
 		ctx.clearStory();
