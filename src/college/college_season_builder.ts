@@ -69,7 +69,7 @@ export function buildCollegeSeason(
 
 	// Create SeasonTeam for each conference opponent
 	for (let i = 0; i < confOpponents.length; i++) {
-		const school = confOpponents[i];
+		const school = confOpponents[i]!; // index guaranteed in bounds by loop
 		const teamId = `conf_${i}`;
 		const strength = getSchoolStrength(school);
 
@@ -106,7 +106,7 @@ export function buildCollegeSeason(
 	const ncOpponents = nonConfSchools.slice(0, NUM_NONCONF_TEAMS);
 
 	for (let i = 0; i < ncOpponents.length; i++) {
-		const school = ncOpponents[i];
+		const school = ncOpponents[i]!; // index guaranteed in bounds by loop
 		const teamId = `nonconf_${i}`;
 		const strength = getSchoolStrength(school);
 
@@ -151,8 +151,8 @@ function buildCollegeSchedule(
 
 	// Create conference games from round-robin rounds
 	for (let r = 0; r < rounds.length && r < confWeeks.length; r++) {
-		const week = confWeeks[r];
-		for (const [home, away] of rounds[r]) {
+		const week = confWeeks[r]!; // index guaranteed in bounds by loop
+		for (const [home, away] of rounds[r]!) {
 			allGames.push(new SeasonGame(nextGameId(), week, home, away, true));
 		}
 	}
@@ -166,8 +166,8 @@ function buildCollegeSchedule(
 
 	const ncRounds = generateBipartiteRotation(confOrdered, ncOrdered, ncWeeks.length);
 	for (let r = 0; r < ncRounds.length; r++) {
-		const week = ncWeeks[r];
-		for (const [home, away] of ncRounds[r]) {
+		const week = ncWeeks[r]!; // index guaranteed in bounds by loop
+		for (const [home, away] of ncRounds[r]!) {
 			allGames.push(new SeasonGame(nextGameId(), week, home, away, false));
 		}
 	}
@@ -197,5 +197,5 @@ function getSchoolStrength(school: NCAASchool): number {
 // Random coach personality
 function randomCoachPersonality(): CoachPersonality {
 	const choices: CoachPersonality[] = ['supportive', 'demanding', 'volatile'];
-	return choices[randomInRange(0, 2)];
+	return choices[randomInRange(0, 2)]!; // index guaranteed in bounds by randomInRange(0, 2)
 }

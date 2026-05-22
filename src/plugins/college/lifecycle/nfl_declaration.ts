@@ -12,7 +12,7 @@ export const nflDeclarationHook: AgeHook = {
 	id: 'college-age-20-nfl-declaration',
 	age: 20,
 	once: true,
-	fire(player: Player, ctx: GameContext): void {
+	fire(_player: Player, ctx: GameContext): void {
 		ctx.addText(
 			"You turned 20. With two years of college experience, you're now eligible " +
 				'to declare for the NFL Draft early. If your draft stock is strong enough, ' +

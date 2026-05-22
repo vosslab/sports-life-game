@@ -151,7 +151,7 @@ export function showSigningDay(player: Player, ctx: CareerContext, onDone: () =>
 					prestige: school.interest,
 					interest: school.interest,
 				};
-				const commitStory = commitToCollege(player, offer);
+				const commitStory = commitToCollege(offer);
 				ctx.addText(commitStory);
 
 				// Set player state for college transition
@@ -291,7 +291,7 @@ function showCommitmentDecision(player: Player, ctx: CareerContext, onDone: () =
 					prestige: school?.interest || 70,
 					interest: school?.interest || 70,
 				};
-				const commitStory = commitToCollege(player, offer);
+				const commitStory = commitToCollege(offer);
 				ctx.addText(commitStory);
 
 				player.teamName = schoolName;
@@ -338,9 +338,9 @@ export function showWalkOnOptions(player: Player, ctx: CareerContext, onDone: ()
 
 	// Pick a random FCS school for walk-on
 	const fcsSchools = ctx.ncaaSchools.fcs;
-	let walkOnSchool = fcsSchools[0];
+	let walkOnSchool = fcsSchools[0]!; // fcsSchools should always have at least one element
 	if (fcsSchools.length > 0) {
-		walkOnSchool = fcsSchools[Math.floor(rand() * fcsSchools.length)];
+		walkOnSchool = fcsSchools[Math.floor(rand() * fcsSchools.length)]!; // index guaranteed in bounds by length check
 	}
 	const walkOnName = formatSchoolName(walkOnSchool);
 
@@ -356,7 +356,7 @@ export function showWalkOnOptions(player: Player, ctx: CareerContext, onDone: ()
 					prestige: 30,
 					interest: 40,
 				};
-				const commitStory = commitToCollege(player, offer);
+				const commitStory = commitToCollege(offer);
 				ctx.addText(commitStory);
 
 				profile.signed = true;

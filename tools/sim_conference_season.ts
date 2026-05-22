@@ -284,7 +284,7 @@ function main(): void {
 
 	// Handle single-season detail modes
 	if (cfg.runs === 1 && seasons.length > 0) {
-		const season = seasons[0];
+		const season = seasons[0]!; // invariant: checked seasons.length > 0
 		if (!cfg.quiet) {
 			printStandings(season, 'player');
 		}

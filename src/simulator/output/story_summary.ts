@@ -230,7 +230,8 @@ function extractNotableMoments(playLog: string[]): string[] {
 		else if (entry.match(/(\d{2,3})\s+yard/i)) {
 			const match = entry.match(/(\d{2,3})\s+yard/i);
 			if (match) {
-				const yards = parseInt(match[1], 10);
+				// match[1] is defined because the regex has a capture group and match succeeded
+				const yards = parseInt(match[1]!, 10);
 				if (yards >= 30) {
 					moments.push(entry);
 				}
@@ -267,7 +268,8 @@ function hasLongPlay(playLog: string[]): boolean {
 		// Check for numeric yard amounts >= 40
 		const match = entry.match(/(\d{2,3})\s+yard/i);
 		if (match) {
-			const yards = parseInt(match[1], 10);
+			// match[1] is defined because the regex has a capture group and match succeeded
+			const yards = parseInt(match[1]!, 10);
 			if (yards >= 40) {
 				return true;
 			}
@@ -322,20 +324,34 @@ export function buildStorySummary(
 	const longPlay = hasLongPlay(playLog);
 	const notableMoments = extractNotableMoments(playLog);
 
+	// Build playerStoryStats with optional fields omitted when undefined
+	const playerStoryStats: StoryGameSummary['playerStoryStats'] = {};
+
+	if (headlineStat !== undefined) {
+		playerStoryStats.headlineStat = headlineStat;
+	}
+	if (touchdowns > 0) {
+		playerStoryStats.touchdowns = touchdowns;
+	}
+	if (turnovers > 0) {
+		playerStoryStats.turnovers = turnovers;
+	}
+	if (sacks > 0) {
+		playerStoryStats.sacks = sacks;
+	}
+	if (interceptions > 0) {
+		playerStoryStats.interceptions = interceptions;
+	}
+	if (longPlay) {
+		playerStoryStats.longPlay = true;
+	}
+
 	return {
 		result,
 		score: { team: teamScore, opponent: opponentScore },
 		gameTone,
 		significance: 'normal',
-		playerStoryStats: {
-			headlineStat,
-			touchdowns: touchdowns > 0 ? touchdowns : undefined,
-			turnovers: turnovers > 0 ? turnovers : undefined,
-			sacks: sacks > 0 ? sacks : undefined,
-			interceptions: interceptions > 0 ? interceptions : undefined,
-			longPlay: longPlay || undefined,
-			clutchImpact: undefined,
-		},
+		playerStoryStats,
 		notableMoments,
 	};
 }
@@ -348,9 +364,8 @@ export function generateStoryText(summary: StoryGameSummary, playerName: string)
 			? `${summary.score.team}-${summary.score.opponent} win`
 			: `${summary.score.team}-${summary.score.opponent} loss`;
 
-	let narrative = '';
-
 	// Build core narrative based on game tone
+	let narrative: string;
 	switch (summary.gameTone) {
 		case 'blowout_win':
 			narrative = `${playerName} dominated in a ${summary.score.team}-${summary.score.opponent} blowout.`;

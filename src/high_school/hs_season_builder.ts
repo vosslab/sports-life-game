@@ -190,7 +190,8 @@ function buildHSSchedule(
 	// Conference round-robin games
 	const confRoundsToUse = Math.min(gamesPerTeam, maxConfGamesPerTeam);
 	for (let r = 0; r < confRoundsToUse; r++) {
-		for (const [home, away] of allRounds[r]) {
+		const confRound = allRounds[r]!; // index guaranteed in bounds by loop condition
+		for (const [home, away] of confRound) {
 			allGames.push(new SeasonGame(nextGameId(), currentWeek, home, away, true));
 		}
 		currentWeek++;
@@ -206,7 +207,8 @@ function buildHSSchedule(
 
 		const ncRounds = generateBipartiteRotation(confOrdered, ncOrdered, nonConfGamesToSchedule);
 		for (let r = 0; r < ncRounds.length; r++) {
-			for (const [home, away] of ncRounds[r]) {
+			const ncRound = ncRounds[r]!; // index guaranteed in bounds by loop condition
+			for (const [home, away] of ncRound) {
 				allGames.push(new SeasonGame(nextGameId(), currentWeek, home, away, false));
 			}
 			currentWeek++;
@@ -220,5 +222,5 @@ function buildHSSchedule(
 // Random coach personality
 function randomCoachPersonality(): CoachPersonality {
 	const choices: CoachPersonality[] = ['supportive', 'demanding', 'volatile'];
-	return choices[randomInRange(0, 2)];
+	return choices[randomInRange(0, 2)]!; // index guaranteed in bounds by randomInRange(0, 2)
 }

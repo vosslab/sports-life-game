@@ -93,7 +93,7 @@ function parseArgs(argv: readonly string[]): PositionsConfig {
 		baseSeed: 5000,
 	};
 	for (let i = 0; i < argv.length; i++) {
-		const flag: string = argv[i];
+		const flag: string = argv[i]!; // invariant: i is in bounds
 		const next: string | undefined = argv[i + 1];
 		switch (flag) {
 			case '--runs':
@@ -249,7 +249,7 @@ function printRow(
 	const cells: string[] = [pad(position, 4, false)];
 	cells.push(pad(`${wins.mean.toFixed(1)}-${(17 - wins.mean).toFixed(1)}`, 9, false));
 	for (const stat of COMPARISON_STATS) {
-		const s: MeanStddev = summaries[stat];
+		const s: MeanStddev = summaries[stat]!; // invariant: stat is in COMPARISON_STATS, set above
 		const cell: string = `${s.mean.toFixed(0)}+-${s.stddev.toFixed(0)}`;
 		cells.push(pad(cell, 11));
 	}
@@ -277,7 +277,7 @@ function detectDuplicates(
 	for (const stat of COMPARISON_STATS) {
 		const buckets: Map<string, Position[]> = new Map();
 		for (const pos of POSITIONS) {
-			const s: MeanStddev = allSummaries[pos][stat];
+			const s: MeanStddev = allSummaries[pos]![stat]!; // invariant: pos and stat exist
 			// Skip stats this position does not produce at all.
 			if (s.mean === 0 && s.stddev === 0) {
 				continue;
@@ -317,7 +317,7 @@ function detectFlatVariance(
 	const findings: FlatVarianceFinding[] = [];
 	for (const pos of POSITIONS) {
 		for (const stat of COMPARISON_STATS) {
-			const s: MeanStddev = allSummaries[pos][stat];
+			const s: MeanStddev = allSummaries[pos]![stat]!; // invariant: pos and stat exist
 			if (s.mean < 5) {
 				// Skip near-zero stats; ratios are noise there.
 				continue;
@@ -362,7 +362,7 @@ function main(): void {
 
 	printHeader();
 	for (const pos of POSITIONS) {
-		printRow(pos, allSummaries[pos], winSummaries[pos]);
+		printRow(pos, allSummaries[pos]!, winSummaries[pos]!); // invariant: pos was populated in loop
 	}
 
 	const dupes = detectDuplicates(allSummaries);

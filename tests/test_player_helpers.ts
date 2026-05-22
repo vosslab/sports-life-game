@@ -6,6 +6,8 @@
 // Scope: only deterministic, side-effect-free helpers. Anything that calls
 // Math.random or touches DOM is skipped here and revisited in M3/M4.
 
+/// <reference types="node" />
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -18,7 +20,7 @@ import {
 
 //============================================
 // clampStat saturates at 0 and 100, passes through middle values.
-test('player_helpers: clampStat saturates at 0 and 100', () => {
+void test('player_helpers: clampStat saturates at 0 and 100', () => {
 	assert.equal(clampStat(-50), 0);
 	assert.equal(clampStat(0), 0);
 	assert.equal(clampStat(42), 42);
@@ -29,7 +31,7 @@ test('player_helpers: clampStat saturates at 0 and 100', () => {
 //============================================
 // getPositionBucket maps every position to its expected bucket and falls back
 // to defender for unknown values.
-test('player_helpers: getPositionBucket maps positions to buckets', () => {
+void test('player_helpers: getPositionBucket maps positions to buckets', () => {
 	assert.equal(getPositionBucket('QB'), 'passer');
 	assert.equal(getPositionBucket('RB'), 'runner_receiver');
 	assert.equal(getPositionBucket('WR'), 'runner_receiver');
@@ -45,7 +47,7 @@ test('player_helpers: getPositionBucket maps positions to buckets', () => {
 
 //============================================
 // getAcademicStanding bucket boundaries.
-test('player_helpers: getAcademicStanding boundary buckets', () => {
+void test('player_helpers: getAcademicStanding boundary buckets', () => {
 	assert.equal(getAcademicStanding(4.0), 'Honor Roll');
 	assert.equal(getAcademicStanding(3.5), 'Honor Roll');
 	assert.equal(getAcademicStanding(3.49), 'Good Standing');
@@ -59,7 +61,7 @@ test('player_helpers: getAcademicStanding boundary buckets', () => {
 
 //============================================
 // getRelationshipLevel bucket boundaries.
-test('player_helpers: getRelationshipLevel boundary buckets', () => {
+void test('player_helpers: getRelationshipLevel boundary buckets', () => {
 	assert.equal(getRelationshipLevel(100), 'Close');
 	assert.equal(getRelationshipLevel(80), 'Close');
 	assert.equal(getRelationshipLevel(79), 'Friendly');

@@ -6,6 +6,8 @@
 // invariant: "shared engine, distinct phase adapters" -- not a flat generic
 // week. Run with: npm run test:node -- --test-name-pattern='handler_registry'
 
+/// <reference types="node" />
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -45,7 +47,7 @@ function withFreshRegistry<T>(fn: () => T): T {
 
 //============================================
 // Every age 1..39 maps to exactly one handler; ages outside that range do not.
-test('handler_registry: every age 1..39 has a handler, others do not', () => {
+void test('handler_registry: every age 1..39 has a handler, others do not', () => {
 	withFreshRegistry(() => {
 		for (let age = 1; age <= 39; age++) {
 			assert.equal(hasHandler(age), true, `age ${age} has no handler`);
@@ -59,7 +61,7 @@ test('handler_registry: every age 1..39 has a handler, others do not', () => {
 // Phase-specific season configs feel distinctly different. This is the
 // "shared engine, distinct phase adapters" invariant: HS, college, and NFL
 // must NOT collapse into the same week shape.
-test('handler_registry: season configs differ across HS/college/NFL', () => {
+void test('handler_registry: season configs differ across HS/college/NFL', () => {
 	withFreshRegistry(() => {
 		const hsVarsity = getHandler(16);
 		const collegeCore = getHandler(20);
@@ -73,6 +75,7 @@ test('handler_registry: season configs differ across HS/college/NFL', () => {
 		// eslint-disable-next-line @typescript-eslint/unbound-method -- truthiness check, method is not invoked
 		assert.ok(nflPeak.getSeasonConfig, 'nfl_peak must expose a season config');
 
+		// assert.ok above proves these are not undefined
 		const hs = hsVarsity.getSeasonConfig({} as never);
 		const col = collegeCore.getSeasonConfig({} as never);
 		const nfl = nflPeak.getSeasonConfig({} as never);
@@ -97,12 +100,12 @@ test('handler_registry: season configs differ across HS/college/NFL', () => {
 
 //============================================
 // Age-band coverage matches the documented bands (no gaps, no overlap).
-test('handler_registry: age bands have no gaps', () => {
+void test('handler_registry: age bands have no gaps', () => {
 	withFreshRegistry(() => {
 		const handlers = [...getAllHandlers()].sort((a, b) => a.ageStart - b.ageStart);
 		for (let i = 1; i < handlers.length; i++) {
-			const prev = handlers[i - 1];
-			const cur = handlers[i];
+			const prev = handlers[i - 1]!; // asserted nonempty above
+			const cur = handlers[i]!; // asserted nonempty above
 			assert.equal(
 				cur.ageStart,
 				prev.ageEnd + 1,

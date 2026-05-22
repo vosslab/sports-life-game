@@ -90,7 +90,8 @@ export function updateStatsTab(player: Player): void {
 	const history = player.careerHistory;
 	if (history.length > 0) {
 		const current = history[history.length - 1];
-		const record = `${current.wins}-${current.losses}`;
+		// Bounds-checked: length > 0
+		const record = `${current!.wins}-${current!.losses}`;
 		rows.push({ label: 'Record', value: record });
 	}
 

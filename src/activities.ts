@@ -81,7 +81,7 @@ export function setPluginHost(host: PluginHost): void {
 
 //============================================
 // Get available activities for the current phase and player state
-export function getActivitiesForPhase(phase: CareerPhase, _player: Player): Activity[] {
+export function getActivitiesForPhase(phase: CareerPhase): Activity[] {
 	let activities: Activity[] = [];
 
 	if (phase === 'childhood' || phase === 'high_school' || phase === 'college' || phase === 'nfl') {

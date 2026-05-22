@@ -98,7 +98,8 @@ export function updateSeasonCareer(player: Player, seasonRecord?: string): void 
 		addSidebarRow(container, 'Record', seasonRecord);
 	} else if (player.careerHistory.length > 0) {
 		const current = player.careerHistory[player.careerHistory.length - 1];
-		const record = `${current.wins}-${current.losses}`;
+		// Bounds-checked: length > 0
+		const record = `${current!.wins}-${current!.losses}`;
 		addSidebarRow(container, 'Record', record);
 	}
 
@@ -107,7 +108,9 @@ export function updateSeasonCareer(player: Player, seasonRecord?: string): void 
 		addSidebarRow(container, 'Stars', getStarDisplay(player.recruitingStars));
 		if (player.collegeOffers.length > 0) {
 			addSidebarRow(container, 'Offers', player.collegeOffers.length.toString());
-			addSidebarRow(container, 'Top Offer', player.collegeOffers[0]);
+			const topOffer = player.collegeOffers[0];
+			// Bounds-checked: length > 0
+			addSidebarRow(container, 'Top Offer', topOffer!);
 		}
 	} else if (player.phase === 'college') {
 		const yearLabels = ['', 'Freshman', 'Sophomore', 'Junior', 'Senior'];

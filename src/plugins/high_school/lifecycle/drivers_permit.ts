@@ -12,7 +12,7 @@ export const driversPermitHook: AgeHook = {
 	id: 'hs-drivers-permit',
 	age: 15,
 	once: true,
-	fire(player: Player, ctx: GameContext): void {
+	fire(_player: Player, ctx: GameContext): void {
 		ctx.addText(
 			"You turned 15. In your state, you're eligible for your driver's permit now. " +
 				'Having a license will open up more options for your free time.'

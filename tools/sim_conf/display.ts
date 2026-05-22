@@ -1,8 +1,8 @@
 // display.ts - output formatting functions for sim_conference_season
 
 import { LeagueSeason } from '../../src/season/season_model.js';
-import { StandingsRow } from '../../src/season/season_types.js';
-import { AggregateStats } from './types.js';
+import type { StandingsRow } from '../../src/season/season_types.js';
+import type { AggregateStats } from './types.js';
 
 //============================================
 function pad(s: string | number, width: number, right: boolean = true): string {
@@ -190,11 +190,11 @@ export function printPowerRanking(season: LeagueSeason): void {
 	const scores = standings.map((row, i) => {
 		const total = row.wins + row.losses + row.ties || 1;
 		const recordPct = row.wins / total;
-		const diffNorm = maxDiff > 0 ? diffs[i] / maxDiff : 0;
+		const diffNorm = maxDiff > 0 ? diffs[i]! / maxDiff : 0; // invariant: i is valid in map
 		const strengthNorm =
-			maxStrength > minStrength ? (strengths[i] - minStrength) / (maxStrength - minStrength) : 0;
+			maxStrength > minStrength ? (strengths[i]! - minStrength) / (maxStrength - minStrength) : 0; // invariant: i is valid
 		const score = recordPct * 0.6 + diffNorm * 0.3 + strengthNorm * 0.1;
-		return { row, score, strength: strengths[i], diff: diffs[i] };
+		return { row, score, strength: strengths[i]!, diff: diffs[i]! }; // invariant: i is valid
 	});
 
 	scores.sort((a, b) => b.score - a.score);
@@ -205,10 +205,10 @@ export function printPowerRanking(season: LeagueSeason): void {
 	console.log('    ' + '-'.repeat(60));
 
 	for (let rank = 0; rank < scores.length; rank++) {
-		const { row, score, strength, diff } = scores[rank];
+		const { row, score, strength, diff } = scores[rank]!; // invariant: rank is in bounds
 		const record = `${row.wins}-${row.losses}`;
 		const marker = row.teamId === 'player' ? '>>>' : '   ';
-		const diffStr = (diff >= 0 ? '+' : '') + String(diff);
+		const diffStr = (diff! >= 0 ? '+' : '') + String(diff!);
 		console.log(
 			`${marker} ${rank + 1}. ${pad(row.name, 32)} ${score.toFixed(2)}   ` +
 				`${pad(record, 4, false)}    ${pad(strength, 3, false)}       ${diffStr}`
@@ -224,11 +224,11 @@ export function printAwards(season: LeagueSeason): void {
 	console.log('Awards (heuristic, not game canon):');
 
 	if (standings.length > 0) {
-		const best = standings[0];
+		const best = standings[0]!; // invariant: checked length > 0
 		console.log(`  Offensive Player of Year: ${best.name} QB (best record)`);
 	}
 
-	let dpoyRow = standings[0];
+	let dpoyRow = standings[0]!; // invariant: initialized from first element
 	for (const row of standings) {
 		const curr = row.pointsAgainst;
 		const comp = dpoyRow.pointsAgainst;
@@ -239,7 +239,7 @@ export function printAwards(season: LeagueSeason): void {
 	console.log(`  Defensive Player of Year: ${dpoyRow.name} DE (fewest points allowed)`);
 
 	if (standings.length > 1) {
-		let breakout = standings[0];
+		let breakout = standings[0]!; // invariant: checked length > 1
 		let maxDeviation = -100;
 		for (const row of standings) {
 			const team = season.getTeam(row.teamId);

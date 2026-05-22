@@ -165,10 +165,14 @@ g3.recordResult(21, 17);
 
 const standings = calculateStandings([g1, g2, g3], testTeams);
 console.assert(standings.length === 3, 'Should have 3 teams in standings');
-console.assert(standings[0].teamId === 'a', 'Team A should be first (2-0)');
-console.assert(standings[0].wins === 2, 'Team A should have 2 wins');
-console.assert(standings[0].losses === 0, 'Team A should have 0 losses');
-console.assert(standings[1].teamId === 'b', 'Team B should be second (1-1)');
-console.assert(standings[2].teamId === 'c', 'Team C should be third (0-2)');
-console.assert(standings[0].pointsFor === 63, 'Team A pointsFor should be 28+35=63');
-console.assert(standings[0].conferenceWins === 2, 'Team A should have 2 conf wins');
+// standings.length > 0 confirmed above, so all these accesses are safe
+const s0 = standings[0]!;
+const s1 = standings[1]!;
+const s2 = standings[2]!;
+console.assert(s0.teamId === 'a', 'Team A should be first (2-0)');
+console.assert(s0.wins === 2, 'Team A should have 2 wins');
+console.assert(s0.losses === 0, 'Team A should have 0 losses');
+console.assert(s1.teamId === 'b', 'Team B should be second (1-1)');
+console.assert(s2.teamId === 'c', 'Team C should be third (0-2)');
+console.assert(s0.pointsFor === 63, 'Team A pointsFor should be 28+35=63');
+console.assert(s0.conferenceWins === 2, 'Team A should have 2 conf wins');

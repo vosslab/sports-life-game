@@ -190,6 +190,6 @@ function generateTownIdentity(player: Player): void {
 
 	const townIdx = Math.floor(Math.random() * towns.length);
 	const mascotIdx = Math.floor(Math.random() * mascots.length);
-	player.townName = towns[townIdx];
-	player.townMascot = mascots[mascotIdx];
+	player.townName = towns[townIdx]!; // index guaranteed in bounds by Math.random() * length
+	player.townMascot = mascots[mascotIdx]!; // index guaranteed in bounds by Math.random() * length
 }

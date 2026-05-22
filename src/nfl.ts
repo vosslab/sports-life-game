@@ -24,11 +24,11 @@ function parseNFLTeamLine(line: string): NFLTeamEntry | null {
 	const parts = line.split(',');
 	if (parts.length < 5) return null;
 
-	const name = parts[0].trim();
-	const mascot = parts[1].trim();
-	const city = parts[2].trim();
-	const division = parts[3].trim();
-	const conference = parts[4].trim();
+	const name = parts[0]!.trim(); // length check guarantees element exists
+	const mascot = parts[1]!.trim(); // length check guarantees element exists
+	const city = parts[2]!.trim(); // length check guarantees element exists
+	const division = parts[3]!.trim(); // length check guarantees element exists
+	const conference = parts[4]!.trim(); // length check guarantees element exists
 
 	if (name.length === 0) return null;
 
@@ -49,7 +49,7 @@ export async function loadNFLTeams(): Promise<NFLTeamEntry[]> {
 
 	// Skip header line
 	for (let i = 1; i < lines.length; i++) {
-		const line = lines[i].trim();
+		const line = lines[i]!.trim(); // index guaranteed in bounds by loop
 		if (line.length === 0) continue;
 
 		const team = parseNFLTeamLine(line);
@@ -225,20 +225,17 @@ export function getNFLDraftResult(player: Player): DraftResult {
 	const pick = round === 0 ? 0 : randomInRange(pickRange[0], Math.min(pickRange[1], 260));
 
 	const teamNames = getNFLTeamNames();
-	const team = teamNames[randomInRange(0, teamNames.length - 1)];
+	const idx = randomInRange(0, teamNames.length - 1);
+	const team = teamNames[idx]!; // index guaranteed in bounds by randomInRange
 
-	let storyText = '';
-	if (round === 0) {
-		storyText =
-			narrative +
-			` You signed with the ${team} as an undrafted ` +
-			`free agent. The training camp battle begins.`;
-	} else {
-		storyText =
-			narrative +
-			` The ${team} selected you. The cameras flashed. ` +
-			`You put on the hat. Your NFL career had begun.`;
-	}
+	const storyText =
+		round === 0
+			? narrative +
+				` You signed with the ${team} as an undrafted ` +
+				`free agent. The training camp battle begins.`
+			: narrative +
+				` The ${team} selected you. The cameras flashed. ` +
+				`You put on the hat. Your NFL career had begun.`;
 
 	return { team, round, pick, storyText };
 }
@@ -296,23 +293,18 @@ export function simulateNFLSeason(player: Player, year: number): NFLSeasonResult
 	const salary = Math.floor(baseYearlySalary * (1 + year * 0.1));
 
 	// Generate narrative
-	let storyText = '';
 	const perfGrade = performanceMultiplier * 100;
 
-	if (wins >= 12) {
-		storyText =
-			`You and your ${player.teamName} had a breakthrough year. ` + `Playoff berth locked up.`;
-	} else if (wins >= 9) {
-		storyText = `Another solid season. Your team competed in a tough division.`;
-	} else if (wins >= 6) {
-		storyText =
-			`It was a disappointing season. Injuries, chemistry issues, and ` +
-			`inconsistent play plagued the team.`;
-	} else {
-		storyText =
-			`A rough year. Your team struggled from the opening game. The ` +
-			`pressure mounted as losses piled up.`;
-	}
+	let storyText =
+		wins >= 12
+			? `You and your ${player.teamName} had a breakthrough year. ` + `Playoff berth locked up.`
+			: wins >= 9
+				? `Another solid season. Your team competed in a tough division.`
+				: wins >= 6
+					? `It was a disappointing season. Injuries, chemistry issues, and ` +
+						`inconsistent play plagued the team.`
+					: `A rough year. Your team struggled from the opening game. The ` +
+						`pressure mounted as losses piled up.`;
 
 	// Performance-based story beats
 	if (perfGrade >= 80) {
@@ -357,7 +349,7 @@ export function simulateNFLSeason(player: Player, year: number): NFLSeasonResult
 
 //============================================
 // Get a midseason event with choices
-export function getNFLMidseasonEvent(_player: Player, _year: number): NFLMidseasonEvent {
+export function getNFLMidseasonEvent(): NFLMidseasonEvent {
 	const eventPool: NFLMidseasonEvent[] = [
 		{
 			title: 'Contract Extension Offered',
@@ -554,7 +546,9 @@ export function getNFLMidseasonEvent(_player: Player, _year: number): NFLMidseas
 		},
 	];
 
-	return eventPool[randomInRange(0, eventPool.length - 1)];
+	const idx = randomInRange(0, eventPool.length - 1);
+	const event = eventPool[idx]!; // index guaranteed in bounds by randomInRange
+	return event;
 }
 
 //============================================
@@ -580,14 +574,14 @@ export function checkRetirement(player: Player): RetirementDecision {
 			shouldRetire: true,
 			storyText:
 				`Your injuries are too severe. Doctors advise retirement. ` +
-				`You\'re lucky to have made it this far.`,
+				`You're lucky to have made it this far.`,
 		};
 	}
 
 	if (athleticism <= 20) {
 		return {
 			shouldRetire: true,
-			storyText: `You\'ve lost a step. Then two steps. You\'re done as an NFL player.`,
+			storyText: `You've lost a step. Then two steps. You're done as an NFL player.`,
 		};
 	}
 
@@ -598,11 +592,11 @@ export function checkRetirement(player: Player): RetirementDecision {
 	if (age >= 35) {
 		if (money >= 50000000) {
 			storyText =
-				`You\'re ${age} years old and worth over $50M. ` +
+				`You're ${age} years old and worth over $50M. ` +
 				`You could retire comfortably and pursue other dreams.`;
 			retirementChoice = Math.random() > 0.4;
 		} else {
-			storyText = `You\'re getting older. A few more good years ` + `could set you up for life.`;
+			storyText = `You're getting older. A few more good years ` + `could set you up for life.`;
 		}
 	} else if (age >= 32) {
 		if (athleticism < 40) {
@@ -610,7 +604,7 @@ export function checkRetirement(player: Player): RetirementDecision {
 				`The decline is real. At ${age}, you could still play, ` + `but retirement is calling.`;
 			retirementChoice = Math.random() > 0.6;
 		} else {
-			storyText = `You still have great years ahead. The end isn\'t yet.`;
+			storyText = `You still have great years ahead. The end isn't yet.`;
 		}
 	}
 
@@ -694,20 +688,14 @@ export function checkHallOfFame(player: Player): HallOfFameEligibility {
 		(superBowlWins >= 1 && allPro >= 4) ||
 		(nflYears >= 12 && totalWins >= 120 && winPercentage >= 0.6);
 
-	let storyText = '';
-	if (eligible) {
-		storyText =
-			`Your resume speaks for itself. One day, a call from ` +
-			`Canton might come. You\'ve earned consideration.`;
-	} else if (achievements.length > 0) {
-		storyText =
-			`A great career, but perhaps not quite Hall of Fame caliber. ` +
-			`You\'ll always have your accomplishments to be proud of.`;
-	} else {
-		storyText =
-			`You had a solid NFL career, but Hall of Fame was never ` +
-			`in the cards. That\'s okay. You made it to the league.`;
-	}
+	const storyText = eligible
+		? `Your resume speaks for itself. One day, a call from ` +
+			`Canton might come. You've earned consideration.`
+		: achievements.length > 0
+			? `A great career, but perhaps not quite Hall of Fame caliber. ` +
+				`You'll always have your accomplishments to be proud of.`
+			: `You had a solid NFL career, but Hall of Fame was never ` +
+				`in the cards. That's okay. You made it to the league.`;
 
 	return { eligible, storyText, achievements };
 }

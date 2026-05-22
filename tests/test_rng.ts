@@ -3,6 +3,8 @@
 // Run with: npm run test:node -- --test-name-pattern='rng'
 // No DOM, no network. Deterministic.
 
+/// <reference types="node" />
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -18,7 +20,7 @@ import {
 
 //============================================
 // Same seed produces the same sequence.
-test('rng: createRng deterministic for same seed', () => {
+void test('rng: createRng deterministic for same seed', () => {
 	const a = createRng(42);
 	const b = createRng(42);
 	for (let i = 0; i < 100; i++) {
@@ -28,7 +30,7 @@ test('rng: createRng deterministic for same seed', () => {
 
 //============================================
 // Different seeds produce different sequences.
-test('rng: distinct seeds produce distinct streams', () => {
+void test('rng: distinct seeds produce distinct streams', () => {
 	const a = createRng(1);
 	const b = createRng(2);
 	let differed = false;
@@ -43,7 +45,7 @@ test('rng: distinct seeds produce distinct streams', () => {
 
 //============================================
 // Output stays within [0, 1).
-test('rng: output range is [0, 1)', () => {
+void test('rng: output range is [0, 1)', () => {
 	const r = createRng(7);
 	for (let i = 0; i < 1000; i++) {
 		const v = r();
@@ -53,7 +55,7 @@ test('rng: output range is [0, 1)', () => {
 
 //============================================
 // seedDefaultRng resets the shared sequence.
-test('rng: seedDefaultRng reseeds shared stream', () => {
+void test('rng: seedDefaultRng reseeds shared stream', () => {
 	seedDefaultRng(123);
 	const first = [rand(), rand(), rand()];
 	seedDefaultRng(123);
@@ -64,7 +66,7 @@ test('rng: seedDefaultRng reseeds shared stream', () => {
 
 //============================================
 // randInt is inclusive on both ends and stays in range.
-test('rng: randInt covers endpoints and stays in range', () => {
+void test('rng: randInt covers endpoints and stays in range', () => {
 	seedDefaultRng(99);
 	let sawMin = false;
 	let sawMax = false;
@@ -80,7 +82,7 @@ test('rng: randInt covers endpoints and stays in range', () => {
 
 //============================================
 // randRange honors lo/hi swap and stays half-open.
-test('rng: randRange tolerates swapped bounds and is half-open', () => {
+void test('rng: randRange tolerates swapped bounds and is half-open', () => {
 	seedDefaultRng(5);
 	for (let i = 0; i < 1000; i++) {
 		const v = randRange(10, 5);
@@ -90,7 +92,7 @@ test('rng: randRange tolerates swapped bounds and is half-open', () => {
 
 //============================================
 // randChoice covers all elements over enough draws and rejects empty input.
-test('rng: randChoice covers all elements and rejects empty', () => {
+void test('rng: randChoice covers all elements and rejects empty', () => {
 	seedDefaultRng(11);
 	const seen = new Set<string>();
 	const items = ['a', 'b', 'c'];

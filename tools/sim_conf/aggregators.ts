@@ -1,8 +1,7 @@
 // aggregators.ts - aggregate and compute stats across seasons
 
 import { LeagueSeason } from '../../src/season/season_model.js';
-import { AggregateStats, JsonOutput } from './types.js';
-import type { SimConfig } from './types.js';
+import type { AggregateStats, JsonOutput, SimConfig } from './types.js';
 
 //============================================
 export function aggregateWinners(seasons: readonly LeagueSeason[]): Map<string, number> {
@@ -10,7 +9,7 @@ export function aggregateWinners(seasons: readonly LeagueSeason[]): Map<string, 
 	for (const season of seasons) {
 		const standings = season.getStandings('main_conference');
 		if (standings.length === 0) continue;
-		const top = standings[0];
+		const top = standings[0]!; // invariant: checked length > 0
 		wins.set(top.name, (wins.get(top.name) ?? 0) + 1);
 	}
 	return wins;
@@ -20,7 +19,7 @@ export function aggregateWinners(seasons: readonly LeagueSeason[]): Map<string, 
 export function aggregatePlayerTeamStats(seasons: readonly LeagueSeason[]): AggregateStats {
 	const playerTeamName =
 		seasons.length > 0
-			? (seasons[0].getTeam('player')?.getDisplayName() ?? 'Player Team')
+			? (seasons[0]!.getTeam('player')?.getDisplayName() ?? 'Player Team')
 			: 'Player Team';
 
 	const seasonStats: Array<{
@@ -74,12 +73,12 @@ export function aggregatePlayerTeamStats(seasons: readonly LeagueSeason[]): Aggr
 	const totalDiff = seasonStats.reduce((s, r) => s + r.diff, 0);
 
 	const bestIdx = seasonStats.reduce((best, curr, i) => {
-		const c = seasonStats[best];
+		const c = seasonStats[best]!; // invariant: best is initialized from reduce seed 0
 		if (curr.wins !== c.wins) return curr.wins > c.wins ? i : best;
 		return curr.diff > c.diff ? i : best;
 	}, 0);
 	const worstIdx = seasonStats.reduce((worst, curr, i) => {
-		const c = seasonStats[worst];
+		const c = seasonStats[worst]!; // invariant: worst is initialized from reduce seed 0
 		if (curr.wins !== c.wins) return curr.wins < c.wins ? i : worst;
 		return curr.diff < c.diff ? i : worst;
 	}, 0);
@@ -98,14 +97,14 @@ export function aggregatePlayerTeamStats(seasons: readonly LeagueSeason[]): Aggr
 		avgPA: totalPA / seasonStats.length,
 		avgDiff: totalDiff / seasonStats.length,
 		bestSeason: {
-			wins: seasonStats[bestIdx].wins,
-			losses: seasonStats[bestIdx].losses,
-			diff: seasonStats[bestIdx].diff,
+			wins: seasonStats[bestIdx]!.wins,
+			losses: seasonStats[bestIdx]!.losses,
+			diff: seasonStats[bestIdx]!.diff,
 		},
 		worstSeason: {
-			wins: seasonStats[worstIdx].wins,
-			losses: seasonStats[worstIdx].losses,
-			diff: seasonStats[worstIdx].diff,
+			wins: seasonStats[worstIdx]!.wins,
+			losses: seasonStats[worstIdx]!.losses,
+			diff: seasonStats[worstIdx]!.diff,
 		},
 		rankDistribution: rankDist,
 	};

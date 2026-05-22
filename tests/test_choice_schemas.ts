@@ -10,6 +10,8 @@
 //
 // Run with: npm run test:node -- --test-name-pattern='choice_schemas'
 
+/// <reference types="node" />
+
 import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -153,7 +155,7 @@ function validateChoice(choice: unknown, phase: string): void {
 const PHASES = ['preseason', 'opening', 'midseason', 'stretch', 'postseason'] as const;
 
 for (const phase of PHASES) {
-	test(`choice_schemas: ${phase} JSON is well-formed`, () => {
+	void test(`choice_schemas: ${phase} JSON is well-formed`, () => {
 		const choices = loadChoiceFile(phase);
 
 		if (!Array.isArray(choices)) {

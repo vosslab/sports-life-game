@@ -73,7 +73,7 @@ function parseArgs(argv: readonly string[]): SimConfig {
 		coreValue: 75,
 	};
 	for (let i = 0; i < argv.length; i++) {
-		const flag: string = argv[i];
+		const flag: string = argv[i]!; // invariant: i is in bounds
 		const next: string | undefined = argv[i + 1];
 		switch (flag) {
 			case '--position':
@@ -277,18 +277,18 @@ function printSeasonTotals(
 		const v: number = stats[k] ?? 0;
 		console.log(`  ${pad(k, 14, false)} ${v}`);
 	}
-	if (player.positionBucket === 'passer' && stats.attempts > 0) {
-		const pct: number = (stats.completions / stats.attempts) * 100;
-		const ypa: number = stats.passYards / stats.attempts;
+	if (player.positionBucket === 'passer' && stats.attempts! > 0) {
+		const pct: number = (stats.completions! / stats.attempts!) * 100;
+		const ypa: number = stats.passYards! / stats.attempts!;
 		console.log(`  Completion %:  ${pct.toFixed(1)}`);
 		console.log(`  Yards/attempt: ${ypa.toFixed(2)}`);
 	}
-	if (player.positionBucket === 'runner_receiver' && stats.carries > 0) {
-		const ypc: number = stats.rushYards / stats.carries;
+	if (player.positionBucket === 'runner_receiver' && stats.carries! > 0) {
+		const ypc: number = stats.rushYards! / stats.carries!;
 		console.log(`  Yards/carry:   ${ypc.toFixed(2)}`);
 	}
-	if (player.positionBucket === 'kicker' && stats.fgAttempts > 0) {
-		const fgPct: number = (stats.fgMade / stats.fgAttempts) * 100;
+	if (player.positionBucket === 'kicker' && stats.fgAttempts! > 0) {
+		const fgPct: number = (stats.fgMade! / stats.fgAttempts!) * 100;
 		console.log(`  FG %:          ${fgPct.toFixed(1)}`);
 	}
 }

@@ -252,14 +252,18 @@ function pickWeighted<T>(entries: WeightedEntry<T>[], rand: () => number): T {
 			return entry.value;
 		}
 	}
-	return entries[entries.length - 1].value;
+	const lastEntry = entries[entries.length - 1];
+	// Non-empty by caller guarantee
+	return lastEntry!.value;
 }
 
 //============================================
 // Pick a random element from a string array using seeded RNG
 function pickFromArray(arr: string[], rand: () => number): string {
 	const idx = Math.floor(rand() * arr.length);
-	return arr[idx];
+	const result = arr[idx];
+	// Guaranteed non-empty by caller; bounded by array.length check
+	return result!;
 }
 
 //============================================
@@ -267,40 +271,60 @@ function pickFromArray(arr: string[], rand: () => number): string {
 function pickKey(record: Record<string, string>, rand: () => number): string {
 	const keys = Object.keys(record);
 	const idx = Math.floor(rand() * keys.length);
-	return keys[idx];
+	const result = keys[idx];
+	// Guaranteed non-empty Record; bounded by keys.length check
+	return result!;
 }
 
 //============================================
 // Get the first key from a Record (fallback/default)
 function defaultKey(record: Record<string, string>): string {
-	return Object.keys(record)[0];
+	const keys = Object.keys(record);
+	const result = keys[0];
+	// Non-empty Record guaranteed by all callers
+	return result!;
 }
 
 //============================================
 // Look up part from registry with fallback to first key
 function getPart(registry: Record<string, string>, key: string): string {
 	if (key in registry) {
-		return registry[key];
+		const result = registry[key];
+		// Check-guarded by 'in' operator
+		return result!;
 	}
-	return registry[defaultKey(registry)];
+	const fallbackKey = defaultKey(registry);
+	const result = registry[fallbackKey];
+	// Valid key from defaultKey
+	return result!;
 }
 
 //============================================
 // Get skin tone hex from SKIN_TONES
 function getSkinColor(skinTone: string): string {
 	if (skinTone in SKIN_TONES) {
-		return SKIN_TONES[skinTone];
+		const result = SKIN_TONES[skinTone];
+		// Check-guarded by 'in' operator
+		return result!;
 	}
-	return SKIN_TONES[defaultKey(SKIN_TONES)];
+	const fallbackKey = defaultKey(SKIN_TONES);
+	const result = SKIN_TONES[fallbackKey];
+	// Valid key from defaultKey
+	return result!;
 }
 
 //============================================
 // Get hair color hex from HAIR_COLORS
 function getHairColor(hairColor: string): string {
 	if (hairColor in HAIR_COLORS) {
-		return HAIR_COLORS[hairColor];
+		const result = HAIR_COLORS[hairColor];
+		// Check-guarded by 'in' operator
+		return result!;
 	}
-	return HAIR_COLORS[defaultKey(HAIR_COLORS)];
+	const fallbackKey = defaultKey(HAIR_COLORS);
+	const result = HAIR_COLORS[fallbackKey];
+	// Valid key from defaultKey
+	return result!;
 }
 
 //============================================
@@ -599,11 +623,11 @@ function pickHairColor(archetype: Archetype, ageBand: AgeBand, rand: () => numbe
 // Get facial hair probability based on age + archetype
 function getFacialHairChance(ageBand: AgeBand, archetype: Archetype): number {
 	// Base chance by age band (stronger than v2)
-	let base = 0;
 	if (ageBand === 'teen') {
 		return 0;
 	}
 	// Higher base rates since all characters are male (American football)
+	let base: number;
 	if (ageBand === 'young_adult') {
 		base = 0.35;
 	} else if (ageBand === 'middle_aged') {
@@ -763,8 +787,8 @@ export function randomAvatarConfig(
 		eyebrows: eyebrows,
 		nose: nose,
 		mouth: mouth,
-		facialHair: facialHair,
-		accessory: accessory,
+		...(facialHair !== undefined && { facialHair }),
+		...(accessory !== undefined && { accessory }),
 	};
 	return config;
 }

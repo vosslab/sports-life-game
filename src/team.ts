@@ -286,12 +286,13 @@ export function formatStandings(conference: Conference, playerTeamName: string):
 
 	for (let i = 0; i < standings.length; i++) {
 		const team = standings[i];
+		// Bounds-checked by loop: i < standings.length
 		const rank = i + 1;
-		const record = `${team.wins}-${team.losses}`;
-		const isPlayer = team.name === playerTeamName;
+		const record = `${team!.wins}-${team!.losses}`;
+		const isPlayer = team!.name === playerTeamName;
 		const prefix = isPlayer ? '>>> ' : '  ';
 		const rankStr = rank.toString().padStart(2, ' ');
-		output += `${prefix}${rankStr}. ${team.name.padEnd(25)} ${record}\n`;
+		output += `${prefix}${rankStr}. ${team!.name.padEnd(25)} ${record}\n`;
 	}
 
 	return output;
@@ -305,7 +306,12 @@ export function generateHighSchoolTeam(teamName: string): Team {
 
 	// Coach personality is random
 	const personalityChoices: CoachPersonality[] = ['supportive', 'demanding', 'volatile'];
-	const coachPersonality = personalityChoices[randomInRange(0, 2)];
+	const idx = randomInRange(0, 2);
+	const coachPersonality = personalityChoices[idx];
+	// Bounds-checked: idx in [0, 2], array has 3 elements
+	if (coachPersonality === undefined) {
+		throw new Error('Coach personality undefined');
+	}
 
 	// Generate 10 game schedule (matches HS_SEASON_WEEKS = 10 in main.ts)
 	const scheduleLength = 10;

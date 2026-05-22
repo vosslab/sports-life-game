@@ -15,6 +15,8 @@
 //
 // Run with: npm run test:node -- --test-name-pattern='plugin_boundaries'
 
+/// <reference types="node" />
+
 import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -68,7 +70,7 @@ function isViolation(line: string): boolean {
 }
 
 //============================================
-test('boundary check: no forbidden imports in plugin tree', () => {
+void test('boundary check: no forbidden imports in plugin tree', () => {
 	const here = url.fileURLToPath(import.meta.url);
 	const repoRoot = path.resolve(path.dirname(here), '..');
 	const pluginRegistriesDir = path.join(repoRoot, 'src', 'plugins', 'registries');
@@ -82,7 +84,7 @@ test('boundary check: no forbidden imports in plugin tree', () => {
 		const content = fs.readFileSync(file, 'utf8');
 		const lines = content.split('\n');
 		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i];
+			const line = lines[i]!; // asserted nonempty by loop bounds
 			if (isViolation(line)) {
 				const relPath = path.relative(repoRoot, file);
 				violations.push(`${relPath}:${i + 1}: ${line.trim()}`);
@@ -100,7 +102,7 @@ test('boundary check: no forbidden imports in plugin tree', () => {
 				const content = fs.readFileSync(file, 'utf8');
 				const lines = content.split('\n');
 				for (let i = 0; i < lines.length; i++) {
-					const line = lines[i];
+					const line = lines[i]!; // asserted nonempty by loop bounds
 					if (isViolation(line)) {
 						const relPath = path.relative(repoRoot, file);
 						violations.push(`${relPath}:${i + 1}: ${line.trim()}`);

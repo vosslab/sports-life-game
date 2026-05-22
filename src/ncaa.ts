@@ -56,7 +56,7 @@ function parseNCAASchoolCsv(text: string, subdivision: string): NCAASchool[] {
 
 	// Skip header line
 	for (let i = 1; i < lines.length; i++) {
-		const line = lines[i].trim();
+		const line = lines[i]!.trim(); // index guaranteed in bounds by loop
 		if (line.length === 0) continue;
 
 		const school = parseNCAASchoolLine(line, subdivision);
@@ -89,14 +89,14 @@ function parseNCAASchoolLine(line: string, subdivision: string): NCAASchool | nu
 		return null;
 	}
 
-	const fullName = parts[0].trim();
-	const commonName = parts[1].trim();
-	let nickname = parts[2].trim();
-	const city = parts[3].trim();
-	const state = parts[4].trim();
+	const fullName = parts[0]!.trim(); // index guaranteed in bounds by length check
+	const commonName = parts[1]!.trim(); // index guaranteed in bounds by length check
+	let nickname = parts[2]!.trim(); // index guaranteed in bounds by length check
+	const city = parts[3]!.trim(); // index guaranteed in bounds by length check
+	const state = parts[4]!.trim(); // index guaranteed in bounds by length check
 	// parts[5] is Type (skip)
 	// parts[6] is Subdivision (we already know it)
-	let conference = parts[7].trim();
+	let conference = parts[7]!.trim(); // index guaranteed in bounds by length check
 
 	// Clean up nickname - strip [q] or similar bracket annotations
 	nickname = stripBracketAnnotations(nickname);
@@ -185,7 +185,12 @@ export function assignPlayerCollege(recruitingStars: number, schools: NCAASchool
 
 	// Pick random school from candidates
 	const index = Math.floor(Math.random() * candidates.length);
-	return candidates[index];
+	const picked = candidates[index];
+	if (!picked) {
+		// Should never happen: candidates is non-empty after fallback
+		return candidates[0]!;
+	}
+	return picked;
 }
 
 //============================================
@@ -219,8 +224,8 @@ export function generateCollegeSchedule(
 	shuffleArray(confWeeks);
 
 	for (let i = 0; i < confGames.length; i++) {
-		const opponent = confGames[i];
-		const week = confWeeks[i];
+		const opponent = confGames[i]!; // index guaranteed in bounds by loop
+		const week = confWeeks[i]!; // index guaranteed in bounds by loop
 		const strength = getTeamStrength(opponent);
 
 		schedule.push({
@@ -240,7 +245,7 @@ export function generateCollegeSchedule(
 
 	for (const opponent of nonConfGames) {
 		const weekIndex = Math.floor(Math.random() * nonConfWeeks.length);
-		const week = nonConfWeeks[weekIndex];
+		const week = nonConfWeeks[weekIndex]!; // index guaranteed in bounds by random range
 		nonConfWeeks.splice(weekIndex, 1);
 
 		const strength = getTeamStrength(opponent);
@@ -285,7 +290,10 @@ function selectRandomSchools(schools: NCAASchool[], count: number): NCAASchool[]
 
 	for (let i = 0; i < count && available.length > 0; i++) {
 		const index = Math.floor(Math.random() * available.length);
-		selected.push(available[index]);
+		const school = available[index];
+		if (school) {
+			selected.push(school);
+		}
 		available.splice(index, 1);
 	}
 
@@ -297,6 +305,8 @@ function selectRandomSchools(schools: NCAASchool[], count: number): NCAASchool[]
 function shuffleArray<T>(array: T[]): void {
 	for (let i = array.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
-		[array[i], array[j]] = [array[j], array[i]];
+		const temp = array[i]!; // index i guaranteed in bounds by loop condition
+		array[i] = array[j]!; // index j guaranteed in bounds by random range
+		array[j] = temp;
 	}
 }

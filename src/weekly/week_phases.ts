@@ -218,7 +218,7 @@ export function showCrisisResponse(player: Player, ctx: CareerContext): void {
 //============================================
 // Show activities in the Activities tab
 export function showActivities(player: Player, ctx: CareerContext): void {
-	const activities = getActivitiesForPhase(player.phase, player);
+	const activities = getActivitiesForPhase(player.phase);
 
 	// Build goal info for the sidebar dropdown
 	const goals = getGoalsForPhase(player.phase);
@@ -236,14 +236,16 @@ export function showActivities(player: Player, ctx: CareerContext): void {
 				}
 			: undefined;
 
-	ctx.renderActivitiesTab({
+	// With exactOptionalPropertyTypes, conditionally include goalInfo
+	const payload = {
 		activities,
 		weekState: activeEngine ? activeEngine.weekState : createWeekState(),
 		isUnlocked: (activity: Activity) => isActivityUnlocked(activity, player),
 		effectPreview: (activity: Activity) => getEffectPreview(activity),
 		onSelect: (activity: Activity) => handleActivitySelected(player, ctx, activity),
-		goalInfo: goalInfoParam,
-	});
+		...(goalInfoParam && { goalInfo: goalInfoParam }),
+	};
+	ctx.renderActivitiesTab(payload);
 }
 
 //============================================
@@ -276,7 +278,7 @@ export function handleActivitySelected(
 //============================================
 // Apply a lightweight background activity that matches the season goal.
 export function applyBackgroundActivityFromGoal(player: Player, ctx: CareerContext): void {
-	const unlockedActivities = getActivitiesForPhase(player.phase, player).filter((a) =>
+	const unlockedActivities = getActivitiesForPhase(player.phase).filter((a) =>
 		isActivityUnlocked(a, player)
 	);
 	if (unlockedActivities.length === 0) {
@@ -284,14 +286,18 @@ export function applyBackgroundActivityFromGoal(player: Player, ctx: CareerConte
 	}
 
 	// Get preferred activities for the current season goal
-	const preferredIds = getPreferredActivitiesForGoal(player.seasonGoal);
+	// unlockedActivities.length > 0 confirmed by check above
+	let chosenActivity = unlockedActivities[0]!;
 
-	let chosenActivity = unlockedActivities[0];
-	for (const activityId of preferredIds) {
-		const match = unlockedActivities.find((activity) => activity.id === activityId);
-		if (match) {
-			chosenActivity = match;
-			break;
+	// Only iterate over preferred activities if they exist
+	const preferredIds = getPreferredActivitiesForGoal(player.seasonGoal);
+	if (preferredIds) {
+		for (const activityId of preferredIds) {
+			const match = unlockedActivities.find((activity) => activity.id === activityId);
+			if (match) {
+				chosenActivity = match;
+				break;
+			}
 		}
 	}
 

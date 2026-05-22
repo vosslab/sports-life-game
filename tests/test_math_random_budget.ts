@@ -12,6 +12,8 @@
 // SIM_TREE_BUDGET constant below to match the new actual count and note the
 // reason in docs/CHANGELOG.md. Increases are not allowed.
 
+/// <reference types="node" />
+
 import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -105,7 +107,7 @@ function tallySimTree(root: string): {
 }
 
 //============================================
-test('boundary check: Math.random budget in simulation tree', () => {
+void test('boundary check: Math.random budget in simulation tree', () => {
 	const root: string = repoRoot();
 	const { total, details } = tallySimTree(root);
 	if (total > SIM_TREE_BUDGET) {

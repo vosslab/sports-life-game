@@ -213,7 +213,8 @@ export function getPlayoffSeeds(standings: LeagueStandings, numSeeds: number): s
 	const limit = Math.min(numSeeds, standings.records.length);
 
 	for (let i = 0; i < limit; i++) {
-		seeds.push(standings.records[i].teamId);
+		// Loop bounds ensure standings.records[i] is defined
+		seeds.push(standings.records[i]!.teamId);
 	}
 
 	return seeds;

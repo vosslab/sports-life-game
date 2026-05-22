@@ -33,7 +33,10 @@ function renderHSCareer(container: HTMLElement, player: Player): void {
 		addCareerRow(container, 'Offers', player.collegeOffers.length.toString());
 		// Show top offer
 		const topOffer = player.collegeOffers[0];
-		addCareerRow(container, 'Top Offer', topOffer);
+		// topOffer is provably defined due to length check above
+		if (topOffer !== undefined) {
+			addCareerRow(container, 'Top Offer', topOffer);
+		}
 	} else {
 		addCareerRow(container, 'Offers', 'None yet');
 	}

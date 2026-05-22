@@ -4,14 +4,12 @@
 # Runs (in order):
 #   1. TypeScript typecheck via tsconfig.json (src/).
 #   2. Wider typecheck via tsconfig.lint.json if present (tests/, tools/).
-#   3. ESLint (zero warnings).
-#   4. Prettier --check.
-#   5. Node unit tests under tests/ (node --test tests/test_*.mjs).
+#   3. ESLint via npm run lint (respects warn-level rules per style guide).
+#   4. Prettier --check via npm run format:check.
+#   5. Node unit tests via npm run test:node (tsx-based .ts runner).
 #
-# Each step invokes its tool directly (npx tsc, npx eslint, npx prettier,
-# node --test). No dependency on package.json scripts; the package.json
-# "check" alias points at this script and stays canonical, but every
-# individual step is owned by the shell script.
+# Each step delegates to npm scripts (package.json). The canonical commands
+# are "npm run lint", "npm run format:check", and "npm run test:node".
 #
 # Build is not part of this gate. Run ./build_github_pages.sh (or
 # npm run build) for that. Playwright is not part of this gate either;
@@ -173,13 +171,13 @@ else
 fi
 
 # 3. lint
-step_run lint npx eslint --max-warnings 0 'src/**/*.ts' 'tests/**/*.ts' '*.ts'
+step_run lint npm run --silent lint
 
 # 4. format:check
-step_run format:check npx prettier --check '**/*.{ts,tsx,mts,cts,js,mjs,cjs}'
+step_run format:check npm run --silent format:check
 
 # 5. test:node
-step_run test:node node --test 'tests/test_*.mjs'
+step_run test:node npm run --silent test:node
 
 # All steps complete; summary prints via EXIT trap. Exit 0 (no failures
 # reach here -- failure paths exit 1 directly).

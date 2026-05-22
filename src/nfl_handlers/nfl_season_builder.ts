@@ -37,7 +37,7 @@ function buildNFLRoster(): NFLTeamData[] {
 	return csvTeams.map((entry: NFLTeamEntry) => {
 		// Division column is "NFC West" etc., extract the short part
 		const divParts = entry.division.split(' ');
-		const divisionShort = divParts.length > 1 ? divParts[1] : divParts[0];
+		const divisionShort = divParts.length > 1 ? divParts[1]! : divParts[0]!; // array access guaranteed in bounds
 
 		return {
 			name: entry.name,
@@ -61,7 +61,7 @@ export function buildNFLSeason(playerTeamName: string): LeagueSeason {
 	const playerData = roster.find((t) => t.name === playerTeamName);
 	if (!playerData) {
 		// Fallback: assign to a random team
-		const fallback = roster[randomInRange(0, roster.length - 1)];
+		const fallback = roster[randomInRange(0, roster.length - 1)]!; // index guaranteed in bounds by randomInRange
 		return buildNFLSeasonWithData(fallback.name, roster);
 	}
 
@@ -198,12 +198,12 @@ function buildNFLSchedule(teams: Map<TeamId, SeasonTeam>, _playerTeamId: TeamId)
 			for (let j = i + 1; j < divTeams.length; j++) {
 				// First meeting
 				const week1 = weekCounter;
-				addGame(divTeams[i], divTeams[j], week1, true, true);
+				addGame(divTeams[i]!, divTeams[j]!, week1, true, true); // loop bounds guarantee elements exist
 				weekCounter = (weekCounter % 17) + 1;
 
 				// Second meeting (reverse home/away)
 				const week2 = weekCounter;
-				addGame(divTeams[j], divTeams[i], week2, true, true);
+				addGame(divTeams[j]!, divTeams[i]!, week2, true, true); // loop bounds guarantee elements exist
 				weekCounter = (weekCounter % 17) + 1;
 			}
 		}
@@ -331,7 +331,7 @@ function splitTeamName(fullName: string): { city: string; mascot: string } {
 // Random coach personality
 function randomCoachPersonality(): CoachPersonality {
 	const choices: CoachPersonality[] = ['supportive', 'demanding', 'volatile'];
-	return choices[randomInRange(0, 2)];
+	return choices[randomInRange(0, 2)]!; // index guaranteed in bounds by randomInRange(0, 2)
 }
 
 //============================================

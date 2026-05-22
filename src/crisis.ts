@@ -54,14 +54,7 @@ export function loadCrisisDefinitions(data: CrisisDefinition[]): void {
 export function scheduleCrises(player: Player, recentLosses: number): string[] {
 	// 70% chance of 1 crisis, 20% chance of 2, 10% chance of 0
 	const roll = Math.random();
-	let count = 0;
-	if (roll < 0.1) {
-		count = 0;
-	} else if (roll < 0.8) {
-		count = 1;
-	} else {
-		count = 2;
-	}
+	const count = roll < 0.1 ? 0 : roll < 0.8 ? 1 : 2;
 
 	if (count === 0 || crisisDefinitions.length === 0) {
 		return [];

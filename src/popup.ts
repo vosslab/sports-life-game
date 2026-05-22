@@ -110,9 +110,10 @@ export function waitForInteraction(
 	// Single option: render as the main bottom button, not a popup
 	if (options.length === 1) {
 		const opt = options[0];
+		// Bounds-checked: length === 1 means options[0] exists
 		configureMainButtons({
-			nextLabel: opt.text,
-			nextAction: opt.action,
+			nextLabel: opt!.text,
+			nextAction: opt!.action,
 			ageUpVisible: false,
 		});
 		showMainActionBar();

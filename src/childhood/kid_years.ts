@@ -181,7 +181,7 @@ function presentEvent(
 		};
 	}
 
-	const event = events[index];
+	const event = events[index]!; // index guaranteed in bounds by function contract
 
 	ctx.addHeadline(event.title);
 	ctx.addText(event.description);
@@ -205,12 +205,12 @@ function presentEvent(
 				// Promote flags and show yearly summary
 				promoteFlags(player);
 				const deltas: Record<string, number> = {};
-				deltas['athleticism'] = player.core.athleticism - statsBefore['athleticism'];
-				deltas['confidence'] = player.core.confidence - statsBefore['confidence'];
-				deltas['discipline'] = player.core.discipline - statsBefore['discipline'];
-				deltas['leadership'] = player.hidden.leadership - statsBefore['leadership'];
-				deltas['durability'] = player.hidden.durability - statsBefore['durability'];
-				deltas['health'] = player.core.health - statsBefore['health'];
+				deltas['athleticism'] = player.core.athleticism - (statsBefore['athleticism'] ?? 0);
+				deltas['confidence'] = player.core.confidence - (statsBefore['confidence'] ?? 0);
+				deltas['discipline'] = player.core.discipline - (statsBefore['discipline'] ?? 0);
+				deltas['leadership'] = player.hidden.leadership - (statsBefore['leadership'] ?? 0);
+				deltas['durability'] = player.hidden.durability - (statsBefore['durability'] ?? 0);
+				deltas['health'] = player.core.health - (statsBefore['health'] ?? 0);
 				const summary = generateChildhoodSummary(player, deltas);
 				ctx.addText(`*${summary}*`);
 				showContinue(player, ctx);

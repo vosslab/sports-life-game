@@ -6,6 +6,8 @@
 //
 // Run with: npm run test:node -- --test-name-pattern='plugin_host'
 
+/// <reference types="node" />
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -48,7 +50,7 @@ function clearAllRegistries(): void {
 
 //============================================
 // Phase registry tests
-test('plugin_host: phase registry register and lookup', () => {
+void test('plugin_host: phase registry register and lookup', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -75,7 +77,7 @@ test('plugin_host: phase registry register and lookup', () => {
 });
 
 //============================================
-test('plugin_host: phase registry age-overlap rejection', () => {
+void test('plugin_host: phase registry age-overlap rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -116,14 +118,14 @@ test('plugin_host: phase registry age-overlap rejection', () => {
 	let threw = false;
 	try {
 		host.phases.register(handler2);
-	} catch (_err) {
+	} catch {
 		threw = true;
 	}
 	assert.ok(threw, 'phase registry should throw on age overlap');
 });
 
 //============================================
-test('plugin_host: phase registry clear', () => {
+void test('plugin_host: phase registry clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -151,7 +153,7 @@ test('plugin_host: phase registry clear', () => {
 
 //============================================
 // Event registry tests
-test('plugin_host: event registry register and lookup', () => {
+void test('plugin_host: event registry register and lookup', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -174,7 +176,7 @@ test('plugin_host: event registry register and lookup', () => {
 });
 
 //============================================
-test('plugin_host: event registry duplicate rejection', () => {
+void test('plugin_host: event registry duplicate rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -207,14 +209,14 @@ test('plugin_host: event registry duplicate rejection', () => {
 	let threw = false;
 	try {
 		host.events.register(event2);
-	} catch (_err) {
+	} catch {
 		threw = true;
 	}
 	assert.ok(threw, 'event registry should throw on duplicate id');
 });
 
 //============================================
-test('plugin_host: event registry clear', () => {
+void test('plugin_host: event registry clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -238,7 +240,7 @@ test('plugin_host: event registry clear', () => {
 
 //============================================
 // Choice registry tests
-test('plugin_host: choice registry register and lookup', () => {
+void test('plugin_host: choice registry register and lookup', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -262,7 +264,7 @@ test('plugin_host: choice registry register and lookup', () => {
 });
 
 //============================================
-test('plugin_host: choice registry duplicate rejection', () => {
+void test('plugin_host: choice registry duplicate rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -297,14 +299,14 @@ test('plugin_host: choice registry duplicate rejection', () => {
 	let threw = false;
 	try {
 		host.choices.register(choice2);
-	} catch (_err) {
+	} catch {
 		threw = true;
 	}
 	assert.ok(threw, 'choice registry should throw on duplicate id');
 });
 
 //============================================
-test('plugin_host: choice registry clear', () => {
+void test('plugin_host: choice registry clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -329,7 +331,7 @@ test('plugin_host: choice registry clear', () => {
 
 //============================================
 // Activity registry tests
-test('plugin_host: activity registry register and lookup', () => {
+void test('plugin_host: activity registry register and lookup', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -349,7 +351,7 @@ test('plugin_host: activity registry register and lookup', () => {
 });
 
 //============================================
-test('plugin_host: activity registry duplicate rejection', () => {
+void test('plugin_host: activity registry duplicate rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -376,14 +378,14 @@ test('plugin_host: activity registry duplicate rejection', () => {
 	let threw = false;
 	try {
 		host.activities.register(activity2);
-	} catch (_err) {
+	} catch {
 		threw = true;
 	}
 	assert.ok(threw, 'activity registry should throw on duplicate id');
 });
 
 //============================================
-test('plugin_host: activity registry clear', () => {
+void test('plugin_host: activity registry clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -404,7 +406,7 @@ test('plugin_host: activity registry clear', () => {
 
 //============================================
 // Rules registry tests
-test('plugin_host: rules registry register and lookup', () => {
+void test('plugin_host: rules registry register and lookup', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -420,7 +422,7 @@ test('plugin_host: rules registry register and lookup', () => {
 });
 
 //============================================
-test('plugin_host: rules registry duplicate rejection', () => {
+void test('plugin_host: rules registry duplicate rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -435,14 +437,14 @@ test('plugin_host: rules registry duplicate rejection', () => {
 			id: 'dup_rules',
 			name: 'Rules 2',
 		});
-	} catch (_err) {
+	} catch {
 		threw = true;
 	}
 	assert.ok(threw, 'rules registry should throw on duplicate id');
 });
 
 //============================================
-test('plugin_host: rules registry clear', () => {
+void test('plugin_host: rules registry clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -458,7 +460,7 @@ test('plugin_host: rules registry clear', () => {
 
 //============================================
 // UI registry tests
-test('plugin_host: UI tab registry register, duplicate rejection, clear', () => {
+void test('plugin_host: UI tab registry register, duplicate rejection, clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -487,7 +489,7 @@ test('plugin_host: UI tab registry register, duplicate rejection, clear', () => 
 	let threw = false;
 	try {
 		host.ui.registerTab(dupTab);
-	} catch (_err) {
+	} catch {
 		threw = true;
 	}
 	assert.ok(threw, 'UI tab registry should throw on duplicate tabId');
@@ -499,7 +501,7 @@ test('plugin_host: UI tab registry register, duplicate rejection, clear', () => 
 });
 
 //============================================
-test('plugin_host: UI panel registry register, duplicate rejection, clear', () => {
+void test('plugin_host: UI panel registry register, duplicate rejection, clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -528,7 +530,7 @@ test('plugin_host: UI panel registry register, duplicate rejection, clear', () =
 	let threw = false;
 	try {
 		host.ui.registerPanel(dupPanel);
-	} catch (_err) {
+	} catch {
 		threw = true;
 	}
 	assert.ok(threw, 'UI panel registry should throw on duplicate panelId');
@@ -540,7 +542,7 @@ test('plugin_host: UI panel registry register, duplicate rejection, clear', () =
 });
 
 //============================================
-test('plugin_host: UI widget registry register, duplicate rejection, clear', () => {
+void test('plugin_host: UI widget registry register, duplicate rejection, clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -567,7 +569,7 @@ test('plugin_host: UI widget registry register, duplicate rejection, clear', () 
 	let threw = false;
 	try {
 		host.ui.registerWidget(dupWidget);
-	} catch (_err) {
+	} catch {
 		threw = true;
 	}
 	assert.ok(threw, 'UI widget registry should throw on duplicate widgetId');
@@ -583,7 +585,7 @@ test('plugin_host: UI widget registry register, duplicate rejection, clear', () 
 
 //============================================
 // DataPack registry tests
-test('plugin_host: data pack registry register, duplicate rejection, clear', () => {
+void test('plugin_host: data pack registry register, duplicate rejection, clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -606,7 +608,7 @@ test('plugin_host: data pack registry register, duplicate rejection, clear', () 
 	let threw = false;
 	try {
 		host.dataPacks.register(dupPack);
-	} catch (_err) {
+	} catch {
 		threw = true;
 	}
 	assert.ok(threw, 'data pack registry should throw on duplicate id');
@@ -618,7 +620,7 @@ test('plugin_host: data pack registry register, duplicate rejection, clear', () 
 });
 
 //============================================
-test('plugin_host: data pack routes sub-items to sub-registries', () => {
+void test('plugin_host: data pack routes sub-items to sub-registries', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -680,7 +682,7 @@ test('plugin_host: data pack routes sub-items to sub-registries', () => {
 
 //============================================
 // Lifecycle registry tests
-test('plugin_host: lifecycle hooks - register and independence', () => {
+void test('plugin_host: lifecycle hooks - register and independence', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -725,7 +727,7 @@ test('plugin_host: lifecycle hooks - register and independence', () => {
 });
 
 //============================================
-test('plugin_host: lifecycle AgeHook duplicate rejection', () => {
+void test('plugin_host: lifecycle AgeHook duplicate rejection', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -746,14 +748,14 @@ test('plugin_host: lifecycle AgeHook duplicate rejection', () => {
 	let threw = false;
 	try {
 		host.lifecycle.registerAgeHook(hook2);
-	} catch (_err) {
+	} catch {
 		threw = true;
 	}
 	assert.ok(threw, 'lifecycle registry should throw on duplicate AgeHook id');
 });
 
 //============================================
-test('plugin_host: lifecycle hook ordering (priority desc, id asc)', () => {
+void test('plugin_host: lifecycle hook ordering (priority desc, id asc)', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -786,13 +788,14 @@ test('plugin_host: lifecycle hook ordering (priority desc, id asc)', () => {
 	const hooks = host.lifecycle.getAgeHooks();
 
 	// Should be ordered: priority 100 first, then priority 10 by id (asc: 'another_low' < 'low_priority')
-	assert.equal(hooks[0].id, 'high_priority', 'highest priority should be first');
-	assert.equal(hooks[1].id, 'another_low', 'same priority should be sorted by id asc');
-	assert.equal(hooks[2].id, 'low_priority', 'lowest priority should be last');
+	assert.equal(hooks.length, 3, 'expected 3 hooks registered');
+	assert.equal(hooks[0]!.id, 'high_priority', 'highest priority should be first');
+	assert.equal(hooks[1]!.id, 'another_low', 'same priority should be sorted by id asc');
+	assert.equal(hooks[2]!.id, 'low_priority', 'lowest priority should be last');
 });
 
 //============================================
-test('plugin_host: lifecycle registry clear', () => {
+void test('plugin_host: lifecycle registry clear', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 
@@ -811,14 +814,14 @@ test('plugin_host: lifecycle registry clear', () => {
 
 //============================================
 // Boot order tests
-test('plugin_host: boot order clearHandlers -> buildPluginHost -> registerAllPlugins', () => {
+void test('plugin_host: boot order clearHandlers -> buildPluginHost -> registerAllPlugins', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 	registerAllPlugins(host);
 });
 
 //============================================
-test('plugin_host: plugin registration independent of registerAllHandlers', () => {
+void test('plugin_host: plugin registration independent of registerAllHandlers', () => {
 	clearAllRegistries();
 	// Test that registerAllPlugins succeeds independently
 	// (independent of registerAllHandlers being called first)
@@ -831,7 +834,7 @@ test('plugin_host: plugin registration independent of registerAllHandlers', () =
 });
 
 //============================================
-test('plugin_host: single plugin registration (HS plugin)', () => {
+void test('plugin_host: single plugin registration (HS plugin)', () => {
 	clearAllRegistries();
 	const host = buildPluginHost();
 	// Register only HS plugin to test that plugin registration works independently

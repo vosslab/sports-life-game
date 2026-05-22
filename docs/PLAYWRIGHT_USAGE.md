@@ -42,10 +42,10 @@ resolved via `git rev-parse --show-toplevel`, so test scripts can compute
 absolute paths without brittle relative-path math:
 
 ```javascript
-import { REPO_ROOT } from "./repo_root.mjs";
-import path from "node:path";
+import { REPO_ROOT } from './repo_root.mjs';
+import path from 'node:path';
 
-const pagePath = path.join(REPO_ROOT, "index.html");
+const pagePath = path.join(REPO_ROOT, 'index.html');
 ```
 
 ## Key rule: scripts must run from the project root
@@ -86,11 +86,11 @@ Some repos group complete Playwright walkthroughs (multi-step user journeys, rec
 
 ## Packages
 
-| Package | Purpose |
-| --- | --- |
-| `playwright` | Library/API for browser automation (what we use) |
-| `@playwright/test` | Test runner with fixtures, assertions, reporters |
-| `playwright-core` | Low-level core without bundled browsers (rarely needed) |
+| Package            | Purpose                                                 |
+| ------------------ | ------------------------------------------------------- |
+| `playwright`       | Library/API for browser automation (what we use)        |
+| `@playwright/test` | Test runner with fixtures, assertions, reporters        |
+| `playwright-core`  | Low-level core without bundled browsers (rarely needed) |
 
 For "open a local HTML file, click things, take screenshots", use `playwright`.
 
@@ -160,7 +160,7 @@ Use `waitForTimeout` after actions that trigger animations:
 
 ```javascript
 await page.click('[data-item-id="flask"]');
-await page.waitForTimeout(2500);  // aspiration takes ~2s
+await page.waitForTimeout(2500); // aspiration takes ~2s
 ```
 
 ### Check element alignment
@@ -179,20 +179,20 @@ console.log(`Offset: dx=${dx.toFixed(1)} dy=${dy.toFixed(1)}`);
 
 ```javascript
 const result = await page.evaluate(() => {
-    return document.querySelectorAll('.quadrant-btn').length;
+	return document.querySelectorAll('.quadrant-btn').length;
 });
 console.log('Button count:', result);
 ```
 
 ## Troubleshooting
 
-| Problem | Fix |
-| --- | --- |
-| `Cannot find module 'playwright'` | Run the script from the project root, not `/tmp/` |
-| `browserType.launch: Executable doesn't exist` | Run `npx playwright install` |
-| `npx playwright` works but `node script.mjs` fails | Different issue: npx resolves packages differently than Node require |
-| Timeout clicking an element | Check the selector; use `data-item-id` not `data-item` for hood items |
-| Browser windows pop up during test runs | An agent added `headless: false` or `--headed`; remove it. Default is headless. |
+| Problem                                            | Fix                                                                             |
+| -------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `Cannot find module 'playwright'`                  | Run the script from the project root, not `/tmp/`                               |
+| `browserType.launch: Executable doesn't exist`     | Run `npx playwright install`                                                    |
+| `npx playwright` works but `node script.mjs` fails | Different issue: npx resolves packages differently than Node require            |
+| Timeout clicking an element                        | Check the selector; use `data-item-id` not `data-item` for hood items           |
+| Browser windows pop up during test runs            | An agent added `headless: false` or `--headed`; remove it. Default is headless. |
 
 ## Verify install
 

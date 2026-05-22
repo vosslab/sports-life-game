@@ -67,7 +67,8 @@ export function getCurrentRecord(player: Player): string {
 	// Fall back to career history (only populated at season end)
 	if (player.careerHistory.length > 0) {
 		const latest = player.careerHistory[player.careerHistory.length - 1];
-		return `${latest.wins}-${latest.losses}`;
+		// Bounds-checked by length > 0
+		return `${latest!.wins}-${latest!.losses}`;
 	}
 	return '0-0';
 }
@@ -177,11 +178,12 @@ function refreshTeamTab(player: Player, activeSeason: LeagueSeason | null): void
 		standingsText += `${confLabel}:\n`;
 		for (let i = 0; i < standings.length; i++) {
 			const row = standings[i];
+			// Bounds-checked by loop: i < standings.length
 			const rank = (i + 1).toString().padStart(2, ' ');
-			const recordStr = `${row.wins}-${row.losses}`;
-			const isPlayer = row.teamId === activeSeason.playerTeamId;
+			const recordStr = `${row!.wins}-${row!.losses}`;
+			const isPlayer = row!.teamId === activeSeason.playerTeamId;
 			const prefix = isPlayer ? '>>> ' : '  ';
-			standingsText += `${prefix}${rank}. ${row.name.padEnd(25)} ${recordStr}\n`;
+			standingsText += `${prefix}${rank}. ${row!.name.padEnd(25)} ${recordStr}\n`;
 		}
 	}
 

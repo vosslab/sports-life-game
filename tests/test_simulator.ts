@@ -10,6 +10,8 @@
 //
 // Run with: npm run test:node -- --test-name-pattern='simulator'
 
+/// <reference types="node" />
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -53,7 +55,7 @@ function makeTeam(strength: number): Team {
 }
 
 //============================================
-test('simulator: simulateGame is deterministic under a fixed seed', () => {
+void test('simulator: simulateGame is deterministic under a fixed seed', () => {
 	seedDefaultRng(0xcafebabe);
 	const player1 = makeStarterRb();
 	const team1 = makeTeam(70);
@@ -72,7 +74,7 @@ test('simulator: simulateGame is deterministic under a fixed seed', () => {
 });
 
 //============================================
-test('simulator: stacked offense wins majority vs weak defense', () => {
+void test('simulator: stacked offense wins majority vs weak defense', () => {
 	// Behavioral property: a stacked offense vs a weak opponent should win
 	// more often than not over many runs. Use 50 runs at a fixed seed range.
 	let wins = 0;
@@ -90,7 +92,7 @@ test('simulator: stacked offense wins majority vs weak defense', () => {
 });
 
 //============================================
-test('simulator: accumulateGameStats sums across calls', () => {
+void test('simulator: accumulateGameStats sums across calls', () => {
 	const player = makeStarterRb();
 	assert.equal(player.seasonStats.gamesPlayed, 0);
 
@@ -112,7 +114,7 @@ test('simulator: accumulateGameStats sums across calls', () => {
 });
 
 //============================================
-test('simulator: performance rating boundaries', () => {
+void test('simulator: performance rating boundaries', () => {
 	assert.equal(calculatePerformanceRating(0), 'poor', '0 is poor');
 	assert.equal(calculatePerformanceRating(50), 'average', '50 is average');
 	assert.equal(calculatePerformanceRating(100), 'elite', '100 is elite');
@@ -121,7 +123,7 @@ test('simulator: performance rating boundaries', () => {
 });
 
 //============================================
-test('simulator: letter grade boundaries', () => {
+void test('simulator: letter grade boundaries', () => {
 	assert.equal(calculateLetterGrade(85), 'A', '85 -> A');
 	assert.equal(calculateLetterGrade(70), 'B', '70 -> B');
 	assert.equal(calculateLetterGrade(55), 'C', '55 -> C');
@@ -130,7 +132,7 @@ test('simulator: letter grade boundaries', () => {
 });
 
 //============================================
-test('simulator: buildClutchMoment + resolveClutchMoment for eligible context', () => {
+void test('simulator: buildClutchMoment + resolveClutchMoment for eligible context', () => {
 	const player = makeStarterRb();
 	const ctx: ClutchGameContext = {
 		teamName: 'Eagles',
@@ -161,7 +163,7 @@ test('simulator: buildClutchMoment + resolveClutchMoment for eligible context', 
 		assert.ok(['safe', 'balanced', 'heroic'].includes(choice.risk), 'risk is a known tier');
 	}
 
-	const result = resolveClutchMoment(player, ctx, moment.choices[0].id, moment.situationType);
+	const result = resolveClutchMoment(player, ctx, moment.choices[0]!.id, moment.situationType); // asserted nonempty above
 	assert.equal(typeof result.success, 'boolean', 'success is boolean');
 	assert.equal(typeof result.points, 'number', 'points is number');
 	assert.ok(result.narrative.length > 0, 'narrative is non-empty');
@@ -169,7 +171,7 @@ test('simulator: buildClutchMoment + resolveClutchMoment for eligible context', 
 });
 
 //============================================
-test('simulator: blowout margin skips clutch moment', () => {
+void test('simulator: blowout margin skips clutch moment', () => {
 	const player = makeStarterRb();
 	const ctx: ClutchGameContext = {
 		teamName: 'Eagles',

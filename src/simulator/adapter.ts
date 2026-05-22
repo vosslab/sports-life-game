@@ -287,7 +287,8 @@ function extractPlayerStatsFromSim(
 			completions++;
 			const yardsMatch = entry.match(/for (\d+) yards/);
 			if (yardsMatch) {
-				passYards += parseInt(yardsMatch[1], 10);
+				// yardsMatch[1] is defined because the regex has a capture group and match succeeded
+				passYards += parseInt(yardsMatch[1]!, 10);
 			}
 			if (entry.includes('TOUCHDOWN')) {
 				passTds++;
@@ -307,7 +308,8 @@ function extractPlayerStatsFromSim(
 			rushPlays++;
 			const yardsMatch = entry.match(/for (-?\d+) yards/);
 			if (yardsMatch) {
-				rushYards += parseInt(yardsMatch[1], 10);
+				// yardsMatch[1] is defined because the regex has a capture group and match succeeded
+				rushYards += parseInt(yardsMatch[1]!, 10);
 			}
 			if (entry.includes('TOUCHDOWN')) {
 				rushTds++;

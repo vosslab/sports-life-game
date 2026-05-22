@@ -37,7 +37,7 @@ export function refreshActivitiesForCurrentSeason(player: Player): void {
 	if (!activeEngine) {
 		return;
 	}
-	const activities = getActivitiesForPhase(player.phase, player);
+	const activities = getActivitiesForPhase(player.phase);
 	activeEngine.ctx.renderActivitiesTab({
 		activities,
 		weekState: activeEngine.weekState,

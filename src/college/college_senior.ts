@@ -89,8 +89,8 @@ function startNormalSeniorYear(player: Player, ctx: CareerContext): void {
 	if (allSchools.length === 0) {
 		throw new Error('No NCAA schools loaded');
 	}
-	const playerSchool =
-		allSchools.find((s) => formatSchoolName(s) === player.teamName) || allSchools[0];
+	const playerSchool = (allSchools.find((s) => formatSchoolName(s) === player.teamName) ||
+		allSchools[0])!;
 	const season = buildCollegeSeason(playerSchool, allSchools);
 	const playerTeam = season.getPlayerTeam();
 	if (playerTeam) {

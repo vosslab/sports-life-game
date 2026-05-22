@@ -166,8 +166,8 @@ function generateHSIdentity(player: Player): void {
 		// Rare weird
 		'Wyverns',
 	];
-	player.hsName = names[randomInRange(0, names.length - 1)];
-	player.hsMascot = mascots[randomInRange(0, mascots.length - 1)];
+	player.hsName = names[randomInRange(0, names.length - 1)]!; // index guaranteed in bounds by randomInRange
+	player.hsMascot = mascots[randomInRange(0, mascots.length - 1)]!; // index guaranteed in bounds by randomInRange
 }
 
 //============================================

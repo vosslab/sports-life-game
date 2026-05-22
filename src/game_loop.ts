@@ -108,7 +108,7 @@ export function showWeeklyFocusUI(
 // The focus parameter is ignored (kept for backward compat with callers).
 export function handleWeeklyFocus(
 	phase: CareerPhase,
-	focus: WeeklyFocus,
+	_focus: WeeklyFocus,
 	onGameDay: () => void,
 	extraLogic?: () => void
 ): void {
@@ -190,7 +190,7 @@ function refreshActivitiesTab(phase: CareerPhase, onGameDay: () => void): void {
 	const player = ctx.getPlayer();
 	currentOnGameDay = onGameDay;
 
-	const activities = getActivitiesForPhase(player.phase, player);
+	const activities = getActivitiesForPhase(player.phase);
 
 	ui.renderActivitiesTab(
 		activities,
@@ -392,9 +392,11 @@ export function simulateWeekSilently(): SilentWeekResult {
 		const event = selectEvent(eligible);
 		if (event && event.choices.length > 0) {
 			// Auto-pick first choice (safest option)
+			const firstChoice = event.choices[0];
+			// Bounds-checked by length > 0
 			eventTitle = event.title;
-			eventChoiceText = event.choices[0].text;
-			applyEventChoice(player, event.choices[0]);
+			eventChoiceText = firstChoice!.text;
+			applyEventChoice(player, firstChoice!);
 		}
 	}
 
@@ -414,7 +416,7 @@ export interface YearSimRecap {
 }
 
 // Show the year-end recap as a popup modal
-export function showYearRecap(recap: YearSimRecap, onContinue: () => void): void {
+export function showYearRecap(_recap: YearSimRecap, onContinue: () => void): void {
 	ui.showChoices([
 		{
 			text: 'Continue',
@@ -434,7 +436,7 @@ export function refreshActivitiesTabForCurrentPhase(): void {
 		return;
 	}
 	const player = ctx.getPlayer();
-	const activities = getActivitiesForPhase(player.phase, player);
+	const activities = getActivitiesForPhase(player.phase);
 
 	ui.renderActivitiesTab(
 		activities,

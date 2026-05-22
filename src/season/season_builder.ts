@@ -32,11 +32,14 @@ export function generateRoundRobin(teamIds: TeamId[]): [TeamId, TeamId][] {
 
 	for (let i = 0; i < teamIds.length; i++) {
 		for (let j = i + 1; j < teamIds.length; j++) {
+			// Both i and j are bounds-checked by loop conditions
+			const homeId = teamIds[i]!;
+			const awayId = teamIds[j]!;
 			// Randomly assign home/away
 			if (rand() < 0.5) {
-				pairs.push([teamIds[i], teamIds[j]]);
+				pairs.push([homeId, awayId]);
 			} else {
-				pairs.push([teamIds[j], teamIds[i]]);
+				pairs.push([awayId, homeId]);
 			}
 		}
 	}
@@ -107,7 +110,9 @@ export function assignWeeksToGames(
 	const weekTeamMap = new Map<number, Set<TeamId>>();
 
 	for (let i = 0; i < shuffled.length; i++) {
-		const [home, away] = shuffled[i];
+		// Loop bounds ensure shuffled[i] is defined
+		const pair = shuffled[i]!;
+		const [home, away] = pair;
 		// Find the next available week (starting from modulo assignment)
 		let assignedWeek = startWeek + (i % totalWeeks);
 		let attempts = 0;
@@ -156,7 +161,8 @@ export function generateNonConferenceGames(
 		i < available.length && games.length < count && games.length < weeks.length;
 		i++
 	) {
-		const opponentId = available[i];
+		// Loop bounds ensure available[i] is defined
+		const opponentId = available[i]!;
 
 		// Create a canonical pair representation for deduplication
 		const pair = [teamId, opponentId].sort().join('-');
@@ -165,7 +171,12 @@ export function generateNonConferenceGames(
 			continue;
 		}
 
-		const week = weeks[games.length];
+		// games.length is bounded by check below, weeks access is safe via bounds-check
+		const weekIndex = games.length;
+		if (weekIndex >= weeks.length) {
+			break;
+		}
+		const week = weeks[weekIndex]!;
 		// Randomly assign home/away
 		if (rand() < 0.5) {
 			games.push(new SeasonGame(nextGameId(), week, teamId, opponentId, false));
@@ -204,8 +215,10 @@ export function generateBipartiteRotation(
 	for (let k = 0; k < weeks; k++) {
 		const round: [TeamId, TeamId][] = [];
 		for (let i = 0; i < n; i++) {
-			const a = groupA[i];
-			const b = groupB[(i + k) % n];
+			// Both indices are bounds-checked by loop conditions
+			const a = groupA[i]!;
+			const bIdx = (i + k) % n;
+			const b = groupB[bIdx]!;
 			// Alternate home/away by week so neither side dominates
 			if (k % 2 === 0) {
 				round.push([a, b]);
@@ -288,7 +301,11 @@ export function validateSchedule(
 export function shuffleArray<T>(array: T[]): void {
 	for (let i = array.length - 1; i > 0; i--) {
 		const j = Math.floor(rand() * (i + 1));
-		[array[i], array[j]] = [array[j], array[i]];
+		// Loop bounds ensure both indices are in [0, array.length)
+		const temp = array[i]!;
+		const jVal = array[j]!;
+		array[i] = jVal;
+		array[j] = temp;
 	}
 }
 
@@ -308,7 +325,8 @@ export function generateRoundRobinRounds(teamIds: TeamId[]): [TeamId, TeamId][][
 	const n = ids.length;
 
 	// Fix the first team, rotate the rest
-	const fixed = ids[0];
+	// ids is non-empty because we just added to it if needed
+	const fixed = ids[0]!;
 	const rotating = ids.slice(1);
 	const rounds: [TeamId, TeamId][][] = [];
 
@@ -316,7 +334,8 @@ export function generateRoundRobinRounds(teamIds: TeamId[]): [TeamId, TeamId][][
 		const roundGames: [TeamId, TeamId][] = [];
 
 		// Fixed team plays the top of the rotating list
-		const opponent = rotating[0];
+		// rotating has at least 1 element (n >= 2 enforced by slicing)
+		const opponent = rotating[0]!;
 		if (fixed !== '_bye_' && opponent !== '_bye_') {
 			// Alternate home/away by round
 			if (round % 2 === 0) {
@@ -328,8 +347,8 @@ export function generateRoundRobinRounds(teamIds: TeamId[]): [TeamId, TeamId][][
 
 		// Pair remaining rotating teams from outside in
 		for (let i = 1; i < n / 2; i++) {
-			const team1 = rotating[i];
-			const team2 = rotating[n - 2 - i];
+			const team1 = rotating[i]!;
+			const team2 = rotating[n - 2 - i]!;
 			if (team1 !== '_bye_' && team2 !== '_bye_') {
 				// Alternate home/away
 				if (i % 2 === 0) {
@@ -368,7 +387,9 @@ console.assert(rr8.length === 28, 'Round-robin of 8 teams should produce 28 pair
 // Round-robin rounds: 8 teams should produce 7 rounds of 4 games each
 const rrRounds = generateRoundRobinRounds(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
 console.assert(rrRounds.length === 7, 'RR rounds for 8 teams should be 7');
-console.assert(rrRounds[0].length === 4, 'Each RR round should have 4 games');
+// rrRounds.length > 0 after call above
+const firstRound = rrRounds[0]!;
+console.assert(firstRound.length === 4, 'Each RR round should have 4 games');
 
 // Verify no team plays twice in any round
 for (const round of rrRounds) {
@@ -384,8 +405,11 @@ for (const round of rrRounds) {
 // Bipartite rotation: 4 vs 4 over 3 weeks should give 12 pairs, each team plays 3 distinct opponents
 const bpRounds = generateBipartiteRotation(['a', 'b', 'c', 'd'], ['x', 'y', 'z', 'w'], 3);
 console.assert(bpRounds.length === 3, 'Bipartite: 3 rounds');
-console.assert(bpRounds[0].length === 4, 'Bipartite: 4 pairs per round');
-const bpOpponents: Record<string, Set<string>> = {
+// bpRounds.length > 0 after call above
+const bpFirstRound = bpRounds[0]!;
+console.assert(bpFirstRound.length === 4, 'Bipartite: 4 pairs per round');
+// Use an object type instead of Record to avoid undefined on access
+const bpOpponents: { a: Set<string>; b: Set<string>; c: Set<string>; d: Set<string> } = {
 	a: new Set(),
 	b: new Set(),
 	c: new Set(),
@@ -395,12 +419,15 @@ for (const round of bpRounds) {
 	for (const [home, away] of round) {
 		const aTeam = ['a', 'b', 'c', 'd'].includes(home) ? home : away;
 		const bTeam = aTeam === home ? away : home;
-		bpOpponents[aTeam].add(bTeam);
+		// aTeam is guaranteed to be one of the keys in bpOpponents
+		bpOpponents[aTeam as keyof typeof bpOpponents].add(bTeam);
 	}
 }
 for (const t of ['a', 'b', 'c', 'd']) {
+	// t is guaranteed to be one of the keys in bpOpponents
+	const opponents = bpOpponents[t as keyof typeof bpOpponents];
 	console.assert(
-		bpOpponents[t].size === 3,
-		`Bipartite: team ${t} should play 3 distinct opponents, got ${bpOpponents[t].size}`
+		opponents.size === 3,
+		`Bipartite: team ${t} should play 3 distinct opponents, got ${opponents.size}`
 	);
 }

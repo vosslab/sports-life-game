@@ -75,13 +75,16 @@ export function pickThreeWithRiskSpread(
 
 	// Pick one from each tier if available
 	if (safes.length > 0) {
-		picked.push(safes[0]);
+		// Length check ensures safes[0] is defined
+		picked.push(safes[0]!);
 	}
 	if (balanceds.length > 0) {
-		picked.push(balanceds[0]);
+		// Length check ensures balanceds[0] is defined
+		picked.push(balanceds[0]!);
 	}
 	if (heroics.length > 0) {
-		picked.push(heroics[0]);
+		// Length check ensures heroics[0] is defined
+		picked.push(heroics[0]!);
 	}
 
 	// If we still need more (some tier was empty), fill from leftover eligible

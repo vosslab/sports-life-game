@@ -11,7 +11,9 @@ import type { ClutchGameContext, ClutchSituation } from './types.js';
 //============================================
 // Utility helpers used across the clutch engine.
 export function pickRandom<T>(arr: T[]): T {
-	return arr[Math.floor(rand() * arr.length)];
+	// Math.floor(rand() * arr.length) is bounded to [0, arr.length)
+	const idx = Math.floor(rand() * arr.length);
+	return arr[idx]!;
 }
 
 export function clamp(value: number, min: number, max: number): number {
@@ -23,8 +25,10 @@ export function shuffle<T>(arr: T[]): T[] {
 	const result = [...arr];
 	for (let i = result.length - 1; i > 0; i--) {
 		const j = Math.floor(rand() * (i + 1));
-		const temp = result[i];
-		result[i] = result[j];
+		// Loop bounds ensure both indices are valid
+		const temp = result[i]!;
+		const jVal = result[j]!;
+		result[i] = jVal;
 		result[j] = temp;
 	}
 	return result;
@@ -147,14 +151,14 @@ const SITUATION_SCENES: Record<ClutchSituation, SceneBuilder> = {
 			`All tied up. Next score probably wins it.`
 		);
 	},
-	red_zone: (ctx, time, _fieldPos) => {
+	red_zone: (ctx, time) => {
 		return (
 			`Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. ` +
 			`${time} left in the 4th. Ball on the opponent's ${randomInRange(5, 15)}. ` +
 			`Red zone. This is your chance.`
 		);
 	},
-	backed_up: (ctx, time, _fieldPos) => {
+	backed_up: (ctx, time) => {
 		return (
 			`Score: ${ctx.teamName} ${ctx.teamScore} - ${ctx.opponentName} ${ctx.opponentScore}. ` +
 			`${time} left in the 4th. Ball on your own ${randomInRange(3, 12)}. ` +
@@ -260,7 +264,8 @@ function getAtmosphere(situation: ClutchSituation, context: ClutchGameContext): 
 		'Millions of people are watching this live right now.',
 	];
 
-	const pool = pools[situation] ?? pools['tie_game'];
+	// pools always has 'tie_game', so this is safe
+	const pool = pools[situation] ?? pools['tie_game']!;
 	if (isPlayoff && rand() < 0.4) {
 		return pickRandom(playoffExtras);
 	}

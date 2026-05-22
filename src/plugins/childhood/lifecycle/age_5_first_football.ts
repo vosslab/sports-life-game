@@ -12,7 +12,7 @@ export const firstFootballHook: AgeHook = {
 	id: 'childhood-age-5-first-football',
 	age: 5,
 	once: true,
-	fire(player: Player, ctx: GameContext): void {
+	fire(_player: Player, ctx: GameContext): void {
 		ctx.addText(
 			'You turned 5. One afternoon, your parent showed you a highlight clip on TV. ' +
 				'A player made an incredible catch. You were mesmerized. ' +

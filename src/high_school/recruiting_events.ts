@@ -211,7 +211,7 @@ export function showJuniorPostseason(player: Player, ctx: CareerContext, onDone:
 	// Verbal commit option (if committable offer exists)
 	const committableOffers = profile.schools.filter((s) => s.isCommittable);
 	if (committableOffers.length > 0) {
-		const topCommittable = committableOffers[0];
+		const topCommittable = committableOffers[0]!; // length check guarantees element exists
 		const commitSchoolName = resolveSchoolDisplayName(topCommittable.schoolId, ctx);
 		choices.push({
 			text: `Commit to ${commitSchoolName}`,
@@ -298,7 +298,7 @@ export function showSeniorPreseason(player: Player, ctx: CareerContext, onDone: 
 		.slice(0, 3);
 
 	if (offersForVisit.length > 0) {
-		const topVisitSchool = offersForVisit[0];
+		const topVisitSchool = offersForVisit[0]!; // length check guarantees element exists
 		const visitSchoolName = resolveSchoolDisplayName(topVisitSchool.schoolId, ctx);
 		choices.push({
 			text: `Official Visit: ${visitSchoolName}`,

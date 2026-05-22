@@ -84,5 +84,7 @@ export function randChoice<T>(items: readonly T[]): T {
 		throw new Error('randChoice called with empty array');
 	}
 	const idx: number = Math.floor(rand() * items.length);
-	return items[idx];
+	const result = items[idx];
+	// Bounds-checked: 0 <= idx < items.length
+	return result!;
 }

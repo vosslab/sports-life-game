@@ -10,6 +10,8 @@
 // Static-probe boundary check: scans the simulation tree and throws on the
 // first violation. node:test reports a single FAIL on any violation.
 
+/// <reference types="node" />
+
 import { test } from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -96,7 +98,7 @@ function checkFile(absPath: string, root: string): Violation[] {
 	const violations: Violation[] = [];
 	const lines: string[] = stripped.split('\n');
 	for (let i = 0; i < lines.length; i++) {
-		const line: string = lines[i];
+		const line: string = lines[i]!; // asserted nonempty by loop bounds
 		// Forbidden imports apply only to import/export-from lines.
 		const isImportLine: boolean = /^\s*(import|export)\b.*\bfrom\b/.test(line);
 		if (isImportLine) {
@@ -128,7 +130,7 @@ function checkFile(absPath: string, root: string): Violation[] {
 }
 
 //============================================
-test('boundary check: no DOM imports in simulation tree', () => {
+void test('boundary check: no DOM imports in simulation tree', () => {
 	const root: string = repoRoot();
 	const allViolations: Violation[] = [];
 	for (const rel of SIM_TREE) {

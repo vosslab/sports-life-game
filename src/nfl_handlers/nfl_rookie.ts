@@ -144,32 +144,26 @@ function generateCombineNarrative(player: Player): string {
 	const iq = player.core.footballIq;
 	const disc = player.core.discipline;
 
-	let athResult = '';
-	if (ath >= 80) {
-		athResult = 'You lit up the athletic testing. The 40 and jumps got scouts buzzing.';
-	} else if (ath >= 60) {
-		athResult = 'Your athletic testing was solid. You looked like you belonged in the draft pool.';
-	} else {
-		athResult = 'The athletic testing was rough. Your timed drills did not help your case.';
-	}
+	const athResult =
+		ath >= 80
+			? 'You lit up the athletic testing. The 40 and jumps got scouts buzzing.'
+			: ath >= 60
+				? 'Your athletic testing was solid. You looked like you belonged in the draft pool.'
+				: 'The athletic testing was rough. Your timed drills did not help your case.';
 
-	let techResult = '';
-	if (tech >= 75) {
-		techResult = ' Position drills were crisp and clean. Coaches saw a pro-ready player.';
-	} else if (tech >= 55) {
-		techResult = ' Position drills were steady, but not enough to create a big jump.';
-	} else {
-		techResult = ' Position drills exposed some raw spots that still need work.';
-	}
+	const techResult =
+		tech >= 75
+			? ' Position drills were crisp and clean. Coaches saw a pro-ready player.'
+			: tech >= 55
+				? ' Position drills were steady, but not enough to create a big jump.'
+				: ' Position drills exposed some raw spots that still need work.';
 
-	let interviewResult = '';
-	if (iq >= 70 && disc >= 60) {
-		interviewResult = ' In team interviews, you came off prepared, mature, and easy to trust.';
-	} else if (iq >= 50) {
-		interviewResult = ' Interviews were fine. You answered well enough without stealing the room.';
-	} else {
-		interviewResult = ' Interview sessions were shaky, and some teams questioned your readiness.';
-	}
+	const interviewResult =
+		iq >= 70 && disc >= 60
+			? ' In team interviews, you came off prepared, mature, and easy to trust.'
+			: iq >= 50
+				? ' Interviews were fine. You answered well enough without stealing the room.'
+				: ' Interview sessions were shaky, and some teams questioned your readiness.';
 
 	return athResult + techResult + interviewResult;
 }

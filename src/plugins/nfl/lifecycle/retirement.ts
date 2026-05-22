@@ -12,7 +12,7 @@ export const retirementHook: CareerEndHook = {
 	trigger: 'retirement',
 	priority: 100,
 
-	fire(player: Player, ctx: GameContext): void {
+	fire(_player: Player, ctx: GameContext): void {
 		ctx.addHeadline('End of Career');
 		ctx.addText("After a legendary career in the NFL, it's time to hang it up.");
 	},

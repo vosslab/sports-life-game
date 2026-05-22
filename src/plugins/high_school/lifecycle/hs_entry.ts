@@ -11,7 +11,7 @@ import type { GameContext } from '../../../core/game_context.js';
 export const hsEntryHook: PhaseStartHook = {
 	id: 'hs-entry',
 	phase: 'high_school',
-	fire(player: Player, ctx: GameContext): void {
+	fire(_player: Player, ctx: GameContext): void {
 		ctx.addHeadline("You're a High School Freshman");
 		ctx.addText(
 			'Welcome to high school. Four years ahead: growing as an athlete, ' +

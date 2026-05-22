@@ -131,11 +131,17 @@ export function updateRecruitingStars(player: Player): number {
 // Select random college name from appropriate list
 function getRandomCollege(division: string): string {
 	if (division === 'D1 Power 5') {
-		return POWER5_COLLEGES[randomInRange(0, POWER5_COLLEGES.length - 1)];
+		const idx = randomInRange(0, POWER5_COLLEGES.length - 1);
+		const college = POWER5_COLLEGES[idx];
+		return college!; // index guaranteed in bounds by randomInRange
 	} else if (division === 'D1 Group of 5') {
-		return GROUP_OF_5_COLLEGES[randomInRange(0, GROUP_OF_5_COLLEGES.length - 1)];
+		const idx = randomInRange(0, GROUP_OF_5_COLLEGES.length - 1);
+		const college = GROUP_OF_5_COLLEGES[idx];
+		return college!; // index guaranteed in bounds by randomInRange
 	} else {
-		return D2_D3_COLLEGES[randomInRange(0, D2_D3_COLLEGES.length - 1)];
+		const idx = randomInRange(0, D2_D3_COLLEGES.length - 1);
+		const college = D2_D3_COLLEGES[idx];
+		return college!; // index guaranteed in bounds by randomInRange
 	}
 }
 
@@ -146,7 +152,7 @@ function getRandomCollege(division: string): string {
 // 3 stars: 2-4 offers, Group of 5 and D2, partial scholarships
 // 2 stars: 0-2 offers, D2 and D3, partial or walk-on
 // 1 star: 0-1 offers, D3 or walk-on
-export function generateOffers(player: Player, stars: number, seasonWins: number): CollegeOffer[] {
+export function generateOffers(_player: Player, stars: number, seasonWins: number): CollegeOffer[] {
 	const offers: CollegeOffer[] = [];
 	const usedColleges = new Set<string>();
 
@@ -203,7 +209,7 @@ export function generateOffers(player: Player, stars: number, seasonWins: number
 
 	// Generate offers
 	for (let i = 0; i < offerCount; i++) {
-		const division = divisionList[i];
+		const division = divisionList[i]!; // index guaranteed in bounds by loop
 
 		// Keep generating college names until we get a unique one
 		let collegeName: string;
@@ -292,7 +298,7 @@ export function getRecruitingStory(stars: number, offers: CollegeOffer[]): strin
 
 	// Add info about best offer if available
 	if (offers.length > 0) {
-		const topOffer = offers[0];
+		const topOffer = offers[0]!; // length check guarantees element exists
 		story +=
 			` Your best offer so far is from ${topOffer.collegeName} ` +
 			`(${topOffer.division}, ${topOffer.scholarshipType} scholarship).`;
@@ -304,44 +310,36 @@ export function getRecruitingStory(stars: number, offers: CollegeOffer[]): strin
 //============================================
 // Player commits to a college offer
 // Returns dramatic story text about the decision
-export function commitToCollege(player: Player, offer: CollegeOffer): string {
-	let story = '';
-
+export function commitToCollege(offer: CollegeOffer): string {
 	const prestige = offer.prestige;
 
 	// Build dramatic story based on prestige and scholarship type
-	if (prestige >= 80 && offer.scholarshipType === 'full') {
-		story =
-			`You stood in your kitchen, holding the phone to your ear. ` +
-			`The head coach of ${offer.collegeName} just made the pitch ` +
-			`of a lifetime. Full ride. Guaranteed playing time. National ` +
-			`championship dreams. Your heart racing, you took a deep ` +
-			`breath and said the words you\'d been dreaming about since ` +
-			`you were a kid: "I\'m committing to ${offer.collegeName}." ` +
-			`Your parents rushed in, tears streaming down their faces. ` +
-			`This was it. Your path was set.`;
-	} else if (prestige >= 60 && offer.scholarshipType === 'full') {
-		story =
-			`After weeks of considering your options, you made the call. ` +
-			`You were going to ${offer.collegeName}. It felt right. A ` +
-			`strong program, a solid education, and a real shot to play ` +
-			`at a high level. You could feel your mom beaming over your ` +
-			`shoulder as you finalized the decision.`;
-	} else if (offer.scholarshipType === 'partial') {
-		story =
-			`You stared at the scholarship paperwork in front of you. ` +
-			`${offer.collegeName} was offering you a partial ride - not ` +
-			`the full deal, but it was an opportunity. A chance to prove ` +
-			`yourself. You signed on the dotted line, determined to earn ` +
-			`the respect of that coaching staff.`;
-	} else {
-		// Walk-on
-		story =
-			`The walk-on offer from ${offer.collegeName} wasn\'t glamorous, ` +
-			`but it was your shot. No scholarship guarantee, just the ` +
-			`opportunity to earn it. You took it. You\'d show them what ` +
-			`you were made of.`;
-	}
+	const story =
+		prestige >= 80 && offer.scholarshipType === 'full'
+			? `You stood in your kitchen, holding the phone to your ear. ` +
+				`The head coach of ${offer.collegeName} just made the pitch ` +
+				`of a lifetime. Full ride. Guaranteed playing time. National ` +
+				`championship dreams. Your heart racing, you took a deep ` +
+				`breath and said the words you'd been dreaming about since ` +
+				`you were a kid: "I'm committing to ${offer.collegeName}." ` +
+				`Your parents rushed in, tears streaming down their faces. ` +
+				`This was it. Your path was set.`
+			: prestige >= 60 && offer.scholarshipType === 'full'
+				? `After weeks of considering your options, you made the call. ` +
+					`You were going to ${offer.collegeName}. It felt right. A ` +
+					`strong program, a solid education, and a real shot to play ` +
+					`at a high level. You could feel your mom beaming over your ` +
+					`shoulder as you finalized the decision.`
+				: offer.scholarshipType === 'partial'
+					? `You stared at the scholarship paperwork in front of you. ` +
+						`${offer.collegeName} was offering you a partial ride - not ` +
+						`the full deal, but it was an opportunity. A chance to prove ` +
+						`yourself. You signed on the dotted line, determined to earn ` +
+						`the respect of that coaching staff.`
+					: `The walk-on offer from ${offer.collegeName} wasn't glamorous, ` +
+						`but it was your shot. No scholarship guarantee, just the ` +
+						`opportunity to earn it. You took it. You'd show them what ` +
+						`you were made of.`;
 
 	return story;
 }
@@ -784,6 +782,9 @@ export function applyCoachingChange(profile: RecruitingProfile): string | null {
 	}
 
 	const target = eligible[Math.floor(Math.random() * eligible.length)];
+	if (!target) {
+		return null;
+	}
 	target.coachRelationship = 0;
 
 	// 40% chance the school pulls their offer

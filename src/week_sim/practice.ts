@@ -23,18 +23,16 @@ export function runPracticeSession(player: Player): PracticeResult {
 	practiceScore = clampStat(practiceScore + randomInRange(-6, 10));
 	const grade = calculateLetterGrade(practiceScore);
 
-	let storyText = '';
-	if (grade === 'A') {
-		storyText = 'You dominated practice this week. Coaches could not ignore the tape.';
-	} else if (grade === 'B') {
-		storyText = 'You had a strong week of practice and looked sharp in team drills.';
-	} else if (grade === 'C') {
-		storyText = 'Practice was solid, but not enough to force a big conversation yet.';
-	} else if (grade === 'D') {
-		storyText = 'Practice was rough. Too many mistakes showed up on film.';
-	} else {
-		storyText = 'It was a bad week on the practice field. Coaches noticed every rep.';
-	}
+	const storyText =
+		grade === 'A'
+			? 'You dominated practice this week. Coaches could not ignore the tape.'
+			: grade === 'B'
+				? 'You had a strong week of practice and looked sharp in team drills.'
+				: grade === 'C'
+					? 'Practice was solid, but not enough to force a big conversation yet.'
+					: grade === 'D'
+						? 'Practice was rough. Too many mistakes showed up on film.'
+						: 'It was a bad week on the practice field. Coaches noticed every rep.';
 
 	let depthUpdate: DepthChartUpdate = {
 		changed: false,

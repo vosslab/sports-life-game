@@ -51,9 +51,11 @@ export class PlayoffBracket {
 	buildBracket(roundNames: string[]): void {
 		// Pre-create all round shells (games arrays start empty)
 		for (let i = 0; i < roundNames.length; i++) {
+			// Loop bounds ensure roundNames[i] is defined
+			const name = roundNames[i]!;
 			this.rounds.push({
 				roundNumber: i + 1,
-				roundName: roundNames[i],
+				roundName: name,
 				games: [],
 			});
 		}
@@ -65,14 +67,19 @@ export class PlayoffBracket {
 		let hi = sortedTeamIds.length - 1;
 
 		while (lo < hi) {
+			// Loop bounds ensure both indices are valid
+			const homeTeam = sortedTeamIds[lo]!;
+			const awayTeam = sortedTeamIds[hi]!;
 			const game = new SeasonGame(
 				nextPlayoffGameId(),
 				0, // week 0 = playoff
-				sortedTeamIds[lo],
-				sortedTeamIds[hi],
+				homeTeam,
+				awayTeam,
 				false
 			);
-			this.rounds[0].games.push(game);
+			// this.rounds[0] exists from buildBracket
+			const firstRound = this.rounds[0]!;
+			firstRound.games.push(game);
 			lo += 1;
 			hi -= 1;
 		}
@@ -142,7 +149,8 @@ export class PlayoffBracket {
 		// only scan rounds up to and including the current round
 		const teamsEverScheduled = new Set<TeamId>();
 		for (let i = 0; i <= this.currentRoundIndex; i++) {
-			const r = this.rounds[i];
+			// Loop bounds ensure this.rounds[i] is defined
+			const r = this.rounds[i]!;
 			for (const game of r.games) {
 				teamsEverScheduled.add(game.homeTeamId);
 				teamsEverScheduled.add(game.awayTeamId);
@@ -165,9 +173,10 @@ export class PlayoffBracket {
 			let lo = 0;
 			let hi = winners.length - 1;
 			while (lo < hi) {
-				nextRound.games.push(
-					new SeasonGame(nextPlayoffGameId(), 0, winners[lo], winners[hi], false)
-				);
+				// Loop bounds ensure both indices are valid
+				const homeId = winners[lo]!;
+				const awayId = winners[hi]!;
+				nextRound.games.push(new SeasonGame(nextPlayoffGameId(), 0, homeId, awayId, false));
 				lo += 1;
 				hi -= 1;
 			}
@@ -198,11 +207,13 @@ export class PlayoffBracket {
 		if (this.rounds.length === 0) {
 			return undefined;
 		}
-		const finalRound = this.rounds[this.rounds.length - 1];
+		// rounds.length > 0 means rounds[length-1] exists
+		const finalRound = this.rounds[this.rounds.length - 1]!;
 		if (finalRound.games.length === 0) {
 			return undefined;
 		}
-		const finalGame = finalRound.games[0];
+		// games.length > 0 means games[0] exists
+		const finalGame = finalRound.games[0]!;
 		if (finalGame.status !== 'final') {
 			return undefined;
 		}
@@ -215,7 +226,8 @@ export class PlayoffBracket {
 		if (this.rounds.length === 0) {
 			return true;
 		}
-		const finalRound = this.rounds[this.rounds.length - 1];
+		// rounds.length > 0 means rounds[length-1] exists
+		const finalRound = this.rounds[this.rounds.length - 1]!;
 		return finalRound.games.every((g) => g.status === 'final');
 	}
 
@@ -260,11 +272,16 @@ export function createHSPlayoffBracket(seeds: PlayoffSeed[], playerTeamId: TeamI
 		console.warn(`HS playoff bracket needs 4 seeds, got ${sorted.length}`);
 	}
 	if (sorted.length >= 4) {
-		bracket.rounds[0].games.push(
-			new SeasonGame(nextPlayoffGameId(), 0, sorted[0].teamId, sorted[3].teamId, true)
+		// Length check above ensures all indices are valid
+		const s0 = sorted[0]!;
+		const s1 = sorted[1]!;
+		const s2 = sorted[2]!;
+		const s3 = sorted[3]!;
+		bracket.rounds[0]!.games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, s0.teamId, s3.teamId, true)
 		);
-		bracket.rounds[0].games.push(
-			new SeasonGame(nextPlayoffGameId(), 0, sorted[1].teamId, sorted[2].teamId, true)
+		bracket.rounds[0]!.games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, s1.teamId, s2.teamId, true)
 		);
 	}
 	return bracket;
@@ -286,11 +303,16 @@ export function createCollegePlayoffBracket(
 		console.warn(`College playoff bracket needs 4 seeds, got ${sorted.length}`);
 	}
 	if (sorted.length >= 4) {
-		bracket.rounds[0].games.push(
-			new SeasonGame(nextPlayoffGameId(), 0, sorted[0].teamId, sorted[3].teamId, false)
+		// Length check above ensures all indices are valid
+		const s0 = sorted[0]!;
+		const s1 = sorted[1]!;
+		const s2 = sorted[2]!;
+		const s3 = sorted[3]!;
+		bracket.rounds[0]!.games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, s0.teamId, s3.teamId, false)
 		);
-		bracket.rounds[0].games.push(
-			new SeasonGame(nextPlayoffGameId(), 0, sorted[1].teamId, sorted[2].teamId, false)
+		bracket.rounds[0]!.games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, s1.teamId, s2.teamId, false)
 		);
 	}
 	return bracket;
@@ -317,14 +339,21 @@ export function createNFLPlayoffBracket(
 		console.warn(`NFL playoff bracket needs 7 seeds, got ${sorted.length}`);
 	}
 	if (sorted.length >= 7) {
-		bracket.rounds[0].games.push(
-			new SeasonGame(nextPlayoffGameId(), 0, sorted[1].teamId, sorted[6].teamId, true)
+		// Length check above ensures all indices are valid
+		const s1 = sorted[1]!;
+		const s2 = sorted[2]!;
+		const s3 = sorted[3]!;
+		const s4 = sorted[4]!;
+		const s5 = sorted[5]!;
+		const s6 = sorted[6]!;
+		bracket.rounds[0]!.games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, s1.teamId, s6.teamId, true)
 		);
-		bracket.rounds[0].games.push(
-			new SeasonGame(nextPlayoffGameId(), 0, sorted[2].teamId, sorted[5].teamId, true)
+		bracket.rounds[0]!.games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, s2.teamId, s5.teamId, true)
 		);
-		bracket.rounds[0].games.push(
-			new SeasonGame(nextPlayoffGameId(), 0, sorted[3].teamId, sorted[4].teamId, true)
+		bracket.rounds[0]!.games.push(
+			new SeasonGame(nextPlayoffGameId(), 0, s3.teamId, s4.teamId, true)
 		);
 	}
 
@@ -341,5 +370,7 @@ const testSeeds: PlayoffSeed[] = [
 ];
 const testBracket = createHSPlayoffBracket(testSeeds, 'a');
 console.assert(testBracket.rounds.length === 2, 'HS bracket should have 2 rounds');
-console.assert(testBracket.rounds[0].games.length === 2, 'Semifinal should have 2 games');
+// rounds.length > 0 confirmed above, so rounds[0] is safe
+const testFirstRound = testBracket.rounds[0]!;
+console.assert(testFirstRound.games.length === 2, 'Semifinal should have 2 games');
 console.assert(testBracket.isEliminated('a') === false, 'Player not eliminated before games');

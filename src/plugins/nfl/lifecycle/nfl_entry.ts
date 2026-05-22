@@ -12,7 +12,7 @@ export const nflEntryHook: PhaseStartHook = {
 	phase: 'nfl',
 	priority: 100,
 
-	fire(player: Player, ctx: GameContext): void {
+	fire(_player: Player, ctx: GameContext): void {
 		ctx.addHeadline('Welcome to the NFL');
 		ctx.addText(
 			'Your rookie season is about to begin. Time to prove yourself at the highest level.'

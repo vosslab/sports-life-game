@@ -336,24 +336,20 @@ export function resolveFieldGoal(
 	// Interpolate success probability from distance curve
 	// Base curve (normalized to NFL 85% baseline):
 	// 20y: 97%, 30y: 85%, 40y: 75%, 50y: 62%, 55y: 58%, 60y: 40%
-	let baseProb = 0;
-
-	if (distance <= 20) {
-		// Linear interpolation 20-30y
-		baseProb = 0.97 - (distance - 20) * 0.0012;
-	} else if (distance <= 30) {
-		baseProb = 0.97 - (distance - 20) * 0.012;
-	} else if (distance <= 40) {
-		baseProb = 0.85 - (distance - 30) * 0.01;
-	} else if (distance <= 50) {
-		baseProb = 0.75 - (distance - 40) * 0.013;
-	} else if (distance <= 55) {
-		baseProb = 0.62 - (distance - 50) * 0.008;
-	} else if (distance <= 60) {
-		baseProb = 0.58 - (distance - 55) * 0.036;
-	} else {
-		baseProb = 0.4 - (distance - 60) * 0.04;
-	}
+	const baseProb =
+		distance <= 20
+			? 0.97 - (distance - 20) * 0.0012
+			: distance <= 30
+				? 0.97 - (distance - 20) * 0.012
+				: distance <= 40
+					? 0.85 - (distance - 30) * 0.01
+					: distance <= 50
+						? 0.75 - (distance - 40) * 0.013
+						: distance <= 55
+							? 0.62 - (distance - 50) * 0.008
+							: distance <= 60
+								? 0.58 - (distance - 55) * 0.036
+								: 0.4 - (distance - 60) * 0.04;
 
 	// Scale by tuning.fieldGoalAccuracy, normalized to NFL baseline of 0.85
 	const normalizedTuning = tuning.fieldGoalAccuracy / 0.85;

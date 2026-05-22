@@ -62,11 +62,11 @@ const choicePools: Record<ArcPhase, WeeklyChoice[]> = {
 // specific to assign directly to WeeklyChoice (which uses
 // `Record<string, number>` for effects), so we cast through `unknown`.
 const CHOICE_DATA_BY_PHASE: Record<ArcPhase, WeeklyChoice[]> = {
-	preseason: preseasonData as unknown as WeeklyChoice[],
-	opening: openingData as unknown as WeeklyChoice[],
-	midseason: midseasonData as unknown as WeeklyChoice[],
-	stretch: stretchData as unknown as WeeklyChoice[],
-	postseason: postseasonData as unknown as WeeklyChoice[],
+	preseason: preseasonData,
+	opening: openingData,
+	midseason: midseasonData,
+	stretch: stretchData,
+	postseason: postseasonData,
 };
 
 //============================================
@@ -84,8 +84,8 @@ export async function loadChoicePools(): Promise<void> {
 export function getWeeklyChoices(
 	player: Player,
 	arcPhase: ArcPhase,
-	recentWins: number,
-	recentLosses: number,
+	_recentWins: number,
+	_recentLosses: number,
 	hasCrisis: boolean
 ): WeeklyChoice[] {
 	// During a crisis, choices come from the crisis system, not here

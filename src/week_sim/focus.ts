@@ -61,7 +61,9 @@ const ACADEMIC_FLAVOR: string[] = [
 //============================================
 // Pick a random string from a flavor pool
 function pickFlavor(pool: string[]): string {
-	return pool[randomInRange(0, pool.length - 1)];
+	// randomInRange(0, n) returns value in [0, n], bounded by loop/logic
+	const idx = randomInRange(0, pool.length - 1);
+	return pool[idx]!;
 }
 
 //============================================

@@ -56,15 +56,19 @@ export function startNewGameFlow(ctx: CharacterCreationContext): void {
 	panel.appendChild(lastInput);
 
 	const rand = () => Math.floor(Math.random() * 1000000);
-	firstInput.value = ctx.firstNames[rand() % ctx.firstNames.length];
-	lastInput.value = ctx.lastNames[rand() % ctx.lastNames.length];
+	const fIdx1 = rand() % ctx.firstNames.length;
+	const lIdx1 = rand() % ctx.lastNames.length;
+	firstInput.value = ctx.firstNames[fIdx1]!; // index guaranteed in bounds by modulo
+	lastInput.value = ctx.lastNames[lIdx1]!; // index guaranteed in bounds by modulo
 
 	const randomBtn = document.createElement('button');
 	randomBtn.className = 'choice-button';
 	randomBtn.textContent = 'Random Name';
 	randomBtn.addEventListener('click', () => {
-		firstInput.value = ctx.firstNames[rand() % ctx.firstNames.length];
-		lastInput.value = ctx.lastNames[rand() % ctx.lastNames.length];
+		const fIdx = rand() % ctx.firstNames.length;
+		const lIdx = rand() % ctx.lastNames.length;
+		firstInput.value = ctx.firstNames[fIdx]!; // index guaranteed in bounds by modulo
+		lastInput.value = ctx.lastNames[lIdx]!; // index guaranteed in bounds by modulo
 	});
 	panel.appendChild(randomBtn);
 

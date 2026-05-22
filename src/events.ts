@@ -115,7 +115,9 @@ export function filterEvents(
 				if (!(stat in stats)) {
 					continue;
 				}
-				if (stats[stat] < minVal) {
+				const statVal = stats[stat];
+				// Guarded by 'in' check
+				if (statVal! < minVal) {
 					return false;
 				}
 			}
@@ -128,7 +130,9 @@ export function filterEvents(
 				if (!(stat in stats)) {
 					continue;
 				}
-				if (stats[stat] > maxVal) {
+				const statVal = stats[stat];
+				// Guarded by 'in' check
+				if (statVal! > maxVal) {
 					return false;
 				}
 			}
@@ -175,7 +179,8 @@ export function selectEvent(eligible: GameEvent[]): GameEvent | null {
 	}
 
 	// Fallback (should not happen if weights are positive)
-	return eligible[0];
+	// Length check above ensures eligible[0] exists
+	return eligible[0]!;
 }
 
 //============================================

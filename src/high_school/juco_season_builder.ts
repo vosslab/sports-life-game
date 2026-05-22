@@ -61,7 +61,7 @@ const JUCO_MASCOTS = [
 // Generate a random coach personality
 function randomCoachPersonality(): CoachPersonality {
 	const styles: CoachPersonality[] = ['supportive', 'demanding', 'volatile'];
-	return styles[randomInRange(0, 2)];
+	return styles[randomInRange(0, 2)]!; // index guaranteed in bounds by randomInRange(0, 2)
 }
 
 //============================================
@@ -92,11 +92,11 @@ export function buildJucoSeason(playerStrength: number): LeagueSeason {
 		// Pick unused name
 		let name: string;
 		do {
-			name = JUCO_PREFIXES[randomInRange(0, JUCO_PREFIXES.length - 1)];
+			name = JUCO_PREFIXES[randomInRange(0, JUCO_PREFIXES.length - 1)]!; // index guaranteed in bounds by randomInRange
 		} while (usedNames.has(name));
 		usedNames.add(name);
 
-		const mascot = JUCO_MASCOTS[randomInRange(0, JUCO_MASCOTS.length - 1)];
+		const mascot = JUCO_MASCOTS[randomInRange(0, JUCO_MASCOTS.length - 1)]!; // index guaranteed in bounds by randomInRange
 		const strength = randomInRange(35, 75);
 
 		const opponent = new SeasonTeam(

@@ -68,7 +68,7 @@ function parseArgs(argv: readonly string[]): DistConfig {
 	let baseSeed: number = 1000;
 
 	for (let i = 0; i < argv.length; i++) {
-		const flag: string = argv[i];
+		const flag: string = argv[i]!; // invariant: i is in bounds
 		const next: string | undefined = argv[i + 1];
 		switch (flag) {
 			case '--position':
@@ -224,8 +224,8 @@ function summarize(values: readonly number[]): {
 	}
 	const sum: number = values.reduce((a, b) => a + b, 0);
 	const mean: number = sum / values.length;
-	let min: number = values[0];
-	let max: number = values[0];
+	let min: number = values[0]!; // invariant: checked length > 0
+	let max: number = values[0]!; // invariant: checked length > 0
 	let sqDevSum: number = 0;
 	for (const v of values) {
 		if (v < min) min = v;
@@ -272,11 +272,11 @@ function reportPosition(position: Position, results: SeasonResult[]): void {
 	// Bucket-specific derived ratios with their own variance lines.
 	if (bucket === 'passer') {
 		const compPctArr: number[] = results
-			.filter((r) => r.stats.attempts > 0)
-			.map((r) => (r.stats.completions / r.stats.attempts) * 100);
+			.filter((r) => r.stats.attempts! > 0)
+			.map((r) => (r.stats.completions! / r.stats.attempts!) * 100);
 		const ypaArr: number[] = results
-			.filter((r) => r.stats.attempts > 0)
-			.map((r) => r.stats.passYards / r.stats.attempts);
+			.filter((r) => r.stats.attempts! > 0)
+			.map((r) => r.stats.passYards! / r.stats.attempts!);
 		const cs = summarize(compPctArr);
 		const ys = summarize(ypaArr);
 		console.log(
@@ -288,8 +288,8 @@ function reportPosition(position: Position, results: SeasonResult[]): void {
 	}
 	if (bucket === 'runner_receiver' && position === 'RB') {
 		const ypcArr: number[] = results
-			.filter((r) => r.stats.carries > 0)
-			.map((r) => r.stats.rushYards / r.stats.carries);
+			.filter((r) => r.stats.carries! > 0)
+			.map((r) => r.stats.rushYards! / r.stats.carries!);
 		const ys = summarize(ypcArr);
 		console.log(
 			`  Yards/carry:   mean=${ys.mean.toFixed(2)}  min=${ys.min.toFixed(2)}  max=${ys.max.toFixed(2)}  stddev=${ys.stddev.toFixed(2)}`
@@ -297,8 +297,8 @@ function reportPosition(position: Position, results: SeasonResult[]): void {
 	}
 	if (bucket === 'kicker') {
 		const fgPctArr: number[] = results
-			.filter((r) => r.stats.fgAttempts > 0)
-			.map((r) => (r.stats.fgMade / r.stats.fgAttempts) * 100);
+			.filter((r) => r.stats.fgAttempts! > 0)
+			.map((r) => (r.stats.fgMade! / r.stats.fgAttempts!) * 100);
 		const fs = summarize(fgPctArr);
 		console.log(
 			`  FG %:          mean=${fs.mean.toFixed(1)}  min=${fs.min.toFixed(1)}  max=${fs.max.toFixed(1)}  stddev=${fs.stddev.toFixed(2)}`
