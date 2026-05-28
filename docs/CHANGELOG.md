@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-05-27
+
+### Fixes and Maintenance
+
+- **GitHub Pages deploy workflow fixed**: `.github/workflows/deploy-pages.yml`
+  was uploading the Pages artifact from `_site`, but `build_github_pages.sh`
+  writes the canonical build into `dist/`. The artifact-upload step failed with
+  exit code 2 because `_site` did not exist. Changed `path: _site` to
+  `path: dist` so the upload matches the build output.
+
+- **GitHub Actions bumped past Node 20 deprecation**: `actions/checkout@v4` and
+  `actions/setup-node@v4` ship the Node 20 runtime, which the runners flagged
+  for removal on 2026-09-16 (default flips to Node 24 on 2026-06-02). Bumped
+  both to `@v5` (Node 24). Left `actions/upload-pages-artifact@v3` and
+  `actions/deploy-pages@v4` in place -- they were not in the deprecation
+  banner and remain the current shipping majors for the Pages stack. Also
+  bumped the workflow's `node-version` pin from `22` to `24` to align with the
+  runner default flip on 2026-06-02.
+
 ## 2026-05-22
 
 ### Additions and New Features
