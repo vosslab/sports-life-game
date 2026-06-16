@@ -1,128 +1,109 @@
-# Usage
+# USAGE.md
 
-Gridiron Life runs entirely in the browser as a single-page game. The
-esbuild build produces a self-contained `dist/` directory (`index.html`,
-`main.js`, `main.js.map`, `styles/`, `.nojekyll`) that can be served
-locally or deployed straight to GitHub Pages. See
-[docs/INSTALL.md](INSTALL.md) for one-time setup.
+How to run the tools in this repository.
 
-## Run the game
+## reset_repo.py
 
-```bash
-bash run_web_server.sh
-```
+`reset_repo.py` is the bootstrap entry point for a new consumer repo cloned from this
+template. It runs an interactive interview (project type, code license, docs license,
+PyPI intent, stage, commit), writes the `REPO_TYPE` marker, installs license files,
+seeds `pyproject.toml` when PyPI is requested, runs propagation, and removes
+template-meta paths.
 
-This rebuilds via `build_github_pages.sh`, picks a random port (override
-with `PORT=...`), opens your browser, and serves `dist/` over
-`python3 -m http.server`. The random-port choice makes each run a fresh
-browser origin, which sidesteps stale browser cache.
-
-## Development workflow
+### Normal use (interactive)
 
 ```bash
-npm run dev
+source source_me.sh && python3 reset_repo.py
 ```
 
-Runs `esbuild --watch` so edits in `src/` rebuild `dist/main.js` on save
-(no `--minify` in dev for readable output). Reload the browser to pick up
-the new bundle. For a one-shot build use:
+The script interviews you in your terminal. No flags are required for normal use.
+
+### CLI flags
+
+| Flag | Description |
+| --- | --- |
+| `--config <file>` | Supply interview answers from a JSON file (testing/reproducibility mode) |
+| `--dry-run` | Log planned actions without writing any files |
+| `-h` | Show help and exit |
+
+### Config mode (testing/reproducibility interface)
+
+`--config` is intended for automated testing and reproducible resets, not for
+routine human use. Pass a JSON file with the interview answers:
 
 ```bash
-npm run build
+source source_me.sh && python3 reset_repo.py --config my_config.json
 ```
 
-The full pre-push gate is:
+Config mode is non-interactive: the script reads answers from the file and proceeds
+without prompting. This replaces the interactive interview for the run.
+
+#### JSON schema
+
+| Key | Required | Values | Notes |
+| --- | --- | --- | --- |
+| `project_type` | YES | `python` / `p`, `typescript` / `t`, `rust` / `r`, `other` / `o` | Short alias or full token |
+| `code_license` | YES | SPDX identifier or alias (e.g. `MIT`, `m`, `GPL-3.0`, `g`) | Resolved via `resolve_license` |
+| `docs_license` | no | SPDX identifier or alias | Default: `CC-BY-4.0` |
+| `pypi` | no | `true` / `false` | Default: `false`; Python-only |
+| `stage` | no | `true` / `false` | Default: `true` |
+| `commit` | no | `true` / `false` | Default: `false` |
+
+#### Minimal example
+
+```json
+{
+  "project_type": "python",
+  "code_license": "GPL-3.0"
+}
+```
+
+#### Full example
+
+```json
+{
+  "project_type": "typescript",
+  "code_license": "MIT",
+  "docs_license": "CC-BY-4.0",
+  "stage": false,
+  "commit": false
+}
+```
+
+### Folder-name guard
+
+The script refuses to run when the repo root directory is named exactly
+`starter-repo-template`. This protects the template development checkout from
+accidental destruction.
+
+If you see this error, clone or rename the repo to your project name first:
+
+```
+This repo is named starter-repo-template. Clone or rename it to the consumer project name before running reset.
+```
+
+The guard checks the folder name only; it does not inspect remotes or origin URLs.
+
+### Outside a git repo
+
+Running `reset_repo.py` outside a git repository exits with a clear message
+instead of a raw subprocess traceback.
+
+## E2E test harness
+
+For the clone-based reset E2E harness (LOCAL and REMOTE modes), see
+[E2E_TESTS.md](E2E_TESTS.md) and the inline documentation in
+`tests/meta/e2e/e2e_reset_routing.py`. The harness is template-meta:
+it lives under `tests/meta/e2e/` and is removed by reset.
+
+Run all offline E2E tests:
 
 ```bash
-npm run check
+bash tests/meta/e2e/run_all.sh
 ```
 
-This is an alias for `bash check_codebase.sh`. Useful flags (note these
-are read by the shell script directly, so pass them through `bash` not
-`npm`):
+Run a single E2E test:
 
 ```bash
-bash check_codebase.sh --fast              # skip Playwright + build
-bash check_codebase.sh --skip-playwright   # keep build, skip Playwright only
+source source_me.sh && python3 tests/meta/e2e/e2e_reset_routing.py
 ```
-
-## Tests
-
-```bash
-npm run test:node
-```
-
-Runs every `tests/test_*.ts` file under Node's built-in test runner
-(`node --test`) with `tsx` loading TypeScript and a small ESM loader
-hook (`tests/fixtures/csv_loader.mjs`) translating `.csv` text imports.
-
-Useful node:test flags (place them before the file glob; passing them
-through `npm run test:node -- <flag>` lands them after the script's file
-list, where node ignores `--test-name-pattern`):
-
-```bash
-# Filter to a subset of tests by name (regex against the test() name)
-node --test-name-pattern='rng' --import tsx --import ./tests/fixtures/csv_loader.mjs --test 'tests/test_*.ts'
-
-# Re-run tests on file change
-node --watch --import tsx --import ./tests/fixtures/csv_loader.mjs --test 'tests/test_*.ts'
-```
-
-For just the browser-driven smoke test, use `npm run test:playwright`.
-For the full gate use `npm run check` as described above.
-
-For end-to-end and browser-driven test conventions, see
-[docs/E2E_TESTS.md](E2E_TESTS.md) and
-[docs/PLAYWRIGHT_USAGE.md](PLAYWRIGHT_USAGE.md).
-
-## Life Jump
-
-Skip ahead to any phase of the career at a chosen age. This is useful for
-testing different career phases and scenarios without playing through years
-of weekly choices.
-
-Two entry points reach the same code path:
-
-- **URL parameter**: append `?life=<phase>&age=<n>&team=<id>` to the page
-  URL. Parsed by [src/main.ts](../src/main.ts) before the save-load step,
-  so Life Jump always wins over an existing save. The `?dev=` form is also
-  accepted for backward compatibility. `team` is optional and NFL-only.
-- **Life Jump button**: small fixed-position button in the bottom-right
-  corner of every page. Opens a picker that builds the same URL above.
-
-Valid `phase` values:
-
-| Phase         | Age range |
-| ------------- | --------- |
-| `childhood`   | 1-13      |
-| `high_school` | 14-17     |
-| `college`     | 18-21     |
-| `nfl`         | 22-39     |
-| `legacy`      | 40+       |
-
-Example:
-
-```text
-http://localhost:8080/?life=nfl&age=24
-```
-
-Implementation lives in [src/dev/dev_jump.ts](../src/dev/dev_jump.ts) and
-[src/dev/dev_jump_ui.ts](../src/dev/dev_jump_ui.ts). Life Jump constructs
-an in-memory `Player` only; it does not write to `localStorage` unless
-you save manually. Regression coverage is in
-[tests/test_dev_jump.ts](../tests/test_dev_jump.ts).
-
-## More
-
-- [docs/CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md): system design, components, and data flow
-- [docs/FILE_STRUCTURE.md](FILE_STRUCTURE.md): directory layout and where to add new work
-- [docs/PLUGIN_ARCHITECTURE.md](PLUGIN_ARCHITECTURE.md): plugin model and extension points
-- [docs/ROADMAP.md](ROADMAP.md): planned work and priorities
-
-## Known gaps
-
-- Save data lives in browser `localStorage`. The schema is owned by
-  [src/save/](../src/save/) (versioned envelope, `SAVE_KEY`, strict
-  validation that returns `ok | reset | empty`); the exact storage key
-  is `gridiron_life_save`. See
-  [docs/CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md) for the save subsystem.
