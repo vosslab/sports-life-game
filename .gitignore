@@ -1,6 +1,5 @@
 game_screenshots/
 tools/_out/
-package-lock.json
 report_*.txt
 .DS_Store
 node_modules/
@@ -10,7 +9,9 @@ OTHER_REPOS_FOR_STUDY/
 .superpowers/
 
 # === UNIVERSAL ===
+output*/
 _temp*.?*
+OTHER_REPOS/
 # === TYPESCRIPT ===
 _site/
 *.tsbuildinfo

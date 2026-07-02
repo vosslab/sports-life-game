@@ -4,63 +4,63 @@
 // types and the two functions weekly_engine.ts depends on
 // (`buildClutchMoment`, `resolveClutchMoment`).
 
-import type { Player } from '../player.js';
+import type { Player } from "../player.js";
 import type {
-	ChoiceTemplate,
-	ClutchChoice,
-	ClutchGameContext,
-	ClutchMoment,
-	ClutchResult,
-	ClutchSituation,
-} from './types.js';
-import { deriveSituation, generateScene, shouldTrigger } from './situation.js';
-import { getChoicePool, pickThreeWithRiskSpread, resolveChoice } from './resolve.js';
+  ChoiceTemplate,
+  ClutchChoice,
+  ClutchGameContext,
+  ClutchMoment,
+  ClutchResult,
+  ClutchSituation,
+} from "./types.js";
+import { deriveSituation, generateScene, shouldTrigger } from "./situation.js";
+import { getChoicePool, pickThreeWithRiskSpread, resolveChoice } from "./resolve.js";
 
 //============================================
 // Re-exported public types
 export type {
-	ClutchGameContext,
-	ClutchRisk,
-	ClutchChoice,
-	MomentumTag,
-	ClutchSituation,
-	ClutchResult,
-	ClutchMoment,
-} from './types.js';
+  ClutchGameContext,
+  ClutchRisk,
+  ClutchChoice,
+  MomentumTag,
+  ClutchSituation,
+  ClutchResult,
+  ClutchMoment,
+} from "./types.js";
 
 //============================================
 // Build a clutch moment if eligible. Returns null when the context is not
 // eligible (non-key non-playoff game, non-starter, blowout margin).
 export function buildClutchMoment(
-	_player: Player,
-	context: ClutchGameContext
+  _player: Player,
+  context: ClutchGameContext,
 ): ClutchMoment | null {
-	if (!shouldTrigger(context)) {
-		return null;
-	}
+  if (!shouldTrigger(context)) {
+    return null;
+  }
 
-	// Derive situation from game state
-	const situation = deriveSituation(context);
+  // Derive situation from game state
+  const situation = deriveSituation(context);
 
-	// Get position-specific choice pool and pick 3 with risk spread
-	const pool = getChoicePool(context.positionBucket, context.position);
-	const templates: ChoiceTemplate[] = pickThreeWithRiskSpread(pool, situation);
+  // Get position-specific choice pool and pick 3 with risk spread
+  const pool = getChoicePool(context.positionBucket, context.position);
+  const templates: ChoiceTemplate[] = pickThreeWithRiskSpread(pool, situation);
 
-	// Safety: if no choices available, skip the clutch moment
-	if (templates.length === 0) {
-		return null;
-	}
+  // Safety: if no choices available, skip the clutch moment
+  if (templates.length === 0) {
+    return null;
+  }
 
-	const choices: ClutchChoice[] = templates.map((t) => ({
-		id: t.id,
-		label: t.label,
-		description: t.description,
-		risk: t.risk,
-		keyStat: t.keyStat,
-	}));
+  const choices: ClutchChoice[] = templates.map((t) => ({
+    id: t.id,
+    label: t.label,
+    description: t.description,
+    risk: t.risk,
+    keyStat: t.keyStat,
+  }));
 
-	const scene = generateScene(context, situation);
-	return { scene, situationType: situation, choices };
+  const scene = generateScene(context, situation);
+  return { scene, situationType: situation, choices };
 }
 
 //============================================
@@ -68,10 +68,10 @@ export function buildClutchMoment(
 // `situationOverride` argument lets the caller carry the situation from
 // buildClutchMoment so resolution does not re-roll random situation flavor.
 export function resolveClutchMoment(
-	player: Player,
-	context: ClutchGameContext,
-	choiceId: string,
-	situationOverride?: ClutchSituation
+  player: Player,
+  context: ClutchGameContext,
+  choiceId: string,
+  situationOverride?: ClutchSituation,
 ): ClutchResult {
-	return resolveChoice(player, context, choiceId, situationOverride);
+  return resolveChoice(player, context, choiceId, situationOverride);
 }

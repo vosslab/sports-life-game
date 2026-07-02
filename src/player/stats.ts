@@ -6,25 +6,25 @@
 //============================================
 // Visible core stats: trained over a career.
 export interface CoreStats {
-	athleticism: number;
-	technique: number;
-	footballIq: number;
-	discipline: number;
-	health: number;
-	confidence: number;
+  athleticism: number;
+  technique: number;
+  footballIq: number;
+  discipline: number;
+  health: number;
+  confidence: number;
 }
 
 //============================================
 // Career-track stats: cumulative reputation/economic state.
 export interface CareerStats {
-	popularity: number;
-	money: number;
+  popularity: number;
+  money: number;
 }
 
 //============================================
 // Hidden stats: not directly visible to the player but used by simulation.
 export interface HiddenStats {
-	size: number;
-	leadership: number;
-	durability: number;
+  size: number;
+  leadership: number;
+  durability: number;
 }

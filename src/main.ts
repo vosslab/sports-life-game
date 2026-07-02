@@ -4,47 +4,47 @@
 // delegate phase progression to the year-handler system. All gameplay
 // logic, narrative rendering, and UI is delegated to specialized modules.
 
-import type { Player } from './player.js';
-import type { GameEvent } from './events.js';
-import type { CareerContext } from './core/year_handler.js';
-import { saveGame, loadGame, hasSave, deleteSave } from './save.js';
-import { loadNCAASchools, type NCAASchool } from './ncaa.js';
-import { loadNFLTeams } from './nfl.js';
+import type { Player } from "./player.js";
+import type { GameEvent } from "./events.js";
+import type { CareerContext } from "./core/year_handler.js";
+import { saveGame, loadGame, hasSave, deleteSave } from "./save.js";
+import { loadNCAASchools, type NCAASchool } from "./ncaa.js";
+import { loadNFLTeams } from "./nfl.js";
 import {
-	switchTab,
-	hideTabBar,
-	showTabBar,
-	initSidebarListener,
-	setTabsPluginHost,
-} from './tabs.js';
-import { setPluginHost } from './activities.js';
-import { setCareerPluginHost, setCurrentCareerContext } from './ui/career_widget.js';
-import { initTabManager, syncTabsToPhase } from './tab_manager.js';
+  switchTab,
+  hideTabBar,
+  showTabBar,
+  initSidebarListener,
+  setTabsPluginHost,
+} from "./tabs.js";
+import { setPluginHost } from "./activities.js";
+import { setCareerPluginHost, setCurrentCareerContext } from "./ui/career_widget.js";
+import { initTabManager, syncTabsToPhase } from "./tab_manager.js";
 import {
-	initGameLoop,
-	type GameLoopContext,
-	refreshActivitiesTabForCurrentPhase,
-	getWeekState,
-} from './game_loop.js';
-import { buildPluginHost } from './plugins/build_host.js';
-import { registerAllPlugins } from './plugins/register_plugins.js';
-import { advanceToNextYear, startYear } from './core/year_runner.js';
-import { applyDevJump, parseDevJumpParams } from './dev/dev_jump.js';
-import { initDevJumpButton } from './dev/dev_jump_ui.js';
+  initGameLoop,
+  type GameLoopContext,
+  refreshActivitiesTabForCurrentPhase,
+  getWeekState,
+} from "./game_loop.js";
+import { buildPluginHost } from "./plugins/build_host.js";
+import { registerAllPlugins } from "./plugins/register_plugins.js";
+import { advanceToNextYear, startYear } from "./core/year_runner.js";
+import { applyDevJump, parseDevJumpParams } from "./dev/dev_jump.js";
+import { initDevJumpButton } from "./dev/dev_jump_ui.js";
 import {
-	getSeasonRecord,
-	getActiveSeason,
-	getActiveWeekState,
-	initializeWeeklyEngine,
-} from './weekly/weekly_engine.js';
-import * as ui from './ui/index.js';
-import { applyPalette } from './theme.js';
-import type { Activity } from './activities.js';
-import { addStoryHeadline, addStoryText, clearStory, hardClearStory } from './render/story_log.js';
-import { loadNameLists } from './childhood/name_loader.js';
-import { startNewGameFlow } from './childhood/character_creation.js';
-import { showRetirement } from './legacy/retirement.js';
-import { generatePortraitSVG, randomAvatarConfig } from './avatar.js';
+  getSeasonRecord,
+  getActiveSeason,
+  getActiveWeekState,
+  initializeWeeklyEngine,
+} from "./weekly/weekly_engine.js";
+import * as ui from "./ui/index.js";
+import { applyPalette } from "./theme.js";
+import type { Activity } from "./activities.js";
+import { addStoryHeadline, addStoryText, clearStory, hardClearStory } from "./render/story_log.js";
+import { loadNameLists } from "./childhood/name_loader.js";
+import { startNewGameFlow } from "./childhood/character_creation.js";
+import { showRetirement } from "./legacy/retirement.js";
+import { generatePortraitSVG, randomAvatarConfig } from "./avatar.js";
 
 //============================================
 // Module state
@@ -58,299 +58,299 @@ let careerCtx: CareerContext | null = null;
 // Dashboard refresh
 
 function refreshDashboard(): void {
-	if (!currentPlayer) return;
+  if (!currentPlayer) return;
 
-	syncTabsToPhase(currentPlayer.phase);
+  syncTabsToPhase(currentPlayer.phase);
 
-	let opponentName = '';
-	let pressure = '';
-	const activeSeason = getActiveSeason();
-	if (activeSeason) {
-		const playerGame = activeSeason.getPlayerGame();
-		if (playerGame) {
-			const oppId = playerGame.getOpponentId(activeSeason.playerTeamId);
-			const opp = oppId ? activeSeason.getTeam(oppId) : undefined;
-			opponentName = opp ? opp.getDisplayName() : '';
-		}
-	}
+  let opponentName = "";
+  let pressure = "";
+  const activeSeason = getActiveSeason();
+  if (activeSeason) {
+    const playerGame = activeSeason.getPlayerGame();
+    if (playerGame) {
+      const oppId = playerGame.getOpponentId(activeSeason.playerTeamId);
+      const opp = oppId ? activeSeason.getTeam(oppId) : undefined;
+      opponentName = opp ? opp.getDisplayName() : "";
+    }
+  }
 
-	if (currentPlayer.phase === 'nfl' && currentPlayer.age >= 35) {
-		pressure = 'Contract year';
-	} else if (currentPlayer.phase === 'college' && currentPlayer.collegeYear >= 3) {
-		pressure = 'Draft watch';
-	}
+  if (currentPlayer.phase === "nfl" && currentPlayer.age >= 35) {
+    pressure = "Contract year";
+  } else if (currentPlayer.phase === "college" && currentPlayer.collegeYear >= 3) {
+    pressure = "Draft watch";
+  }
 
-	ui.updateWeekCard(currentPlayer, opponentName, pressure);
-	ui.updateMiniStatStrip(currentPlayer);
-	const weekState = getActiveWeekState() || getWeekState();
-	const seasonRec = getSeasonRecord();
-	const sidebarRecord = seasonRec ? `${seasonRec.wins}-${seasonRec.losses}` : undefined;
-	ui.updateSidebar(currentPlayer, weekState, opponentName, '', sidebarRecord);
-	ui.showRecentChange('');
+  ui.updateWeekCard(currentPlayer, opponentName, pressure);
+  ui.updateMiniStatStrip(currentPlayer);
+  const weekState = getActiveWeekState() || getWeekState();
+  const seasonRec = getSeasonRecord();
+  const sidebarRecord = seasonRec ? `${seasonRec.wins}-${seasonRec.losses}` : undefined;
+  ui.updateSidebar(currentPlayer, weekState, opponentName, "", sidebarRecord);
+  ui.showRecentChange("");
 }
 
 //============================================
 // Career context wiring
 
 function buildCareerContext(): void {
-	careerCtx = {
-		getPlayer: () => currentPlayer as Player,
-		events: allEvents,
-		ncaaSchools,
-		clearStory: () => {},
-		addHeadline: (text) => addStoryHeadline(text),
-		addText: (text) => addStoryText(text),
-		addResult: (text) => ui.addResult(text),
-		showChoices: (options) => ui.showChoices(options),
-		waitForInteraction: (title, options) => ui.waitForInteraction(title, options),
-		save: () => {
-			if (currentPlayer) saveGame(currentPlayer);
-		},
-		updateStats: (player) => {
-			ui.updateAllStats(player);
-			refreshDashboard();
-		},
-		updateHeader: (player) => {
-			ui.updateHeader(player);
-			refreshDashboard();
-		},
-		addStatChange: (text) => ui.addStatChange(text),
-		updateLifeStatus: (record, nextOpponent, extraStatus) =>
-			ui.updateLifeStatus(record, nextOpponent, extraStatus),
-		formatStatLine: (statLine) => ui.formatStatLine(statLine),
-		renderActivitiesTab: (payload) =>
-			ui.renderActivitiesTab(
-				payload.activities as Activity[],
-				payload.weekState,
-				payload.isUnlocked,
-				payload.effectPreview,
-				payload.onSelect,
-				payload.goalInfo
-			),
-		hideMainActionBar: () => ui.hideMainActionBar(),
-		showMainActionBar: () => ui.showMainActionBar(),
-		configureMainButtons: (config) => ui.configureMainButtons(config),
-		switchToLifeTab: () => switchTab('life'),
-		hideTabBar: () => hideTabBar(),
-		showTabBar: () => showTabBar(),
-		syncTabsToPhase: (phase) => syncTabsToPhase(phase),
-	};
-	setCurrentCareerContext(careerCtx);
+  careerCtx = {
+    getPlayer: () => currentPlayer as Player,
+    events: allEvents,
+    ncaaSchools,
+    clearStory: () => {},
+    addHeadline: (text) => addStoryHeadline(text),
+    addText: (text) => addStoryText(text),
+    addResult: (text) => ui.addResult(text),
+    showChoices: (options) => ui.showChoices(options),
+    waitForInteraction: (title, options) => ui.waitForInteraction(title, options),
+    save: () => {
+      if (currentPlayer) saveGame(currentPlayer);
+    },
+    updateStats: (player) => {
+      ui.updateAllStats(player);
+      refreshDashboard();
+    },
+    updateHeader: (player) => {
+      ui.updateHeader(player);
+      refreshDashboard();
+    },
+    addStatChange: (text) => ui.addStatChange(text),
+    updateLifeStatus: (record, nextOpponent, extraStatus) =>
+      ui.updateLifeStatus(record, nextOpponent, extraStatus),
+    formatStatLine: (statLine) => ui.formatStatLine(statLine),
+    renderActivitiesTab: (payload) =>
+      ui.renderActivitiesTab(
+        payload.activities as Activity[],
+        payload.weekState,
+        payload.isUnlocked,
+        payload.effectPreview,
+        payload.onSelect,
+        payload.goalInfo,
+      ),
+    hideMainActionBar: () => ui.hideMainActionBar(),
+    showMainActionBar: () => ui.showMainActionBar(),
+    configureMainButtons: (config) => ui.configureMainButtons(config),
+    switchToLifeTab: () => switchTab("life"),
+    hideTabBar: () => hideTabBar(),
+    showTabBar: () => showTabBar(),
+    syncTabsToPhase: (phase) => syncTabsToPhase(phase),
+  };
+  setCurrentCareerContext(careerCtx);
 }
 
 //============================================
 // Entry: new game vs resume
 
 function beginCareer(player: Player): void {
-	currentPlayer = player;
-	syncTabsToPhase(player.phase);
-	showTabBar();
-	switchTab('life');
-	if (careerCtx) advanceToNextYear(player, careerCtx);
+  currentPlayer = player;
+  syncTabsToPhase(player.phase);
+  showTabBar();
+  switchTab("life");
+  if (careerCtx) advanceToNextYear(player, careerCtx);
 }
 
 function offerNewGame(firstNames: string[], lastNames: string[]): void {
-	startNewGameFlow({
-		firstNames,
-		lastNames,
-		addStoryHeadline,
-		addStoryText,
-		clearStory,
-		onPlayerCreated: beginCareer,
-	});
+  startNewGameFlow({
+    firstNames,
+    lastNames,
+    addStoryHeadline,
+    addStoryText,
+    clearStory,
+    onPlayerCreated: beginCareer,
+  });
 }
 
 function resumeGame(): void {
-	if (!currentPlayer) return;
-	const player = currentPlayer;
-	if (player.teamPalette) applyPalette(player.teamPalette);
-	ui.updateAllStats(player);
-	ui.updateHeader(player);
+  if (!currentPlayer) return;
+  const player = currentPlayer;
+  if (player.teamPalette) applyPalette(player.teamPalette);
+  ui.updateAllStats(player);
+  ui.updateHeader(player);
 
-	if (player.phase === 'legacy') {
-		if (!careerCtx) {
-			throw new Error('careerCtx must be initialized before retirement');
-		}
-		showRetirement({
-			player,
-			addStoryHeadline,
-			addStoryText,
-			clearStory,
-			hardClearStory,
-			save: () => {
-				if (currentPlayer) saveGame(currentPlayer);
-			},
-			syncTabsToPhase,
-			switchToLife: () => switchTab('life'),
-			deleteSave,
-			onRestart: () => {
-				void initGame();
-			},
-			careerContext: careerCtx,
-		});
-		return;
-	}
+  if (player.phase === "legacy") {
+    if (!careerCtx) {
+      throw new Error("careerCtx must be initialized before retirement");
+    }
+    showRetirement({
+      player,
+      addStoryHeadline,
+      addStoryText,
+      clearStory,
+      hardClearStory,
+      save: () => {
+        if (currentPlayer) saveGame(currentPlayer);
+      },
+      syncTabsToPhase,
+      switchToLife: () => switchTab("life"),
+      deleteSave,
+      onRestart: () => {
+        void initGame();
+      },
+      careerContext: careerCtx,
+    });
+    return;
+  }
 
-	if (player.phase === 'childhood' && player.age < 1) {
-		if (careerCtx) advanceToNextYear(player, careerCtx);
-		return;
-	}
+  if (player.phase === "childhood" && player.age < 1) {
+    if (careerCtx) advanceToNextYear(player, careerCtx);
+    return;
+  }
 
-	if (careerCtx) {
-		clearStory();
-		addStoryHeadline('Welcome Back');
-		addStoryText(`${player.firstName} ${player.lastName}, Age ${player.age}`);
-		ui.waitForInteraction('Welcome Back', [
-			{
-				text: 'Continue',
-				primary: true,
-				action: () => {
-					if (currentPlayer && careerCtx) startYear(currentPlayer, careerCtx);
-				},
-			},
-		]);
-	}
+  if (careerCtx) {
+    clearStory();
+    addStoryHeadline("Welcome Back");
+    addStoryText(`${player.firstName} ${player.lastName}, Age ${player.age}`);
+    ui.waitForInteraction("Welcome Back", [
+      {
+        text: "Continue",
+        primary: true,
+        action: () => {
+          if (currentPlayer && careerCtx) startYear(currentPlayer, careerCtx);
+        },
+      },
+    ]);
+  }
 }
 
 //============================================
 // Bootstrap
 
 async function initGame(): Promise<void> {
-	const { firstNames, lastNames } = await loadNameLists();
-	ncaaSchools = await loadNCAASchools();
-	await loadNFLTeams();
-	await initializeWeeklyEngine();
+  const { firstNames, lastNames } = await loadNameLists();
+  ncaaSchools = await loadNCAASchools();
+  await loadNFLTeams();
+  await initializeWeeklyEngine();
 
-	initTabManager({
-		getPlayer: () => currentPlayer,
-		getActiveSeason,
-		getSeasonRecord,
-		getWeekState: () => getActiveWeekState() || getWeekState(),
-		refreshActivities: refreshActivitiesTabForCurrentPhase,
-		refreshDashboard,
-	});
+  initTabManager({
+    getPlayer: () => currentPlayer,
+    getActiveSeason,
+    getSeasonRecord,
+    getWeekState: () => getActiveWeekState() || getWeekState(),
+    refreshActivities: refreshActivitiesTabForCurrentPhase,
+    refreshDashboard,
+  });
 
-	initSidebarListener();
-	ui.initMainActionBar();
+  initSidebarListener();
+  ui.initMainActionBar();
 
-	const gameContext: GameLoopContext = {
-		getPlayer: () => currentPlayer!,
-		getAllEvents: () => allEvents,
-		save: () => {
-			if (currentPlayer) saveGame(currentPlayer);
-		},
-		clearStory: () => {},
-		addHeadline: (text) => addStoryHeadline(text),
-		addText: (text) => addStoryText(text),
-		addResult: (text) => ui.addResult(text),
-	};
-	initGameLoop(gameContext);
+  const gameContext: GameLoopContext = {
+    getPlayer: () => currentPlayer!,
+    getAllEvents: () => allEvents,
+    save: () => {
+      if (currentPlayer) saveGame(currentPlayer);
+    },
+    clearStory: () => {},
+    addHeadline: (text) => addStoryHeadline(text),
+    addText: (text) => addStoryText(text),
+    addResult: (text) => ui.addResult(text),
+  };
+  initGameLoop(gameContext);
 
-	const host = buildPluginHost();
-	// Plugin asset data (activities, events, packs) is bundled at build time, so
-	// register() runs synchronously without any prior preload step.
-	registerAllPlugins(host);
-	setPluginHost(host);
-	setTabsPluginHost(host);
-	setCareerPluginHost(host);
-	allEvents = Array.from(host.events.getAll());
-	buildCareerContext();
+  const host = buildPluginHost();
+  // Plugin asset data (activities, events, packs) is bundled at build time, so
+  // register() runs synchronously without any prior preload step.
+  registerAllPlugins(host);
+  setPluginHost(host);
+  setTabsPluginHost(host);
+  setCareerPluginHost(host);
+  allEvents = Array.from(host.events.getAll());
+  buildCareerContext();
 
-	// Initialize developer fast-jump trigger button (bottom-right)
-	initDevJumpButton(host, (params) => {
-		currentPlayer = applyDevJump(host, params);
-		syncTabsToPhase(currentPlayer.phase);
-		showTabBar();
-		switchTab('life');
-		if (careerCtx) advanceToNextYear(currentPlayer, careerCtx);
-	});
+  // Initialize developer fast-jump trigger button (bottom-right)
+  initDevJumpButton(host, (params) => {
+    currentPlayer = applyDevJump(host, params);
+    syncTabsToPhase(currentPlayer.phase);
+    showTabBar();
+    switchTab("life");
+    if (careerCtx) advanceToNextYear(currentPlayer, careerCtx);
+  });
 
-	hideTabBar();
+  hideTabBar();
 
-	// Life Jump: parse ?life= (preferred) or ?dev= (back-compat) URL parameter
-	const devParams = parseDevJumpParams(window.location.search);
-	if (devParams) {
-		currentPlayer = applyDevJump(host, devParams);
-		syncTabsToPhase(currentPlayer.phase);
-		showTabBar();
-		switchTab('life');
-		if (careerCtx) advanceToNextYear(currentPlayer, careerCtx);
-		return;
-	}
+  // Life Jump: parse ?life= (preferred) or ?dev= (back-compat) URL parameter
+  const devParams = parseDevJumpParams(window.location.search);
+  if (devParams) {
+    currentPlayer = applyDevJump(host, devParams);
+    syncTabsToPhase(currentPlayer.phase);
+    showTabBar();
+    switchTab("life");
+    if (careerCtx) advanceToNextYear(currentPlayer, careerCtx);
+    return;
+  }
 
-	if (hasSave()) {
-		currentPlayer = loadGame();
-		if (currentPlayer) {
-			syncTabsToPhase(currentPlayer.phase);
-			showTabBar();
-			switchTab('life');
-			addStoryHeadline('Welcome Back');
-			addStoryText(
-				`${currentPlayer.firstName} ${currentPlayer.lastName}, ` + `Age ${currentPlayer.age}`
-			);
-			ui.updateAllStats(currentPlayer);
-			ui.updateHeader(currentPlayer);
-			ui.waitForInteraction('Welcome Back', [
-				{ text: 'Continue Game', primary: true, action: resumeGame },
-				{
-					text: 'Start New Game',
-					primary: false,
-					action: () => {
-						clearStory();
-						addStoryHeadline('Start Over?');
-						addStoryText('This will erase your current career. Are you sure?');
-						ui.waitForInteraction('Confirm', [
-							{
-								text: 'Yes, Start Fresh',
-								primary: true,
-								action: () => {
-									deleteSave();
-									currentPlayer = null;
-									hardClearStory();
-									offerNewGame(firstNames, lastNames);
-								},
-							},
-							{
-								text: 'Go Back',
-								primary: false,
-								action: () => {
-									void initGame();
-								},
-							},
-						]);
-					},
-				},
-			]);
-			return;
-		}
-	}
+  if (hasSave()) {
+    currentPlayer = loadGame();
+    if (currentPlayer) {
+      syncTabsToPhase(currentPlayer.phase);
+      showTabBar();
+      switchTab("life");
+      addStoryHeadline("Welcome Back");
+      addStoryText(
+        `${currentPlayer.firstName} ${currentPlayer.lastName}, ` + `Age ${currentPlayer.age}`,
+      );
+      ui.updateAllStats(currentPlayer);
+      ui.updateHeader(currentPlayer);
+      ui.waitForInteraction("Welcome Back", [
+        { text: "Continue Game", primary: true, action: resumeGame },
+        {
+          text: "Start New Game",
+          primary: false,
+          action: () => {
+            clearStory();
+            addStoryHeadline("Start Over?");
+            addStoryText("This will erase your current career. Are you sure?");
+            ui.waitForInteraction("Confirm", [
+              {
+                text: "Yes, Start Fresh",
+                primary: true,
+                action: () => {
+                  deleteSave();
+                  currentPlayer = null;
+                  hardClearStory();
+                  offerNewGame(firstNames, lastNames);
+                },
+              },
+              {
+                text: "Go Back",
+                primary: false,
+                action: () => {
+                  void initGame();
+                },
+              },
+            ]);
+          },
+        },
+      ]);
+      return;
+    }
+  }
 
-	addStoryHeadline('Welcome to Gridiron Life');
-	addStoryText(
-		'Your football career begins now. From backyard games to the big leagues, ' +
-			'every choice shapes your story.'
-	);
-	ui.waitForInteraction('Gridiron Life', [
-		{
-			text: 'Start New Game',
-			primary: true,
-			action: () => offerNewGame(firstNames, lastNames),
-		},
-	]);
+  addStoryHeadline("Welcome to Gridiron Life");
+  addStoryText(
+    "Your football career begins now. From backyard games to the big leagues, " +
+      "every choice shapes your story.",
+  );
+  ui.waitForInteraction("Gridiron Life", [
+    {
+      text: "Start New Game",
+      primary: true,
+      action: () => offerNewGame(firstNames, lastNames),
+    },
+  ]);
 }
 
 //============================================
 // Entry point
 
-document.addEventListener('DOMContentLoaded', () => {
-	initGame().catch((error: unknown) => {
-		console.error('Game initialization failed:', error);
-		const panel = document.getElementById('choices-panel');
-		if (panel) {
-			const message = error instanceof Error ? error.message : 'unknown error';
-			panel.innerHTML = '<p style="color:red;">Error loading game: ' + message + '</p>';
-		}
-	});
+document.addEventListener("DOMContentLoaded", () => {
+  initGame().catch((error: unknown) => {
+    console.error("Game initialization failed:", error);
+    const panel = document.getElementById("choices-panel");
+    if (panel) {
+      const message = error instanceof Error ? error.message : "unknown error";
+      panel.innerHTML = '<p style="color:red;">Error loading game: ' + message + "</p>";
+    }
+  });
 });
 
 //============================================

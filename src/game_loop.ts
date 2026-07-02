@@ -6,39 +6,39 @@
 // Phase modules call these shared functions and provide callbacks for
 // phase-specific behavior (which game to play, which events to show).
 
-import type { Player, CareerPhase } from './player.js';
-import { randomInRange } from './player.js';
-import type { GameEvent } from './events.js';
-import { filterEvents, selectEvent, applyEventChoice } from './events.js';
-import type { WeeklyFocus } from './week_sim/index.js';
-import { applySeasonGoal } from './week_sim/index.js';
-import type { Activity, WeekState } from './activities.js';
+import type { Player, CareerPhase } from "./player.js";
+import { randomInRange } from "./player.js";
+import type { GameEvent } from "./events.js";
+import { filterEvents, selectEvent, applyEventChoice } from "./events.js";
+import type { WeeklyFocus } from "./week_sim/index.js";
+import { applySeasonGoal } from "./week_sim/index.js";
+import type { Activity, WeekState } from "./activities.js";
 import {
-	createWeekState,
-	getActivitiesForPhase,
-	isActivityUnlocked,
-	applyActivity,
-	getEffectPreview,
-	formatActivityResult,
-} from './activities.js';
-import { switchTab, hideTabBar, showTabBar } from './tabs.js';
-import * as ui from './ui/index.js';
+  createWeekState,
+  getActivitiesForPhase,
+  isActivityUnlocked,
+  applyActivity,
+  getEffectPreview,
+  formatActivityResult,
+} from "./activities.js";
+import { switchTab, hideTabBar, showTabBar } from "./tabs.js";
+import * as ui from "./ui/index.js";
 
 //============================================
 // GameLoopContext: main.ts provides this so phase modules can access shared
 // state without importing main.ts (avoids circular deps)
 export interface GameLoopContext {
-	// Player access
-	getPlayer(): Player;
-	// Event pool
-	getAllEvents(): GameEvent[];
-	// Persistence
-	save(): void;
-	// Story helpers (main.ts has BitLife-style divider wrappers)
-	clearStory(): void;
-	addHeadline(text: string): void;
-	addText(text: string): void;
-	addResult(text: string): void;
+  // Player access
+  getPlayer(): Player;
+  // Event pool
+  getAllEvents(): GameEvent[];
+  // Persistence
+  save(): void;
+  // Story helpers (main.ts has BitLife-style divider wrappers)
+  clearStory(): void;
+  addHeadline(text: string): void;
+  addText(text: string): void;
+  addResult(text: string): void;
 }
 
 // Module-level context set once by main.ts at init
@@ -48,7 +48,7 @@ let currentOnGameDay: (() => void) | null = null;
 //============================================
 // Initialize the game loop engine with context from main.ts
 export function initGameLoop(context: GameLoopContext): void {
-	ctx = context;
+  ctx = context;
 }
 
 //============================================
@@ -60,12 +60,12 @@ let currentWeekState: WeekState = createWeekState();
 
 //============================================
 export function resetWeekState(): void {
-	currentWeekState = createWeekState();
+  currentWeekState = createWeekState();
 }
 
 //============================================
 export function getWeekState(): WeekState {
-	return currentWeekState;
+  return currentWeekState;
 }
 
 //============================================
@@ -74,29 +74,29 @@ export function getWeekState(): WeekState {
 
 // Show the 5 weekly focus options. College gets "Social / NIL" label.
 export function showWeeklyFocusUI(
-	phase: CareerPhase,
-	onFocusSelected: (focus: WeeklyFocus) => void
+  phase: CareerPhase,
+  onFocusSelected: (focus: WeeklyFocus) => void,
 ): void {
-	// Social label varies by phase
-	const socialLabel = phase === 'college' ? 'Social / NIL' : 'Social';
+  // Social label varies by phase
+  const socialLabel = phase === "college" ? "Social / NIL" : "Social";
 
-	const focusOptions: { text: string; key: WeeklyFocus }[] = [
-		{ text: 'Train (+2-4 TEC)', key: 'train' },
-		{ text: 'Film Study (+2-3 IQ)', key: 'film_study' },
-		{ text: 'Recovery (+3-5 HP)', key: 'recovery' },
-		{ text: `${socialLabel} (+2-4 POP)`, key: 'social' },
-		{ text: 'Teamwork (+2-3 leadership)', key: 'teamwork' },
-	];
+  const focusOptions: { text: string; key: WeeklyFocus }[] = [
+    { text: "Train (+2-4 TEC)", key: "train" },
+    { text: "Film Study (+2-3 IQ)", key: "film_study" },
+    { text: "Recovery (+3-5 HP)", key: "recovery" },
+    { text: `${socialLabel} (+2-4 POP)`, key: "social" },
+    { text: "Teamwork (+2-3 leadership)", key: "teamwork" },
+  ];
 
-	ui.waitForInteraction(
-		'Weekly Focus',
-		focusOptions.map((opt) => ({
-			text: opt.text,
-			primary: false,
-			action: () => onFocusSelected(opt.key),
-		})),
-		'What do you want to focus on this week?'
-	);
+  ui.waitForInteraction(
+    "Weekly Focus",
+    focusOptions.map((opt) => ({
+      text: opt.text,
+      primary: false,
+      action: () => onFocusSelected(opt.key),
+    })),
+    "What do you want to focus on this week?",
+  );
 }
 
 //============================================
@@ -107,40 +107,40 @@ export function showWeeklyFocusUI(
 // extraLogic runs after goal is applied (e.g., college NIL deal check).
 // The focus parameter is ignored (kept for backward compat with callers).
 export function handleWeeklyFocus(
-	phase: CareerPhase,
-	_focus: WeeklyFocus,
-	onGameDay: () => void,
-	extraLogic?: () => void
+  phase: CareerPhase,
+  _focus: WeeklyFocus,
+  onGameDay: () => void,
+  extraLogic?: () => void,
 ): void {
-	if (!ctx) {
-		return;
-	}
-	const player = ctx.getPlayer();
+  if (!ctx) {
+    return;
+  }
+  const player = ctx.getPlayer();
 
-	// Apply season goal effects (focus arg is ignored)
-	const goalStory = applySeasonGoal(player);
-	ctx.addText(goalStory);
-	ui.updateAllStats(player);
-	ctx.save();
+  // Apply season goal effects (focus arg is ignored)
+  const goalStory = applySeasonGoal(player);
+  ctx.addText(goalStory);
+  ui.updateAllStats(player);
+  ctx.save();
 
-	// Run any phase-specific extra logic (e.g., college NIL check)
-	if (extraLogic) {
-		extraLogic();
-	}
+  // Run any phase-specific extra logic (e.g., college NIL check)
+  if (extraLogic) {
+    extraLogic();
+  }
 
-	// Advance to activities prompt
-	currentWeekState.phase = 'activity_prompt';
-	showActivitiesPrompt(phase, onGameDay);
+  // Advance to activities prompt
+  currentWeekState.phase = "activity_prompt";
+  showActivitiesPrompt(phase, onGameDay);
 }
 
 // Skip the focus popup and apply the season goal directly.
 // Callers use this instead of showWeeklyFocusUI + handleWeeklyFocus.
 export function applyGoalAndProceed(
-	phase: CareerPhase,
-	onGameDay: () => void,
-	extraLogic?: () => void
+  phase: CareerPhase,
+  onGameDay: () => void,
+  extraLogic?: () => void,
 ): void {
-	handleWeeklyFocus(phase, 'train', onGameDay, extraLogic);
+  handleWeeklyFocus(phase, "train", onGameDay, extraLogic);
 }
 
 //============================================
@@ -149,91 +149,91 @@ export function applyGoalAndProceed(
 
 // Show activities prompt: player can visit Activities tab or skip to game day
 function showActivitiesPrompt(phase: CareerPhase, onGameDay: () => void): void {
-	if (!ctx) {
-		return;
-	}
+  if (!ctx) {
+    return;
+  }
 
-	currentOnGameDay = onGameDay;
+  currentOnGameDay = onGameDay;
 
-	ui.waitForInteraction(
-		'Free Time',
-		[
-			{
-				text: 'Activities',
-				primary: false,
-				action: () => {
-					// Switch to Activities tab and refresh its content
-					refreshActivitiesTab(phase, onGameDay);
-					switchTab('activities');
-				},
-			},
-			{
-				text: 'Skip to Game Day',
-				primary: true,
-				action: () => {
-					// Skip activities, proceed to event check
-					currentWeekState.phase = 'activity_done';
-					proceedToEventCheck(phase, onGameDay);
-				},
-			},
-		],
-		'You have some free time this week.'
-	);
+  ui.waitForInteraction(
+    "Free Time",
+    [
+      {
+        text: "Activities",
+        primary: false,
+        action: () => {
+          // Switch to Activities tab and refresh its content
+          refreshActivitiesTab(phase, onGameDay);
+          switchTab("activities");
+        },
+      },
+      {
+        text: "Skip to Game Day",
+        primary: true,
+        action: () => {
+          // Skip activities, proceed to event check
+          currentWeekState.phase = "activity_done";
+          proceedToEventCheck(phase, onGameDay);
+        },
+      },
+    ],
+    "You have some free time this week.",
+  );
 }
 
 //============================================
 // Refresh the Activities tab with current data
 function refreshActivitiesTab(phase: CareerPhase, onGameDay: () => void): void {
-	if (!ctx) {
-		return;
-	}
-	const player = ctx.getPlayer();
-	currentOnGameDay = onGameDay;
+  if (!ctx) {
+    return;
+  }
+  const player = ctx.getPlayer();
+  currentOnGameDay = onGameDay;
 
-	const activities = getActivitiesForPhase(player.phase);
+  const activities = getActivitiesForPhase(player.phase);
 
-	ui.renderActivitiesTab(
-		activities,
-		currentWeekState,
-		(activity: Activity) => isActivityUnlocked(activity, player),
-		(activity: Activity) => getEffectPreview(activity),
-		(activity: Activity) => handleActivitySelection(activity, phase, onGameDay)
-	);
+  ui.renderActivitiesTab(
+    activities,
+    currentWeekState,
+    (activity: Activity) => isActivityUnlocked(activity, player),
+    (activity: Activity) => getEffectPreview(activity),
+    (activity: Activity) => handleActivitySelection(activity, phase, onGameDay),
+  );
 }
 
 //============================================
 // Handle when player selects an activity from the hub
 function handleActivitySelection(
-	activity: Activity,
-	phase: CareerPhase,
-	onGameDay: () => void
+  activity: Activity,
+  phase: CareerPhase,
+  onGameDay: () => void,
 ): void {
-	if (!ctx) {
-		return;
-	}
-	const player = ctx.getPlayer();
+  if (!ctx) {
+    return;
+  }
+  const player = ctx.getPlayer();
 
-	// Apply the activity effects
-	const result = applyActivity(activity, player);
-	currentWeekState.actionsUsed += 1;
+  // Apply the activity effects
+  const result = applyActivity(activity, player);
+  currentWeekState.actionsUsed += 1;
 
-	// Update stats display
-	ui.updateAllStats(player);
-	ctx.save();
+  // Update stats display
+  ui.updateAllStats(player);
+  ctx.save();
 
-	// Append result to story log (story-first: results go to Life tab)
-	ctx.addText(result.flavorText);
-	const appliedText = formatActivityResult(result);
-	if (appliedText.length > 0) {
-		ui.addStatChange(appliedText);
-	}
+  // Append result to story log (story-first: results go to Life tab)
+  ctx.addText(result.flavorText);
+  const appliedText = formatActivityResult(result);
+  if (appliedText.length > 0) {
+    ui.addStatChange(appliedText);
+  }
 
-	// Mark activity phase as done
-	currentWeekState.phase = 'activity_done';
+  // Mark activity phase as done
+  currentWeekState.phase = "activity_done";
 
-	// Switch back to Life tab and continue to event check
-	switchTab('life');
-	proceedToEventCheck(phase, onGameDay);
+  // Switch back to Life tab and continue to event check
+  switchTab("life");
+  proceedToEventCheck(phase, onGameDay);
 }
 
 //============================================
@@ -242,50 +242,50 @@ function handleActivitySelection(
 
 // Proceed to random event check, then game day
 export function proceedToEventCheck(phase: CareerPhase, onGameDay: () => void): void {
-	if (!ctx) {
-		return;
-	}
-	const player = ctx.getPlayer();
-	const allEvents = ctx.getAllEvents();
+  if (!ctx) {
+    return;
+  }
+  const player = ctx.getPlayer();
+  const allEvents = ctx.getAllEvents();
 
-	currentWeekState.phase = 'event';
+  currentWeekState.phase = "event";
 
-	// Event chance varies by phase
-	const eventChance = phase === 'college' ? 30 : 35;
-	const eventRoll = randomInRange(1, 100);
+  // Event chance varies by phase
+  const eventChance = phase === "college" ? 30 : 35;
+  const eventRoll = randomInRange(1, 100);
 
-	if (eventRoll <= eventChance && allEvents.length > 0) {
-		// Build stats record for filtering
-		const statsRecord: Record<string, number> = {
-			athleticism: player.core.athleticism,
-			technique: player.core.technique,
-			footballIq: player.core.footballIq,
-			discipline: player.core.discipline,
-			health: player.core.health,
-			confidence: player.core.confidence,
-		};
+  if (eventRoll <= eventChance && allEvents.length > 0) {
+    // Build stats record for filtering
+    const statsRecord: Record<string, number> = {
+      athleticism: player.core.athleticism,
+      technique: player.core.technique,
+      footballIq: player.core.footballIq,
+      discipline: player.core.discipline,
+      health: player.core.health,
+      confidence: player.core.confidence,
+    };
 
-		// Try phase-specific events only (do not fall back to other phases)
-		const eligible = filterEvents(
-			allEvents,
-			phase,
-			player.currentWeek,
-			player.position,
-			player.storyFlags,
-			statsRecord,
-			player.collegeYear
-		);
+    // Try phase-specific events only (do not fall back to other phases)
+    const eligible = filterEvents(
+      allEvents,
+      phase,
+      player.currentWeek,
+      player.position,
+      player.storyFlags,
+      statsRecord,
+      player.collegeYear,
+    );
 
-		const event = selectEvent(eligible);
-		if (event) {
-			showEventCard(event, onGameDay);
-			return;
-		}
-	}
+    const event = selectEvent(eligible);
+    if (event) {
+      showEventCard(event, onGameDay);
+      return;
+    }
+  }
 
-	// No event: go straight to game day
-	currentWeekState.phase = 'game';
-	onGameDay();
+  // No event: go straight to game day
+  currentWeekState.phase = "game";
+  onGameDay();
 }
 
 //============================================
@@ -294,33 +294,33 @@ export function proceedToEventCheck(phase: CareerPhase, onGameDay: () => void): 
 
 // Show event modal. After choice, proceeds to game day via callback.
 function showEventCard(event: GameEvent, onGameDay: () => void): void {
-	if (!ctx) {
-		return;
-	}
-	const player = ctx.getPlayer();
+  if (!ctx) {
+    return;
+  }
+  const player = ctx.getPlayer();
 
-	// Hide tab bar during event modal
-	hideTabBar();
+  // Hide tab bar during event modal
+  hideTabBar();
 
-	const choiceActions = event.choices.map((choice) => ({
-		text: choice.text,
-		action: () => {
-			// Apply choice effects
-			const flavor = applyEventChoice(player, choice);
-			// Restore tab bar after modal closes
-			showTabBar();
+  const choiceActions = event.choices.map((choice) => ({
+    text: choice.text,
+    action: () => {
+      // Apply choice effects
+      const flavor = applyEventChoice(player, choice);
+      // Restore tab bar after modal closes
+      showTabBar();
 
-			ctx!.addHeadline(event.title);
-			ctx!.addText(flavor);
-			ui.updateAllStats(player);
-			ctx!.save();
+      ctx!.addHeadline(event.title);
+      ctx!.addText(flavor);
+      ui.updateAllStats(player);
+      ctx!.save();
 
-			// Continue to game day - this is a simple navigation, keep inline
-			ui.showChoices([{ text: 'Game Day', primary: true, action: onGameDay }]);
-		},
-	}));
+      // Continue to game day - this is a simple navigation, keep inline
+      ui.showChoices([{ text: "Game Day", primary: true, action: onGameDay }]);
+    },
+  }));
 
-	ui.waitForInteraction(event.title, choiceActions, event.description, 'narrative');
+  ui.waitForInteraction(event.title, choiceActions, event.description, "narrative");
 }
 
 //============================================
@@ -329,79 +329,79 @@ function showEventCard(event: GameEvent, onGameDay: () => void): void {
 
 // Result from a single silently simulated week
 export interface SilentWeekResult {
-	goalApplied: string;
-	eventTitle: string | null;
-	eventChoiceText: string | null;
+  goalApplied: string;
+  eventTitle: string | null;
+  eventChoiceText: string | null;
 }
 
 // Simulate the focus + event portion of a week without any UI.
 // Returns what happened so the caller can build a recap.
 // The caller is responsible for game-day simulation (phase-specific).
 export function simulateWeekSilently(): SilentWeekResult {
-	if (!ctx) {
-		return { goalApplied: 'grind', eventTitle: null, eventChoiceText: null };
-	}
-	const player = ctx.getPlayer();
+  if (!ctx) {
+    return { goalApplied: "grind", eventTitle: null, eventChoiceText: null };
+  }
+  const player = ctx.getPlayer();
 
-	// Reset weekly state
-	resetWeekState();
+  // Reset weekly state
+  resetWeekState();
 
-	// Apply the player's season goal effects
-	applySeasonGoal(player);
+  // Apply the player's season goal effects
+  applySeasonGoal(player);
 
-	// Event check (same logic as proceedToEventCheck but silent)
-	let eventTitle: string | null = null;
-	let eventChoiceText: string | null = null;
+  // Event check (same logic as proceedToEventCheck but silent)
+  let eventTitle: string | null = null;
+  let eventChoiceText: string | null = null;
 
-	const allEvents = ctx.getAllEvents();
-	const eventChance = player.phase === 'college' ? 30 : 35;
-	const eventRoll = randomInRange(1, 100);
+  const allEvents = ctx.getAllEvents();
+  const eventChance = player.phase === "college" ? 30 : 35;
+  const eventRoll = randomInRange(1, 100);
 
-	if (eventRoll <= eventChance && allEvents.length > 0) {
-		const statsRecord: Record<string, number> = {
-			athleticism: player.core.athleticism,
-			technique: player.core.technique,
-			footballIq: player.core.footballIq,
-			discipline: player.core.discipline,
-			health: player.core.health,
-			confidence: player.core.confidence,
-		};
+  if (eventRoll <= eventChance && allEvents.length > 0) {
+    const statsRecord: Record<string, number> = {
+      athleticism: player.core.athleticism,
+      technique: player.core.technique,
+      footballIq: player.core.footballIq,
+      discipline: player.core.discipline,
+      health: player.core.health,
+      confidence: player.core.confidence,
+    };
 
-		let eligible = filterEvents(
-			allEvents,
-			player.phase,
-			player.currentWeek,
-			player.position,
-			player.storyFlags,
-			statsRecord,
-			player.collegeYear
-		);
+    let eligible = filterEvents(
+      allEvents,
+      player.phase,
+      player.currentWeek,
+      player.position,
+      player.storyFlags,
+      statsRecord,
+      player.collegeYear,
+    );
 
-		if (eligible.length === 0 && (player.phase === 'nfl' || player.phase === 'college')) {
-			eligible = filterEvents(
-				allEvents,
-				'high_school',
-				player.currentWeek,
-				player.position,
-				player.storyFlags,
-				statsRecord,
-				player.collegeYear
-			);
-		}
+    if (eligible.length === 0 && (player.phase === "nfl" || player.phase === "college")) {
+      eligible = filterEvents(
+        allEvents,
+        "high_school",
+        player.currentWeek,
+        player.position,
+        player.storyFlags,
+        statsRecord,
+        player.collegeYear,
+      );
+    }
 
-		const event = selectEvent(eligible);
-		if (event && event.choices.length > 0) {
-			// Auto-pick first choice (safest option)
-			const firstChoice = event.choices[0];
-			// Bounds-checked by length > 0
-			eventTitle = event.title;
-			eventChoiceText = firstChoice!.text;
-			applyEventChoice(player, firstChoice!);
-		}
-	}
+    const event = selectEvent(eligible);
+    if (event && event.choices.length > 0) {
+      // Auto-pick first choice (safest option)
+      const firstChoice = event.choices[0];
+      // Bounds-checked by length > 0
+      eventTitle = event.title;
+      eventChoiceText = firstChoice!.text;
+      applyEventChoice(player, firstChoice!);
+    }
+  }
 
-	ctx.save();
-	return { goalApplied: player.seasonGoal, eventTitle, eventChoiceText };
+  ctx.save();
+  return { goalApplied: player.seasonGoal, eventTitle, eventChoiceText };
 }
 
 //============================================
@@ -409,21 +409,21 @@ export function simulateWeekSilently(): SilentWeekResult {
 //============================================
 
 export interface YearSimRecap {
-	weeksSimulated: number;
-	wins: number;
-	losses: number;
-	events: string[];
+  weeksSimulated: number;
+  wins: number;
+  losses: number;
+  events: string[];
 }
 
 // Show the year-end recap as a popup modal
 export function showYearRecap(_recap: YearSimRecap, onContinue: () => void): void {
-	ui.showChoices([
-		{
-			text: 'Continue',
-			primary: true,
-			action: onContinue,
-		},
-	]);
+  ui.showChoices([
+    {
+      text: "Continue",
+      primary: true,
+      action: onContinue,
+    },
+  ]);
 }
 
 //============================================
@@ -432,22 +432,22 @@ export function showYearRecap(_recap: YearSimRecap, onContinue: () => void): voi
 //============================================
 
 export function refreshActivitiesTabForCurrentPhase(): void {
-	if (!ctx) {
-		return;
-	}
-	const player = ctx.getPlayer();
-	const activities = getActivitiesForPhase(player.phase);
+  if (!ctx) {
+    return;
+  }
+  const player = ctx.getPlayer();
+  const activities = getActivitiesForPhase(player.phase);
 
-	ui.renderActivitiesTab(
-		activities,
-		currentWeekState,
-		(activity: Activity) => isActivityUnlocked(activity, player),
-		(activity: Activity) => getEffectPreview(activity),
-		(activity: Activity) => {
-			if (!currentOnGameDay) {
-				return;
-			}
-			handleActivitySelection(activity, player.phase, currentOnGameDay);
-		}
-	);
+  ui.renderActivitiesTab(
+    activities,
+    currentWeekState,
+    (activity: Activity) => isActivityUnlocked(activity, player),
+    (activity: Activity) => getEffectPreview(activity),
+    (activity: Activity) => {
+      if (!currentOnGameDay) {
+        return;
+      }
+      handleActivitySelection(activity, player.phase, currentOnGameDay);
+    },
+  );
 }

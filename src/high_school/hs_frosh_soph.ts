@@ -4,185 +4,185 @@
 // Full weekly loop via weekly engine: focus -> activities -> events -> game.
 // 10-game season. Depth chart matters.
 
-import type { Player } from '../player.js';
-import { randomInRange } from '../player.js';
-import type { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
-import { applyAgeDrift } from '../shared/year_helpers.js';
-import { advanceToNextYear } from '../core/year_runner.js';
-import { startSeason } from '../weekly/weekly_engine.js';
-import { buildHighSchoolSeason } from './hs_season_builder.js';
-import { generateTeamPalette, applyPalette } from '../theme.js';
-import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
+import type { Player } from "../player.js";
+import { randomInRange } from "../player.js";
+import type { YearHandler, CareerContext, SeasonConfig } from "../core/year_handler.js";
+import { applyAgeDrift } from "../shared/year_helpers.js";
+import { advanceToNextYear } from "../core/year_runner.js";
+import { startSeason } from "../weekly/weekly_engine.js";
+import { buildHighSchoolSeason } from "./hs_season_builder.js";
+import { generateTeamPalette, applyPalette } from "../theme.js";
+import { firePhaseStartHooks, fireAgeHooks } from "../plugins/lifecycle_hooks_runner.js";
 
 //============================================
 // Season config for frosh/soph
 const SEASON_CONFIG: SeasonConfig = {
-	seasonLength: 10,
-	hasFootball: true,
-	hasDepthChart: true,
-	hasPlayoffs: true,
-	eventChance: 35,
-	opponentStrengthBase: 40,
-	opponentStrengthRange: 30,
+  seasonLength: 10,
+  hasFootball: true,
+  hasDepthChart: true,
+  hasPlayoffs: true,
+  eventChance: 35,
+  opponentStrengthBase: 40,
+  opponentStrengthRange: 30,
 };
 
 //============================================
 export const hsFroshSophHandler: YearHandler = {
-	id: 'hs_frosh_soph',
-	ageStart: 14,
-	ageEnd: 15,
+  id: "hs_frosh_soph",
+  ageStart: 14,
+  ageEnd: 15,
 
-	startYear(player: Player, ctx: CareerContext): void {
-		applyAgeDrift(player);
+  startYear(player: Player, ctx: CareerContext): void {
+    applyAgeDrift(player);
 
-		// Generate HS identity at age 14
-		if (player.age === 14 && player.hsName === '') {
-			generateHSIdentity(player);
-			player.depthChart = getInitialFroshSophDepthChart(player);
-			// Apply team colors for the new high school
-			const hsPalette = generateTeamPalette();
-			applyPalette(hsPalette);
-			player.teamPalette = hsPalette;
-		} else if (player.teamPalette) {
-			// Reapply saved palette for returning seasons
-			applyPalette(player.teamPalette);
-		}
+    // Generate HS identity at age 14
+    if (player.age === 14 && player.hsName === "") {
+      generateHSIdentity(player);
+      player.depthChart = getInitialFroshSophDepthChart(player);
+      // Apply team colors for the new high school
+      const hsPalette = generateTeamPalette();
+      applyPalette(hsPalette);
+      player.teamPalette = hsPalette;
+    } else if (player.teamPalette) {
+      // Reapply saved palette for returning seasons
+      applyPalette(player.teamPalette);
+    }
 
-		// Set team name from persistent identity
-		player.teamName = `${player.hsName} ${player.hsMascot}`;
+    // Set team name from persistent identity
+    player.teamName = `${player.hsName} ${player.hsMascot}`;
 
-		// Build the season using the new season layer
-		// Player team drawn from the same pool as opponents (35-90)
-		const playerStrength = randomInRange(35, 90);
-		player.teamStrength = playerStrength;
-		const season = buildHighSchoolSeason(player.hsName, player.hsMascot, playerStrength);
+    // Build the season using the new season layer
+    // Player team drawn from the same pool as opponents (35-90)
+    const playerStrength = randomInRange(35, 90);
+    player.teamStrength = playerStrength;
+    const season = buildHighSchoolSeason(player.hsName, player.hsMascot, playerStrength);
 
-		ctx.updateHeader(player);
+    ctx.updateHeader(player);
 
-		// Fire phase start hooks for high school phase
-		firePhaseStartHooks('high_school', player, ctx);
+    // Fire phase start hooks for high school phase
+    firePhaseStartHooks("high_school", player, ctx);
 
-		// Fire age hooks that match the current age
-		fireAgeHooks(player, ctx);
+    // Fire age hooks that match the current age
+    fireAgeHooks(player, ctx);
 
-		const yearLabel = player.age === 14 ? 'Freshman' : 'Sophomore';
-		ctx.addHeadline(`Age ${player.age} - ${yearLabel} Year`);
-		ctx.addText(`${player.firstName} is on the frosh/soph team at ${player.hsName}.`);
-		ctx.addText(`Playing ${player.position || 'TBD'} as a ${player.depthChart}.`);
+    const yearLabel = player.age === 14 ? "Freshman" : "Sophomore";
+    ctx.addHeadline(`Age ${player.age} - ${yearLabel} Year`);
+    ctx.addText(`${player.firstName} is on the frosh/soph team at ${player.hsName}.`);
+    ctx.addText(`Playing ${player.position || "TBD"} as a ${player.depthChart}.`);
 
-		// Start the season via the weekly engine
-		ctx.waitForInteraction('High School Season', [
-			{
-				text: 'Start Season',
-				primary: true,
-				action: () => {
-					startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
-				},
-			},
-		]);
-	},
+    // Start the season via the weekly engine
+    ctx.waitForInteraction("High School Season", [
+      {
+        text: "Start Season",
+        primary: true,
+        action: () => {
+          startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
+        },
+      },
+    ]);
+  },
 
-	getSeasonConfig(): SeasonConfig {
-		return SEASON_CONFIG;
-	},
+  getSeasonConfig(): SeasonConfig {
+    return SEASON_CONFIG;
+  },
 };
 
 //============================================
 // Called when the weekly engine finishes the season
 function handleSeasonEnd(player: Player, ctx: CareerContext): void {
-	const yearLabel = player.age === 14 ? 'Freshman' : 'Sophomore';
-	ctx.addText(`${yearLabel} season is over.`);
+  const yearLabel = player.age === 14 ? "Freshman" : "Sophomore";
+  ctx.addText(`${yearLabel} season is over.`);
 
-	// Position change option at offseason
-	ctx.waitForInteraction('Offseason', [
-		{
-			text: 'Continue to Next Year',
-			primary: true,
-			action: () => advanceToNextYear(player, ctx),
-		},
-	]);
+  // Position change option at offseason
+  ctx.waitForInteraction("Offseason", [
+    {
+      text: "Continue to Next Year",
+      primary: true,
+      action: () => advanceToNextYear(player, ctx),
+    },
+  ]);
 }
 
 //============================================
 // Generate a high school name and mascot. Names tilt minor-league silly so
 // every save grows its own identity (e.g. "Pine Bluff Wyverns").
 function generateHSIdentity(player: Player): void {
-	const names = [
-		'Westfield',
-		'North Valley',
-		'Lincoln',
-		'Riverside',
-		'Cedar Creek',
-		'Oakmont',
-		'Fairview',
-		'Heritage',
-		'Summit',
-		'Crestwood',
-		'Lakewood',
-		'Eastside',
-		'Mountainview',
-		'Bayshore',
-		'Pinecrest',
-		'Highland',
-		'Pine Bluff',
-		'Lakeview',
-		'Milltown',
-		'Copper Hills',
-		'Dry Creek',
-		'Maple Fork',
-		'River City',
-		'Willow Springs',
-		'Elkhorn',
-		'Blue Ridge',
-		'Fox Hollow',
-		'Stonebridge',
-	];
-	const mascots = [
-		// Animals
-		'Alpacas',
-		'Bumblebees',
-		'Cobras',
-		'Ferrets',
-		'Foxes',
-		'Frogs',
-		'Gophers',
-		'Jackrabbits',
-		'Lemurs',
-		'Narwhals',
-		'Puffins',
-		'Raccoons',
-		'Seals',
-		'Squids',
-		'Turtles',
-		'Wombats',
-		'Lobsters',
-		'Platypus',
-		'Tadpoles',
-		'Zebras',
-		// Food
-		'Avocados',
-		'Beets',
-		'Hot Peppers',
-		'Kumquats',
-		'Spuds',
-		// Plants
-		'Dandelions',
-		'Clovers',
-		'Marigolds',
-		'Ferns',
-		// Rare weird
-		'Wyverns',
-	];
-	player.hsName = names[randomInRange(0, names.length - 1)]!; // index guaranteed in bounds by randomInRange
-	player.hsMascot = mascots[randomInRange(0, mascots.length - 1)]!; // index guaranteed in bounds by randomInRange
+  const names = [
+    "Westfield",
+    "North Valley",
+    "Lincoln",
+    "Riverside",
+    "Cedar Creek",
+    "Oakmont",
+    "Fairview",
+    "Heritage",
+    "Summit",
+    "Crestwood",
+    "Lakewood",
+    "Eastside",
+    "Mountainview",
+    "Bayshore",
+    "Pinecrest",
+    "Highland",
+    "Pine Bluff",
+    "Lakeview",
+    "Milltown",
+    "Copper Hills",
+    "Dry Creek",
+    "Maple Fork",
+    "River City",
+    "Willow Springs",
+    "Elkhorn",
+    "Blue Ridge",
+    "Fox Hollow",
+    "Stonebridge",
+  ];
+  const mascots = [
+    // Animals
+    "Alpacas",
+    "Bumblebees",
+    "Cobras",
+    "Ferrets",
+    "Foxes",
+    "Frogs",
+    "Gophers",
+    "Jackrabbits",
+    "Lemurs",
+    "Narwhals",
+    "Puffins",
+    "Raccoons",
+    "Seals",
+    "Squids",
+    "Turtles",
+    "Wombats",
+    "Lobsters",
+    "Platypus",
+    "Tadpoles",
+    "Zebras",
+    // Food
+    "Avocados",
+    "Beets",
+    "Hot Peppers",
+    "Kumquats",
+    "Spuds",
+    // Plants
+    "Dandelions",
+    "Clovers",
+    "Marigolds",
+    "Ferns",
+    // Rare weird
+    "Wyverns",
+  ];
+  player.hsName = names[randomInRange(0, names.length - 1)]!; // index guaranteed in bounds by randomInRange
+  player.hsMascot = mascots[randomInRange(0, mascots.length - 1)]!; // index guaranteed in bounds by randomInRange
 }
 
 //============================================
 // Frosh/soph teams should be easier to break into than varsity.
-function getInitialFroshSophDepthChart(player: Player): 'starter' | 'backup' {
-	const readiness = player.core.athleticism + player.core.technique + player.core.footballIq;
-	if (readiness >= 160 || player.core.athleticism >= 65 || player.core.technique >= 65) {
-		return 'starter';
-	}
-	return 'backup';
+function getInitialFroshSophDepthChart(player: Player): "starter" | "backup" {
+  const readiness = player.core.athleticism + player.core.technique + player.core.footballIq;
+  if (readiness >= 160 || player.core.athleticism >= 65 || player.core.technique >= 65) {
+    return "starter";
+  }
+  return "backup";
 }

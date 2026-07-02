@@ -9,49 +9,49 @@
 //
 // No migrators. The pre-v1 inference-by-field-presence pattern is gone.
 
-import type { Player } from '../player.js';
-import type { SaveEnvelope } from './schema.js';
-import { CURRENT_SCHEMA_VERSION, SAVE_KEY } from './schema.js';
-import { validateRawSave } from './validate.js';
+import type { Player } from "../player.js";
+import type { SaveEnvelope } from "./schema.js";
+import { CURRENT_SCHEMA_VERSION, SAVE_KEY } from "./schema.js";
+import { validateRawSave } from "./validate.js";
 
 //============================================
 // Persist player state. The envelope wraps the player payload with the
 // current schema version; the player object itself is kept as-is so existing
 // callers do not need to learn a new shape.
 export function saveGame(player: Player): void {
-	const envelope: SaveEnvelope = {
-		schemaVersion: CURRENT_SCHEMA_VERSION,
-		...player,
-	};
-	localStorage.setItem(SAVE_KEY, JSON.stringify(envelope));
+  const envelope: SaveEnvelope = {
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    ...player,
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(envelope));
 }
 
 //============================================
 // Load player state. Returns null on empty or invalid storage; logs a
 // warning and clears the slot so we never bounce off the same bad save.
 export function loadGame(): Player | null {
-	const raw: string | null = localStorage.getItem(SAVE_KEY);
-	const result = validateRawSave(raw);
-	if (result.kind === 'ok') {
-		// Strip the schemaVersion before handing the payload back; the live
-		// Player object does not carry it.
-		const envelope = result.envelope;
-		const { schemaVersion: _ignored, ...payload } = envelope;
-		return payload as unknown as Player;
-	}
-	if (result.kind === 'reset') {
-		console.warn('[save] ' + result.reason + '; resetting save slot.');
-		localStorage.removeItem(SAVE_KEY);
-	}
-	return null;
+  const raw: string | null = localStorage.getItem(SAVE_KEY);
+  const result = validateRawSave(raw);
+  if (result.kind === "ok") {
+    // Strip the schemaVersion before handing the payload back; the live
+    // Player object does not carry it.
+    const envelope = result.envelope;
+    const { schemaVersion: _ignored, ...payload } = envelope;
+    return payload as unknown as Player;
+  }
+  if (result.kind === "reset") {
+    console.warn("[save] " + result.reason + "; resetting save slot.");
+    localStorage.removeItem(SAVE_KEY);
+  }
+  return null;
 }
 
 //============================================
 export function deleteSave(): void {
-	localStorage.removeItem(SAVE_KEY);
+  localStorage.removeItem(SAVE_KEY);
 }
 
 //============================================
 export function hasSave(): boolean {
-	return localStorage.getItem(SAVE_KEY) !== null;
+  return localStorage.getItem(SAVE_KEY) !== null;
 }

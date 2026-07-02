@@ -12,12 +12,12 @@ export const CURRENT_SCHEMA_VERSION: number = 1;
 //============================================
 // localStorage key. Centralized here so the loader, writer, and reset path
 // stay in sync.
-export const SAVE_KEY: string = 'gridiron_life_save';
+export const SAVE_KEY: string = "gridiron_life_save";
 
 //============================================
 // Wire-shape stored in localStorage. The payload itself is the live Player
 // object; schemaVersion is added at write time and validated on load.
 export interface SaveEnvelope {
-	schemaVersion: number;
-	[key: string]: unknown;
+  schemaVersion: number;
+  [key: string]: unknown;
 }

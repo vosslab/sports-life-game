@@ -11,75 +11,75 @@
 //   driver license milestone fires during age-16 flow
 //   varsity season starts
 
-import type { Player } from '../player.js';
-import type { CareerContext } from './year_handler.js';
-import { getHandler, hasHandler } from './year_registry.js';
+import type { Player } from "../player.js";
+import type { CareerContext } from "./year_handler.js";
+import { getHandler, hasHandler } from "./year_registry.js";
 
 //============================================
 // Advance player to the next year and dispatch to the correct handler
 export function advanceToNextYear(player: Player, ctx: CareerContext): void {
-	// Increment age
-	player.age += 1;
-	// Increment calendar year
-	player.seasonYear += 1;
+  // Increment age
+  player.age += 1;
+  // Increment calendar year
+  player.seasonYear += 1;
 
-	// Check if we have a handler for this age
-	if (!hasHandler(player.age)) {
-		// No handler means career is over (age > 39)
-		ctx.addHeadline('Career Complete');
-		ctx.addText(`${player.firstName} ${player.lastName} has completed their career.`);
-		return;
-	}
+  // Check if we have a handler for this age
+  if (!hasHandler(player.age)) {
+    // No handler means career is over (age > 39)
+    ctx.addHeadline("Career Complete");
+    ctx.addText(`${player.firstName} ${player.lastName} has completed their career.`);
+    return;
+  }
 
-	// Get the handler for the new age
-	const handler = getHandler(player.age);
+  // Get the handler for the new age
+  const handler = getHandler(player.age);
 
-	// Update phase based on handler id
-	player.phase = getPhaseForHandler(handler.id);
+  // Update phase based on handler id
+  player.phase = getPhaseForHandler(handler.id);
 
-	// Tab bar must sync after phase change. Without this, tabs show stale
-	// buttons from the previous phase (e.g. childhood tabs during high school).
-	ctx.syncTabsToPhase(player.phase);
+  // Tab bar must sync after phase change. Without this, tabs show stale
+  // buttons from the previous phase (e.g. childhood tabs during high school).
+  ctx.syncTabsToPhase(player.phase);
 
-	// Dispatch to handler
-	handler.startYear(player, ctx);
+  // Dispatch to handler
+  handler.startYear(player, ctx);
 }
 
 //============================================
 // Start a specific year (used for game resume / initial start)
 export function startYear(player: Player, ctx: CareerContext): void {
-	if (!hasHandler(player.age)) {
-		ctx.addHeadline('Career Complete');
-		ctx.addText(`${player.firstName} ${player.lastName} has completed their career.`);
-		return;
-	}
+  if (!hasHandler(player.age)) {
+    ctx.addHeadline("Career Complete");
+    ctx.addText(`${player.firstName} ${player.lastName} has completed their career.`);
+    return;
+  }
 
-	const handler = getHandler(player.age);
-	// Update phase based on handler id (matches advanceToNextYear behavior)
-	player.phase = getPhaseForHandler(handler.id);
-	// Tab bar must sync after phase change (see advanceToNextYear comment)
-	ctx.syncTabsToPhase(player.phase);
-	handler.startYear(player, ctx);
+  const handler = getHandler(player.age);
+  // Update phase based on handler id (matches advanceToNextYear behavior)
+  player.phase = getPhaseForHandler(handler.id);
+  // Tab bar must sync after phase change (see advanceToNextYear comment)
+  ctx.syncTabsToPhase(player.phase);
+  handler.startYear(player, ctx);
 }
 
 //============================================
 // Map handler id to career phase
-function getPhaseForHandler(handlerId: string): Player['phase'] {
-	if (handlerId === 'kid_years') {
-		return 'childhood';
-	}
-	if (handlerId === 'peewee' || handlerId === 'travel') {
-		return 'youth';
-	}
-	if (handlerId === 'hs_frosh_soph' || handlerId === 'hs_varsity') {
-		return 'high_school';
-	}
-	if (handlerId.startsWith('college')) {
-		return 'college';
-	}
-	if (handlerId.startsWith('nfl')) {
-		return 'nfl';
-	}
-	// Unknown handler ID - throw error instead of silently returning childhood
-	throw new Error(`Unknown handler ID: ${handlerId}`);
+function getPhaseForHandler(handlerId: string): Player["phase"] {
+  if (handlerId === "kid_years") {
+    return "childhood";
+  }
+  if (handlerId === "peewee" || handlerId === "travel") {
+    return "youth";
+  }
+  if (handlerId === "hs_frosh_soph" || handlerId === "hs_varsity") {
+    return "high_school";
+  }
+  if (handlerId.startsWith("college")) {
+    return "college";
+  }
+  if (handlerId.startsWith("nfl")) {
+    return "nfl";
+  }
+  // Unknown handler ID - throw error instead of silently returning childhood
+  throw new Error(`Unknown handler ID: ${handlerId}`);
 }

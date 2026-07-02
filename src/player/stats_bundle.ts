@@ -6,13 +6,13 @@
 // grouping so the composed Player type can be assembled from narrow slices
 // without losing structure.
 
-import type { CoreStats, CareerStats, HiddenStats } from './stats.js';
-import type { SeasonStatTotals } from '../player.js';
+import type { CoreStats, CareerStats, HiddenStats } from "./stats.js";
+import type { SeasonStatTotals } from "../player.js";
 
 //============================================
 export interface PlayerStatsBundle {
-	core: CoreStats;
-	career: CareerStats;
-	hidden: HiddenStats;
-	seasonStats: SeasonStatTotals;
+  core: CoreStats;
+  career: CareerStats;
+  hidden: HiddenStats;
+  seasonStats: SeasonStatTotals;
 }

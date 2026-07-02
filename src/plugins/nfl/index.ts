@@ -7,25 +7,25 @@
 // Activities and events are bundled at build time (esbuild resolveJsonModule),
 // so register() reads them synchronously with no preload step.
 
-import type { GamePlugin, PluginHost } from '../plugin_host.js';
-import { registerPhaseHandlers } from './phase_handler.js';
-import { loadNflActivities } from './activities_loader.js';
-import { loadNflEvents } from './events_loader.js';
-import { registerNflTabs } from './tabs.js';
-import { nflCareerPanel } from './panels/career_panel.js';
-import { registerNflLifecycleHooks } from './lifecycle/hooks.js';
+import type { GamePlugin, PluginHost } from "../plugin_host.js";
+import { registerPhaseHandlers } from "./phase_handler.js";
+import { loadNflActivities } from "./activities_loader.js";
+import { loadNflEvents } from "./events_loader.js";
+import { registerNflTabs } from "./tabs.js";
+import { nflCareerPanel } from "./panels/career_panel.js";
+import { registerNflLifecycleHooks } from "./lifecycle/hooks.js";
 
 //============================================
 export const nflPlugin: GamePlugin = {
-	name: 'nfl',
-	version: '0.1.0',
+  name: "nfl",
+  version: "0.1.0",
 
-	register(host: PluginHost): void {
-		registerPhaseHandlers(host);
-		host.activities.registerMany(loadNflActivities());
-		host.events.registerMany(loadNflEvents());
-		registerNflTabs(host);
-		host.ui.registerPanel(nflCareerPanel);
-		registerNflLifecycleHooks(host);
-	},
+  register(host: PluginHost): void {
+    registerPhaseHandlers(host);
+    host.activities.registerMany(loadNflActivities());
+    host.events.registerMany(loadNflEvents());
+    registerNflTabs(host);
+    host.ui.registerPanel(nflCareerPanel);
+    registerNflLifecycleHooks(host);
+  },
 };

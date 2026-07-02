@@ -4,43 +4,43 @@
 // most volatile slice of Player and the most likely to be reshaped during
 // the simulator and event-system passes (M3/M4).
 
-import type { ActiveCrisis } from '../crisis.js';
-import type { StoryFlags } from '../player.js';
-import type { FotomagicPost } from '../social/fotomagic.js';
+import type { ActiveCrisis } from "../crisis.js";
+import type { StoryFlags } from "../player.js";
+import type { FotomagicPost } from "../social/fotomagic.js";
 
 //============================================
-export type SeasonGoal = 'grind' | 'healthy' | 'popular' | 'academic';
+export type SeasonGoal = "grind" | "healthy" | "popular" | "academic";
 
 //============================================
 export interface PlayerSeasonState {
-	// Calendar.
-	currentSeason: number;
-	currentWeek: number;
-	seasonYear: number;
+  // Calendar.
+  currentSeason: number;
+  currentWeek: number;
+  seasonYear: number;
 
-	// Academic / social.
-	gpa: number;
-	relationships: Record<string, number>;
+  // Academic / social.
+  gpa: number;
+  relationships: Record<string, number>;
 
-	// Persistent goal across the season.
-	seasonGoal: SeasonGoal;
+  // Persistent goal across the season.
+  seasonGoal: SeasonGoal;
 
-	// Crisis arc.
-	activeCrisis: ActiveCrisis | null;
-	scheduledCrises: string[];
-	crisisTriggeredThisSeason: boolean;
+  // Crisis arc.
+  activeCrisis: ActiveCrisis | null;
+  scheduledCrises: string[];
+  crisisTriggeredThisSeason: boolean;
 
-	// Story log and flags.
-	storyFlags: StoryFlags;
-	storyLog: string[];
+  // Story log and flags.
+  storyFlags: StoryFlags;
+  storyLog: string[];
 
-	// Milestones and event de-duplication.
-	milestones: Record<string, boolean>;
-	seenEventIds: Record<string, boolean>;
-	seenEventFamilies: Record<string, boolean>;
-	eventTagCounts: Record<string, number>;
-	flagProgress: Record<string, number>;
+  // Milestones and event de-duplication.
+  milestones: Record<string, boolean>;
+  seenEventIds: Record<string, boolean>;
+  seenEventFamilies: Record<string, boolean>;
+  eventTagCounts: Record<string, number>;
+  flagProgress: Record<string, number>;
 
-	// Optional Fotomagic feed; older saves load with this undefined.
-	fotomagicFeed?: FotomagicPost[];
+  // Optional Fotomagic feed; older saves load with this undefined.
+  fotomagicFeed?: FotomagicPost[];
 }

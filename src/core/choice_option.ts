@@ -7,8 +7,8 @@
 // UI-module imports.
 
 export interface ChoiceOption {
-	text: string;
-	description?: string;
-	primary?: boolean;
-	action: () => void;
+  text: string;
+  description?: string;
+  primary?: boolean;
+  action: () => void;
 }

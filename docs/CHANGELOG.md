@@ -1,5 +1,85 @@
 # Changelog
 
+## 2026-07-02
+
+### Additions and New Features
+
+- Added `devel/clean_build.sh`, the light build cleaner wired to the `npm run clean` target. It
+  wipes build output, tool caches, and test artifacts while keeping `node_modules` (and Rust
+  `target/`) intact, so the next build is ab initio with no reinstall.
+- Updated `devel/dist_clean.sh` (the deep reset) to keep the committed `package-lock.json`, so a
+  distribution-clean checkout still drives a reproducible `npm ci`.
+- Repointed the `clean` npm alias in `package.json` from `./dist_clean.sh` to
+  `./devel/clean_build.sh`.
+- Started tracking `package-lock.json` (removed it from `.gitignore`) so this GitHub Pages repo
+  carries a reproducible lockfile.
+
+### Removals and Deprecations
+
+- Removed the root `dist_clean.sh`; both cleaners now live only under `devel/`
+  (`devel/clean_build.sh` light, `devel/dist_clean.sh` deep).
+
+## 2026-07-01
+
+### Fixes and Maintenance
+
+- Added the canonical `allowScripts` allow-list (esbuild + fsevents install scripts) to `package.json` to silence `npm warn allow-scripts` and match the template.
+- **`package.json` marked `private: true`**: this repo is an application, not a
+  published TypeScript library, so it carries no downstream consumers. Matches
+  the applications-not-libraries policy in
+  [docs/TYPESCRIPT_STYLE.md](TYPESCRIPT_STYLE.md#dependency-versions-and-pins).
+- **`node_modules` was missing several devDependencies** (`eslint`, `prettier`,
+  `@eslint/js`, `globals`, `typescript-eslint`) even though `package.json`
+  declared them; `npx eslint` was silently installing a mismatched fresh
+  `eslint@10.6.0` and failing to resolve `@eslint/js`. Ran `npm install` to
+  reconcile `node_modules` with the declared devDependencies.
+- **ESLint was linting build output and archived code**: `_site/` (esbuild
+  build output, gitignored, wiped by `dist_clean.sh`) and
+  `archive/disconnected_features/` (committed-but-inactive code, excluded from
+  both `tsconfig.json` and `tsconfig.lint.json`) were not in the canonical
+  `eslint.config.js` ignores, so typescript-eslint's type-checked rules could
+  not resolve either tree and emitted hundreds of `no-undef` and parser
+  errors. Added matching `ignores: ["_site/**", "archive/**"]` to the
+  consumer-owned `eslint.config.local.js` so lint scope mirrors typecheck
+  scope.
+- Ran `npx prettier --write` and `npx eslint --fix` across the repo as the
+  standard mechanical gate-fix pass (6 `no-unnecessary-type-assertion` errors
+  and 1 `no-useless-assignment` error auto-fixed).
+- **Resolved conflicting Prettier configs**: this repo carried both
+  `.prettierrc` (the canonical propagated config: 2-space, `printWidth` 100)
+  and a legacy `.prettierrc.json` (tabs, single quotes). Prettier resolves
+  `.prettierrc` first, so the JSON file never took effect. Removed
+  `.prettierrc.json` so `.prettierrc` is the single source of truth. The
+  working tree was already reflowed to the canonical style by the mechanical
+  pass above, so `npx prettier --check '**/*.{ts,tsx,mts,cts,js,mjs,cjs}'`
+  passes cleanly with no further reflow.
+- **Narrowed `format:check`/`format:write` aliases from the bare `.` scope**
+  to the canonical `npx prettier ... '**/*.{ts,tsx,mts,cts,js,mjs,cjs}'` glob,
+  matching [docs/TYPESCRIPT_STYLE.md](TYPESCRIPT_STYLE.md#formatters-and-linters).
+  Also added the missing `setup` and `setup:playwright` front-door aliases
+  (`./devel/setup_typescript.sh` and `./devel/setup_playwright.sh`), both of
+  which already existed as executable scripts but had no `package.json`
+  entry point.
+
+### Removals and Deprecations
+
+- **Removed legacy `.prettierrc.json`**: superseded by the propagated
+  `.prettierrc`. See the Prettier-config note above.
+
+### Decisions and Failures
+
+- **`./check_codebase.sh` still fails at the `lint` step and is left
+  unresolved this pass**: after the ignore fix and auto-fix pass, the
+  remaining failures are not mechanical. 198
+  `@typescript-eslint/explicit-function-return-type` errors are spread across
+  most `src/`, `tools/`, and `tests/` files (missing explicit return type
+  annotations on many functions), and 213 `no-console` warnings plus 1
+  `no-implicit-coercion` warning are promoted to gate failures by
+  `check_codebase.sh` step 3's `--max-warnings 0` flag. Both would require
+  substantial manual code edits well beyond mechanical formatting/auto-fix,
+  so they are left as-is for a dedicated future pass. `typecheck` and
+  `typecheck:lint` both pass cleanly.
+
 ## 2026-05-27
 
 ### Fixes and Maintenance

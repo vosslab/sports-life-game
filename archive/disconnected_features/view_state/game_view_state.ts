@@ -13,75 +13,75 @@
 // shape as flat as practical.
 
 import {
-	CareerPhase,
-	DepthChartStatus,
-	Position,
-	PositionBucket,
-	SeasonRecord,
-	SeasonGoal,
-} from '../player/index.js';
+  CareerPhase,
+  DepthChartStatus,
+  Position,
+  PositionBucket,
+  SeasonRecord,
+  SeasonGoal,
+} from "../player/index.js";
 
 //============================================
 // Header strip: name, age, phase, team, current calendar position.
 export interface HeaderView {
-	firstName: string;
-	lastName: string;
-	age: number;
-	phase: CareerPhase;
-	teamName: string;
-	position: Position | null;
-	depthChart: DepthChartStatus;
-	currentSeason: number;
-	currentWeek: number;
-	seasonYear: number;
+  firstName: string;
+  lastName: string;
+  age: number;
+  phase: CareerPhase;
+  teamName: string;
+  position: Position | null;
+  depthChart: DepthChartStatus;
+  currentSeason: number;
+  currentWeek: number;
+  seasonYear: number;
 }
 
 //============================================
 // One stat bar entry for the sidebar.
 export interface StatBarView {
-	key: string;
-	label: string;
-	value: number;
-	max: number;
-	tip?: string;
+  key: string;
+  label: string;
+  value: number;
+  max: number;
+  tip?: string;
 }
 
 //============================================
 // Career tab payload.
 export interface CareerView {
-	gamesPlayed: number;
-	history: readonly SeasonRecord[];
-	primaryBucket: PositionBucket | null;
+  gamesPlayed: number;
+  history: readonly SeasonRecord[];
+  primaryBucket: PositionBucket | null;
 }
 
 //============================================
 // Story log feed.
 export interface StoryView {
-	headlines: readonly string[];
-	log: readonly string[];
+  headlines: readonly string[];
+  log: readonly string[];
 }
 
 //============================================
 // Social feed (Fotomagic).
 export interface SocialPostView {
-	id: string;
-	timestamp: number;
-	caption: string;
-	statSnippet?: string;
-	likes: number;
+  id: string;
+  timestamp: number;
+  caption: string;
+  statSnippet?: string;
+  likes: number;
 }
 
 export interface SocialView {
-	posts: readonly SocialPostView[];
+  posts: readonly SocialPostView[];
 }
 
 //============================================
 // Composite payload the render layer pulls from each tick.
 export interface GameViewState {
-	header: HeaderView;
-	statBars: readonly StatBarView[];
-	career: CareerView;
-	story: StoryView;
-	social: SocialView;
-	seasonGoal: SeasonGoal;
+  header: HeaderView;
+  statBars: readonly StatBarView[];
+  career: CareerView;
+  story: StoryView;
+  social: SocialView;
+  seasonGoal: SeasonGoal;
 }

@@ -17,107 +17,107 @@
 
 /// <reference types="node" />
 
-import { test } from 'node:test';
-import fs from 'node:fs';
-import path from 'node:path';
-import url from 'node:url';
+import { test } from "node:test";
+import fs from "node:fs";
+import path from "node:path";
+import url from "node:url";
 
 //============================================
 // DENY_PATTERNS: regexes matching forbidden import paths
 const DENY_PATTERNS: RegExp[] = [
-	/from\s+['"].*src\/childhood\/.*['"]/,
-	/from\s+['"].*src\/high_school\/.*['"]/,
-	/from\s+['"].*src\/college\/.*['"]/,
-	/from\s+['"].*src\/nfl_handlers\/.*['"]/,
-	// Forbid UI widget imports (*_widget.ts), but allow helpers
-	/from\s+['"].*src\/ui\/.*_widget\.ts['"]/,
-	/from\s+['"].*src\/simulator\/engine\/.*['"]/,
+  /from\s+['"].*src\/childhood\/.*['"]/,
+  /from\s+['"].*src\/high_school\/.*['"]/,
+  /from\s+['"].*src\/college\/.*['"]/,
+  /from\s+['"].*src\/nfl_handlers\/.*['"]/,
+  // Forbid UI widget imports (*_widget.ts), but allow helpers
+  /from\s+['"].*src\/ui\/.*_widget\.ts['"]/,
+  /from\s+['"].*src\/simulator\/engine\/.*['"]/,
 ];
 
 //============================================
 // Helper: recursively find all .ts files in a directory
 function findTsFiles(dir: string): string[] {
-	const results: string[] = [];
+  const results: string[] = [];
 
-	function walk(current: string): void {
-		const entries = fs.readdirSync(current, { withFileTypes: true });
-		for (const entry of entries) {
-			const fullPath = path.join(current, entry.name);
-			if (entry.isDirectory()) {
-				// Skip node_modules and other non-relevant dirs
-				if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
-					walk(fullPath);
-				}
-			} else if (entry.isFile() && entry.name.endsWith('.ts')) {
-				results.push(fullPath);
-			}
-		}
-	}
+  function walk(current: string): void {
+    const entries = fs.readdirSync(current, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        // Skip node_modules and other non-relevant dirs
+        if (!entry.name.startsWith(".") && entry.name !== "node_modules") {
+          walk(fullPath);
+        }
+      } else if (entry.isFile() && entry.name.endsWith(".ts")) {
+        results.push(fullPath);
+      }
+    }
+  }
 
-	walk(dir);
-	return results;
+  walk(dir);
+  return results;
 }
 
 //============================================
 // Helper: check if a line violates any deny pattern
 function isViolation(line: string): boolean {
-	for (const pattern of DENY_PATTERNS) {
-		if (pattern.test(line)) {
-			return true;
-		}
-	}
-	return false;
+  for (const pattern of DENY_PATTERNS) {
+    if (pattern.test(line)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 //============================================
-void test('boundary check: no forbidden imports in plugin tree', () => {
-	const here = url.fileURLToPath(import.meta.url);
-	const repoRoot = path.resolve(path.dirname(here), '..');
-	const pluginRegistriesDir = path.join(repoRoot, 'src', 'plugins', 'registries');
-	const pluginsDir = path.join(repoRoot, 'src', 'plugins');
+void test("boundary check: no forbidden imports in plugin tree", () => {
+  const here = url.fileURLToPath(import.meta.url);
+  const repoRoot = path.resolve(path.dirname(here), "..");
+  const pluginRegistriesDir = path.join(repoRoot, "src", "plugins", "registries");
+  const pluginsDir = path.join(repoRoot, "src", "plugins");
 
-	const violations: string[] = [];
+  const violations: string[] = [];
 
-	// Scan registries
-	const registryFiles = findTsFiles(pluginRegistriesDir);
-	for (const file of registryFiles) {
-		const content = fs.readFileSync(file, 'utf8');
-		const lines = content.split('\n');
-		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i]!; // asserted nonempty by loop bounds
-			if (isViolation(line)) {
-				const relPath = path.relative(repoRoot, file);
-				violations.push(`${relPath}:${i + 1}: ${line.trim()}`);
-			}
-		}
-	}
+  // Scan registries
+  const registryFiles = findTsFiles(pluginRegistriesDir);
+  for (const file of registryFiles) {
+    const content = fs.readFileSync(file, "utf8");
+    const lines = content.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]!; // asserted nonempty by loop bounds
+      if (isViolation(line)) {
+        const relPath = path.relative(repoRoot, file);
+        violations.push(`${relPath}:${i + 1}: ${line.trim()}`);
+      }
+    }
+  }
 
-	// Scan plugin subdirectories: recursively scan ALL .ts files
-	const entries = fs.readdirSync(pluginsDir, { withFileTypes: true });
-	for (const entry of entries) {
-		if (entry.isDirectory() && !entry.name.startsWith('.')) {
-			const pluginSubdir = path.join(pluginsDir, entry.name);
-			const pluginTsFiles = findTsFiles(pluginSubdir);
-			for (const file of pluginTsFiles) {
-				const content = fs.readFileSync(file, 'utf8');
-				const lines = content.split('\n');
-				for (let i = 0; i < lines.length; i++) {
-					const line = lines[i]!; // asserted nonempty by loop bounds
-					if (isViolation(line)) {
-						const relPath = path.relative(repoRoot, file);
-						violations.push(`${relPath}:${i + 1}: ${line.trim()}`);
-					}
-				}
-			}
-		}
-	}
+  // Scan plugin subdirectories: recursively scan ALL .ts files
+  const entries = fs.readdirSync(pluginsDir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isDirectory() && !entry.name.startsWith(".")) {
+      const pluginSubdir = path.join(pluginsDir, entry.name);
+      const pluginTsFiles = findTsFiles(pluginSubdir);
+      for (const file of pluginTsFiles) {
+        const content = fs.readFileSync(file, "utf8");
+        const lines = content.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i]!; // asserted nonempty by loop bounds
+          if (isViolation(line)) {
+            const relPath = path.relative(repoRoot, file);
+            violations.push(`${relPath}:${i + 1}: ${line.trim()}`);
+          }
+        }
+      }
+    }
+  }
 
-	if (violations.length > 0) {
-		const lines: string[] = [];
-		lines.push('plugin boundary check: found violations:');
-		for (const violation of violations) {
-			lines.push(`  ${violation}`);
-		}
-		throw new Error(lines.join('\n'));
-	}
+  if (violations.length > 0) {
+    const lines: string[] = [];
+    lines.push("plugin boundary check: found violations:");
+    for (const violation of violations) {
+      lines.push(`  ${violation}`);
+    }
+    throw new Error(lines.join("\n"));
+  }
 });

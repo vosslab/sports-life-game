@@ -7,6 +7,6 @@
 // CareerContext (aliased as GameContext) surface is frozen after M1. Additions require architect approval. WP-M2-C precedent: getPlayer() accessor approved 2026-05.
 // TODO: unify CareerContext and GameContext in follow-up plan
 
-import type { CareerContext } from './year_handler.js';
+import type { CareerContext } from "./year_handler.js";
 
 export type GameContext = CareerContext;

@@ -3,54 +3,54 @@
 // Replaces static activity selection with context-sensitive choices
 // that have real stakes and uncertain outcomes.
 
-import type { Player } from '../player.js';
-import { modifyStat } from '../player.js';
-import type { ArcPhase } from '../season_arc.js';
-import { rand } from '../core/rng.js';
-import preseasonData from '../data/choices/preseason.json';
-import openingData from '../data/choices/opening.json';
-import midseasonData from '../data/choices/midseason.json';
-import stretchData from '../data/choices/stretch.json';
-import postseasonData from '../data/choices/postseason.json';
+import type { Player } from "../player.js";
+import { modifyStat } from "../player.js";
+import type { ArcPhase } from "../season_arc.js";
+import { rand } from "../core/rng.js";
+import preseasonData from "../data/choices/preseason.json";
+import openingData from "../data/choices/opening.json";
+import midseasonData from "../data/choices/midseason.json";
+import stretchData from "../data/choices/stretch.json";
+import postseasonData from "../data/choices/postseason.json";
 
 //============================================
 // Choice data loaded from JSON
 export interface ChoiceOutcome {
-	probability: number;
-	effects: Record<string, number>;
-	narrative: string;
+  probability: number;
+  effects: Record<string, number>;
+  narrative: string;
 }
 
 export interface WeeklyChoice {
-	id: string;
-	category: string;
-	text: string;
-	description: string;
-	risk: string;
-	conditions: Record<string, unknown>;
-	outcomes: {
-		success: ChoiceOutcome;
-		failure: ChoiceOutcome;
-	};
+  id: string;
+  category: string;
+  text: string;
+  description: string;
+  risk: string;
+  conditions: Record<string, unknown>;
+  outcomes: {
+    success: ChoiceOutcome;
+    failure: ChoiceOutcome;
+  };
 }
 
 //============================================
 // Result of resolving a choice
 export interface ChoiceResult {
-	choiceId: string;
-	succeeded: boolean;
-	narrative: string;
-	effects: Record<string, number>;
+  choiceId: string;
+  succeeded: boolean;
+  narrative: string;
+  effects: Record<string, number>;
 }
 
 //============================================
 // Choice pools loaded from JSON (populated by loadChoicePools)
 const choicePools: Record<ArcPhase, WeeklyChoice[]> = {
-	preseason: [],
-	opening: [],
-	midseason: [],
-	stretch: [],
-	postseason: [],
+  preseason: [],
+  opening: [],
+  midseason: [],
+  stretch: [],
+  postseason: [],
 };
 
 //============================================
@@ -62,122 +62,122 @@ const choicePools: Record<ArcPhase, WeeklyChoice[]> = {
 // specific to assign directly to WeeklyChoice (which uses
 // `Record<string, number>` for effects), so we cast through `unknown`.
 const CHOICE_DATA_BY_PHASE: Record<ArcPhase, WeeklyChoice[]> = {
-	preseason: preseasonData,
-	opening: openingData,
-	midseason: midseasonData,
-	stretch: stretchData,
-	postseason: postseasonData,
+  preseason: preseasonData,
+  opening: openingData,
+  midseason: midseasonData,
+  stretch: stretchData,
+  postseason: postseasonData,
 };
 
 //============================================
 // Load choice pools from bundled JSON imports
 // eslint-disable-next-line @typescript-eslint/require-await -- M5 loader contract: callers await; body is sync because JSON is bundled at build time
 export async function loadChoicePools(): Promise<void> {
-	const phases: ArcPhase[] = ['preseason', 'opening', 'midseason', 'stretch', 'postseason'];
-	for (const phase of phases) {
-		choicePools[phase] = CHOICE_DATA_BY_PHASE[phase];
-	}
+  const phases: ArcPhase[] = ["preseason", "opening", "midseason", "stretch", "postseason"];
+  for (const phase of phases) {
+    choicePools[phase] = CHOICE_DATA_BY_PHASE[phase];
+  }
 }
 
 //============================================
 // Get available choices for this week based on context
 export function getWeeklyChoices(
-	player: Player,
-	arcPhase: ArcPhase,
-	_recentWins: number,
-	_recentLosses: number,
-	hasCrisis: boolean
+  player: Player,
+  arcPhase: ArcPhase,
+  _recentWins: number,
+  _recentLosses: number,
+  hasCrisis: boolean,
 ): WeeklyChoice[] {
-	// During a crisis, choices come from the crisis system, not here
-	if (hasCrisis) {
-		return [];
-	}
+  // During a crisis, choices come from the crisis system, not here
+  if (hasCrisis) {
+    return [];
+  }
 
-	const pool = choicePools[arcPhase];
-	if (pool.length === 0) {
-		return [];
-	}
+  const pool = choicePools[arcPhase];
+  if (pool.length === 0) {
+    return [];
+  }
 
-	// Filter by conditions
-	const eligible = pool.filter((choice) => meetsConditions(choice, player));
+  // Filter by conditions
+  const eligible = pool.filter((choice) => meetsConditions(choice, player));
 
-	// Pick 3 choices (or fewer if pool is small): aim for variety in category
-	const selected: WeeklyChoice[] = [];
-	const usedCategories = new Set<string>();
+  // Pick 3 choices (or fewer if pool is small): aim for variety in category
+  const selected: WeeklyChoice[] = [];
+  const usedCategories = new Set<string>();
 
-	// First pass: one per category
-	for (const choice of eligible) {
-		if (selected.length >= 3) {
-			break;
-		}
-		if (!usedCategories.has(choice.category)) {
-			selected.push(choice);
-			usedCategories.add(choice.category);
-		}
-	}
+  // First pass: one per category
+  for (const choice of eligible) {
+    if (selected.length >= 3) {
+      break;
+    }
+    if (!usedCategories.has(choice.category)) {
+      selected.push(choice);
+      usedCategories.add(choice.category);
+    }
+  }
 
-	// Second pass: fill remaining slots
-	for (const choice of eligible) {
-		if (selected.length >= 3) {
-			break;
-		}
-		if (!selected.includes(choice)) {
-			selected.push(choice);
-		}
-	}
+  // Second pass: fill remaining slots
+  for (const choice of eligible) {
+    if (selected.length >= 3) {
+      break;
+    }
+    if (!selected.includes(choice)) {
+      selected.push(choice);
+    }
+  }
 
-	return selected;
+  return selected;
 }
 
 //============================================
 // Check if a choice's conditions are met
 function meetsConditions(choice: WeeklyChoice, player: Player): boolean {
-	const conds = choice.conditions;
+  const conds = choice.conditions;
 
-	// Depth chart condition
-	if (conds.depthChart) {
-		const allowed = conds.depthChart as string[];
-		if (!allowed.includes(player.depthChart)) {
-			return false;
-		}
-	}
+  // Depth chart condition
+  if (conds.depthChart) {
+    const allowed = conds.depthChart as string[];
+    if (!allowed.includes(player.depthChart)) {
+      return false;
+    }
+  }
 
-	// Health threshold condition
-	if (conds.healthBelow !== undefined) {
-		if (player.core.health >= (conds.healthBelow as number)) {
-			return false;
-		}
-	}
+  // Health threshold condition
+  if (conds.healthBelow !== undefined) {
+    if (player.core.health >= (conds.healthBelow as number)) {
+      return false;
+    }
+  }
 
-	return true;
+  return true;
 }
 
 //============================================
 // Resolve a player's choice: roll success/failure and apply effects
 export function resolveChoice(player: Player, choice: WeeklyChoice): ChoiceResult {
-	const roll = rand();
-	const succeeded = roll < choice.outcomes.success.probability;
+  const roll = rand();
+  const succeeded = roll < choice.outcomes.success.probability;
 
-	const outcome = succeeded ? choice.outcomes.success : choice.outcomes.failure;
+  const outcome = succeeded ? choice.outcomes.success : choice.outcomes.failure;
 
-	// Apply stat effects
-	for (const [stat, delta] of Object.entries(outcome.effects)) {
-		if (
-			stat === 'health' ||
-			stat === 'confidence' ||
-			stat === 'technique' ||
-			stat === 'athleticism' ||
-			stat === 'footballIq' ||
-			stat === 'discipline'
-		) {
-			modifyStat(player, stat, delta);
-		}
-	}
+  // Apply stat effects
+  for (const [stat, delta] of Object.entries(outcome.effects)) {
+    if (
+      stat === "health" ||
+      stat === "confidence" ||
+      stat === "technique" ||
+      stat === "athleticism" ||
+      stat === "footballIq" ||
+      stat === "discipline"
+    ) {
+      modifyStat(player, stat, delta);
+    }
+  }
 
-	return {
-		choiceId: choice.id,
-		succeeded,
-		narrative: outcome.narrative,
-		effects: outcome.effects,
-	};
+  return {
+    choiceId: choice.id,
+    succeeded,
+    narrative: outcome.narrative,
+    effects: outcome.effects,
+  };
 }

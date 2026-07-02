@@ -6,199 +6,199 @@
 // No depth chart yet (everyone plays).
 // 1 life event per year alongside football setup.
 
-import type { Player } from '../player.js';
-import type { YearHandler, CareerContext, SeasonConfig } from '../core/year_handler.js';
-import { applyAgeDrift, coachAssignPosition } from '../shared/year_helpers.js';
-import { advanceToNextYear } from '../core/year_runner.js';
-import type { GameEvent } from '../events.js';
-import { filterEvents, selectEvent, applyEventChoice } from '../events.js';
-import { promoteFlags } from './kid_years.js';
-import { firePhaseStartHooks, fireAgeHooks } from '../plugins/lifecycle_hooks_runner.js';
+import type { Player } from "../player.js";
+import type { YearHandler, CareerContext, SeasonConfig } from "../core/year_handler.js";
+import { applyAgeDrift, coachAssignPosition } from "../shared/year_helpers.js";
+import { advanceToNextYear } from "../core/year_runner.js";
+import type { GameEvent } from "../events.js";
+import { filterEvents, selectEvent, applyEventChoice } from "../events.js";
+import { promoteFlags } from "./kid_years.js";
+import { firePhaseStartHooks, fireAgeHooks } from "../plugins/lifecycle_hooks_runner.js";
 
 //============================================
 export const peeweeHandler: YearHandler = {
-	id: 'peewee',
-	ageStart: 8,
-	ageEnd: 10,
+  id: "peewee",
+  ageStart: 8,
+  ageEnd: 10,
 
-	startYear(player: Player, ctx: CareerContext): void {
-		applyAgeDrift(player);
+  startYear(player: Player, ctx: CareerContext): void {
+    applyAgeDrift(player);
 
-		// Generate town identity at age 8 (check for both empty string and undefined)
-		if (player.age === 8 && !player.townName) {
-			generateTownIdentity(player);
-			coachAssignPosition(player);
-			player.depthChart = 'starter'; // everyone plays in peewee
-			player.teamName = `${player.townName} ${player.townMascot}`;
-		}
+    // Generate town identity at age 8 (check for both empty string and undefined)
+    if (player.age === 8 && !player.townName) {
+      generateTownIdentity(player);
+      coachAssignPosition(player);
+      player.depthChart = "starter"; // everyone plays in peewee
+      player.teamName = `${player.townName} ${player.townMascot}`;
+    }
 
-		ctx.updateHeader(player);
+    ctx.updateHeader(player);
 
-		// Fire phase start hooks for childhood phase (only once on entry)
-		if (player.phase === 'childhood') {
-			firePhaseStartHooks('childhood', player, ctx);
-		}
+    // Fire phase start hooks for childhood phase (only once on entry)
+    if (player.phase === "childhood") {
+      firePhaseStartHooks("childhood", player, ctx);
+    }
 
-		// Fire age hooks that match the current age
-		fireAgeHooks(player, ctx);
+    // Fire age hooks that match the current age
+    fireAgeHooks(player, ctx);
 
-		// Clear previous year's content so the log stays manageable
-		ctx.clearStory();
+    // Clear previous year's content so the log stays manageable
+    ctx.clearStory();
 
-		const gradeLabel =
-			player.age === 8 ? '3rd grade' : player.age === 9 ? '4th grade' : '5th grade';
-		ctx.addHeadline(`Age ${player.age} - Peewee Football (${gradeLabel})`);
-		ctx.addText(`${player.firstName} plays for the ${player.teamName}.`);
-		if (player.position) {
-			ctx.addText(`Coach has you playing ${player.position}.`);
-		}
+    const gradeLabel =
+      player.age === 8 ? "3rd grade" : player.age === 9 ? "4th grade" : "5th grade";
+    ctx.addHeadline(`Age ${player.age} - Peewee Football (${gradeLabel})`);
+    ctx.addText(`${player.firstName} plays for the ${player.teamName}.`);
+    if (player.position) {
+      ctx.addText(`Coach has you playing ${player.position}.`);
+    }
 
-		// Show a youth event before the season button
-		const statsRecord: Record<string, number> = {
-			athleticism: player.core.athleticism,
-			technique: player.core.technique,
-			footballIq: player.core.footballIq,
-			discipline: player.core.discipline,
-			health: player.core.health,
-			confidence: player.core.confidence,
-		};
+    // Show a youth event before the season button
+    const statsRecord: Record<string, number> = {
+      athleticism: player.core.athleticism,
+      technique: player.core.technique,
+      footballIq: player.core.footballIq,
+      discipline: player.core.discipline,
+      health: player.core.health,
+      confidence: player.core.confidence,
+    };
 
-		const eligible = filterEvents(
-			ctx.events,
-			'childhood',
-			0,
-			player.position,
-			player.storyFlags,
-			statsRecord,
-			undefined,
-			player.age
-		);
+    const eligible = filterEvents(
+      ctx.events,
+      "childhood",
+      0,
+      player.position,
+      player.storyFlags,
+      statsRecord,
+      undefined,
+      player.age,
+    );
 
-		// Filter out events that already fired or whose family already fired
-		const fresh = eligible.filter((e) => {
-			if (player.seenEventIds[e.id]) {
-				return false;
-			}
-			if (e.family && player.seenEventFamilies[e.family]) {
-				return false;
-			}
-			return true;
-		});
+    // Filter out events that already fired or whose family already fired
+    const fresh = eligible.filter((e) => {
+      if (player.seenEventIds[e.id]) {
+        return false;
+      }
+      if (e.family && player.seenEventFamilies[e.family]) {
+        return false;
+      }
+      return true;
+    });
 
-		const event = selectEvent(fresh);
-		if (event) {
-			// Record the event as fired
-			player.seenEventIds[event.id] = true;
-			if (event.family) {
-				player.seenEventFamilies[event.family] = true;
-			}
-			for (const tag of event.tags) {
-				player.eventTagCounts[tag] = (player.eventTagCounts[tag] || 0) + 1;
-			}
-			presentEventThenContinue(player, ctx, event);
-		} else {
-			showContinue(player, ctx);
-		}
-	},
+    const event = selectEvent(fresh);
+    if (event) {
+      // Record the event as fired
+      player.seenEventIds[event.id] = true;
+      if (event.family) {
+        player.seenEventFamilies[event.family] = true;
+      }
+      for (const tag of event.tags) {
+        player.eventTagCounts[tag] = (player.eventTagCounts[tag] || 0) + 1;
+      }
+      presentEventThenContinue(player, ctx, event);
+    } else {
+      showContinue(player, ctx);
+    }
+  },
 
-	getSeasonConfig(): SeasonConfig {
-		return {
-			seasonLength: 6,
-			hasFootball: true,
-			hasDepthChart: false,
-			hasPlayoffs: false,
-			eventChance: 25,
-			opponentStrengthBase: 30,
-			opponentStrengthRange: 20,
-		};
-	},
+  getSeasonConfig(): SeasonConfig {
+    return {
+      seasonLength: 6,
+      hasFootball: true,
+      hasDepthChart: false,
+      hasPlayoffs: false,
+      eventChance: 25,
+      opponentStrengthBase: 30,
+      opponentStrengthRange: 20,
+    };
+  },
 };
 
 //============================================
 // Present one event, then show Continue
 function presentEventThenContinue(player: Player, ctx: CareerContext, event: GameEvent): void {
-	ctx.addHeadline(event.title);
-	ctx.addText(event.description);
+  ctx.addHeadline(event.title);
+  ctx.addText(event.description);
 
-	const choiceButtons = event.choices.map((choice) => ({
-		text: choice.text,
-		primary: false,
-		action: () => {
-			ctx.addText(`> ${choice.text}`);
-			const flavor = applyEventChoice(player, choice);
-			ctx.addResult(flavor);
-			ctx.updateStats(player);
-			ctx.save();
-			promoteFlags(player);
-			showContinue(player, ctx);
-		},
-	}));
+  const choiceButtons = event.choices.map((choice) => ({
+    text: choice.text,
+    primary: false,
+    action: () => {
+      ctx.addText(`> ${choice.text}`);
+      const flavor = applyEventChoice(player, choice);
+      ctx.addResult(flavor);
+      ctx.updateStats(player);
+      ctx.save();
+      promoteFlags(player);
+      showContinue(player, ctx);
+    },
+  }));
 
-	ctx.waitForInteraction(event.title, choiceButtons, event.description);
+  ctx.waitForInteraction(event.title, choiceButtons, event.description);
 }
 
 //============================================
 // Show the continue button
 function showContinue(player: Player, ctx: CareerContext): void {
-	ctx.waitForInteraction('Peewee Football', [
-		{
-			text: 'Continue to Next Year',
-			primary: true,
-			action: () => advanceToNextYear(player, ctx),
-		},
-	]);
+  ctx.waitForInteraction("Peewee Football", [
+    {
+      text: "Continue to Next Year",
+      primary: true,
+      action: () => advanceToNextYear(player, ctx),
+    },
+  ]);
 }
 
 //============================================
 // Generate a town name and mascot from curated lists
 function generateTownIdentity(player: Player): void {
-	const towns = [
-		'Riverside',
-		'Oakdale',
-		'Fairview',
-		'Springfield',
-		'Greenville',
-		'Lakewood',
-		'Maplewood',
-		'Hillcrest',
-		'Cedarville',
-		'Brookfield',
-		'Pinewood',
-		'Sunnydale',
-		'Clearwater',
-		'Stonebridge',
-		'Meadowbrook',
-		'Hawthorne',
-		'Ridgemont',
-		'Ashford',
-		'Willowdale',
-		'Crestwood',
-	];
-	const mascots = [
-		'Eagles',
-		'Bulldogs',
-		'Warriors',
-		'Wildcats',
-		'Panthers',
-		'Tigers',
-		'Bears',
-		'Falcons',
-		'Hawks',
-		'Lions',
-		'Mustangs',
-		'Cobras',
-		'Wolves',
-		'Rams',
-		'Sharks',
-		'Cougars',
-		'Stallions',
-		'Jaguars',
-		'Vipers',
-		'Thunderbolts',
-	];
+  const towns = [
+    "Riverside",
+    "Oakdale",
+    "Fairview",
+    "Springfield",
+    "Greenville",
+    "Lakewood",
+    "Maplewood",
+    "Hillcrest",
+    "Cedarville",
+    "Brookfield",
+    "Pinewood",
+    "Sunnydale",
+    "Clearwater",
+    "Stonebridge",
+    "Meadowbrook",
+    "Hawthorne",
+    "Ridgemont",
+    "Ashford",
+    "Willowdale",
+    "Crestwood",
+  ];
+  const mascots = [
+    "Eagles",
+    "Bulldogs",
+    "Warriors",
+    "Wildcats",
+    "Panthers",
+    "Tigers",
+    "Bears",
+    "Falcons",
+    "Hawks",
+    "Lions",
+    "Mustangs",
+    "Cobras",
+    "Wolves",
+    "Rams",
+    "Sharks",
+    "Cougars",
+    "Stallions",
+    "Jaguars",
+    "Vipers",
+    "Thunderbolts",
+  ];
 
-	const townIdx = Math.floor(Math.random() * towns.length);
-	const mascotIdx = Math.floor(Math.random() * mascots.length);
-	player.townName = towns[townIdx]!; // index guaranteed in bounds by Math.random() * length
-	player.townMascot = mascots[mascotIdx]!; // index guaranteed in bounds by Math.random() * length
+  const townIdx = Math.floor(Math.random() * towns.length);
+  const mascotIdx = Math.floor(Math.random() * mascots.length);
+  player.townName = towns[townIdx]!; // index guaranteed in bounds by Math.random() * length
+  player.townMascot = mascots[mascotIdx]!; // index guaranteed in bounds by Math.random() * length
 }

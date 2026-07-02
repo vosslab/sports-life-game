@@ -9,27 +9,27 @@
 // API is deprecated (DEP0205). Pass this file via `node --import` so the
 // hook installs before any test code runs.
 
-import { registerHooks } from 'node:module';
-import fs from 'node:fs';
-import url from 'node:url';
+import { registerHooks } from "node:module";
+import fs from "node:fs";
+import url from "node:url";
 
 //============================================
 // load(): called by Node's module loader for every resolved URL.
 // We only intercept file:// URLs ending in `.csv`; everything else is
 // passed through to the next loader.
 registerHooks({
-	load(specifier, context, nextLoad) {
-		if (specifier.startsWith('file://') && specifier.endsWith('.csv')) {
-			const filePath = url.fileURLToPath(specifier);
-			const text = fs.readFileSync(filePath, 'utf-8');
-			const escaped = JSON.stringify(text);
-			const source = `export default ${escaped};`;
-			return {
-				format: 'module',
-				source,
-				shortCircuit: true,
-			};
-		}
-		return nextLoad(specifier, context);
-	},
+  load(specifier, context, nextLoad) {
+    if (specifier.startsWith("file://") && specifier.endsWith(".csv")) {
+      const filePath = url.fileURLToPath(specifier);
+      const text = fs.readFileSync(filePath, "utf-8");
+      const escaped = JSON.stringify(text);
+      const source = `export default ${escaped};`;
+      return {
+        format: "module",
+        source,
+        shortCircuit: true,
+      };
+    }
+    return nextLoad(specifier, context);
+  },
 });

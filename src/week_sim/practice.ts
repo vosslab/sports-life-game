@@ -3,73 +3,73 @@
 // Split from `src/week_sim.ts` during M4. Used for backups and bench
 // players to compete for snaps during weeks they don't play.
 
-import type { Player } from '../player.js';
-import { clampStat, randomInRange } from '../player.js';
-import { calculatePlayerPerformanceScore } from './game.js';
-import { calculateLetterGrade } from './momentum.js';
-import type { DepthChartUpdate } from './depth_chart.js';
+import type { Player } from "../player.js";
+import { clampStat, randomInRange } from "../player.js";
+import { calculatePlayerPerformanceScore } from "./game.js";
+import { calculateLetterGrade } from "./momentum.js";
+import type { DepthChartUpdate } from "./depth_chart.js";
 
 //============================================
 export interface PracticeResult {
-	grade: string;
-	storyText: string;
-	depthUpdate: DepthChartUpdate;
+  grade: string;
+  storyText: string;
+  depthUpdate: DepthChartUpdate;
 }
 
 //============================================
 // Practice reps for backups and bench players to compete for a starting job
 export function runPracticeSession(player: Player): PracticeResult {
-	let practiceScore = calculatePlayerPerformanceScore(player);
-	practiceScore = clampStat(practiceScore + randomInRange(-6, 10));
-	const grade = calculateLetterGrade(practiceScore);
+  let practiceScore = calculatePlayerPerformanceScore(player);
+  practiceScore = clampStat(practiceScore + randomInRange(-6, 10));
+  const grade = calculateLetterGrade(practiceScore);
 
-	const storyText =
-		grade === 'A'
-			? 'You dominated practice this week. Coaches could not ignore the tape.'
-			: grade === 'B'
-				? 'You had a strong week of practice and looked sharp in team drills.'
-				: grade === 'C'
-					? 'Practice was solid, but not enough to force a big conversation yet.'
-					: grade === 'D'
-						? 'Practice was rough. Too many mistakes showed up on film.'
-						: 'It was a bad week on the practice field. Coaches noticed every rep.';
+  const storyText =
+    grade === "A"
+      ? "You dominated practice this week. Coaches could not ignore the tape."
+      : grade === "B"
+        ? "You had a strong week of practice and looked sharp in team drills."
+        : grade === "C"
+          ? "Practice was solid, but not enough to force a big conversation yet."
+          : grade === "D"
+            ? "Practice was rough. Too many mistakes showed up on film."
+            : "It was a bad week on the practice field. Coaches noticed every rep.";
 
-	let depthUpdate: DepthChartUpdate = {
-		changed: false,
-		newStatus: player.depthChart,
-		message: '',
-	};
+  let depthUpdate: DepthChartUpdate = {
+    changed: false,
+    newStatus: player.depthChart,
+    message: "",
+  };
 
-	if (player.depthChart === 'backup' || player.depthChart === 'bench') {
-		let promotionChance = 0;
-		if (grade === 'A') {
-			promotionChance = player.depthChart === 'bench' ? 16 : 28;
-		} else if (grade === 'B') {
-			promotionChance = player.depthChart === 'bench' ? 6 : 12;
-		}
+  if (player.depthChart === "backup" || player.depthChart === "bench") {
+    let promotionChance = 0;
+    if (grade === "A") {
+      promotionChance = player.depthChart === "bench" ? 16 : 28;
+    } else if (grade === "B") {
+      promotionChance = player.depthChart === "bench" ? 6 : 12;
+    }
 
-		if (player.core.technique >= 65) {
-			promotionChance += 6;
-		}
-		if (player.core.footballIq >= 65) {
-			promotionChance += 5;
-		}
-		if (player.core.discipline >= 60) {
-			promotionChance += 3;
-		}
+    if (player.core.technique >= 65) {
+      promotionChance += 6;
+    }
+    if (player.core.footballIq >= 65) {
+      promotionChance += 5;
+    }
+    if (player.core.discipline >= 60) {
+      promotionChance += 3;
+    }
 
-		if (promotionChance > 0 && randomInRange(1, 100) <= promotionChance) {
-			player.depthChart = player.depthChart === 'bench' ? 'backup' : 'starter';
-			depthUpdate = {
-				changed: true,
-				newStatus: player.depthChart,
-				message:
-					player.depthChart === 'starter'
-						? 'Your practice tape earned you the starting job for this week.'
-						: 'Coaches bumped you up the depth chart. You are now the primary backup.',
-			};
-		}
-	}
+    if (promotionChance > 0 && randomInRange(1, 100) <= promotionChance) {
+      player.depthChart = player.depthChart === "bench" ? "backup" : "starter";
+      depthUpdate = {
+        changed: true,
+        newStatus: player.depthChart,
+        message:
+          player.depthChart === "starter"
+            ? "Your practice tape earned you the starting job for this week."
+            : "Coaches bumped you up the depth chart. You are now the primary backup.",
+      };
+    }
+  }
 
-	return { grade, storyText, depthUpdate };
+  return { grade, storyText, depthUpdate };
 }

@@ -3,9 +3,9 @@
 // Used by phase-specific builders (HS, college, NFL) to construct schedules.
 // Round-robin pairing, week assignment, non-conference generation, validation.
 
-import type { TeamId, GameId } from './season_types.js';
-import { SeasonGame } from './game_model.js';
-import { rand } from '../core/rng.js';
+import type { TeamId, GameId } from "./season_types.js";
+import { SeasonGame } from "./game_model.js";
+import { rand } from "../core/rng.js";
 
 // Running game id counter for unique ids within a season
 let gameIdCounter = 0;
@@ -13,14 +13,14 @@ let gameIdCounter = 0;
 //============================================
 // Reset game id counter (call at start of each new season build)
 export function resetGameIdCounter(): void {
-	gameIdCounter = 0;
+  gameIdCounter = 0;
 }
 
 //============================================
 // Generate a unique game id
 export function nextGameId(): GameId {
-	gameIdCounter += 1;
-	return `game_${gameIdCounter}`;
+  gameIdCounter += 1;
+  return `game_${gameIdCounter}`;
 }
 
 //============================================
@@ -28,23 +28,23 @@ export function nextGameId(): GameId {
 // For N teams, produces N*(N-1)/2 unique pairs.
 // Returns array of [homeTeamId, awayTeamId] tuples.
 export function generateRoundRobin(teamIds: TeamId[]): [TeamId, TeamId][] {
-	const pairs: [TeamId, TeamId][] = [];
+  const pairs: [TeamId, TeamId][] = [];
 
-	for (let i = 0; i < teamIds.length; i++) {
-		for (let j = i + 1; j < teamIds.length; j++) {
-			// Both i and j are bounds-checked by loop conditions
-			const homeId = teamIds[i]!;
-			const awayId = teamIds[j]!;
-			// Randomly assign home/away
-			if (rand() < 0.5) {
-				pairs.push([homeId, awayId]);
-			} else {
-				pairs.push([awayId, homeId]);
-			}
-		}
-	}
+  for (let i = 0; i < teamIds.length; i++) {
+    for (let j = i + 1; j < teamIds.length; j++) {
+      // Both i and j are bounds-checked by loop conditions
+      const homeId = teamIds[i]!;
+      const awayId = teamIds[j]!;
+      // Randomly assign home/away
+      if (rand() < 0.5) {
+        pairs.push([homeId, awayId]);
+      } else {
+        pairs.push([awayId, homeId]);
+      }
+    }
+  }
 
-	return pairs;
+  return pairs;
 }
 
 //============================================
@@ -52,40 +52,40 @@ export function generateRoundRobin(teamIds: TeamId[]): [TeamId, TeamId][] {
 // appears a roughly equal number of times.
 // Returns up to `count` pairs.
 export function selectPairs(pairs: [TeamId, TeamId][], count: number): [TeamId, TeamId][] {
-	// Shuffle the pairs first
-	const shuffled = [...pairs];
-	shuffleArray(shuffled);
+  // Shuffle the pairs first
+  const shuffled = [...pairs];
+  shuffleArray(shuffled);
 
-	// Greedily select pairs, tracking how many times each team appears
-	const selected: [TeamId, TeamId][] = [];
-	const teamCounts = new Map<TeamId, number>();
-	// Get unique teams that will participate based on what we've selected so far
-	const uniqueTeamsInSelected = new Set<TeamId>();
+  // Greedily select pairs, tracking how many times each team appears
+  const selected: [TeamId, TeamId][] = [];
+  const teamCounts = new Map<TeamId, number>();
+  // Get unique teams that will participate based on what we've selected so far
+  const uniqueTeamsInSelected = new Set<TeamId>();
 
-	for (const pair of shuffled) {
-		if (selected.length >= count) {
-			break;
-		}
-		const [a, b] = pair;
-		const countA = teamCounts.get(a) || 0;
-		const countB = teamCounts.get(b) || 0;
+  for (const pair of shuffled) {
+    if (selected.length >= count) {
+      break;
+    }
+    const [a, b] = pair;
+    const countA = teamCounts.get(a) || 0;
+    const countB = teamCounts.get(b) || 0;
 
-		// Calculate unique teams that would be in selected if we add this pair
-		const tentativeTeams = new Set(uniqueTeamsInSelected);
-		tentativeTeams.add(a);
-		tentativeTeams.add(b);
-		// Allow each team in at most ceil(count / teamCount * 2) games
-		const maxPerTeam = Math.ceil((count * 2) / tentativeTeams.size);
-		if (countA < maxPerTeam && countB < maxPerTeam) {
-			selected.push(pair);
-			teamCounts.set(a, countA + 1);
-			teamCounts.set(b, countB + 1);
-			uniqueTeamsInSelected.add(a);
-			uniqueTeamsInSelected.add(b);
-		}
-	}
+    // Calculate unique teams that would be in selected if we add this pair
+    const tentativeTeams = new Set(uniqueTeamsInSelected);
+    tentativeTeams.add(a);
+    tentativeTeams.add(b);
+    // Allow each team in at most ceil(count / teamCount * 2) games
+    const maxPerTeam = Math.ceil((count * 2) / tentativeTeams.size);
+    if (countA < maxPerTeam && countB < maxPerTeam) {
+      selected.push(pair);
+      teamCounts.set(a, countA + 1);
+      teamCounts.set(b, countB + 1);
+      uniqueTeamsInSelected.add(a);
+      uniqueTeamsInSelected.add(b);
+    }
+  }
 
-	return selected;
+  return selected;
 }
 
 //============================================
@@ -94,49 +94,49 @@ export function selectPairs(pairs: [TeamId, TeamId][], count: number): [TeamId, 
 // All created games are conference games by default.
 // Ensures no team plays twice in the same week.
 export function assignWeeksToGames(
-	pairs: [TeamId, TeamId][],
-	startWeek: number,
-	endWeek: number,
-	isConference: boolean = true
+  pairs: [TeamId, TeamId][],
+  startWeek: number,
+  endWeek: number,
+  isConference: boolean = true,
 ): SeasonGame[] {
-	const games: SeasonGame[] = [];
-	const totalWeeks = endWeek - startWeek + 1;
+  const games: SeasonGame[] = [];
+  const totalWeeks = endWeek - startWeek + 1;
 
-	// Shuffle pairs for random week assignment
-	const shuffled = [...pairs];
-	shuffleArray(shuffled);
+  // Shuffle pairs for random week assignment
+  const shuffled = [...pairs];
+  shuffleArray(shuffled);
 
-	// Track which teams play in each week to prevent double-bookings
-	const weekTeamMap = new Map<number, Set<TeamId>>();
+  // Track which teams play in each week to prevent double-bookings
+  const weekTeamMap = new Map<number, Set<TeamId>>();
 
-	for (let i = 0; i < shuffled.length; i++) {
-		// Loop bounds ensure shuffled[i] is defined
-		const pair = shuffled[i]!;
-		const [home, away] = pair;
-		// Find the next available week (starting from modulo assignment)
-		let assignedWeek = startWeek + (i % totalWeeks);
-		let attempts = 0;
-		while (attempts < totalWeeks) {
-			const weekTeams = weekTeamMap.get(assignedWeek) || new Set();
-			// Check if either team already plays this week
-			if (!weekTeams.has(home) && !weekTeams.has(away)) {
-				// Assign to this week
-				weekTeams.add(home);
-				weekTeams.add(away);
-				weekTeamMap.set(assignedWeek, weekTeams);
-				games.push(new SeasonGame(nextGameId(), assignedWeek, home, away, isConference));
-				break;
-			}
-			// Try next week
-			assignedWeek += 1;
-			if (assignedWeek > endWeek) {
-				assignedWeek = startWeek;
-			}
-			attempts += 1;
-		}
-	}
+  for (let i = 0; i < shuffled.length; i++) {
+    // Loop bounds ensure shuffled[i] is defined
+    const pair = shuffled[i]!;
+    const [home, away] = pair;
+    // Find the next available week (starting from modulo assignment)
+    let assignedWeek = startWeek + (i % totalWeeks);
+    let attempts = 0;
+    while (attempts < totalWeeks) {
+      const weekTeams = weekTeamMap.get(assignedWeek) || new Set();
+      // Check if either team already plays this week
+      if (!weekTeams.has(home) && !weekTeams.has(away)) {
+        // Assign to this week
+        weekTeams.add(home);
+        weekTeams.add(away);
+        weekTeamMap.set(assignedWeek, weekTeams);
+        games.push(new SeasonGame(nextGameId(), assignedWeek, home, away, isConference));
+        break;
+      }
+      // Try next week
+      assignedWeek += 1;
+      if (assignedWeek > endWeek) {
+        assignedWeek = startWeek;
+      }
+      attempts += 1;
+    }
+  }
 
-	return games;
+  return games;
 }
 
 //============================================
@@ -144,49 +144,49 @@ export function assignWeeksToGames(
 // Picks random opponents from the pool and assigns to specified weeks.
 // Deduplicates to ensure no team pair is scheduled twice.
 export function generateNonConferenceGames(
-	teamId: TeamId,
-	opponentPool: TeamId[],
-	count: number,
-	weeks: number[]
+  teamId: TeamId,
+  opponentPool: TeamId[],
+  count: number,
+  weeks: number[],
 ): SeasonGame[] {
-	const games: SeasonGame[] = [];
-	const available = [...opponentPool];
-	shuffleArray(available);
+  const games: SeasonGame[] = [];
+  const available = [...opponentPool];
+  shuffleArray(available);
 
-	// Track which team pairs have been scheduled to avoid duplicates
-	const scheduledPairs = new Set<string>();
+  // Track which team pairs have been scheduled to avoid duplicates
+  const scheduledPairs = new Set<string>();
 
-	for (
-		let i = 0;
-		i < available.length && games.length < count && games.length < weeks.length;
-		i++
-	) {
-		// Loop bounds ensure available[i] is defined
-		const opponentId = available[i]!;
+  for (
+    let i = 0;
+    i < available.length && games.length < count && games.length < weeks.length;
+    i++
+  ) {
+    // Loop bounds ensure available[i] is defined
+    const opponentId = available[i]!;
 
-		// Create a canonical pair representation for deduplication
-		const pair = [teamId, opponentId].sort().join('-');
-		if (scheduledPairs.has(pair)) {
-			// Skip if already scheduled
-			continue;
-		}
+    // Create a canonical pair representation for deduplication
+    const pair = [teamId, opponentId].sort().join("-");
+    if (scheduledPairs.has(pair)) {
+      // Skip if already scheduled
+      continue;
+    }
 
-		// games.length is bounded by check below, weeks access is safe via bounds-check
-		const weekIndex = games.length;
-		if (weekIndex >= weeks.length) {
-			break;
-		}
-		const week = weeks[weekIndex]!;
-		// Randomly assign home/away
-		if (rand() < 0.5) {
-			games.push(new SeasonGame(nextGameId(), week, teamId, opponentId, false));
-		} else {
-			games.push(new SeasonGame(nextGameId(), week, opponentId, teamId, false));
-		}
-		scheduledPairs.add(pair);
-	}
+    // games.length is bounded by check below, weeks access is safe via bounds-check
+    const weekIndex = games.length;
+    if (weekIndex >= weeks.length) {
+      break;
+    }
+    const week = weeks[weekIndex]!;
+    // Randomly assign home/away
+    if (rand() < 0.5) {
+      games.push(new SeasonGame(nextGameId(), week, teamId, opponentId, false));
+    } else {
+      games.push(new SeasonGame(nextGameId(), week, opponentId, teamId, false));
+    }
+    scheduledPairs.add(pair);
+  }
 
-	return games;
+  return games;
 }
 
 //============================================
@@ -197,39 +197,39 @@ export function generateNonConferenceGames(
 // Returns an array of weeks, each week a list of [home, away] pairs.
 // Home/away alternates between groups by week to balance home games.
 export function generateBipartiteRotation(
-	groupA: TeamId[],
-	groupB: TeamId[],
-	weeks: number
+  groupA: TeamId[],
+  groupB: TeamId[],
+  weeks: number,
 ): [TeamId, TeamId][][] {
-	if (groupA.length !== groupB.length) {
-		throw new Error('generateBipartiteRotation requires equal-size groups');
-	}
-	if (weeks > groupA.length) {
-		throw new Error('generateBipartiteRotation: weeks exceeds group size');
-	}
+  if (groupA.length !== groupB.length) {
+    throw new Error("generateBipartiteRotation requires equal-size groups");
+  }
+  if (weeks > groupA.length) {
+    throw new Error("generateBipartiteRotation: weeks exceeds group size");
+  }
 
-	const n = groupA.length;
-	const rounds: [TeamId, TeamId][][] = [];
+  const n = groupA.length;
+  const rounds: [TeamId, TeamId][][] = [];
 
-	// For week k, pair groupA[i] with groupB[(i+k) mod n]
-	for (let k = 0; k < weeks; k++) {
-		const round: [TeamId, TeamId][] = [];
-		for (let i = 0; i < n; i++) {
-			// Both indices are bounds-checked by loop conditions
-			const a = groupA[i]!;
-			const bIdx = (i + k) % n;
-			const b = groupB[bIdx]!;
-			// Alternate home/away by week so neither side dominates
-			if (k % 2 === 0) {
-				round.push([a, b]);
-			} else {
-				round.push([b, a]);
-			}
-		}
-		rounds.push(round);
-	}
+  // For week k, pair groupA[i] with groupB[(i+k) mod n]
+  for (let k = 0; k < weeks; k++) {
+    const round: [TeamId, TeamId][] = [];
+    for (let i = 0; i < n; i++) {
+      // Both indices are bounds-checked by loop conditions
+      const a = groupA[i]!;
+      const bIdx = (i + k) % n;
+      const b = groupB[bIdx]!;
+      // Alternate home/away by week so neither side dominates
+      if (k % 2 === 0) {
+        round.push([a, b]);
+      } else {
+        round.push([b, a]);
+      }
+    }
+    rounds.push(round);
+  }
 
-	return rounds;
+  return rounds;
 }
 
 //============================================
@@ -237,76 +237,76 @@ export function generateBipartiteRotation(
 // every week in [1..seasonLength] has at least one game,
 // and every team plays roughly the same number of games (max-min <= 1).
 export function validateSchedule(
-	games: SeasonGame[],
-	seasonLength: number
+  games: SeasonGame[],
+  seasonLength: number,
 ): { valid: boolean; errors: string[] } {
-	const errors: string[] = [];
+  const errors: string[] = [];
 
-	// Check for double-bookings: no team plays twice in one week
-	const weekTeamMap = new Map<number, Set<TeamId>>();
-	for (const game of games) {
-		if (!weekTeamMap.has(game.week)) {
-			weekTeamMap.set(game.week, new Set());
-		}
-		const weekTeams = weekTeamMap.get(game.week)!;
+  // Check for double-bookings: no team plays twice in one week
+  const weekTeamMap = new Map<number, Set<TeamId>>();
+  for (const game of games) {
+    if (!weekTeamMap.has(game.week)) {
+      weekTeamMap.set(game.week, new Set());
+    }
+    const weekTeams = weekTeamMap.get(game.week)!;
 
-		if (weekTeams.has(game.homeTeamId)) {
-			errors.push(`Team ${game.homeTeamId} plays twice in week ${game.week}`);
-		}
-		if (weekTeams.has(game.awayTeamId)) {
-			errors.push(`Team ${game.awayTeamId} plays twice in week ${game.week}`);
-		}
-		weekTeams.add(game.homeTeamId);
-		weekTeams.add(game.awayTeamId);
-	}
+    if (weekTeams.has(game.homeTeamId)) {
+      errors.push(`Team ${game.homeTeamId} plays twice in week ${game.week}`);
+    }
+    if (weekTeams.has(game.awayTeamId)) {
+      errors.push(`Team ${game.awayTeamId} plays twice in week ${game.week}`);
+    }
+    weekTeams.add(game.homeTeamId);
+    weekTeams.add(game.awayTeamId);
+  }
 
-	// Check that every week has at least one game
-	for (let week = 1; week <= seasonLength; week++) {
-		const weekGames = games.filter((g) => g.week === week);
-		if (weekGames.length === 0) {
-			errors.push(`Week ${week} has no scheduled games`);
-		}
-	}
+  // Check that every week has at least one game
+  for (let week = 1; week <= seasonLength; week++) {
+    const weekGames = games.filter((g) => g.week === week);
+    if (weekGames.length === 0) {
+      errors.push(`Week ${week} has no scheduled games`);
+    }
+  }
 
-	// Check that every team plays roughly the same number of games.
-	// Allow a single bye difference (max - min <= 1) to accommodate odd team counts.
-	const gamesPerTeam = new Map<TeamId, number>();
-	for (const game of games) {
-		gamesPerTeam.set(game.homeTeamId, (gamesPerTeam.get(game.homeTeamId) || 0) + 1);
-		gamesPerTeam.set(game.awayTeamId, (gamesPerTeam.get(game.awayTeamId) || 0) + 1);
-	}
-	if (gamesPerTeam.size > 0) {
-		const counts = Array.from(gamesPerTeam.values());
-		const max = Math.max(...counts);
-		const min = Math.min(...counts);
-		if (max - min > 1) {
-			// Build a compact list of imbalanced teams for the error message
-			const detail: string[] = [];
-			for (const [teamId, count] of gamesPerTeam) {
-				if (count === max || count === min) {
-					detail.push(`${teamId}=${count}`);
-				}
-			}
-			errors.push(
-				`Schedule imbalance: max ${max} games vs min ${min} games (${detail.join(', ')})`
-			);
-		}
-	}
+  // Check that every team plays roughly the same number of games.
+  // Allow a single bye difference (max - min <= 1) to accommodate odd team counts.
+  const gamesPerTeam = new Map<TeamId, number>();
+  for (const game of games) {
+    gamesPerTeam.set(game.homeTeamId, (gamesPerTeam.get(game.homeTeamId) || 0) + 1);
+    gamesPerTeam.set(game.awayTeamId, (gamesPerTeam.get(game.awayTeamId) || 0) + 1);
+  }
+  if (gamesPerTeam.size > 0) {
+    const counts = Array.from(gamesPerTeam.values());
+    const max = Math.max(...counts);
+    const min = Math.min(...counts);
+    if (max - min > 1) {
+      // Build a compact list of imbalanced teams for the error message
+      const detail: string[] = [];
+      for (const [teamId, count] of gamesPerTeam) {
+        if (count === max || count === min) {
+          detail.push(`${teamId}=${count}`);
+        }
+      }
+      errors.push(
+        `Schedule imbalance: max ${max} games vs min ${min} games (${detail.join(", ")})`,
+      );
+    }
+  }
 
-	return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors };
 }
 
 //============================================
 // Fisher-Yates shuffle (in-place)
 export function shuffleArray<T>(array: T[]): void {
-	for (let i = array.length - 1; i > 0; i--) {
-		const j = Math.floor(rand() * (i + 1));
-		// Loop bounds ensure both indices are in [0, array.length)
-		const temp = array[i]!;
-		const jVal = array[j]!;
-		array[i] = jVal;
-		array[j] = temp;
-	}
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    // Loop bounds ensure both indices are in [0, array.length)
+    const temp = array[i]!;
+    const jVal = array[j]!;
+    array[i] = jVal;
+    array[j] = temp;
+  }
 }
 
 //============================================
@@ -317,117 +317,117 @@ export function shuffleArray<T>(array: T[]): void {
 // Every team plays exactly once per round. No conflicts.
 // Returns an array of rounds, where each round is an array of [home, away] pairs.
 export function generateRoundRobinRounds(teamIds: TeamId[]): [TeamId, TeamId][][] {
-	// Must have even number of teams
-	const ids = [...teamIds];
-	if (ids.length % 2 !== 0) {
-		ids.push('_bye_');
-	}
-	const n = ids.length;
+  // Must have even number of teams
+  const ids = [...teamIds];
+  if (ids.length % 2 !== 0) {
+    ids.push("_bye_");
+  }
+  const n = ids.length;
 
-	// Fix the first team, rotate the rest
-	// ids is non-empty because we just added to it if needed
-	const fixed = ids[0]!;
-	const rotating = ids.slice(1);
-	const rounds: [TeamId, TeamId][][] = [];
+  // Fix the first team, rotate the rest
+  // ids is non-empty because we just added to it if needed
+  const fixed = ids[0]!;
+  const rotating = ids.slice(1);
+  const rounds: [TeamId, TeamId][][] = [];
 
-	for (let round = 0; round < n - 1; round++) {
-		const roundGames: [TeamId, TeamId][] = [];
+  for (let round = 0; round < n - 1; round++) {
+    const roundGames: [TeamId, TeamId][] = [];
 
-		// Fixed team plays the top of the rotating list
-		// rotating has at least 1 element (n >= 2 enforced by slicing)
-		const opponent = rotating[0]!;
-		if (fixed !== '_bye_' && opponent !== '_bye_') {
-			// Alternate home/away by round
-			if (round % 2 === 0) {
-				roundGames.push([fixed, opponent]);
-			} else {
-				roundGames.push([opponent, fixed]);
-			}
-		}
+    // Fixed team plays the top of the rotating list
+    // rotating has at least 1 element (n >= 2 enforced by slicing)
+    const opponent = rotating[0]!;
+    if (fixed !== "_bye_" && opponent !== "_bye_") {
+      // Alternate home/away by round
+      if (round % 2 === 0) {
+        roundGames.push([fixed, opponent]);
+      } else {
+        roundGames.push([opponent, fixed]);
+      }
+    }
 
-		// Pair remaining rotating teams from outside in
-		for (let i = 1; i < n / 2; i++) {
-			const team1 = rotating[i]!;
-			const team2 = rotating[n - 2 - i]!;
-			if (team1 !== '_bye_' && team2 !== '_bye_') {
-				// Alternate home/away
-				if (i % 2 === 0) {
-					roundGames.push([team1, team2]);
-				} else {
-					roundGames.push([team2, team1]);
-				}
-			}
-		}
+    // Pair remaining rotating teams from outside in
+    for (let i = 1; i < n / 2; i++) {
+      const team1 = rotating[i]!;
+      const team2 = rotating[n - 2 - i]!;
+      if (team1 !== "_bye_" && team2 !== "_bye_") {
+        // Alternate home/away
+        if (i % 2 === 0) {
+          roundGames.push([team1, team2]);
+        } else {
+          roundGames.push([team2, team1]);
+        }
+      }
+    }
 
-		rounds.push(roundGames);
+    rounds.push(roundGames);
 
-		// Rotate: move last element to front
-		rotating.unshift(rotating.pop()!);
-	}
+    // Rotate: move last element to front
+    rotating.unshift(rotating.pop()!);
+  }
 
-	// Shuffle the round order so the schedule isn't predictable
-	shuffleArray(rounds);
+  // Shuffle the round order so the schedule isn't predictable
+  shuffleArray(rounds);
 
-	return rounds;
+  return rounds;
 }
 
 // Simple assertions
-const rrPairs = generateRoundRobin(['a', 'b', 'c', 'd']);
+const rrPairs = generateRoundRobin(["a", "b", "c", "d"]);
 // 4 teams should produce 4*3/2 = 6 pairs
-console.assert(rrPairs.length === 6, 'Round-robin of 4 teams should produce 6 pairs');
+console.assert(rrPairs.length === 6, "Round-robin of 4 teams should produce 6 pairs");
 
 // Verify all pairs are unique combinations
-const pairSet = new Set(rrPairs.map(([a, b]) => [a, b].sort().join('-')));
-console.assert(pairSet.size === 6, 'All 6 pairs should be unique');
+const pairSet = new Set(rrPairs.map(([a, b]) => [a, b].sort().join("-")));
+console.assert(pairSet.size === 6, "All 6 pairs should be unique");
 
 // 8 teams should produce 28 pairs
-const rr8 = generateRoundRobin(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
-console.assert(rr8.length === 28, 'Round-robin of 8 teams should produce 28 pairs');
+const rr8 = generateRoundRobin(["a", "b", "c", "d", "e", "f", "g", "h"]);
+console.assert(rr8.length === 28, "Round-robin of 8 teams should produce 28 pairs");
 
 // Round-robin rounds: 8 teams should produce 7 rounds of 4 games each
-const rrRounds = generateRoundRobinRounds(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']);
-console.assert(rrRounds.length === 7, 'RR rounds for 8 teams should be 7');
+const rrRounds = generateRoundRobinRounds(["a", "b", "c", "d", "e", "f", "g", "h"]);
+console.assert(rrRounds.length === 7, "RR rounds for 8 teams should be 7");
 // rrRounds.length > 0 after call above
 const firstRound = rrRounds[0]!;
-console.assert(firstRound.length === 4, 'Each RR round should have 4 games');
+console.assert(firstRound.length === 4, "Each RR round should have 4 games");
 
 // Verify no team plays twice in any round
 for (const round of rrRounds) {
-	const teamsInRound = new Set<string>();
-	for (const [a, b] of round) {
-		console.assert(!teamsInRound.has(a), `Team ${a} double-booked in round`);
-		console.assert(!teamsInRound.has(b), `Team ${b} double-booked in round`);
-		teamsInRound.add(a);
-		teamsInRound.add(b);
-	}
+  const teamsInRound = new Set<string>();
+  for (const [a, b] of round) {
+    console.assert(!teamsInRound.has(a), `Team ${a} double-booked in round`);
+    console.assert(!teamsInRound.has(b), `Team ${b} double-booked in round`);
+    teamsInRound.add(a);
+    teamsInRound.add(b);
+  }
 }
 
 // Bipartite rotation: 4 vs 4 over 3 weeks should give 12 pairs, each team plays 3 distinct opponents
-const bpRounds = generateBipartiteRotation(['a', 'b', 'c', 'd'], ['x', 'y', 'z', 'w'], 3);
-console.assert(bpRounds.length === 3, 'Bipartite: 3 rounds');
+const bpRounds = generateBipartiteRotation(["a", "b", "c", "d"], ["x", "y", "z", "w"], 3);
+console.assert(bpRounds.length === 3, "Bipartite: 3 rounds");
 // bpRounds.length > 0 after call above
 const bpFirstRound = bpRounds[0]!;
-console.assert(bpFirstRound.length === 4, 'Bipartite: 4 pairs per round');
+console.assert(bpFirstRound.length === 4, "Bipartite: 4 pairs per round");
 // Use an object type instead of Record to avoid undefined on access
 const bpOpponents: { a: Set<string>; b: Set<string>; c: Set<string>; d: Set<string> } = {
-	a: new Set(),
-	b: new Set(),
-	c: new Set(),
-	d: new Set(),
+  a: new Set(),
+  b: new Set(),
+  c: new Set(),
+  d: new Set(),
 };
 for (const round of bpRounds) {
-	for (const [home, away] of round) {
-		const aTeam = ['a', 'b', 'c', 'd'].includes(home) ? home : away;
-		const bTeam = aTeam === home ? away : home;
-		// aTeam is guaranteed to be one of the keys in bpOpponents
-		bpOpponents[aTeam as keyof typeof bpOpponents].add(bTeam);
-	}
+  for (const [home, away] of round) {
+    const aTeam = ["a", "b", "c", "d"].includes(home) ? home : away;
+    const bTeam = aTeam === home ? away : home;
+    // aTeam is guaranteed to be one of the keys in bpOpponents
+    bpOpponents[aTeam as keyof typeof bpOpponents].add(bTeam);
+  }
 }
-for (const t of ['a', 'b', 'c', 'd']) {
-	// t is guaranteed to be one of the keys in bpOpponents
-	const opponents = bpOpponents[t as keyof typeof bpOpponents];
-	console.assert(
-		opponents.size === 3,
-		`Bipartite: team ${t} should play 3 distinct opponents, got ${opponents.size}`
-	);
+for (const t of ["a", "b", "c", "d"]) {
+  // t is guaranteed to be one of the keys in bpOpponents
+  const opponents = bpOpponents[t as keyof typeof bpOpponents];
+  console.assert(
+    opponents.size === 3,
+    `Bipartite: team ${t} should play 3 distinct opponents, got ${opponents.size}`,
+  );
 }

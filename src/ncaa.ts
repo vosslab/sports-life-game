@@ -1,312 +1,312 @@
 // ncaa.ts - NCAA schools and college schedule generation
 
-import fbsCsv from './data/ncaa_schools-FBS.csv';
-import fcsCsv from './data/ncaa_schools-FCS.csv';
+import fbsCsv from "./data/ncaa_schools-FBS.csv";
+import fcsCsv from "./data/ncaa_schools-FCS.csv";
 
 //============================================
 // NCAA school data structure
 export interface NCAASchool {
-	fullName: string; // "Clemson University"
-	commonName: string; // "Clemson"
-	nickname: string; // "Tigers"
-	city: string;
-	state: string;
-	subdivision: string; // "FBS" or "FCS"
-	conference: string; // "Atlantic Coast Conference"
+  fullName: string; // "Clemson University"
+  commonName: string; // "Clemson"
+  nickname: string; // "Tigers"
+  city: string;
+  state: string;
+  subdivision: string; // "FBS" or "FCS"
+  conference: string; // "Atlantic Coast Conference"
 }
 
 //============================================
 // College schedule entry for a single game
 export interface CollegeScheduleEntry {
-	week: number;
-	opponentName: string; // "Clemson Tigers"
-	opponentStrength: number;
-	conference: boolean; // true if conference game
-	played: boolean;
-	playerScore: number;
-	opponentScore: number;
+  week: number;
+  opponentName: string; // "Clemson Tigers"
+  opponentStrength: number;
+  conference: boolean; // true if conference game
+  played: boolean;
+  playerScore: number;
+  opponentScore: number;
 }
 
 //============================================
 // Power conference names for high star recruits
 const POWER_CONFERENCES = [
-	'Atlantic Coast Conference',
-	'Big Ten Conference',
-	'Big 12 Conference',
-	'Southeastern Conference',
-	'Pac-12 Conference',
+  "Atlantic Coast Conference",
+  "Big Ten Conference",
+  "Big 12 Conference",
+  "Southeastern Conference",
+  "Pac-12 Conference",
 ];
 
 //============================================
 // Mid-major conferences for 3-star and 4-star recruits
 const MID_MAJOR_CONFERENCES = [
-	'American Conference',
-	'Mountain West Conference',
-	'Sun Belt Conference',
-	'Mid-American Conference',
-	'Western Athletic Conference',
-	'Conference USA',
+  "American Conference",
+  "Mountain West Conference",
+  "Sun Belt Conference",
+  "Mid-American Conference",
+  "Western Athletic Conference",
+  "Conference USA",
 ];
 
 //============================================
 // Parse a CSV blob (with one header line) into NCAASchool entries.
 function parseNCAASchoolCsv(text: string, subdivision: string): NCAASchool[] {
-	const schools: NCAASchool[] = [];
-	const lines = text.split('\n');
+  const schools: NCAASchool[] = [];
+  const lines = text.split("\n");
 
-	// Skip header line
-	for (let i = 1; i < lines.length; i++) {
-		const line = lines[i]!.trim(); // index guaranteed in bounds by loop
-		if (line.length === 0) continue;
+  // Skip header line
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i]!.trim(); // index guaranteed in bounds by loop
+    if (line.length === 0) continue;
 
-		const school = parseNCAASchoolLine(line, subdivision);
-		if (school) {
-			schools.push(school);
-		}
-	}
-	return schools;
+    const school = parseNCAASchoolLine(line, subdivision);
+    if (school) {
+      schools.push(school);
+    }
+  }
+  return schools;
 }
 
 //============================================
 // Load NCAA schools from bundled FBS and FCS CSV imports
 // eslint-disable-next-line @typescript-eslint/require-await -- M5 loader contract: callers await; body is sync because csv text is bundled at build time
 export async function loadNCAASchools(): Promise<{
-	fbs: NCAASchool[];
-	fcs: NCAASchool[];
+  fbs: NCAASchool[];
+  fcs: NCAASchool[];
 }> {
-	const fbsSchools = parseNCAASchoolCsv(fbsCsv, 'FBS');
-	const fcsSchools = parseNCAASchoolCsv(fcsCsv, 'FCS');
-	return { fbs: fbsSchools, fcs: fcsSchools };
+  const fbsSchools = parseNCAASchoolCsv(fbsCsv, "FBS");
+  const fcsSchools = parseNCAASchoolCsv(fcsCsv, "FCS");
+  return { fbs: fbsSchools, fcs: fcsSchools };
 }
 
 //============================================
 // Parse a single CSV line into an NCAASchool
 function parseNCAASchoolLine(line: string, subdivision: string): NCAASchool | null {
-	// Split by comma, but be careful with quoted fields
-	const parts = line.split(',');
+  // Split by comma, but be careful with quoted fields
+  const parts = line.split(",");
 
-	if (parts.length < 8) {
-		return null;
-	}
+  if (parts.length < 8) {
+    return null;
+  }
 
-	const fullName = parts[0]!.trim(); // index guaranteed in bounds by length check
-	const commonName = parts[1]!.trim(); // index guaranteed in bounds by length check
-	let nickname = parts[2]!.trim(); // index guaranteed in bounds by length check
-	const city = parts[3]!.trim(); // index guaranteed in bounds by length check
-	const state = parts[4]!.trim(); // index guaranteed in bounds by length check
-	// parts[5] is Type (skip)
-	// parts[6] is Subdivision (we already know it)
-	let conference = parts[7]!.trim(); // index guaranteed in bounds by length check
+  const fullName = parts[0]!.trim(); // index guaranteed in bounds by length check
+  const commonName = parts[1]!.trim(); // index guaranteed in bounds by length check
+  let nickname = parts[2]!.trim(); // index guaranteed in bounds by length check
+  const city = parts[3]!.trim(); // index guaranteed in bounds by length check
+  const state = parts[4]!.trim(); // index guaranteed in bounds by length check
+  // parts[5] is Type (skip)
+  // parts[6] is Subdivision (we already know it)
+  let conference = parts[7]!.trim(); // index guaranteed in bounds by length check
 
-	// Clean up nickname - strip [q] or similar bracket annotations
-	nickname = stripBracketAnnotations(nickname);
+  // Clean up nickname - strip [q] or similar bracket annotations
+  nickname = stripBracketAnnotations(nickname);
 
-	// Clean up conference - strip [FB 3] or similar
-	conference = stripBracketAnnotations(conference);
+  // Clean up conference - strip [FB 3] or similar
+  conference = stripBracketAnnotations(conference);
 
-	return {
-		fullName,
-		commonName,
-		nickname,
-		city,
-		state,
-		subdivision,
-		conference,
-	};
+  return {
+    fullName,
+    commonName,
+    nickname,
+    city,
+    state,
+    subdivision,
+    conference,
+  };
 }
 
 //============================================
 // Helper to strip bracket annotations like [q], [FB 3], etc.
 function stripBracketAnnotations(text: string): string {
-	return text.replace(/\[.*?\]/g, '').trim();
+  return text.replace(/\[.*?\]/g, "").trim();
 }
 
 //============================================
 // Get all schools from a specific conference
 export function getConferenceSchools(schools: NCAASchool[], conference: string): NCAASchool[] {
-	return schools.filter((school) => school.conference === conference);
+  return schools.filter((school) => school.conference === conference);
 }
 
 //============================================
 // Get unique sorted list of all conferences
 export function getUniqueConferences(schools: NCAASchool[]): string[] {
-	const conferences = new Set<string>();
-	for (const school of schools) {
-		if (school.conference.length > 0) {
-			conferences.add(school.conference);
-		}
-	}
-	return Array.from(conferences).sort();
+  const conferences = new Set<string>();
+  for (const school of schools) {
+    if (school.conference.length > 0) {
+      conferences.add(school.conference);
+    }
+  }
+  return Array.from(conferences).sort();
 }
 
 //============================================
 // Assign a player college based on recruiting stars
 export function assignPlayerCollege(recruitingStars: number, schools: NCAASchool[]): NCAASchool {
-	let candidates: NCAASchool[] = [];
+  let candidates: NCAASchool[] = [];
 
-	if (recruitingStars >= 5) {
-		// 5 stars: pick from Power conferences
-		for (const conf of POWER_CONFERENCES) {
-			const schoolsInConf = getConferenceSchools(schools, conf);
-			candidates = candidates.concat(schoolsInConf);
-		}
-	} else if (recruitingStars >= 4) {
-		// 4 stars: mix of Power and mid-major
-		for (const conf of POWER_CONFERENCES) {
-			const schoolsInConf = getConferenceSchools(schools, conf);
-			candidates = candidates.concat(schoolsInConf);
-		}
-		for (const conf of MID_MAJOR_CONFERENCES) {
-			const schoolsInConf = getConferenceSchools(schools, conf);
-			// Add only 50% of mid-major schools for 4 stars
-			const selected = schoolsInConf.slice(0, Math.ceil(schoolsInConf.length * 0.5));
-			candidates = candidates.concat(selected);
-		}
-	} else if (recruitingStars >= 3) {
-		// 3 stars: mid-major conferences
-		for (const conf of MID_MAJOR_CONFERENCES) {
-			const schoolsInConf = getConferenceSchools(schools, conf);
-			candidates = candidates.concat(schoolsInConf);
-		}
-	} else if (recruitingStars >= 2) {
-		// 2 stars: FCS schools
-		candidates = schools.filter((s) => s.subdivision === 'FCS');
-	} else {
-		// 1 star: smaller FCS schools (secondary in conference)
-		const allFCS = schools.filter((s) => s.subdivision === 'FCS');
-		// Take second half for "smaller" schools
-		candidates = allFCS.slice(Math.ceil(allFCS.length * 0.5));
-	}
+  if (recruitingStars >= 5) {
+    // 5 stars: pick from Power conferences
+    for (const conf of POWER_CONFERENCES) {
+      const schoolsInConf = getConferenceSchools(schools, conf);
+      candidates = candidates.concat(schoolsInConf);
+    }
+  } else if (recruitingStars >= 4) {
+    // 4 stars: mix of Power and mid-major
+    for (const conf of POWER_CONFERENCES) {
+      const schoolsInConf = getConferenceSchools(schools, conf);
+      candidates = candidates.concat(schoolsInConf);
+    }
+    for (const conf of MID_MAJOR_CONFERENCES) {
+      const schoolsInConf = getConferenceSchools(schools, conf);
+      // Add only 50% of mid-major schools for 4 stars
+      const selected = schoolsInConf.slice(0, Math.ceil(schoolsInConf.length * 0.5));
+      candidates = candidates.concat(selected);
+    }
+  } else if (recruitingStars >= 3) {
+    // 3 stars: mid-major conferences
+    for (const conf of MID_MAJOR_CONFERENCES) {
+      const schoolsInConf = getConferenceSchools(schools, conf);
+      candidates = candidates.concat(schoolsInConf);
+    }
+  } else if (recruitingStars >= 2) {
+    // 2 stars: FCS schools
+    candidates = schools.filter((s) => s.subdivision === "FCS");
+  } else {
+    // 1 star: smaller FCS schools (secondary in conference)
+    const allFCS = schools.filter((s) => s.subdivision === "FCS");
+    // Take second half for "smaller" schools
+    candidates = allFCS.slice(Math.ceil(allFCS.length * 0.5));
+  }
 
-	// Fallback to all schools if no candidates
-	if (candidates.length === 0) {
-		candidates = schools;
-	}
+  // Fallback to all schools if no candidates
+  if (candidates.length === 0) {
+    candidates = schools;
+  }
 
-	// Pick random school from candidates
-	const index = Math.floor(Math.random() * candidates.length);
-	const picked = candidates[index];
-	if (!picked) {
-		// Should never happen: candidates is non-empty after fallback
-		return candidates[0]!;
-	}
-	return picked;
+  // Pick random school from candidates
+  const index = Math.floor(Math.random() * candidates.length);
+  const picked = candidates[index];
+  if (!picked) {
+    // Should never happen: candidates is non-empty after fallback
+    return candidates[0]!;
+  }
+  return picked;
 }
 
 //============================================
 // Format school name as "CommonName Nickname"
 export function formatSchoolName(school: NCAASchool): string {
-	return `${school.commonName} ${school.nickname}`;
+  return `${school.commonName} ${school.nickname}`;
 }
 
 //============================================
 // Generate a 12-game college schedule
 export function generateCollegeSchedule(
-	playerSchool: NCAASchool,
-	allSchools: NCAASchool[]
+  playerSchool: NCAASchool,
+  allSchools: NCAASchool[],
 ): CollegeScheduleEntry[] {
-	const schedule: CollegeScheduleEntry[] = [];
+  const schedule: CollegeScheduleEntry[] = [];
 
-	// Get conference schools
-	const conferenceSchools = getConferenceSchools(allSchools, playerSchool.conference).filter(
-		(s) => s.commonName !== playerSchool.commonName
-	);
+  // Get conference schools
+  const conferenceSchools = getConferenceSchools(allSchools, playerSchool.conference).filter(
+    (s) => s.commonName !== playerSchool.commonName,
+  );
 
-	// Get non-conference opponents from other conferences
-	const nonConferenceSchools = allSchools.filter(
-		(s) => s.conference !== playerSchool.conference && s.commonName !== playerSchool.commonName
-	);
+  // Get non-conference opponents from other conferences
+  const nonConferenceSchools = allSchools.filter(
+    (s) => s.conference !== playerSchool.conference && s.commonName !== playerSchool.commonName,
+  );
 
-	// Generate 8 conference games with unique weeks (5-12)
-	const confGames = selectRandomSchools(conferenceSchools, 8);
-	// Create array of unique weeks [5, 6, 7, 8, 9, 10, 11, 12] and shuffle
-	const confWeeks = [5, 6, 7, 8, 9, 10, 11, 12];
-	shuffleArray(confWeeks);
+  // Generate 8 conference games with unique weeks (5-12)
+  const confGames = selectRandomSchools(conferenceSchools, 8);
+  // Create array of unique weeks [5, 6, 7, 8, 9, 10, 11, 12] and shuffle
+  const confWeeks = [5, 6, 7, 8, 9, 10, 11, 12];
+  shuffleArray(confWeeks);
 
-	for (let i = 0; i < confGames.length; i++) {
-		const opponent = confGames[i]!; // index guaranteed in bounds by loop
-		const week = confWeeks[i]!; // index guaranteed in bounds by loop
-		const strength = getTeamStrength(opponent);
+  for (let i = 0; i < confGames.length; i++) {
+    const opponent = confGames[i]!; // index guaranteed in bounds by loop
+    const week = confWeeks[i]!; // index guaranteed in bounds by loop
+    const strength = getTeamStrength(opponent);
 
-		schedule.push({
-			week,
-			opponentName: formatSchoolName(opponent),
-			opponentStrength: strength,
-			conference: true,
-			played: false,
-			playerScore: 0,
-			opponentScore: 0,
-		});
-	}
+    schedule.push({
+      week,
+      opponentName: formatSchoolName(opponent),
+      opponentStrength: strength,
+      conference: true,
+      played: false,
+      playerScore: 0,
+      opponentScore: 0,
+    });
+  }
 
-	// Generate 4 non-conference games
-	const nonConfGames = selectRandomSchools(nonConferenceSchools, 4);
-	const nonConfWeeks = [1, 2, 3, 4];
+  // Generate 4 non-conference games
+  const nonConfGames = selectRandomSchools(nonConferenceSchools, 4);
+  const nonConfWeeks = [1, 2, 3, 4];
 
-	for (const opponent of nonConfGames) {
-		const weekIndex = Math.floor(Math.random() * nonConfWeeks.length);
-		const week = nonConfWeeks[weekIndex]!; // index guaranteed in bounds by random range
-		nonConfWeeks.splice(weekIndex, 1);
+  for (const opponent of nonConfGames) {
+    const weekIndex = Math.floor(Math.random() * nonConfWeeks.length);
+    const week = nonConfWeeks[weekIndex]!; // index guaranteed in bounds by random range
+    nonConfWeeks.splice(weekIndex, 1);
 
-		const strength = getTeamStrength(opponent);
+    const strength = getTeamStrength(opponent);
 
-		schedule.push({
-			week,
-			opponentName: formatSchoolName(opponent),
-			opponentStrength: strength,
-			conference: false,
-			played: false,
-			playerScore: 0,
-			opponentScore: 0,
-		});
-	}
+    schedule.push({
+      week,
+      opponentName: formatSchoolName(opponent),
+      opponentStrength: strength,
+      conference: false,
+      played: false,
+      playerScore: 0,
+      opponentScore: 0,
+    });
+  }
 
-	// Sort by week
-	schedule.sort((a, b) => a.week - b.week);
+  // Sort by week
+  schedule.sort((a, b) => a.week - b.week);
 
-	return schedule;
+  return schedule;
 }
 
 //============================================
 // Get opponent strength based on subdivision/conference
 function getTeamStrength(school: NCAASchool): number {
-	if (school.subdivision === 'FBS') {
-		// FBS power conference teams: 60-90
-		if (POWER_CONFERENCES.includes(school.conference)) {
-			return 60 + Math.floor(Math.random() * 31);
-		}
-		// FBS other (mid-major): 40-70
-		return 40 + Math.floor(Math.random() * 31);
-	}
-	// FCS: 20-50
-	return 20 + Math.floor(Math.random() * 31);
+  if (school.subdivision === "FBS") {
+    // FBS power conference teams: 60-90
+    if (POWER_CONFERENCES.includes(school.conference)) {
+      return 60 + Math.floor(Math.random() * 31);
+    }
+    // FBS other (mid-major): 40-70
+    return 40 + Math.floor(Math.random() * 31);
+  }
+  // FCS: 20-50
+  return 20 + Math.floor(Math.random() * 31);
 }
 
 //============================================
 // Helper to select N random schools from an array
 function selectRandomSchools(schools: NCAASchool[], count: number): NCAASchool[] {
-	const selected: NCAASchool[] = [];
-	const available = [...schools];
+  const selected: NCAASchool[] = [];
+  const available = [...schools];
 
-	for (let i = 0; i < count && available.length > 0; i++) {
-		const index = Math.floor(Math.random() * available.length);
-		const school = available[index];
-		if (school) {
-			selected.push(school);
-		}
-		available.splice(index, 1);
-	}
+  for (let i = 0; i < count && available.length > 0; i++) {
+    const index = Math.floor(Math.random() * available.length);
+    const school = available[index];
+    if (school) {
+      selected.push(school);
+    }
+    available.splice(index, 1);
+  }
 
-	return selected;
+  return selected;
 }
 
 //============================================
 // Fisher-Yates shuffle to randomize array in-place
 function shuffleArray<T>(array: T[]): void {
-	for (let i = array.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		const temp = array[i]!; // index i guaranteed in bounds by loop condition
-		array[i] = array[j]!; // index j guaranteed in bounds by random range
-		array[j] = temp;
-	}
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = array[i]!; // index i guaranteed in bounds by loop condition
+    array[i] = array[j]!; // index j guaranteed in bounds by random range
+    array[j] = temp;
+  }
 }

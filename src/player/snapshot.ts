@@ -5,7 +5,7 @@
 // interface in src/player.ts; the alias exists so save/load and history paths
 // have a stable name even after `Player` is narrowed in M3.
 
-import type { Player } from '../player.js';
+import type { Player } from "../player.js";
 
 //============================================
 export type PlayerSnapshot = Player;

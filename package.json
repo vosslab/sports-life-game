@@ -1,33 +1,41 @@
 {
 	"name": "sports-life-game",
 	"description": "A BitLife-style American football career simulator",
+	"private": true,
 	"type": "module",
 	"scripts": {
 		"typecheck": "tsc --noEmit -p tsconfig.json",
 		"typecheck:lint": "tsc --noEmit -p tsconfig.lint.json",
-		"format:check": "prettier --check .",
-		"format:write": "prettier --write .",
+		"format:check": "npx prettier --check '**/*.{ts,tsx,mts,cts,js,mjs,cjs}'",
+		"format:write": "npx prettier --write '**/*.{ts,tsx,mts,cts,js,mjs,cjs}'",
 		"lint": "eslint .",
 		"test:node": "NODE_OPTIONS=--disable-warning=DEP0205 node --import tsx --import ./tests/fixtures/csv_loader.mjs --test 'tests/test_*.ts'",
 		"test:playwright": "node tests/playwright/autoplay.mjs",
 		"build": "./build_github_pages.sh",
 		"serve": "./run_web_server.sh",
 		"check": "./check_codebase.sh",
-		"clean": "./dist_clean.sh",
-		"dev": "esbuild src/main.ts --bundle --format=esm --target=es2020 --sourcemap --loader:.csv=text --loader:.json=json --outfile=dist/main.js --watch"
+		"clean": "./devel/clean_build.sh",
+		"dev": "esbuild src/main.ts --bundle --format=esm --target=es2020 --sourcemap --loader:.csv=text --loader:.json=json --outfile=dist/main.js --watch",
+		"setup": "./devel/setup_typescript.sh",
+		"setup:playwright": "./devel/setup_playwright.sh"
 	},
 	"devDependencies": {
 		"@eslint/js": ">=10.0.1",
-		"@playwright/test": ">=1.61.0",
-		"@types/node": ">=25.9.3",
+		"@playwright/test": ">=1.61.1",
+		"@types/node": ">=26.1.0",
 		"esbuild": ">=0.28.1",
-		"eslint": ">=10.5.0",
-		"globals": ">=17.6.0",
-		"playwright": ">=1.61.0",
-		"prettier": ">=3.8.4",
+		"eslint": ">=10.6.0",
+		"globals": ">=17.7.0",
+		"playwright": ">=1.61.1",
+		"prettier": ">=3.9.4",
 		"tsx": ">=4.22.4",
 		"typescript": ">=6.0.3",
-		"typescript-eslint": ">=8.61.1"
+		"typescript-eslint": ">=8.62.1"
+	},
+	"allowScripts": {
+		"esbuild@0.28.1": true,
+		"fsevents@2.3.2": true,
+		"fsevents@2.3.3": true
 	},
 	"license": "GPL-3.0",
 	"version": "1.0.0",
