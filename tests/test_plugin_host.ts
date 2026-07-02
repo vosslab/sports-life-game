@@ -467,8 +467,8 @@ void test("plugin_host: UI tab registry register, duplicate rejection, clear", (
   const testTab = {
     tabId: "test_tab",
     label: "Test Tab",
-    availableInPhase: () => true,
-    render: () => {},
+    availableInPhase: (): boolean => true,
+    render: (): void => {},
   };
 
   host.ui.registerTab(testTab);
@@ -482,8 +482,8 @@ void test("plugin_host: UI tab registry register, duplicate rejection, clear", (
   const dupTab = {
     tabId: "test_tab",
     label: "Duplicate Tab",
-    availableInPhase: () => true,
-    render: () => {},
+    availableInPhase: (): boolean => true,
+    render: (): void => {},
   };
 
   let threw = false;
@@ -508,8 +508,8 @@ void test("plugin_host: UI panel registry register, duplicate rejection, clear",
   const testPanel = {
     panelId: "test_panel",
     label: "Test Panel",
-    availableInPhase: () => true,
-    render: () => {},
+    availableInPhase: (): boolean => true,
+    render: (): void => {},
   };
 
   host.ui.registerPanel(testPanel);
@@ -523,8 +523,8 @@ void test("plugin_host: UI panel registry register, duplicate rejection, clear",
   const dupPanel = {
     panelId: "test_panel",
     label: "Duplicate Panel",
-    availableInPhase: () => true,
-    render: () => {},
+    availableInPhase: (): boolean => true,
+    render: (): void => {},
   };
 
   let threw = false;
@@ -548,8 +548,8 @@ void test("plugin_host: UI widget registry register, duplicate rejection, clear"
 
   const testWidget = {
     widgetId: "test_widget",
-    availableInPhase: () => true,
-    render: () => {},
+    availableInPhase: (): boolean => true,
+    render: (): void => {},
   };
 
   host.ui.registerWidget(testWidget);
@@ -562,8 +562,8 @@ void test("plugin_host: UI widget registry register, duplicate rejection, clear"
   // Test duplicate rejection
   const dupWidget = {
     widgetId: "test_widget",
-    availableInPhase: () => true,
-    render: () => {},
+    availableInPhase: (): boolean => true,
+    render: (): void => {},
   };
 
   let threw = false;
@@ -656,7 +656,7 @@ void test("plugin_host: data pack routes sub-items to sub-registries", () => {
       {
         id: "routing_test_hook",
         age: 17,
-        fire: () => {},
+        fire: (): void => {},
       },
     ],
   };

@@ -55,7 +55,7 @@ export function startNewGameFlow(ctx: CharacterCreationContext): void {
   lastInput.autocomplete = "off";
   panel.appendChild(lastInput);
 
-  const rand = () => Math.floor(Math.random() * 1000000);
+  const rand = (): number => Math.floor(Math.random() * 1000000);
   const fIdx1 = rand() % ctx.firstNames.length;
   const lIdx1 = rand() % ctx.lastNames.length;
   firstInput.value = ctx.firstNames[fIdx1]!; // index guaranteed in bounds by modulo

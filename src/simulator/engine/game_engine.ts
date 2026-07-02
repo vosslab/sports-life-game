@@ -336,7 +336,7 @@ function computeRunoff(state: GameState, outcome: PlayOutcome, rules: LeagueRule
 
   // Spike and kneel
   if (outcome.play_type === "spike") {
-    return Math.round(1 * scale);
+    return Math.round(scale);
   }
   if (outcome.play_type === "kneel") {
     return Math.round(40 * scale);

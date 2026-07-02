@@ -86,7 +86,7 @@ export const nflRookieHandler: YearHandler = {
       {
         text: "Start Season",
         primary: true,
-        action: () => {
+        action: (): void => {
           startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
         },
       },
@@ -109,7 +109,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Hire a personal trainer for the offseason",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "athleticism", 3);
         modifyStat(player, "technique", 1);
         player.career.money = Math.max(0, player.career.money - 100000);
@@ -121,7 +121,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Study the playbook obsessively",
       primary: true,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "footballIq", 4);
         modifyStat(player, "technique", 2);
         ctx.addText(`${player.firstName} becomes a film room expert this offseason.`);
@@ -132,7 +132,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Enjoy the money and relax",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "confidence", 3);
         modifyStat(player, "health", 2);
         modifyStat(player, "discipline", -2);

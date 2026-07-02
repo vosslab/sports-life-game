@@ -94,31 +94,31 @@ function refreshDashboard(): void {
 
 function buildCareerContext(): void {
   careerCtx = {
-    getPlayer: () => currentPlayer as Player,
+    getPlayer: (): Player => currentPlayer as Player,
     events: allEvents,
     ncaaSchools,
-    clearStory: () => {},
-    addHeadline: (text) => addStoryHeadline(text),
-    addText: (text) => addStoryText(text),
-    addResult: (text) => ui.addResult(text),
-    showChoices: (options) => ui.showChoices(options),
-    waitForInteraction: (title, options) => ui.waitForInteraction(title, options),
-    save: () => {
+    clearStory: (): void => {},
+    addHeadline: (text): void => addStoryHeadline(text),
+    addText: (text): void => addStoryText(text),
+    addResult: (text): void => ui.addResult(text),
+    showChoices: (options): void => ui.showChoices(options),
+    waitForInteraction: (title, options): void => ui.waitForInteraction(title, options),
+    save: (): void => {
       if (currentPlayer) saveGame(currentPlayer);
     },
-    updateStats: (player) => {
+    updateStats: (player): void => {
       ui.updateAllStats(player);
       refreshDashboard();
     },
-    updateHeader: (player) => {
+    updateHeader: (player): void => {
       ui.updateHeader(player);
       refreshDashboard();
     },
-    addStatChange: (text) => ui.addStatChange(text),
-    updateLifeStatus: (record, nextOpponent, extraStatus) =>
+    addStatChange: (text): void => ui.addStatChange(text),
+    updateLifeStatus: (record, nextOpponent, extraStatus): void =>
       ui.updateLifeStatus(record, nextOpponent, extraStatus),
-    formatStatLine: (statLine) => ui.formatStatLine(statLine),
-    renderActivitiesTab: (payload) =>
+    formatStatLine: (statLine): string => ui.formatStatLine(statLine),
+    renderActivitiesTab: (payload): void =>
       ui.renderActivitiesTab(
         payload.activities as Activity[],
         payload.weekState,
@@ -127,13 +127,13 @@ function buildCareerContext(): void {
         payload.onSelect,
         payload.goalInfo,
       ),
-    hideMainActionBar: () => ui.hideMainActionBar(),
-    showMainActionBar: () => ui.showMainActionBar(),
-    configureMainButtons: (config) => ui.configureMainButtons(config),
-    switchToLifeTab: () => switchTab("life"),
-    hideTabBar: () => hideTabBar(),
-    showTabBar: () => showTabBar(),
-    syncTabsToPhase: (phase) => syncTabsToPhase(phase),
+    hideMainActionBar: (): void => ui.hideMainActionBar(),
+    showMainActionBar: (): void => ui.showMainActionBar(),
+    configureMainButtons: (config): void => ui.configureMainButtons(config),
+    switchToLifeTab: (): void => switchTab("life"),
+    hideTabBar: (): void => hideTabBar(),
+    showTabBar: (): void => showTabBar(),
+    syncTabsToPhase: (phase): void => syncTabsToPhase(phase),
   };
   setCurrentCareerContext(careerCtx);
 }
@@ -204,7 +204,7 @@ function resumeGame(): void {
       {
         text: "Continue",
         primary: true,
-        action: () => {
+        action: (): void => {
           if (currentPlayer && careerCtx) startYear(currentPlayer, careerCtx);
         },
       },
@@ -295,7 +295,7 @@ async function initGame(): Promise<void> {
         {
           text: "Start New Game",
           primary: false,
-          action: () => {
+          action: (): void => {
             clearStory();
             addStoryHeadline("Start Over?");
             addStoryText("This will erase your current career. Are you sure?");
@@ -303,7 +303,7 @@ async function initGame(): Promise<void> {
               {
                 text: "Yes, Start Fresh",
                 primary: true,
-                action: () => {
+                action: (): void => {
                   deleteSave();
                   currentPlayer = null;
                   hardClearStory();
@@ -313,7 +313,7 @@ async function initGame(): Promise<void> {
               {
                 text: "Go Back",
                 primary: false,
-                action: () => {
+                action: (): void => {
                   void initGame();
                 },
               },
@@ -334,7 +334,7 @@ async function initGame(): Promise<void> {
     {
       text: "Start New Game",
       primary: true,
-      action: () => offerNewGame(firstNames, lastNames),
+      action: (): void => offerNewGame(firstNames, lastNames),
     },
   ]);
 }

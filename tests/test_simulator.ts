@@ -25,7 +25,7 @@ import { buildClutchMoment, resolveClutchMoment } from "../src/clutch/index.js";
 
 //============================================
 // Build a deterministic player + team for the simulator harness.
-function makeStarterRb() {
+function makeStarterRb(): ReturnType<typeof createPlayer> {
   const player = createPlayer("Test", "Player");
   player.position = "RB";
   player.positionBucket = "runner_receiver";

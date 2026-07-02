@@ -30,6 +30,6 @@ function renderNflCareerPanel(ctx: GameContext): void {
 export const nflCareerPanel = {
   panelId: "nfl_career",
   label: "Career",
-  availableInPhase: (phase: string) => phase === "nfl",
+  availableInPhase: (phase: string): boolean => phase === "nfl",
   render: renderNflCareerPanel,
 };

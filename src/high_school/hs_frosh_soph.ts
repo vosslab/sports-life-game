@@ -75,7 +75,7 @@ export const hsFroshSophHandler: YearHandler = {
       {
         text: "Start Season",
         primary: true,
-        action: () => {
+        action: (): void => {
           startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
         },
       },
@@ -98,7 +98,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Continue to Next Year",
       primary: true,
-      action: () => advanceToNextYear(player, ctx),
+      action: (): void => advanceToNextYear(player, ctx),
     },
   ]);
 }

@@ -58,7 +58,7 @@ export const collegeSeniorHandler: YearHandler = {
         {
           text: "Return for 5th Year",
           primary: false,
-          action: () => {
+          action: (): void => {
             player.collegeYear = 5;
             ctx.addText("You are returning for your fifth year to develop further.");
             advanceToNextYear(player, ctx);
@@ -67,7 +67,7 @@ export const collegeSeniorHandler: YearHandler = {
         {
           text: "Graduate and Declare for Draft",
           primary: true,
-          action: () => {
+          action: (): void => {
             player.collegeYear = 4;
             startNormalSeniorYear(player, ctx);
           },
@@ -108,7 +108,7 @@ function startNormalSeniorYear(player: Player, ctx: CareerContext): void {
     {
       text: "Start Season",
       primary: true,
-      action: () => {
+      action: (): void => {
         startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
       },
     },
@@ -126,7 +126,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Crush the combine with elite athleticism",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "athleticism", 2);
         player.draftStock = clampStat(player.draftStock + 5);
         ctx.addText(`${player.firstName} dominates the combine with elite athletic performance.`);
@@ -138,7 +138,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Impress scouts with football IQ at Pro Day",
       primary: true,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "footballIq", 3);
         player.draftStock = clampStat(player.draftStock + 3);
         ctx.addText(`${player.firstName} impresses scouts with exceptional football intelligence.`);
@@ -150,7 +150,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Let your game tape speak for itself",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "confidence", 3);
         player.draftStock = clampStat(player.draftStock + 2);
         ctx.addText(`${player.firstName} relies on film tape to make the case to scouts.`);

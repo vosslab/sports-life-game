@@ -61,7 +61,7 @@ export function runJucoYear(player: Player, ctx: CareerContext): void {
     {
       text: "Start Season",
       primary: true,
-      action: () => {
+      action: (): void => {
         startSeason(player, ctx, JUCO_SEASON_CONFIG, season, () =>
           handleJucoSeasonEnd(player, ctx),
         );
@@ -164,7 +164,7 @@ function showPostgradOffers(player: Player, ctx: CareerContext): void {
     return {
       text: `${schoolName} (${divLabel}${scholarshipLabel})`,
       primary: false,
-      action: () => {
+      action: (): void => {
         player.teamName = schoolName;
         // Clear recruiting flag to prevent HS recruiting events in college
         delete player.storyFlags["hs_varsity"];

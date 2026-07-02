@@ -68,7 +68,7 @@ export const collegeCoreHandler: YearHandler = {
       {
         text: "Start Season",
         primary: true,
-        action: () => {
+        action: (): void => {
           startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
         },
       },
@@ -95,7 +95,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
         {
           text: "Declare for NFL Draft",
           primary: true,
-          action: () => {
+          action: (): void => {
             ctx.addHeadline("Declaring for NFL Draft");
             ctx.addText(`${player.firstName} announces they are declaring for the NFL Draft.`);
             ctx.addText("Time to prepare for the combine and pro day.");
@@ -106,7 +106,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
         {
           text: "Train with a speed coach",
           primary: false,
-          action: () => {
+          action: (): void => {
             modifyStat(player, "athleticism", 3);
             modifyStat(player, "health", -1);
             ctx.addText(`${player.firstName} works intensively with a speed coach.`);
@@ -117,7 +117,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
         {
           text: "Work on football film all summer",
           primary: false,
-          action: () => {
+          action: (): void => {
             modifyStat(player, "footballIq", 3);
             modifyStat(player, "technique", 1);
             ctx.addText(`${player.firstName} studies film and refines technique.`);
@@ -128,7 +128,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
         {
           text: "Get bigger in the weight room",
           primary: false,
-          action: () => {
+          action: (): void => {
             modifyStat(player, "technique", 2);
             modifyStat(player, "athleticism", 1);
             modifyStat(player, "health", 1);
@@ -148,7 +148,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Train with a speed coach",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "athleticism", 3);
         modifyStat(player, "health", -1);
         ctx.addText(`${player.firstName} works intensively with a speed coach.`);
@@ -159,7 +159,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Work on football film all summer",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "footballIq", 3);
         modifyStat(player, "technique", 1);
         ctx.addText(`${player.firstName} studies film and refines technique.`);
@@ -170,7 +170,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Get bigger in the weight room",
       primary: true,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "technique", 2);
         modifyStat(player, "athleticism", 1);
         modifyStat(player, "health", 1);

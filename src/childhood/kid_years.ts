@@ -199,7 +199,7 @@ function presentEvent(
   const choiceButtons = event.choices.map((choice) => ({
     text: choice.text,
     primary: false,
-    action: () => {
+    action: (): void => {
       // Show what the player chose, then apply effects
       ctx.addText(`> ${choice.text}`);
       const flavor = applyEventChoice(player, choice);
@@ -237,7 +237,7 @@ function showContinue(player: Player, ctx: CareerContext): void {
     {
       text: "Continue",
       primary: true,
-      action: () => advanceToNextYear(player, ctx),
+      action: (): void => advanceToNextYear(player, ctx),
     },
   ]);
 }

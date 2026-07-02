@@ -71,33 +71,33 @@ function createTestGameContext(): CareerContext {
     getPlayer: () => createTestCollegePlayer(),
     events: [],
     ncaaSchools: { fbs: [], fcs: [] },
-    clearStory: () => {
+    clearStory: (): void => {
       headlines.length = 0;
       texts.length = 0;
     },
-    addHeadline: (text) => {
+    addHeadline: (text): void => {
       headlines.push(text);
     },
-    addText: (text) => {
+    addText: (text): void => {
       texts.push(text);
     },
-    addResult: () => {},
-    showChoices: () => {},
-    waitForInteraction: () => {},
-    save: () => {},
-    updateStats: () => {},
-    updateHeader: () => {},
-    addStatChange: () => {},
-    updateLifeStatus: () => {},
+    addResult: (): void => {},
+    showChoices: (): void => {},
+    waitForInteraction: (): void => {},
+    save: (): void => {},
+    updateStats: (): void => {},
+    updateHeader: (): void => {},
+    addStatChange: (): void => {},
+    updateLifeStatus: (): void => {},
     formatStatLine: (stat) => `${stat.label}: ${stat.value}`,
-    renderActivitiesTab: () => {},
-    hideMainActionBar: () => {},
-    showMainActionBar: () => {},
-    configureMainButtons: () => {},
-    switchToLifeTab: () => {},
-    hideTabBar: () => {},
-    showTabBar: () => {},
-    syncTabsToPhase: () => {},
+    renderActivitiesTab: (): void => {},
+    hideMainActionBar: (): void => {},
+    showMainActionBar: (): void => {},
+    configureMainButtons: (): void => {},
+    switchToLifeTab: (): void => {},
+    hideTabBar: (): void => {},
+    showTabBar: (): void => {},
+    syncTabsToPhase: (): void => {},
   };
 }
 

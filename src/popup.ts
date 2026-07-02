@@ -249,7 +249,7 @@ export function initMainActionBar(): void {
           {
             text: "Simulate Year",
             primary: true,
-            action: () => {
+            action: (): void => {
               if (onAgeUpCallback) {
                 onAgeUpCallback();
               }
@@ -257,7 +257,7 @@ export function initMainActionBar(): void {
           },
           {
             text: "Cancel",
-            action: () => {
+            action: (): void => {
               // Popup auto-closes via hideInteractionPopup
             },
           },

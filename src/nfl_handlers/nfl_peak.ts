@@ -61,7 +61,7 @@ export const nflPeakHandler: YearHandler = {
       {
         text: "Start Season",
         primary: true,
-        action: () => {
+        action: (): void => {
           startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
         },
       },
@@ -84,7 +84,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Chase a ring - recruit free agents to your team",
       primary: false,
-      action: () => {
+      action: (): void => {
         player.hidden.leadership = clampStat(player.hidden.leadership + 3);
         modifyStat(player, "confidence", 2);
         ctx.addText(`${player.firstName} uses star power to recruit elite teammates.`);
@@ -95,7 +95,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Sign a massive endorsement deal",
       primary: true,
-      action: () => {
+      action: (): void => {
         player.career.money += 5000000;
         player.career.popularity = clampStat(player.career.popularity + 5);
         modifyStat(player, "discipline", -2);
@@ -109,7 +109,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Give back - start a foundation",
       primary: false,
-      action: () => {
+      action: (): void => {
         player.hidden.leadership = clampStat(player.hidden.leadership + 4);
         player.career.popularity = clampStat(player.career.popularity + 3);
         modifyStat(player, "confidence", 2);

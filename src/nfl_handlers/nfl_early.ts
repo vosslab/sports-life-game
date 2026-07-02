@@ -61,7 +61,7 @@ export const nflEarlyHandler: YearHandler = {
       {
         text: "Start Season",
         primary: true,
-        action: () => {
+        action: (): void => {
           startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
         },
       },
@@ -84,7 +84,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Push for a contract extension",
       primary: false,
-      action: () => {
+      action: (): void => {
         player.career.money += 2000000;
         modifyStat(player, "confidence", 2);
         ctx.addText(`${player.firstName} negotiates a $2M offseason bonus extension.`);
@@ -95,7 +95,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Focus on becoming a team leader",
       primary: true,
-      action: () => {
+      action: (): void => {
         player.hidden.leadership = clampStat(player.hidden.leadership + 4);
         modifyStat(player, "discipline", 2);
         ctx.addText(`${player.firstName} takes on a leadership role for the team.`);
@@ -106,7 +106,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Train at a position-specific camp",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "technique", 3);
         modifyStat(player, "athleticism", 1);
         ctx.addText(`${player.firstName} refines position-specific skills at elite camps.`);

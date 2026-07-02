@@ -75,7 +75,7 @@ export const collegeEntryHandler: YearHandler = {
         {
           text: "Continue to Sophomore Year",
           primary: true,
-          action: () => {
+          action: (): void => {
             player.eligibilityYears = 5; // extra year from redshirt
             advanceToNextYear(player, ctx);
           },
@@ -101,7 +101,7 @@ export const collegeEntryHandler: YearHandler = {
         {
           text: "Start Season",
           primary: true,
-          action: () => {
+          action: (): void => {
             startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
           },
         },
@@ -122,7 +122,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Hit the transfer portal",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "confidence", 3);
         modifyStat(player, "discipline", -2);
         ctx.addText(`${player.firstName} enters the transfer portal seeking a better opportunity.`);
@@ -178,7 +178,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Stay and compete for your spot",
       primary: true,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "discipline", 3);
         modifyStat(player, "technique", 2);
         ctx.addText(
@@ -191,7 +191,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Focus on academics this summer",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "footballIq", 3);
         modifyStat(player, "discipline", 2);
         ctx.addText(`${player.firstName} hits the books and film room this summer.`);

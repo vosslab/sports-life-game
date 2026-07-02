@@ -94,7 +94,7 @@ function presentEventThenContinue(player: Player, ctx: CareerContext, event: Gam
   const choiceButtons = event.choices.map((choice) => ({
     text: choice.text,
     primary: false,
-    action: () => {
+    action: (): void => {
       ctx.addText(`> ${choice.text}`);
       const flavor = applyEventChoice(player, choice);
       ctx.addResult(flavor);
@@ -114,7 +114,7 @@ function showContinue(player: Player, ctx: CareerContext): void {
     {
       text: "Continue to Next Year",
       primary: true,
-      action: () => advanceToNextYear(player, ctx),
+      action: (): void => advanceToNextYear(player, ctx),
     },
   ]);
 }

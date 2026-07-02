@@ -50,7 +50,7 @@ export function showGoalSelection(
     text: `${goal.name} (${goal.effectHint})`,
     description: goal.description,
     primary: goal.key === player.seasonGoal,
-    action: () => {
+    action: (): void => {
       player.seasonGoal = goal.key;
       ctx.addText(`Season goal set: ${goal.name}.`);
       ctx.save();
@@ -149,7 +149,7 @@ export function showWeeklyChoices(player: Player, ctx: CareerContext, arcPhase: 
   const choiceOptions = choices.map((choice) => ({
     text: choice.text,
     description: `${choice.description} (${choice.risk})`,
-    action: () => {
+    action: (): void => {
       const result = resolveChoice(player, choice);
       ctx.addText(result.narrative);
       ctx.updateStats(player);
@@ -185,7 +185,7 @@ export function showCrisisResponse(player: Player, ctx: CareerContext): void {
   const responseOptions = responses.map((response) => ({
     text: response.text,
     description: response.risk,
-    action: () => {
+    action: (): void => {
       const narrative = resolveCrisisResponse(player, player.activeCrisis!, response.id);
       ctx.addText(narrative);
       ctx.updateStats(player);
@@ -227,7 +227,7 @@ export function showActivities(player: Player, ctx: CareerContext): void {
       ? {
           goals,
           currentGoal: player.seasonGoal,
-          onGoalChange: (newGoal: SeasonGoal) => {
+          onGoalChange: (newGoal: SeasonGoal): void => {
             player.seasonGoal = newGoal;
             ctx.save();
             // Re-render to update the goal description
@@ -240,9 +240,9 @@ export function showActivities(player: Player, ctx: CareerContext): void {
   const payload = {
     activities,
     weekState: activeEngine ? activeEngine.weekState : createWeekState(),
-    isUnlocked: (activity: Activity) => isActivityUnlocked(activity, player),
-    effectPreview: (activity: Activity) => getEffectPreview(activity),
-    onSelect: (activity: Activity) => handleActivitySelected(player, ctx, activity),
+    isUnlocked: (activity: Activity): boolean => isActivityUnlocked(activity, player),
+    effectPreview: (activity: Activity): string => getEffectPreview(activity),
+    onSelect: (activity: Activity): void => handleActivitySelected(player, ctx, activity),
     ...(goalInfoParam && { goalInfo: goalInfoParam }),
   };
   ctx.renderActivitiesTab(payload);
@@ -382,7 +382,7 @@ export function showEventCard(player: Player, ctx: CareerContext, event: GameEve
 
   const choiceActions = event.choices.map((choice) => ({
     text: choice.text,
-    action: () => {
+    action: (): void => {
       const flavor = applyEventChoice(player, choice);
       ctx.showTabBar();
 

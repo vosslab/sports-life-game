@@ -36,7 +36,7 @@ export function showRetirement(ctx: RetirementContext): void {
     {
       text: "View Legacy",
       primary: true,
-      action: () => {
+      action: (): void => {
         const player = ctx.player;
         player.phase = "legacy";
 
@@ -77,7 +77,7 @@ export function showRetirement(ctx: RetirementContext): void {
           {
             text: "Start a New Career",
             primary: true,
-            action: () => {
+            action: (): void => {
               ctx.deleteSave();
               ctx.hardClearStory();
               ctx.onRestart();

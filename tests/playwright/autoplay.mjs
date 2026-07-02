@@ -288,7 +288,6 @@ async function main() {
   let stuckCount = 0;
   let lastFingerprint = "";
   let sameStateCount = 0;
-  let currentAge = -1;
 
   // Main game loop
   while (Date.now() - startTime < MAX_GAME_TIME) {
@@ -303,7 +302,6 @@ async function main() {
 
     // Check for end conditions
     const age = await getPlayerAge(page);
-    currentAge = age;
     const storyText = await page.locator("#story-log").textContent();
 
     // Log phase transitions
@@ -336,7 +334,7 @@ async function main() {
     }
 
     let acted = false;
-    const entry = getAgeEntry(currentAge);
+    const entry = getAgeEntry(age);
 
     // Priority 1: Modal is showing - click first button
     if (await isModalVisible(page)) {

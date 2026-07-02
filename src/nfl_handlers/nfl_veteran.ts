@@ -65,7 +65,7 @@ export const nflVeteranHandler: YearHandler = {
       {
         text: "Start Season",
         primary: true,
-        action: () => {
+        action: (): void => {
           player.nflYear += 1;
           startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
         },
@@ -73,7 +73,7 @@ export const nflVeteranHandler: YearHandler = {
       {
         text: "Retire",
         primary: false,
-        action: () => {
+        action: (): void => {
           ctx.addHeadline("Retirement");
           ctx.addText(
             `${player.firstName} announces retirement after ${player.nflYear} NFL seasons.`,
@@ -104,7 +104,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Mentor the young guys",
       primary: true,
-      action: () => {
+      action: (): void => {
         player.hidden.leadership = clampStat(player.hidden.leadership + 5);
         player.career.popularity = clampStat(player.career.popularity + 2);
         modifyStat(player, "athleticism", -1);
@@ -116,7 +116,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Switch to a contending team",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "confidence", 3);
         modifyStat(player, "athleticism", 1);
         player.career.popularity = clampStat(player.career.popularity - 2);
@@ -128,7 +128,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Restructure your contract to help the team",
       primary: false,
-      action: () => {
+      action: (): void => {
         player.hidden.leadership = clampStat(player.hidden.leadership + 3);
         player.career.money = Math.max(0, player.career.money - 1000000);
         modifyStat(player, "discipline", 2);

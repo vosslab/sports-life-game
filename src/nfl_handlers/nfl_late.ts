@@ -75,7 +75,7 @@ export const nflLateHandler: YearHandler = {
       {
         text: "Play One More Season",
         primary: true,
-        action: () => {
+        action: (): void => {
           player.nflYear += 1;
           startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
         },
@@ -83,7 +83,7 @@ export const nflLateHandler: YearHandler = {
       {
         text: "Retire",
         primary: false,
-        action: () => {
+        action: (): void => {
           ctx.addHeadline("Retirement");
           ctx.addText(
             `${player.firstName} announces retirement after ${player.nflYear} NFL seasons.`,
@@ -123,7 +123,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "Embrace the farewell tour",
       primary: true,
-      action: () => {
+      action: (): void => {
         player.career.popularity = clampStat(player.career.popularity + 5);
         modifyStat(player, "confidence", 3);
         ctx.addText(`${player.firstName} embraces the farewell tour with fans.`);
@@ -134,7 +134,7 @@ function handleSeasonEnd(player: Player, ctx: CareerContext): void {
     {
       text: "No fanfare, just compete",
       primary: false,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "discipline", 3);
         modifyStat(player, "technique", 1);
         modifyStat(player, "confidence", 1);

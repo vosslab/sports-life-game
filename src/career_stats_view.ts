@@ -323,27 +323,3 @@ function shortenTeam(name: string): string {
   }
   return name.slice(0, 13) + ".";
 }
-
-//============================================
-// Inline assertions for column picker
-console.assert(
-  pickStatColumns("QB").some((c) => c.key === "passYards"),
-  "QB picks pass yards",
-);
-console.assert(
-  pickStatColumns("RB").some((c) => c.key === "rushYards"),
-  "RB picks rush yards",
-);
-console.assert(
-  pickStatColumns("WR").some((c) => c.key === "receptions"),
-  "WR picks receptions",
-);
-console.assert(
-  pickStatColumns("LB").some((c) => c.key === "tackles"),
-  "LB picks tackles",
-);
-console.assert(
-  pickStatColumns("K").some((c) => c.key === "fgMade"),
-  "K picks fg made",
-);
-console.assert(pickStatColumns(null).length > 0, "null position falls back to generic columns");

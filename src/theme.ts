@@ -302,7 +302,7 @@ export function hslToHex(h: number, s: number, l: number): string {
     // Achromatic (gray)
     r = g = b = lNorm;
   } else {
-    const hue2rgb = (p: number, q: number, t: number) => {
+    const hue2rgb = (p: number, q: number, t: number): number => {
       if (t < 0) t += 1;
       if (t > 1) t -= 1;
       if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -318,7 +318,7 @@ export function hslToHex(h: number, s: number, l: number): string {
     b = hue2rgb(p, q, hNorm - 1 / 3);
   }
 
-  const toHex = (x: number) => {
+  const toHex = (x: number): string => {
     const hex = Math.round(x * 255).toString(16);
     return hex.length === 1 ? "0" + hex : hex;
   };

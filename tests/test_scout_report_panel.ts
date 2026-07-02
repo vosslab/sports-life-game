@@ -112,8 +112,8 @@ void test("scout_report: panel renders with college player (has draft stock)", (
   // Create a mock DOM environment with career-content
   const originalDoc = globalThis.document;
   const mockContainer = {
-    querySelector: () => null,
-    appendChild: () => {},
+    querySelector: (): null => null,
+    appendChild: (): void => {},
     children: [] as Element[],
     id: "career-content",
   };
@@ -129,10 +129,10 @@ void test("scout_report: panel renders with college player (has draft stock)", (
       className: "",
       style: {},
       textContent: "",
-      appendChild: () => {},
-      remove: () => {},
-      setAttribute: () => {},
-      getAttribute: () => null,
+      appendChild: (): void => {},
+      remove: (): void => {},
+      setAttribute: (): void => {},
+      getAttribute: (): null => null,
       id: "",
     }),
   } as unknown as Document;
@@ -170,8 +170,8 @@ void test("scout_report: panel renders with nfl player (has draft stock)", () =>
   // Create a mock DOM environment with career-content
   const originalDoc = globalThis.document;
   const mockContainer = {
-    querySelector: () => null,
-    appendChild: () => {},
+    querySelector: (): null => null,
+    appendChild: (): void => {},
     children: [] as Element[],
     id: "career-content",
   };
@@ -187,10 +187,10 @@ void test("scout_report: panel renders with nfl player (has draft stock)", () =>
       className: "",
       style: {},
       textContent: "",
-      appendChild: () => {},
-      remove: () => {},
-      setAttribute: () => {},
-      getAttribute: () => null,
+      appendChild: (): void => {},
+      remove: (): void => {},
+      setAttribute: (): void => {},
+      getAttribute: (): null => null,
       id: "",
     }),
   } as unknown as Document;

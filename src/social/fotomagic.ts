@@ -255,7 +255,7 @@ export function maybePromptShareAfterGame(
       {
         text: "Post",
         primary: true,
-        action: () => {
+        action: (): void => {
           addPost(player, draftPost);
           applyPostPopularity(player, kind);
           onContinue();
@@ -263,13 +263,13 @@ export function maybePromptShareAfterGame(
       },
       {
         text: "Skip",
-        action: () => {
+        action: (): void => {
           onContinue();
         },
       },
       {
         text: "Skip rest of season",
-        action: () => {
+        action: (): void => {
           if (!player.storyFlags) {
             player.storyFlags = {};
           }

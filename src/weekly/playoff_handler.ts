@@ -57,7 +57,7 @@ export function startPlayoffs(player: Player, ctx: CareerContext, bracket: Playo
     {
       text: "Play Game",
       primary: true,
-      action: () => {
+      action: (): void => {
         if (!activeEngine) {
           return;
         }
@@ -93,7 +93,7 @@ export function startPlayoffs(player: Player, ctx: CareerContext, bracket: Playo
           const clutchOptions = clutchMoment.choices.map((choice) => ({
             text: choice.label,
             description: choice.description,
-            action: () => {
+            action: (): void => {
               const resolution = resolveClutchMoment(
                 player,
                 clutchContext,
@@ -188,7 +188,7 @@ export function showPlayoffPostGame(
     {
       text: "Next Round",
       primary: true,
-      action: () => {
+      action: (): void => {
         startPlayoffs(player, ctx, bracket);
       },
     },

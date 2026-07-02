@@ -93,7 +93,7 @@ export function showWeeklyFocusUI(
     focusOptions.map((opt) => ({
       text: opt.text,
       primary: false,
-      action: () => onFocusSelected(opt.key),
+      action: (): void => onFocusSelected(opt.key),
     })),
     "What do you want to focus on this week?",
   );
@@ -161,7 +161,7 @@ function showActivitiesPrompt(phase: CareerPhase, onGameDay: () => void): void {
       {
         text: "Activities",
         primary: false,
-        action: () => {
+        action: (): void => {
           // Switch to Activities tab and refresh its content
           refreshActivitiesTab(phase, onGameDay);
           switchTab("activities");
@@ -170,7 +170,7 @@ function showActivitiesPrompt(phase: CareerPhase, onGameDay: () => void): void {
       {
         text: "Skip to Game Day",
         primary: true,
-        action: () => {
+        action: (): void => {
           // Skip activities, proceed to event check
           currentWeekState.phase = "activity_done";
           proceedToEventCheck(phase, onGameDay);
@@ -304,7 +304,7 @@ function showEventCard(event: GameEvent, onGameDay: () => void): void {
 
   const choiceActions = event.choices.map((choice) => ({
     text: choice.text,
-    action: () => {
+    action: (): void => {
       // Apply choice effects
       const flavor = applyEventChoice(player, choice);
       // Restore tab bar after modal closes

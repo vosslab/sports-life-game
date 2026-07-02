@@ -132,7 +132,7 @@ export function showSigningDay(player: Player, ctx: CareerContext, onDone: () =>
       text: schoolName,
       description: detailParts.filter((part) => part !== null).join("\n"),
       primary: projectedRole.depthChart === "starter",
-      action: () => {
+      action: (): void => {
         // Commit and sign
         if (school.isCommittable) {
           processCommitment(profile, school.schoolId);
@@ -280,7 +280,7 @@ function showCommitmentDecision(player: Player, ctx: CareerContext, onDone: () =
     {
       text: `Sign with ${schoolName}`,
       primary: true,
-      action: () => {
+      action: (): void => {
         processSigning(profile);
 
         const school = profile.schools.find((s) => s.schoolId === committedSchoolId);
@@ -306,7 +306,7 @@ function showCommitmentDecision(player: Player, ctx: CareerContext, onDone: () =
     {
       text: "Decommit and Reopen Recruitment",
       primary: false,
-      action: () => {
+      action: (): void => {
         processDecommitment(profile);
         ctx.addText(
           `${player.firstName} decommits from ${schoolName}.` +
@@ -348,7 +348,7 @@ export function showWalkOnOptions(player: Player, ctx: CareerContext, onDone: ()
     {
       text: `Walk on at ${walkOnName}`,
       primary: true,
-      action: () => {
+      action: (): void => {
         const offer: CollegeOffer = {
           collegeName: walkOnSchool.commonName,
           division: "FCS",
@@ -373,7 +373,7 @@ export function showWalkOnOptions(player: Player, ctx: CareerContext, onDone: ()
     {
       text: "JUCO for a Year",
       primary: false,
-      action: () => {
+      action: (): void => {
         profile.isJuco = true;
         profile.phase = "postgrad";
         ctx.addText(
@@ -389,7 +389,7 @@ export function showWalkOnOptions(player: Player, ctx: CareerContext, onDone: ()
     {
       text: "Prep School Year",
       primary: false,
-      action: () => {
+      action: (): void => {
         profile.isPrepSchool = true;
         profile.phase = "postgrad";
         ctx.addText(

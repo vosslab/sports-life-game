@@ -83,7 +83,7 @@ export const hsVarsityHandler: YearHandler = {
         {
           text: "Start Season",
           primary: true,
-          action: () => {
+          action: (): void => {
             startSeason(player, ctx, SEASON_CONFIG, season, () => handleSeasonEnd(player, ctx));
           },
         },

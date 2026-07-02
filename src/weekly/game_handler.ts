@@ -82,7 +82,7 @@ export function proceedToGame(player: Player, ctx: CareerContext): void {
     const clutchOptions = clutchMoment.choices.map((choice) => ({
       text: choice.label,
       description: choice.description,
-      action: () => {
+      action: (): void => {
         // Resolve the clutch moment and adjust score
         const resolution = resolveClutchMoment(
           player,

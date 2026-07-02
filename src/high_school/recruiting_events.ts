@@ -48,7 +48,7 @@ export function showJuniorPreseason(player: Player, ctx: CareerContext, onDone: 
     {
       text: "Attend Elite Camp",
       primary: false,
-      action: () => {
+      action: (): void => {
         // Camp performance roll
         const campScore =
           player.core.athleticism * 0.3 +
@@ -87,7 +87,7 @@ export function showJuniorPreseason(player: Player, ctx: CareerContext, onDone: 
     {
       text: "Build Highlight Reel",
       primary: false,
-      action: () => {
+      action: (): void => {
         // Advance film grade
         if (profile.filmGrade === "none") {
           profile.filmGrade = "serviceable";
@@ -118,7 +118,7 @@ export function showJuniorPreseason(player: Player, ctx: CareerContext, onDone: 
     {
       text: "Focus on Training",
       primary: true,
-      action: () => {
+      action: (): void => {
         modifyStat(player, "athleticism", 3);
         modifyStat(player, "technique", 2);
         modifyStat(player, "footballIq", 1);
