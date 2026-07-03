@@ -4,6 +4,8 @@ A BitLife-style American football career simulator. Play through a complete life
 from childhood to NFL retirement, making choices that shape your player's career,
 stats, and legacy. Built as a single-page browser game in TypeScript.
 
+Play it live: [vosslab.github.io/sports-life-game](https://vosslab.github.io/sports-life-game/)
+
 ## Quick start
 
 ```bash

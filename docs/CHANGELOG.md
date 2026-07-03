@@ -32,6 +32,7 @@
   `./devel/clean_build.sh`.
 - Started tracking `package-lock.json` (removed it from `.gitignore`) so this GitHub Pages repo
   carries a reproducible lockfile.
+- Added a "Play it live" GitHub Pages link near the top of README.md pointing to https://vosslab.github.io/sports-life-game/, so readers can launch the live app in one click.
 
 ### Removals and Deprecations
 
